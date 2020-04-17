@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE script:module PUBLIC "-//OpenOffice.org//DTD OfficeDocument 1.0//EN" "module.dtd">
+<script:module xmlns:script="http://openoffice.org/2000/script" script:name="OdtYw" script:language="StarBasic" script:moduleType="normal">REM  *****  BASIC  *****
+
+Sub Main
+
+	dim document   as object
+	dim dispatcher as object
+	dim DocPath as string
+	
+	On Error goto DontSave
+	
+	&apos; ----------------------------------------------------------------------
+	&apos; Save document in HTML format
+	&apos; ----------------------------------------------------------------------
+	document   = ThisComponent.CurrentController.Frame
+	dispatcher = createUnoService(&quot;com.sun.star.frame.DispatchHelper&quot;)
+	OdtPath = ThisComponent.getURL()
+	HtmlPath = REPLACE(OdtPath,&quot;.odt&quot;,&quot;.html&quot;)
+	&apos; Use path and name of input file -- just change file extension
+	
+	dim args1(1) as new com.sun.star.beans.PropertyValue
+	args1(0).Name = &quot;URL&quot;
+	args1(0).Value = HtmlPath
+	args1(1).Name = &quot;FilterName&quot;
+	args1(1).Value = &quot;HTML (StarWriter)&quot;
+	
+	dispatcher.executeDispatch(document, &quot;.uno:SaveAs&quot;, &quot;&quot;, 0, args1())
+	
+	&apos; ----------------------------------------------------------------------
+	&apos; Save document in OpenDocument format
+	&apos; ----------------------------------------------------------------------
+	args1(0).Value = OdtPath
+	args1(1).Value = &quot;writer8&quot;
+	dispatcher.executeDispatch(document, &quot;.uno:SaveAs&quot;, &quot;&quot;, 0, args1())
+	
+    Dim oScriptProvider, oScript
+    Dim aParams(0), aOutParamIndex(), aOutParam()
+    aParams(0) = HtmlPath
+
+    oScriptProvider = ThisComponent.getScriptProvider()
+    oScript = oScriptProvider.getScript(&quot;vnd.sun.star.script:saveyw7.py$run?language=Python&amp;location=user&quot;)
+    result = oScript.invoke(aParams(), aOutParamIndex(), aOutParam())
+    MsgBox(result)
+
+DontSave:
+
+end Sub
+
+</script:module>
