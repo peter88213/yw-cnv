@@ -1,7 +1,9 @@
-"""PyWriter v1.4 - Convert yw7 to odt. 
+"""Convert yw7 to odt ot csv. 
 
 Input file format: yw7
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
+
+Depends on the PyWriter library v1.5
 
 Copyright (c) 2020 Peter Triesberger.
 For further information see https://github.com/peter88213/PyWriter
@@ -9,16 +11,16 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 import sys
 
-from pywriter.model.odt_proof_writer import OdtProofWriter
-from pywriter.model.odt_manuscript_writer import OdtManuscriptWriter
-from pywriter.model.odt_scenedesc_writer import OdtSceneDescWriter
-from pywriter.model.odt_chapterdesc_writer import OdtChapterDescWriter
-from pywriter.model.odt_partdesc_writer import OdtPartDescWriter
-from pywriter.model.yw7file import Yw7File
+from pywriter.fileop.odt_proof_writer import OdtProofWriter
+from pywriter.fileop.odt_manuscript_writer import OdtManuscriptWriter
+from pywriter.fileop.odt_scenedesc_writer import OdtSceneDescWriter
+from pywriter.fileop.odt_chapterdesc_writer import OdtChapterDescWriter
+from pywriter.fileop.odt_partdesc_writer import OdtPartDescWriter
+from pywriter.fileop.yw7file import Yw7File
 from pywriter.converter.yw7cnv import Yw7Cnv
-from pywriter.model.scenelist import SceneList
+from pywriter.fileop.scenelist import SceneList
 from pywriter.plot.plotlist import PlotList
-from pywriter.model.odt_file_writer import OdtFileWriter
+from pywriter.fileop.odt_file_writer import OdtFileWriter
 
 
 def run(sourcePath, suffix):

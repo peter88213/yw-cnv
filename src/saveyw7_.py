@@ -1,6 +1,8 @@
-"""PyWriter v1.4 - Convert html to yw7. 
+"""Convert html or csv to yw7. 
 
 Input file format: html (with visible or invisible chapter and scene tags).
+
+Depends on the PyWriter library v1.5
 
 Copyright (c) 2020 Peter Triesberger.
 For further information see https://github.com/peter88213/PyWriter
@@ -9,13 +11,13 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
-from pywriter.model.html_proof_reader import HtmlProofReader
-from pywriter.model.html_manuscript_reader import HtmlManuscriptReader
-from pywriter.model.html_scenedesc_reader import HtmlSceneDescReader
-from pywriter.model.html_chapterdesc_reader import HtmlChapterDescReader
-from pywriter.model.yw7file import Yw7File
+from pywriter.fileop.html_proof_reader import HtmlProofReader
+from pywriter.fileop.html_manuscript_reader import HtmlManuscriptReader
+from pywriter.fileop.html_scenedesc_reader import HtmlSceneDescReader
+from pywriter.fileop.html_chapterdesc_reader import HtmlChapterDescReader
+from pywriter.fileop.yw7file import Yw7File
 from pywriter.converter.yw7cnv import Yw7Cnv
-from pywriter.model.scenelist import SceneList
+from pywriter.fileop.scenelist import SceneList
 from pywriter.plot.plotlist import PlotList
 
 
