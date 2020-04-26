@@ -11,56 +11,56 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 import sys
 
-from pywriter.fileop.odt_proof_writer import OdtProofWriter
-from pywriter.fileop.odt_manuscript_writer import OdtManuscriptWriter
-from pywriter.fileop.odt_scenedesc_writer import OdtSceneDescWriter
-from pywriter.fileop.odt_chapterdesc_writer import OdtChapterDescWriter
-from pywriter.fileop.odt_partdesc_writer import OdtPartDescWriter
-from pywriter.fileop.yw7file import Yw7File
+from pywriter.odt.odt_proof import OdtProof
+from pywriter.odt.odt_manuscript import OdtManuscript
+from pywriter.odt.odt_scenedesc import OdtSceneDesc
+from pywriter.odt.odt_chapterdesc import OdtChapterDesc
+from pywriter.odt.odt_partdesc import OdtPartDesc
+from pywriter.yw7.yw7_file import Yw7File
 from pywriter.converter.yw7cnv import Yw7Cnv
-from pywriter.fileop.scenelist import SceneList
-from pywriter.plot.plotlist import PlotList
-from pywriter.fileop.odt_file_writer import OdtFileWriter
+from pywriter.csv.csv_scenelist import CsvSceneList
+from pywriter.csv.csv_plotlist import CsvPlotList
+from pywriter.odt.odt_file import OdtFile
 
 
 def run(sourcePath, suffix):
 
     if suffix == '_proof':
         yw7File = Yw7File(sourcePath)
-        targetDoc = OdtProofWriter(
+        targetDoc = OdtProof(
             sourcePath.split('.yw7')[0] + suffix + '.odt')
 
     elif suffix == '_manuscript':
         yw7File = Yw7File(sourcePath)
-        targetDoc = OdtManuscriptWriter(
+        targetDoc = OdtManuscript(
             sourcePath.split('.yw7')[0] + suffix + '.odt')
 
     elif suffix == '_scenes':
         yw7File = Yw7File(sourcePath)
-        targetDoc = OdtSceneDescWriter(
+        targetDoc = OdtSceneDesc(
             sourcePath.split('.yw7')[0] + suffix + '.odt')
 
     elif suffix == '_chapters':
         yw7File = Yw7File(sourcePath)
-        targetDoc = OdtChapterDescWriter(
+        targetDoc = OdtChapterDesc(
             sourcePath.split('.yw7')[0] + suffix + '.odt')
 
     elif suffix == '_parts':
         yw7File = Yw7File(sourcePath)
-        targetDoc = OdtPartDescWriter(
+        targetDoc = OdtPartDesc(
             sourcePath.split('.yw7')[0] + suffix + '.odt')
 
     elif suffix == '_scenelist':
         yw7File = Yw7File(sourcePath)
-        targetDoc = SceneList(sourcePath.split('.yw7')[0] + suffix + '.csv')
+        targetDoc = CsvSceneList(sourcePath.split('.yw7')[0] + suffix + '.csv')
 
     elif suffix == '_plotlist':
         yw7File = Yw7File(sourcePath)
-        targetDoc = PlotList(sourcePath.split('.yw7')[0] + suffix + '.csv')
+        targetDoc = CsvPlotList(sourcePath.split('.yw7')[0] + suffix + '.csv')
 
     else:
         yw7File = Yw7File(sourcePath)
-        targetDoc = OdtFileWriter(sourcePath.split('.yw7')[0] + '.odt')
+        targetDoc = OdtFile(sourcePath.split('.yw7')[0] + '.odt')
 
     converter = Yw7Cnv()
     message = converter.yw7_to_document(yw7File, targetDoc)

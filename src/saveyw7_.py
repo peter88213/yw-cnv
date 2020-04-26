@@ -11,14 +11,14 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
-from pywriter.fileop.html_proof_reader import HtmlProofReader
-from pywriter.fileop.html_manuscript_reader import HtmlManuscriptReader
-from pywriter.fileop.html_scenedesc_reader import HtmlSceneDescReader
-from pywriter.fileop.html_chapterdesc_reader import HtmlChapterDescReader
-from pywriter.fileop.yw7file import Yw7File
+from pywriter.html.html_proof import HtmlProof
+from pywriter.html.html_manuscript import HtmlManuscript
+from pywriter.html.html_scenedesc import HtmlSceneDesc
+from pywriter.html.html_chapterdesc import HtmlChapterDesc
+from pywriter.yw7.yw7_file import Yw7File
 from pywriter.converter.yw7cnv import Yw7Cnv
-from pywriter.fileop.scenelist import SceneList
-from pywriter.plot.plotlist import PlotList
+from pywriter.csv.csv_scenelist import CsvSceneList
+from pywriter.csv.csv_plotlist import CsvPlotList
 
 
 def delete_tempfile(filePath):
@@ -45,31 +45,31 @@ def run(sourcePath):
 
     if sourcePath.endswith('_proof.html'):
         yw7File = Yw7File(sourcePath.split('_proof.html')[0] + '.yw7')
-        sourceDoc = HtmlProofReader(sourcePath)
+        sourceDoc = HtmlProof(sourcePath)
 
     elif sourcePath.endswith('_manuscript.html'):
         yw7File = Yw7File(sourcePath.split('_manuscript.html')[0] + '.yw7')
-        sourceDoc = HtmlManuscriptReader(sourcePath)
+        sourceDoc = HtmlManuscript(sourcePath)
 
     elif sourcePath.endswith('_scenes.html'):
         yw7File = Yw7File(sourcePath.split('_scenes.html')[0] + '.yw7')
-        sourceDoc = HtmlSceneDescReader(sourcePath)
+        sourceDoc = HtmlSceneDesc(sourcePath)
 
     elif sourcePath.endswith('_chapters.html'):
         yw7File = Yw7File(sourcePath.split('_chapters.html')[0] + '.yw7')
-        sourceDoc = HtmlChapterDescReader(sourcePath)
+        sourceDoc = HtmlChapterDesc(sourcePath)
 
     elif sourcePath.endswith('_parts.html'):
         yw7File = Yw7File(sourcePath.split('_parts.html')[0] + '.yw7')
-        sourceDoc = HtmlChapterDescReader(sourcePath)
+        sourceDoc = HtmlChapterDesc(sourcePath)
 
     elif sourcePath.endswith('_scenelist.csv'):
         yw7File = Yw7File(sourcePath.split('_scenelist.csv')[0] + '.yw7')
-        sourceDoc = SceneList(sourcePath)
+        sourceDoc = CsvSceneList(sourcePath)
 
     elif sourcePath.endswith('_plotlist.csv'):
         yw7File = Yw7File(sourcePath.split('_plotlist.csv')[0] + '.yw7')
-        sourceDoc = PlotList(sourcePath)
+        sourceDoc = CsvPlotList(sourcePath)
 
     else:
         return 'ERROR: File format not supported.'
