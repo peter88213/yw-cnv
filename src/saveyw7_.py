@@ -23,12 +23,15 @@ from pywriter.csv.csv_plotlist import CsvPlotList
 TAILS = ['_proof.html', '_manuscript.html', '_scenes.html',
          '_chapters.html', '_parts.html', '_scenelist.csv', '_plotlist.csv']
 
+YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
+
 
 def delete_tempfile(filePath):
+    """If an Office file exists, delete the temporary file."""
 
     if filePath.endswith('.html'):
 
-        if os.path.isfile(filePath.split('.html')[0] + '.odt'):
+        if os.path.isfile(filePath.replace('.html', '.odt')):
             try:
                 os.remove(filePath)
             except:
@@ -36,7 +39,7 @@ def delete_tempfile(filePath):
 
     elif filePath.endswith('.csv'):
 
-        if os.path.isfile(filePath.split('.csv')[0] + '.ods'):
+        if os.path.isfile(filePath.replace('.csv', '.ods')):
             try:
                 os.remove(filePath)
             except:
@@ -46,22 +49,21 @@ def delete_tempfile(filePath):
 def run(sourcePath):
     sourcePath = sourcePath.replace('file:///', '').replace('%20', ' ')
 
-    # Determine the project file path.
-
     for tail in TAILS:
+        # Determine the document type
 
         if sourcePath.endswith(tail):
-            ywPath = sourcePath.replace(tail, '.yw7')
 
-            if not os.path.isfile(ywPath):
-                ywPath = sourcePath.replace(tail, '.yw6')
+            ywPath = None
 
-                if not os.path.isfile(ywPath):
-                    ywPath = sourcePath.replace(tail, '.yw5')
+            for ywExtension in YW_EXTENSIONS:
+                # Determine the yWriter project file path
 
-                    if not os.path.isfile(ywPath):
-                        ywPath = None
-                        message = 'ERROR: No yWriter project found.'
+                testPath = sourcePath.replace(tail, ywExtension)
+
+                if os.path.isfile(testPath):
+                    ywPath = testPath
+                    break
 
             break
 
@@ -94,6 +96,9 @@ def run(sourcePath):
         ywFile = YwFile(ywPath)
         converter = YwCnv()
         message = converter.document_to_yw(sourceDoc, ywFile)
+
+    else:
+        message = 'ERROR: No yWriter project found.'
 
     if not message.startswith('ERROR'):
         delete_tempfile(sourcePath)
