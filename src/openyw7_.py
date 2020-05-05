@@ -29,42 +29,30 @@ def run(sourcePath, suffix):
     fileName, FileExtension = os.path.splitext(sourcePath)
 
     if suffix == '_proof':
-        ywFile = YwFile(sourcePath)
-        targetDoc = OdtProof(
-            fileName + suffix + '.odt')
+        targetDoc = OdtProof(fileName + suffix + '.odt')
 
     elif suffix == '_manuscript':
-        ywFile = YwFile(sourcePath)
-        targetDoc = OdtManuscript(
-            fileName + suffix + '.odt')
+        targetDoc = OdtManuscript(fileName + suffix + '.odt')
 
     elif suffix == '_scenes':
-        ywFile = YwFile(sourcePath)
-        targetDoc = OdtSceneDesc(
-            fileName + suffix + '.odt')
+        targetDoc = OdtSceneDesc(fileName + suffix + '.odt')
 
     elif suffix == '_chapters':
-        ywFile = YwFile(sourcePath)
-        targetDoc = OdtChapterDesc(
-            fileName + suffix + '.odt')
+        targetDoc = OdtChapterDesc(fileName + suffix + '.odt')
 
     elif suffix == '_parts':
-        ywFile = YwFile(sourcePath)
-        targetDoc = OdtPartDesc(
-            fileName + suffix + '.odt')
+        targetDoc = OdtPartDesc(fileName + suffix + '.odt')
 
     elif suffix == '_scenelist':
-        ywFile = YwFile(sourcePath)
         targetDoc = CsvSceneList(fileName + suffix + '.csv')
 
     elif suffix == '_plotlist':
-        ywFile = YwFile(sourcePath)
         targetDoc = CsvPlotList(fileName + suffix + '.csv')
 
     else:
-        ywFile = YwFile(sourcePath)
         targetDoc = OdtFile(fileName + '.odt')
 
+    ywFile = YwFile(sourcePath)
     converter = YwCnv()
     message = converter.yw_to_document(ywFile, targetDoc)
 
