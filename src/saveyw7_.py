@@ -1,8 +1,8 @@
-"""Convert html or csv to yw7. 
+"""Convert html or csv to yWriter format. 
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Depends on the PyWriter library v1.5
+Depends on the PyWriter library v1.6
 
 Copyright (c) 2020 Peter Triesberger.
 For further information see https://github.com/peter88213/PyWriter
@@ -15,10 +15,13 @@ from pywriter.html.html_proof import HtmlProof
 from pywriter.html.html_manuscript import HtmlManuscript
 from pywriter.html.html_scenedesc import HtmlSceneDesc
 from pywriter.html.html_chapterdesc import HtmlChapterDesc
-from pywriter.yw7.yw7_file import Yw7File
-from pywriter.converter.yw7cnv import Yw7Cnv
+from pywriter.yw.yw_file import YwFile
+from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
+
+TAILS = ['_proof.html', '_manuscript.html', '_scenes.html',
+         '_chapters.html', '_parts.html', '_scenelist.csv', '_plotlist.csv']
 
 
 def delete_tempfile(filePath):
@@ -43,39 +46,54 @@ def delete_tempfile(filePath):
 def run(sourcePath):
     sourcePath = sourcePath.replace('file:///', '').replace('%20', ' ')
 
-    if sourcePath.endswith('_proof.html'):
-        yw7File = Yw7File(sourcePath.split('_proof.html')[0] + '.yw7')
-        sourceDoc = HtmlProof(sourcePath)
+    # Determine the project file path.
 
-    elif sourcePath.endswith('_manuscript.html'):
-        yw7File = Yw7File(sourcePath.split('_manuscript.html')[0] + '.yw7')
-        sourceDoc = HtmlManuscript(sourcePath)
+    for tail in TAILS:
 
-    elif sourcePath.endswith('_scenes.html'):
-        yw7File = Yw7File(sourcePath.split('_scenes.html')[0] + '.yw7')
-        sourceDoc = HtmlSceneDesc(sourcePath)
+        if sourcePath.endswith(tail):
+            ywPath = sourcePath.replace(tail, '.yw7')
 
-    elif sourcePath.endswith('_chapters.html'):
-        yw7File = Yw7File(sourcePath.split('_chapters.html')[0] + '.yw7')
-        sourceDoc = HtmlChapterDesc(sourcePath)
+            if not os.path.isfile(ywPath):
+                ywPath = sourcePath.replace(tail, '.yw6')
 
-    elif sourcePath.endswith('_parts.html'):
-        yw7File = Yw7File(sourcePath.split('_parts.html')[0] + '.yw7')
-        sourceDoc = HtmlChapterDesc(sourcePath)
+                if not os.path.isfile(ywPath):
+                    ywPath = sourcePath.replace(tail, '.yw5')
 
-    elif sourcePath.endswith('_scenelist.csv'):
-        yw7File = Yw7File(sourcePath.split('_scenelist.csv')[0] + '.yw7')
-        sourceDoc = CsvSceneList(sourcePath)
+                    if not os.path.isfile(ywPath):
+                        ywPath = None
+                        message = 'ERROR: No yWriter project found.'
 
-    elif sourcePath.endswith('_plotlist.csv'):
-        yw7File = Yw7File(sourcePath.split('_plotlist.csv')[0] + '.yw7')
-        sourceDoc = CsvPlotList(sourcePath)
+            break
 
-    else:
-        return 'ERROR: File format not supported.'
+    if ywPath:
 
-    converter = Yw7Cnv()
-    message = converter.document_to_yw7(sourceDoc, yw7File)
+        if tail == '_proof.html':
+            sourceDoc = HtmlProof(sourcePath)
+
+        elif tail == '_manuscript.html':
+            sourceDoc = HtmlManuscript(sourcePath)
+
+        elif tail == '_scenes.html':
+            sourceDoc = HtmlSceneDesc(sourcePath)
+
+        elif tail == '_chapters.html':
+            sourceDoc = HtmlChapterDesc(sourcePath)
+
+        elif tail == '_parts.html':
+            sourceDoc = HtmlChapterDesc(sourcePath)
+
+        elif tail == '_scenelist.csv':
+            sourceDoc = CsvSceneList(sourcePath)
+
+        elif tail == '_plotlist.csv':
+            sourceDoc = CsvPlotList(sourcePath)
+
+        else:
+            return 'ERROR: File format not supported.'
+
+        ywFile = YwFile(ywPath)
+        converter = YwCnv()
+        message = converter.document_to_yw(sourceDoc, ywFile)
 
     if not message.startswith('ERROR'):
         delete_tempfile(sourcePath)

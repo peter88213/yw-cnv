@@ -1,23 +1,24 @@
-"""Convert yw7 to odt ot csv. 
+"""Convert yWriter project to odt or csv. 
 
-Input file format: yw7
+Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Depends on the PyWriter library v1.5
+Depends on the PyWriter library v1.6
 
 Copyright (c) 2020 Peter Triesberger.
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import sys
+import os
 
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
 from pywriter.odt.odt_chapterdesc import OdtChapterDesc
 from pywriter.odt.odt_partdesc import OdtPartDesc
-from pywriter.yw7.yw7_file import Yw7File
-from pywriter.converter.yw7cnv import Yw7Cnv
+from pywriter.yw.yw_file import YwFile
+from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.odt.odt_file import OdtFile
@@ -25,45 +26,47 @@ from pywriter.odt.odt_file import OdtFile
 
 def run(sourcePath, suffix):
 
+    fileName, FileExtension = os.path.splitext(sourcePath)
+
     if suffix == '_proof':
-        yw7File = Yw7File(sourcePath)
+        ywFile = YwFile(sourcePath)
         targetDoc = OdtProof(
-            sourcePath.split('.yw7')[0] + suffix + '.odt')
+            fileName + suffix + '.odt')
 
     elif suffix == '_manuscript':
-        yw7File = Yw7File(sourcePath)
+        ywFile = YwFile(sourcePath)
         targetDoc = OdtManuscript(
-            sourcePath.split('.yw7')[0] + suffix + '.odt')
+            fileName + suffix + '.odt')
 
     elif suffix == '_scenes':
-        yw7File = Yw7File(sourcePath)
+        ywFile = YwFile(sourcePath)
         targetDoc = OdtSceneDesc(
-            sourcePath.split('.yw7')[0] + suffix + '.odt')
+            fileName + suffix + '.odt')
 
     elif suffix == '_chapters':
-        yw7File = Yw7File(sourcePath)
+        ywFile = YwFile(sourcePath)
         targetDoc = OdtChapterDesc(
-            sourcePath.split('.yw7')[0] + suffix + '.odt')
+            fileName + suffix + '.odt')
 
     elif suffix == '_parts':
-        yw7File = Yw7File(sourcePath)
+        ywFile = YwFile(sourcePath)
         targetDoc = OdtPartDesc(
-            sourcePath.split('.yw7')[0] + suffix + '.odt')
+            fileName + suffix + '.odt')
 
     elif suffix == '_scenelist':
-        yw7File = Yw7File(sourcePath)
-        targetDoc = CsvSceneList(sourcePath.split('.yw7')[0] + suffix + '.csv')
+        ywFile = YwFile(sourcePath)
+        targetDoc = CsvSceneList(fileName + suffix + '.csv')
 
     elif suffix == '_plotlist':
-        yw7File = Yw7File(sourcePath)
-        targetDoc = CsvPlotList(sourcePath.split('.yw7')[0] + suffix + '.csv')
+        ywFile = YwFile(sourcePath)
+        targetDoc = CsvPlotList(fileName + suffix + '.csv')
 
     else:
-        yw7File = Yw7File(sourcePath)
-        targetDoc = OdtFile(sourcePath.split('.yw7')[0] + '.odt')
+        ywFile = YwFile(sourcePath)
+        targetDoc = OdtFile(fileName + '.odt')
 
-    converter = Yw7Cnv()
-    message = converter.yw7_to_document(yw7File, targetDoc)
+    converter = YwCnv()
+    message = converter.yw_to_document(ywFile, targetDoc)
 
     return message
 
@@ -74,7 +77,9 @@ if __name__ == '__main__':
     except:
         sourcePath = ''
 
-    if sourcePath.endswith('.yw7'):
+    fileName, FileExtension = os.path.splitext(sourcePath)
+
+    if FileExtension in ['.yw5', '.yw6', '.yw7']:
         try:
             suffix = sys.argv[2]
         except:
@@ -83,4 +88,4 @@ if __name__ == '__main__':
         print(run(sourcePath, suffix))
 
     else:
-        print('ERROR: File is not an yWriter 7 project.')
+        print('ERROR: File is not an yWriter project.')
