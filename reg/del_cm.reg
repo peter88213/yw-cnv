@@ -1,4 +1,6 @@
 Windows Registry Editor Version 5.00
 
+[-HKEY_CLASSES_ROOT\yWriter5\shell\pywriter]
+[-HKEY_CLASSES_ROOT\yWriter6\shell\pywriter]
 [-HKEY_CLASSES_ROOT\yWriter7\shell\pywriter]
 

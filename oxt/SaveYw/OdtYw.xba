@@ -39,7 +39,7 @@ Sub Main
     aParams(0) = HtmlPath
 
     oScriptProvider = ThisComponent.getScriptProvider()
-    oScript = oScriptProvider.getScript(&quot;vnd.sun.star.script:saveyw7.py$run?language=Python&amp;location=user&quot;)
+    oScript = oScriptProvider.getScript(&quot;vnd.sun.star.script:saveyw.py$run?language=Python&amp;location=user&quot;)
     result = oScript.invoke(aParams(), aOutParamIndex(), aOutParam())
     MsgBox(result)
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.9.2" />
+	<property name="release" value="0.10.0" />
 	<property name="src" location="../src" />
 	<property name="test" location="../test" />
 	<property name="dist" location="../dist" />
@@ -12,13 +12,13 @@
 	<target name="build" description="inline all library modules">
 		
 		<delete dir="${dist}" />
-		<delete file="${test}/saveyw7.py" />
-		<delete file="${test}/openyw7.py" />
+		<delete file="${test}/saveyw.py" />
+		<delete file="${test}/openyw.py" />
 			<exec executable="python" failonerror="true">
-			    <arg value="${src}/build_saveyw7.py"/>
+			    <arg value="${src}/build_saveyw.py"/>
 			</exec>
 			<exec executable="python" failonerror="true">
-			    <arg value="${src}/build_openyw7.py"/>
+			    <arg value="${src}/build_openyw.py"/>
 			</exec>
 	</target>
 
@@ -29,9 +29,9 @@
 		<mkdir dir="${dist}/PyWriter_LO_v${release}/setup" />
 		<mkdir dir="${dist}/PyWriter_LO_v${release}/setup/program" />
 
-		<copy file="${test}/saveyw7.py" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
-		<copy file="${test}/openyw7.py" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
-		<copy file="${oxt}/SaveYw7-L-${release}.oxt" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
+		<copy file="${test}/saveyw.py" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
+		<copy file="${test}/openyw.py" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
+		<copy file="${oxt}/SaveYw-L-${release}.oxt" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
 		<copy file="${reg}/add_cm.reg" todir="${dist}/PyWriter_LO_v${release}/setup" />
 		<copy file="${reg}/del_cm.reg" todir="${dist}/PyWriter_LO_v${release}/setup" />
 
@@ -46,8 +46,8 @@
 
 	<target name="clean" description="clean up">
 		
-		<delete file="${test}/saveyw7.py" />
-		<delete file="${test}/openyw7.py" />
+		<delete file="${test}/saveyw.py" />
+		<delete file="${test}/openyw.py" />
 		
 	</target>
 	

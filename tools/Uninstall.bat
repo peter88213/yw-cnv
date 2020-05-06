@@ -15,7 +15,7 @@ REM Postconditions:
 REM * Previously auto-installed items of PyWriter Tools are removed.
 REM * The Explorer context menu entry "PyWriter Tools" is removed.
 
-set _release=0.9.2
+set _release=0.10.0
 
 pushd setup
 

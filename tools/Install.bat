@@ -14,9 +14,9 @@ REM
 REM Postconditions: 
 REM * The PyWriter Tools Python scripts are installed in the LibreOffice user profile.
 REM * The LibreOffice extension "SaveYw-L-<version>" is installed.
-REM * For yWriter7 files, there is an Explorer context menu entry "PyWriter Tools".
+REM * For yWriter files, there is an Explorer context menu entry "PyWriter Tools".
 
-set _release=0.9.2
+set _release=0.10.0
 
 pushd setup
 
@@ -94,8 +94,8 @@ echo #
 echo # Installation of PyWriter software package v%_release% finished.
 echo #
 echo # Operation: 
-echo # Right click your yWriter7 Project file
-echo # and select "Proof read with LibreOffice".
+echo # Right click your yWriter project file
+echo # and select "PyWriter Tools".
 echo #
 echo -----------------------------------------------------------------
 
