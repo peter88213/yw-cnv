@@ -3,7 +3,7 @@ REM Removes the PyWriter Tools software package.
 REM 
 REM See: https://github.com/peter88213/PyWriter
 REM License: The MIT License (https://opensource.org/licenses/mit-license.php)
-REM Copyright: (c) 2020, Peter Triesberger
+REM Copyright: (c) 2020, peter88213
 REM 
 REM Note: This script is to be executed manually.
 REM 
