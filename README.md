@@ -3,6 +3,41 @@
 Export an yWriter 6/7 project to an OpenDocument file with invisible chapter and scene markers or to an csv file. 
 Write back the edited data to the yWriter project file.
 
+## Features
+
+### yWriter5 style proof reading
+
+Export an yWriter 6/7 project to an OpenDocument file with chapter and scene markers. 
+Write back the proofread scenes to the yWriter 6/7 project file.
+
+### Project export to OpenDocument format
+
+Generate a "standard manuscript" formatted OpenDocument textfile from an yWriter 6/7 project.
+
+### Convert the manuscript without visible chapter/scene tags
+
+Export an yWriter 6/7 project to an OpenDocument file with invisible chapter and scene sections (to be seen in the Navigator). 
+Write back the proofread scenes to the yWriter 6/7 project file.
+
+### Generate editable reports
+
+* Very brief synopsis (Part descriptions): Chapter titles and chapter descriptions that can be edited in Office Writer and written back to yWriter format. Applies only to chapters marked _This chapter begins a new section_ in yWriter. 
+
+* Brief synopsis (Chapter descriptions): Chapter titles and chapter descriptions that can be edited in Office Writer and written back to yWriter format. Doesn't apply to chapters marked _This chapter begins a new section_ in yWriter.
+
+* Full synopsis (Scene descriptions): Chapter titles and scene descriptions that can be edited in Office Writer and written back to yWriter format.
+
+* Character sheets that can be edited in Office Writer and written back to yWriter format (yet to come). 
+
+* World building sheets containing locations and items that can be edited in Office Writer and written back to yWriter format (yet to come). 
+
+### Provide a scene list
+
+* Create (via csv) a spreadsheet table listing scene title, scene descriptions, and links to the manuscript's scene sections. This list can be enhanced with scene metadata (e.g. tags, goals, time).
+
+### Provide a plot list
+
+* Create (via csv) spreadsheet tables containing plot related metadata that can be displayed and edited.
 
 ## Requirements
 
@@ -14,7 +49,7 @@ Write back the edited data to the yWriter project file.
 
 ## Download
 
-The PyWriter Tools Software comes as a zipfile `PyWriter_LO_<version number>.zip`. 
+The  _PyWriter Tools_  Software comes as a zipfile `PyWriter_LO_<version number>.zip`. 
 
 [Download page](https://github.com/peter88213/pywlo/releases/latest)
 
@@ -53,7 +88,7 @@ The PyWriter Tools Software comes as a zipfile `PyWriter_LO_<version number>.zip
 ![Screenshot: Windows Explorer context menu](https://raw.githubusercontent.com/peter88213/PyWriter Tools/master/docs/Screenshots/PyWriter Tools_cm.png)
 
 3. If everything goes well, you find an OpenDocument file named `<your yWriter project>_<type>.odt`, or `<your yWriter project>_<type>.csv`. Open it (double click) for editing. 
-    * If your standard appllication for `.csv` Files is not LibreOffice, please right-click the .csv file and choose `open with LibreOffice Calc`. You will be prompted for csv conversion settings. Please select `utf-8` encoding and `|` as record separator.
+    * If your standard application for `.csv` Files is not LibreOffice, please right-click the .csv file and choose `open with LibreOffice Calc`. You will be prompted for csv conversion settings. Please select `utf-8` encoding and `|` as field separator.
     * The ODT text documents contain Chapter `[ChID:x]`
    and/or scene `[ScID:y]` sections. You can see them in the Navigator window (F5).  __Do not touch the section structure__  if you want to reimport the document into yWriter. 
 
@@ -72,4 +107,4 @@ You may be asked for approval to modify the Windows registry. Please accept in o
 remove the Explorer context menu entry. 
 
 
-PyWriter tools are distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
+_PyWriter tools_  are distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
