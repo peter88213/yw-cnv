@@ -47,10 +47,10 @@ In yWriter, you can divide your novel into  __Plot Sections__  (e.g. acts or ste
 __Plot-related events__ (e.g. "Mid Point", "Climax") can be identified by "scene tags" if you want to link them to a specific scene.
 
 
-You can use scene notes for  __plot-specific explanations__ . 
+You can use scene notes for  __plot-specific explanations__. 
 
 
-If you want to  __visualize character arcs__ , you can use the project's rating names by changing them to the names of up to four main characters. Then you can quantify the state of these four characters and put them into the scenes. It's easy then to let LibreOffice Calc show a diagram for the scene ratings over scene count or word count.
+If you want to  __visualize character arcs__, you can use the project's rating names by changing them to the names of up to four main characters. Then you can quantify the state of these four characters and put them into the scenes. It's easy then to let LibreOffice Calc show a diagram for the scene ratings over scene count or word count.
 
 * Only ratings for character names appear in the plot list.
 * Only ratings greater than 1 appear in the plot list, i.e. 1 means "a rating is not set for this chapter". 
