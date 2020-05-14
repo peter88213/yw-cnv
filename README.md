@@ -52,7 +52,7 @@ You can use scene notes for  __plot-specific explanations__.
 
 If you want to  __visualize character arcs__, you can use the project's rating names by changing them to the names of up to four main characters. Then you can quantify the state of these four characters and put them into the scenes. It's easy then to let LibreOffice Calc show a diagram for the scene ratings over scene count or word count.
 
-* Only ratings for character names appear in the plot list.
+* Only rating field names corresponding to character names or containing the string "line", e.g. "A-Line", "BStoryline" (up to 10 case insensitive characters) appear in the plot list.
 * Only ratings greater than 1 appear in the plot list, i.e. 1 means "a rating is not set for this chapter". 
 * Recommended ratings: 
     * 1 = N/A
@@ -62,6 +62,7 @@ If you want to  __visualize character arcs__, you can use the project's rating n
     * 5 = satisfied
     * 6 = happy
 
+* Ratings deleted while editing the plotlist will be converted to 1 on writing back. 
 
 ## Requirements
 
