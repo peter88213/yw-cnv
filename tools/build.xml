@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.10.0" />
+	<property name="release" value="0.11.0" />
 	<property name="src" location="../src" />
 	<property name="test" location="../test" />
 	<property name="dist" location="../dist" />
