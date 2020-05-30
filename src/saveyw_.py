@@ -11,6 +11,8 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
+from pywriter.globals import (PROOF_HTML, MANUSCRIPT_HTML, SCENEDESC_HTML, CHAPTERDESC_HTML,
+                              PARTDESC_HTML, SCENELIST_CSV, PLOTLIST_CSV, CHARLIST_CSV, LOCLIST_CSV, ITEMLIST_CSV)
 from pywriter.html.html_proof import HtmlProof
 from pywriter.html.html_manuscript import HtmlManuscript
 from pywriter.html.html_scenedesc import HtmlSceneDesc
@@ -20,8 +22,9 @@ from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 
-TAILS = ['_proof.html', '_manuscript.html', '_scenes.html',
-         '_chapters.html', '_parts.html', '_scenelist.csv', '_plotlist.csv']
+TAILS = [PROOF_HTML, MANUSCRIPT_HTML, SCENEDESC_HTML,
+         CHAPTERDESC_HTML, PARTDESC_HTML, SCENELIST_CSV,
+         PLOTLIST_CSV, CHARLIST_CSV, LOCLIST_CSV, ITEMLIST_CSV]
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
 
@@ -69,25 +72,25 @@ def run(sourcePath):
 
     if ywPath:
 
-        if tail == '_proof.html':
+        if tail == PROOF_HTML:
             sourceDoc = HtmlProof(sourcePath)
 
-        elif tail == '_manuscript.html':
+        elif tail == MANUSCRIPT_HTML:
             sourceDoc = HtmlManuscript(sourcePath)
 
-        elif tail == '_scenes.html':
+        elif tail == SCENEDESC_HTML:
             sourceDoc = HtmlSceneDesc(sourcePath)
 
-        elif tail == '_chapters.html':
+        elif tail == CHAPTERDESC_HTML:
             sourceDoc = HtmlChapterDesc(sourcePath)
 
-        elif tail == '_parts.html':
+        elif tail == PARTDESC_HTML:
             sourceDoc = HtmlChapterDesc(sourcePath)
 
-        elif tail == '_scenelist.csv':
+        elif tail == SCENELIST_CSV:
             sourceDoc = CsvSceneList(sourcePath)
 
-        elif tail == '_plotlist.csv':
+        elif tail == PLOTLIST_CSV:
             sourceDoc = CsvPlotList(sourcePath)
 
         else:
