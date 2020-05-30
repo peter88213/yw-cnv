@@ -11,8 +11,7 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
-from pywriter.globals import (PROOF_HTML, MANUSCRIPT_HTML, SCENEDESC_HTML, CHAPTERDESC_HTML,
-                              PARTDESC_HTML, SCENELIST_CSV, PLOTLIST_CSV, CHARLIST_CSV, LOCLIST_CSV, ITEMLIST_CSV)
+from pywriter.globals import *
 from pywriter.html.html_proof import HtmlProof
 from pywriter.html.html_manuscript import HtmlManuscript
 from pywriter.html.html_scenedesc import HtmlSceneDesc
@@ -22,9 +21,10 @@ from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 
-TAILS = [PROOF_HTML, MANUSCRIPT_HTML, SCENEDESC_HTML,
-         CHAPTERDESC_HTML, PARTDESC_HTML, SCENELIST_CSV,
-         PLOTLIST_CSV, CHARLIST_CSV, LOCLIST_CSV, ITEMLIST_CSV]
+TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
+         CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
+         '.html', SCENELIST_SUFFIX + '.csv',
+         PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv', ITEMLIST_SUFFIX + '.csv']
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
 
@@ -72,25 +72,25 @@ def run(sourcePath):
 
     if ywPath:
 
-        if tail == PROOF_HTML:
+        if tail == PROOF_SUFFIX + '.html':
             sourceDoc = HtmlProof(sourcePath)
 
-        elif tail == MANUSCRIPT_HTML:
+        elif tail == MANUSCRIPT_SUFFIX + '.html':
             sourceDoc = HtmlManuscript(sourcePath)
 
-        elif tail == SCENEDESC_HTML:
+        elif tail == SCENEDESC_SUFFIX + '.html':
             sourceDoc = HtmlSceneDesc(sourcePath)
 
-        elif tail == CHAPTERDESC_HTML:
+        elif tail == CHAPTERDESC_SUFFIX + '.html':
             sourceDoc = HtmlChapterDesc(sourcePath)
 
-        elif tail == PARTDESC_HTML:
+        elif tail == PARTDESC_SUFFIX + '.html':
             sourceDoc = HtmlChapterDesc(sourcePath)
 
-        elif tail == SCENELIST_CSV:
+        elif tail == SCENELIST_SUFFIX + '.csv':
             sourceDoc = CsvSceneList(sourcePath)
 
-        elif tail == PLOTLIST_CSV:
+        elif tail == PLOTLIST_SUFFIX + '.csv':
             sourceDoc = CsvPlotList(sourcePath)
 
         else:

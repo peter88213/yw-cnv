@@ -12,8 +12,7 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
-from pywriter.globals import (PROOF_SUFFIX, MANUSCRIPT_SUFFIX, SCENEDESC_SUFFIX,
-                              CHAPTERDESC_SUFFIX, PARTDESC_SUFFIX, SCENELIST_SUFFIX, PLOTLIST_SUFFIX)
+from pywriter.globals import *
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
