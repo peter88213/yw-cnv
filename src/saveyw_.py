@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Depends on the PyWriter library v1.6
+Depends on the PyWriter library v1.9
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -16,6 +16,7 @@ from pywriter.html.html_proof import HtmlProof
 from pywriter.html.html_manuscript import HtmlManuscript
 from pywriter.html.html_scenedesc import HtmlSceneDesc
 from pywriter.html.html_chapterdesc import HtmlChapterDesc
+from pywriter.html.html_import import HtmlImport
 from pywriter.yw.yw_file import YwFile
 from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
@@ -23,7 +24,7 @@ from pywriter.csv.csv_plotlist import CsvPlotList
 
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
-         '.html', SCENELIST_SUFFIX + '.csv',
+         '.html', '.html', SCENELIST_SUFFIX + '.csv',
          PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv', ITEMLIST_SUFFIX + '.csv']
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
@@ -86,6 +87,9 @@ def run(sourcePath):
 
         elif tail == PARTDESC_SUFFIX + '.html':
             sourceDoc = HtmlChapterDesc(sourcePath)
+
+        elif tail == '.html':
+            sourceDoc = HtmlImport(sourcePath)
 
         elif tail == SCENELIST_SUFFIX + '.csv':
             sourceDoc = CsvSceneList(sourcePath)

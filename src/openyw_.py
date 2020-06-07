@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Depends on the PyWriter library v1.6
+Depends on the PyWriter library v1.9
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
