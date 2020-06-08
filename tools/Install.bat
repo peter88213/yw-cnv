@@ -17,7 +17,8 @@ REM * The LibreOffice extension "SaveYw-L-<version>" is installed.
 REM * For yWriter files, there is an Explorer context menu entry "PyWriter Tools".
 REM * There is a batch file in c:\pywriter to invoke the Python interpreter.
 
-set _release=0.13.0
+set _release=@release
+set _oxt=@oxt_file
 
 pushd setup
 
@@ -78,13 +79,13 @@ copy /y program\*.py "%_user%\Scripts\python"
 
 echo Installing LibreOffice extension ...
 
-"%_writer%\program\unopkg" add -f program\SaveYw7-L-%_release%.oxt
+"%_writer%\program\unopkg" add -f program\%_oxt%
 
 echo Installing Explorer context menu entry (You may be asked for approval) ...
 
 if not exist c:\pywriter mkdir c:\pywriter 
 
-echo "%_writer%\program\python.exe" "%_user%\Scripts\python\openyw7.py" %%1 %%2 > c:\pywriter\openyw7.bat
+echo "%_writer%\program\python.exe" "%_user%\Scripts\python\openyw.py" %%1 %%2 > c:\pywriter\openyw_l.bat
 
 add_cm.reg
 
