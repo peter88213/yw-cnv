@@ -1,4 +1,5 @@
 /dist/
 /src/__pycache__/
+/src/uno_wrapper/__pycache__/
 /test/__pycache__/
 /test/yw7/
