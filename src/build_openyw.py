@@ -11,11 +11,22 @@ import inliner
 
 SRC = '../src/'
 BUILD = '../test/'
+SOURCE_FILE = 'openyw_.py'
+TARGET_FILE = BUILD + 'openyw.py'
 
 
 def main():
     os.chdir(SRC)
-    inliner.run('openyw_.py', BUILD + 'openyw.py', 'pywriter')
+
+    try:
+        os.remove(TARGET_FILE)
+
+    except:
+        pass
+
+    inliner.run(SOURCE_FILE,
+                TARGET_FILE, 'pywriter', '../../PyWriter/src/')
+    inliner.run(TARGET_FILE, TARGET_FILE, 'uno_wrapper', '../src/')
     print('Done.')
 
 

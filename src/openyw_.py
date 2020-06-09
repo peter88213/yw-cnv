@@ -24,6 +24,11 @@ from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.odt.odt_file import OdtFile
 
+import uno
+
+from uno_wrapper.uno_tools import *
+from uno_wrapper.uno_stub import *
+
 
 def run(sourcePath, suffix):
 
@@ -58,6 +63,43 @@ def run(sourcePath, suffix):
     message = converter.yw_to_document(ywFile, targetDoc)
 
     return message
+
+
+def open_yw7(suffix):
+    ywFile = FilePicker()
+    sourcePath = ywFile.replace('file:///', '')
+    extension = os.path.splitext(sourcePath)[1]
+
+    if not extension in ['.yw6', '.yw7']:
+        msgbox('Please choose an yWriter 6/7 project.')
+        return
+
+    newFile = ywFile.replace(extension, suffix + '.odt')
+    dirName, filename = os.path.split(newFile)
+    lockFile = (dirName + '/.~lock.' + filename + '#').replace('file:///', '')
+
+    if os.path.isfile(lockFile):
+        msgbox('Please close "' + filename + '" first.')
+        return
+
+    workdir = os.path.dirname(sourcePath)
+    os.chdir(workdir)
+    message = run(sourcePath, suffix)
+
+    if message.startswith('ERROR'):
+        msgbox(message)
+
+    else:
+        desktop = XSCRIPTCONTEXT.getDesktop()
+        doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
+
+
+def import_yw7(*args):
+    open_yw7('')
+
+
+def proof_yw7(*args):
+    open_yw7(PROOF_SUFFIX)
 
 
 if __name__ == '__main__':

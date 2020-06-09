@@ -4444,6 +4444,50 @@ class CsvPlotList(Novel):
     def get_structure(self):
         return None
 
+import uno
+
+from msgbox import MsgBox
+
+# shortcut:
+createUnoService = (
+    XSCRIPTCONTEXT
+    .getComponentContext()
+    .getServiceManager()
+    .createInstance
+)
+
+
+def FilePicker(path=None, mode=0):
+    """
+    Read file:  `mode in (0, 6, 7, 8, 9)`
+    Write file: `mode in (1, 2, 3, 4, 5, 10)`
+    see: (http://api.libreoffice.org/docs/idl/ref/
+            namespacecom_1_1sun_1_1star_1_1ui_1_1
+            dialogs_1_1TemplateDescription.html)
+
+    See: https://stackoverflow.com/questions/30840736/libreoffice-how-to-create-a-file-dialog-via-python-macro
+    """
+
+    filepicker = createUnoService("com.sun.star.ui.dialogs.OfficeFilePicker")
+
+    if path:
+        filepicker.setDisplayDirectory(path)
+
+    filepicker.initialize((mode,))
+    filepicker.appendFilter("yWriter 7 Files (.yw7)", "*.yw7")
+    filepicker.appendFilter("yWriter 6 Files (.yw6)", "*.yw6")
+
+    if filepicker.execute():
+        return filepicker.getFiles()[0]
+
+
+def msgbox(message):
+    myBox = MsgBox(XSCRIPTCONTEXT.getComponentContext())
+    myBox.addButton('OK')
+    myBox.renderFromBoxSize(200)
+    myBox.numberOflines = 3
+    myBox.show(message, 0, 'PyWriter')
+
 
 def run(sourcePath, suffix):
 
@@ -4478,6 +4522,45 @@ def run(sourcePath, suffix):
     message = converter.yw_to_document(ywFile, targetDoc)
 
     return message
+
+
+def open_yw7(suffix):
+    ywFile = FilePicker()
+    sourcePath = ywFile.replace('file:///', '')
+    extension = os.path.splitext(sourcePath)[1]
+
+    if not extension in ['.yw6', '.yw7']:
+        msgbox('Please choose an yWriter 6/7 project.')
+        return
+
+    if not os.path.isfile(sourcePath):
+        msgbox('Please choose an existing yWriter project.')
+        return
+
+    newFile = ywFile.replace(extension, suffix + '.odt')
+
+    if os.path.isfile('.~lock.' + newFile + '#'):
+        msgbox('Please close ' + newFile + ' first.')
+        return
+
+    workdir = os.path.dirname(sourcePath)
+    os.chdir(workdir)
+    message = run(sourcePath, suffix)
+
+    if message.startswith('ERROR'):
+        msgbox(message)
+
+    else:
+        desktop = XSCRIPTCONTEXT.getDesktop()
+        doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
+
+
+def import_yw7(*args):
+    open_yw7('')
+
+
+def proof_yw7(*args):
+    open_yw7(PROOF_SUFFIX)
 
 
 if __name__ == '__main__':
