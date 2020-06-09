@@ -22,6 +22,11 @@ from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 
+import uno
+
+from uno_wrapper.uno_tools import *
+from uno_wrapper.uno_stub import *
+
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
          '.html', '.html', SCENELIST_SUFFIX + '.csv',
@@ -111,6 +116,23 @@ def run(sourcePath):
         delete_tempfile(sourcePath)
 
     return message
+
+
+def export_yw(suffix):
+    '''Export the document to a yWriter 6/7 project.
+    '''
+    # Get document's filename
+
+    # if ODT:
+    # ----Save as HTML
+    # ----Save as ODT
+
+    # elif ODS:
+    # ----Save as CSV
+    # ----Save as ODS
+
+    # run converter
+    # show result
 
 
 if __name__ == '__main__':

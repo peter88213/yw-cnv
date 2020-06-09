@@ -94,11 +94,17 @@ def open_yw7(suffix):
         doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
 
-def import_yw7(*args):
+def import_yw(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    without chapter and scene markers. 
+    '''
     open_yw7('')
 
 
-def proof_yw7(*args):
+def proof_yw(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    with visible chapter and scene markers. 
+    '''
     open_yw7(PROOF_SUFFIX)
 
 
