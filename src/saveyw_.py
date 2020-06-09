@@ -121,17 +121,65 @@ def run(sourcePath):
 def export_yw(*args):
     '''Export the document to a yWriter 6/7 project.
     '''
+    documentPath = ''
+
     # Get document's filename
 
-    # if ODT:
-    # ----Save as HTML tempfile
-    # ----Save as ODT
+    desktop = XSCRIPTCONTEXT.getDesktop()
 
-    # elif ODS:
-    # ----Save as CSV tempfile
-    # ----Save as ODS
+    """
+    document   = ThisComponent.CurrentController.Frame
+    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+    documentPath = ThisComponent.getURL()
+    """
+    documentPath = documentPath.lower()
 
-    # run converter
-    # delete tempfile
-    # show result
-    return
+    if documentPath.endswith('.odt') or documentPath.endswith('.html'):
+        odtPath = documentPath.replace('.html', '.odt')
+        htmlPath = documentPath.replace('.odt', '.html')
+        """
+        dim args1(1) as new com.sun.star.beans.PropertyValue
+
+        # Save document in HTML format
+
+        args1(0).Name = "URL"
+        args1(0).Value = htmlPath
+        args1(1).Name = "FilterName"
+        args1(1).Value = "HTML (StarWriter)"
+
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1(0).Value = odtPath
+        args1(1).Value = "writer8"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+        """
+        result = run(htmlPath)
+
+    elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
+        odsPath = documentPath.replace('.csv', '.ods')
+        csvPath = documentPath.replace('.ods', '.csv')
+        """
+        dim args1(1) as new com.sun.star.beans.PropertyValue
+
+        # Save document in csv format
+
+        args1(0).Name = "URL"
+        args1(0).Value = csvPath
+        args1(1).Name = "FilterName"
+        args1(1).Value = "Text - txt - csv (StarCalc)"    
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1(0).Value = odsPath
+        args1(1).Value = "calc8"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+        """
+        result = run(csvPath)
+
+    else:
+        result = "ERROR: File type not supported."
+
+    msgbox(result)

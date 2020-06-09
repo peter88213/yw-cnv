@@ -84,10 +84,10 @@ def open_yw7(suffix):
 
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
-    message = run(sourcePath, suffix)
+    result = run(sourcePath, suffix)
 
-    if message.startswith('ERROR'):
-        msgbox(message)
+    if result.startswith('ERROR'):
+        msgbox(result)
 
     else:
         desktop = XSCRIPTCONTEXT.getDesktop()
