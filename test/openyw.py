@@ -4533,14 +4533,12 @@ def open_yw7(suffix):
         msgbox('Please choose an yWriter 6/7 project.')
         return
 
-    if not os.path.isfile(sourcePath):
-        msgbox('Please choose an existing yWriter project.')
-        return
-
     newFile = ywFile.replace(extension, suffix + '.odt')
+    dirName, filename = os.path.split(newFile)
+    lockFile = (dirName + '/.~lock.' + filename + '#').replace('file:///', '')
 
-    if os.path.isfile('.~lock.' + newFile + '#'):
-        msgbox('Please close ' + newFile + ' first.')
+    if os.path.isfile(lockFile):
+        msgbox('Please close "' + filename + '" first.')
         return
 
     workdir = os.path.dirname(sourcePath)
