@@ -118,26 +118,20 @@ def run(sourcePath):
     return message
 
 
-def export_yw(suffix):
+def export_yw(*args):
     '''Export the document to a yWriter 6/7 project.
     '''
     # Get document's filename
 
     # if ODT:
-    # ----Save as HTML
+    # ----Save as HTML tempfile
     # ----Save as ODT
 
     # elif ODS:
-    # ----Save as CSV
+    # ----Save as CSV tempfile
     # ----Save as ODS
 
     # run converter
+    # delete tempfile
     # show result
-
-
-if __name__ == '__main__':
-    try:
-        sourcePath = sys.argv[1]
-    except:
-        sourcePath = ''
-    print(run(sourcePath))
+    return
