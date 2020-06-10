@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.14.0
+Version 0.15.0
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -2789,6 +2789,57 @@ class CsvPlotList(Novel):
     def get_structure(self):
         return None
 
+import uno
+
+from msgbox import MsgBox
+
+
+class Stub():
+
+    def dummy(self):
+        pass
+
+
+def FilePicker(path=None, mode=0):
+    """
+    Read file:  `mode in (0, 6, 7, 8, 9)`
+    Write file: `mode in (1, 2, 3, 4, 5, 10)`
+    see: (http://api.libreoffice.org/docs/idl/ref/
+            namespacecom_1_1sun_1_1star_1_1ui_1_1
+            dialogs_1_1TemplateDescription.html)
+
+    See: https://stackoverflow.com/questions/30840736/libreoffice-how-to-create-a-file-dialog-via-python-macro
+    """
+    # shortcut:
+    createUnoService = (
+        XSCRIPTCONTEXT
+        .getComponentContext()
+        .getServiceManager()
+        .createInstance
+    )
+
+    filepicker = createUnoService("com.sun.star.ui.dialogs.OfficeFilePicker")
+
+    if path:
+        filepicker.setDisplayDirectory(path)
+
+    filepicker.initialize((mode,))
+    filepicker.appendFilter("yWriter 7 Files (.yw7)", "*.yw7")
+    filepicker.appendFilter("yWriter 6 Files (.yw6)", "*.yw6")
+
+    if filepicker.execute():
+        return filepicker.getFiles()[0]
+
+
+def msgbox(message):
+    myBox = MsgBox(XSCRIPTCONTEXT.getComponentContext())
+    myBox.addButton('OK')
+    myBox.renderFromBoxSize(200)
+    myBox.numberOflines = 3
+    myBox.show(message, 0, 'PyWriter')
+
+
+
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
          '.html', '.html', SCENELIST_SUFFIX + '.csv',
@@ -2878,6 +2929,73 @@ def run(sourcePath):
         delete_tempfile(sourcePath)
 
     return message
+
+
+def export_yw(*args):
+    '''Export the document to a yWriter 6/7 project.
+    '''
+    documentPath = ''
+
+    # Get document's filename
+
+    desktop = XSCRIPTCONTEXT.getDesktop()
+
+    """
+    document   = ThisComponent.CurrentController.Frame
+    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+    documentPath = ThisComponent.getURL()
+    """
+    documentPath = documentPath.lower()
+
+    if documentPath.endswith('.odt') or documentPath.endswith('.html'):
+        odtPath = documentPath.replace('.html', '.odt')
+        htmlPath = documentPath.replace('.odt', '.html')
+        """
+        dim args1(1) as new com.sun.star.beans.PropertyValue
+
+        # Save document in HTML format
+
+        args1(0).Name = "URL"
+        args1(0).Value = htmlPath
+        args1(1).Name = "FilterName"
+        args1(1).Value = "HTML (StarWriter)"
+
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1(0).Value = odtPath
+        args1(1).Value = "writer8"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+        """
+        result = run(htmlPath)
+
+    elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
+        odsPath = documentPath.replace('.csv', '.ods')
+        csvPath = documentPath.replace('.ods', '.csv')
+        """
+        dim args1(1) as new com.sun.star.beans.PropertyValue
+
+        # Save document in csv format
+
+        args1(0).Name = "URL"
+        args1(0).Value = csvPath
+        args1(1).Name = "FilterName"
+        args1(1).Value = "Text - txt - csv (StarCalc)"    
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1(0).Value = odsPath
+        args1(1).Value = "calc8"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+        """
+        result = run(csvPath)
+
+    else:
+        result = "ERROR: File type not supported."
+
+    msgbox(result)
 
 
 if __name__ == '__main__':

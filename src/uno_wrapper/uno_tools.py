@@ -9,15 +9,12 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 import uno
 from msgbox import MsgBox
-from uno_wrapper.uno_stub import *
 
-# shortcut:
-createUnoService = (
-    XSCRIPTCONTEXT
-    .getComponentContext()
-    .getServiceManager()
-    .createInstance
-)
+
+class Stub():
+
+    def dummy(self):
+        pass
 
 
 def FilePicker(path=None, mode=0):
@@ -30,6 +27,13 @@ def FilePicker(path=None, mode=0):
 
     See: https://stackoverflow.com/questions/30840736/libreoffice-how-to-create-a-file-dialog-via-python-macro
     """
+    # shortcut:
+    createUnoService = (
+        XSCRIPTCONTEXT
+        .getComponentContext()
+        .getServiceManager()
+        .createInstance
+    )
 
     filepicker = createUnoService("com.sun.star.ui.dialogs.OfficeFilePicker")
 
@@ -50,3 +54,7 @@ def msgbox(message):
     myBox.renderFromBoxSize(200)
     myBox.numberOflines = 3
     myBox.show(message, 0, 'PyWriter')
+
+
+if __name__ == '__main__':
+    XSCRIPTCONTEXT = Stub()

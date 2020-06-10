@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.14.0
+Version 0.15.0
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -4448,13 +4448,11 @@ import uno
 
 from msgbox import MsgBox
 
-# shortcut:
-createUnoService = (
-    XSCRIPTCONTEXT
-    .getComponentContext()
-    .getServiceManager()
-    .createInstance
-)
+
+class Stub():
+
+    def dummy(self):
+        pass
 
 
 def FilePicker(path=None, mode=0):
@@ -4467,6 +4465,13 @@ def FilePicker(path=None, mode=0):
 
     See: https://stackoverflow.com/questions/30840736/libreoffice-how-to-create-a-file-dialog-via-python-macro
     """
+    # shortcut:
+    createUnoService = (
+        XSCRIPTCONTEXT
+        .getComponentContext()
+        .getServiceManager()
+        .createInstance
+    )
 
     filepicker = createUnoService("com.sun.star.ui.dialogs.OfficeFilePicker")
 
@@ -4487,6 +4492,8 @@ def msgbox(message):
     myBox.renderFromBoxSize(200)
     myBox.numberOflines = 3
     myBox.show(message, 0, 'PyWriter')
+
+
 
 
 def run(sourcePath, suffix):
@@ -4543,21 +4550,27 @@ def open_yw7(suffix):
 
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
-    message = run(sourcePath, suffix)
+    result = run(sourcePath, suffix)
 
-    if message.startswith('ERROR'):
-        msgbox(message)
+    if result.startswith('ERROR'):
+        msgbox(result)
 
     else:
         desktop = XSCRIPTCONTEXT.getDesktop()
         doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
 
-def import_yw7(*args):
+def import_yw(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    without chapter and scene markers. 
+    '''
     open_yw7('')
 
 
-def proof_yw7(*args):
+def proof_yw(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    with visible chapter and scene markers. 
+    '''
     open_yw7(PROOF_SUFFIX)
 
 

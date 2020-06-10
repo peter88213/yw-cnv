@@ -27,7 +27,6 @@ from pywriter.odt.odt_file import OdtFile
 import uno
 
 from uno_wrapper.uno_tools import *
-from uno_wrapper.uno_stub import *
 
 
 def run(sourcePath, suffix):
@@ -106,3 +105,23 @@ def proof_yw(*args):
     with visible chapter and scene markers. 
     '''
     open_yw7(PROOF_SUFFIX)
+
+
+if __name__ == '__main__':
+    try:
+        sourcePath = sys.argv[1]
+    except:
+        sourcePath = ''
+
+    fileName, FileExtension = os.path.splitext(sourcePath)
+
+    if FileExtension in ['.yw5', '.yw6', '.yw7']:
+        try:
+            suffix = sys.argv[2]
+        except:
+            suffix = ''
+
+        print(run(sourcePath, suffix))
+
+    else:
+        print('ERROR: File is not an yWriter project.')

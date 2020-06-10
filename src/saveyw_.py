@@ -25,7 +25,6 @@ from pywriter.csv.csv_plotlist import CsvPlotList
 import uno
 
 from uno_wrapper.uno_tools import *
-from uno_wrapper.uno_stub import *
 
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
@@ -183,3 +182,11 @@ def export_yw(*args):
         result = "ERROR: File type not supported."
 
     msgbox(result)
+
+
+if __name__ == '__main__':
+    try:
+        sourcePath = sys.argv[1]
+    except:
+        sourcePath = ''
+    print(run(sourcePath))
