@@ -12,6 +12,8 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
+from configparser import ConfigParser
+
 
 MANUSCRIPT_SUFFIX = '_manuscript'
 PARTDESC_SUFFIX = '_parts'
@@ -4495,6 +4497,8 @@ def msgbox(message):
 
 
 
+INI_FILE = 'openyw.ini'
+
 
 def run(sourcePath, suffix):
 
@@ -4532,7 +4536,31 @@ def run(sourcePath, suffix):
 
 
 def open_yw7(suffix):
-    ywFile = FilePicker()
+
+    # Set last opened yWriter project as default (if existing).
+
+    scriptLocation = os.path.dirname(__file__)
+    inifile = (scriptLocation + '/' + INI_FILE).replace('file:///', '')
+    defaultFile = None
+    config = ConfigParser()
+
+    try:
+        config.read(inifile)
+        lastOpened = config.get('FILES', 'LAST_OPEN')
+
+        if os.path.isfile(lastOpened.replace('file:///', '')):
+            defaultFile = lastOpened
+
+    except:
+        pass
+
+    # Ask for yWriter 6 or 7 project to open:
+
+    ywFile = FilePicker(path=defaultFile)
+
+    if ywFile is None:
+        return
+
     sourcePath = ywFile.replace('file:///', '')
     extension = os.path.splitext(sourcePath)[1]
 
@@ -4540,13 +4568,27 @@ def open_yw7(suffix):
         msgbox('Please choose an yWriter 6/7 project.')
         return
 
+    # Store selected yWriter project as "last opened".
+
     newFile = ywFile.replace(extension, suffix + '.odt')
     dirName, filename = os.path.split(newFile)
     lockFile = (dirName + '/.~lock.' + filename + '#').replace('file:///', '')
 
+    if not config.has_section('FILES'):
+        config.add_section('FILES')
+
+    config.set('FILES', 'LAST_OPEN', ywFile)
+
+    with open(inifile, 'w') as f:
+        config.write(f)
+
+    # Check if import file is already open in LibreOffice:
+
     if os.path.isfile(lockFile):
         msgbox('Please close "' + filename + '" first.')
         return
+
+    # Open yWriter project and convert data.
 
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
