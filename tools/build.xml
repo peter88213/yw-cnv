@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.15.0" />
+	<property name="release" value="0.16.0" />
 	<property name="oxt_file" value="SaveYw-L-1.0.0.oxt" />
 	
 	<property name="oxt" location="../oxt" />

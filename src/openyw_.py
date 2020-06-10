@@ -25,6 +25,9 @@ from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.odt.odt_file import OdtFile
+from pywriter.csv.csv_charlist import CsvCharList
+from pywriter.csv.csv_loclist import CsvLocList
+from pywriter.csv.csv_itemlist import CsvItemList
 
 import uno
 
@@ -37,7 +40,10 @@ def run(sourcePath, suffix):
 
     fileName, FileExtension = os.path.splitext(sourcePath)
 
-    if suffix == PROOF_SUFFIX:
+    if suffix == '':
+        targetDoc = OdtFile(fileName + '.odt')
+
+    elif suffix == PROOF_SUFFIX:
         targetDoc = OdtProof(fileName + suffix + '.odt')
 
     elif suffix == MANUSCRIPT_SUFFIX:
@@ -58,8 +64,17 @@ def run(sourcePath, suffix):
     elif suffix == PLOTLIST_SUFFIX:
         targetDoc = CsvPlotList(fileName + suffix + '.csv')
 
+    elif suffix == CHARLIST_SUFFIX:
+        targetDoc = CsvCharList(fileName + suffix + '.csv')
+
+    elif suffix == LOCLIST_SUFFIX:
+        targetDoc = CsvLocList(fileName + suffix + '.csv')
+
+    elif suffix == ITEMLIST_SUFFIX:
+        targetDoc = CsvItemList(fileName + suffix + '.csv')
+
     else:
-        targetDoc = OdtFile(fileName + '.odt')
+        return('ERROR: Target file type not supported')
 
     ywFile = YwFile(sourcePath)
     converter = YwCnv()
@@ -68,7 +83,7 @@ def run(sourcePath, suffix):
     return message
 
 
-def open_yw7(suffix):
+def open_yw7(suffix, newExt):
 
     # Set last opened yWriter project as default (if existing).
 
@@ -79,10 +94,10 @@ def open_yw7(suffix):
 
     try:
         config.read(inifile)
-        lastOpened = config.get('FILES', 'LAST_OPEN')
+        ywLastOpen = config.get('FILES', 'yw_last_open')
 
-        if os.path.isfile(lastOpened.replace('file:///', '')):
-            defaultFile = lastOpened
+        if os.path.isfile(ywLastOpen.replace('file:///', '')):
+            defaultFile = ywLastOpen
 
     except:
         pass
@@ -95,22 +110,22 @@ def open_yw7(suffix):
         return
 
     sourcePath = ywFile.replace('file:///', '')
-    extension = os.path.splitext(sourcePath)[1]
+    ywExt = os.path.splitext(sourcePath)[1]
 
-    if not extension in ['.yw6', '.yw7']:
-        msgbox('Please choose an yWriter 6/7 project.')
+    if not ywExt in ['.yw6', '.yw7']:
+        msgbox('Please choose a yWriter 6/7 project.')
         return
 
     # Store selected yWriter project as "last opened".
 
-    newFile = ywFile.replace(extension, suffix + '.odt')
+    newFile = ywFile.replace(ywExt, suffix + newExt)
     dirName, filename = os.path.split(newFile)
     lockFile = (dirName + '/.~lock.' + filename + '#').replace('file:///', '')
 
     if not config.has_section('FILES'):
         config.add_section('FILES')
 
-    config.set('FILES', 'LAST_OPEN', ywFile)
+    config.set('FILES', 'yw_last_open', ywFile)
 
     with open(inifile, 'w') as f:
         config.write(f)
@@ -139,14 +154,72 @@ def import_yw(*args):
     '''Import scenes from yWriter 6/7 to a Writer document
     without chapter and scene markers. 
     '''
-    open_yw7('')
+    open_yw7('', '.odt')
 
 
 def proof_yw(*args):
     '''Import scenes from yWriter 6/7 to a Writer document
     with visible chapter and scene markers. 
     '''
-    open_yw7(PROOF_SUFFIX)
+    open_yw7(PROOF_SUFFIX, '.odt')
+
+
+def get_manuscript(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(MANUSCRIPT_SUFFIX, '.odt')
+
+
+def get_partdesc(*args):
+    '''Import pard descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(PARTDESC_SUFFIX, '.odt')
+
+
+def get_chapterdesc(*args):
+    '''Import chapter descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(CHAPTERDESC_SUFFIX, '.odt')
+
+
+def get_scenedesc(*args):
+    '''Import scene descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(SCENEDESC_SUFFIX, '.odt')
+
+
+def get_scenelist(*args):
+    '''Import a scene list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(SCENELIST_SUFFIX, '.csv')
+
+
+def get_plotlist(*args):
+    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(PLOTLIST_SUFFIX, '.csv')
+
+
+def get_charlist(*args):
+    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(CHARLIST_SUFFIX, '.csv')
+
+
+def get_loclist(*args):
+    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(LOCLIST_SUFFIX, '.csv')
+
+
+def get_itemlist(*args):
+    '''Import an item list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(ITEMLIST_SUFFIX, '.csv')
 
 
 if __name__ == '__main__':

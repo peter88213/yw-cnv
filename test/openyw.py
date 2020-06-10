@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.15.0
+Version 0.16.0
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -4446,6 +4446,427 @@ class CsvPlotList(Novel):
     def get_structure(self):
         return None
 
+
+
+
+class CsvCharList(Novel):
+    """csv file representation of an yWriter project's characters table. 
+
+    Represents a csv file with a record per character.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR character.
+    """
+
+    _FILE_EXTENSION = 'csv'
+    # overwrites Novel._FILE_EXTENSION
+
+    _SEPARATOR = '|'     # delimits data fields within a record.
+    _LINEBREAK = '\t'    # substitutes embedded line breaks.
+
+    _TABLE_HEADER = ('ID'
+                     + _SEPARATOR
+                     + 'Name'
+                     + _SEPARATOR
+                     + 'Full name'
+                     + _SEPARATOR
+                     + 'Aka'
+                     + _SEPARATOR
+                     + 'Description'
+                     + _SEPARATOR
+                     + 'Bio'
+                     + _SEPARATOR
+                     + 'Goals'
+                     + _SEPARATOR
+                     + 'Importance'
+                     + _SEPARATOR
+                     + 'Tags'
+                     + _SEPARATOR
+                     + 'Notes'
+                     + '\n')
+
+    def read(self):
+        """Parse the csv file located at filePath, 
+        fetching the Character attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        if lines[0] != self._TABLE_HEADER:
+            return 'ERROR: Wrong lines content.'
+
+        cellsInLine = len(self._TABLE_HEADER.split(self._SEPARATOR))
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            if 'CrID:' in cell[0]:
+                crId = re.search('CrID\:([0-9]+)', cell[0]).group(1)
+                self.characters[crId] = Character()
+                self.characters[crId].title = cell[1]
+                self.characters[crId].fullName = cell[2]
+                self.characters[crId].aka = cell[3]
+                self.characters[crId].desc = cell[4].replace(
+                    self._LINEBREAK, '\n')
+                self.characters[crId].bio = cell[5]
+                self.characters[crId].goals = cell[6]
+
+                if 'Major' in cell[7]:
+                    self.characters[crId].isMajor = True
+
+                else:
+                    self.characters[crId].isMajor = False
+
+                self.characters[crId].tags = cell[8].split(';')
+                self.characters[crId].notes = cell[9].replace(
+                    self._LINEBREAK, '\n')
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+    def merge(self, novel):
+        """Copy selected novel attributes.
+        """
+
+        if novel.characters is not None:
+            self.characters = novel.characters
+
+    def write(self):
+        """Generate a csv file containing per character:
+        - character ID, 
+        - character name,
+        - character full name,
+        - character alternative name, 
+        - character description, 
+        - character bio,
+        - character goals,
+        - character importance,
+        - character tags,
+        - character notes.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        def importance(isMajor):
+
+            if isMajor:
+                return 'Major'
+
+            else:
+                return 'Minor'
+
+        # first record: the table's column headings
+
+        table = [self._TABLE_HEADER]
+
+        # Add a record for each character
+
+        for crId in self.characters:
+
+            if self.characters[crId].fullName is None:
+                self.characters[crId].fullName = ''
+
+            if self.characters[crId].aka is None:
+                self.characters[crId].aka = ''
+
+            if self.characters[crId].desc is None:
+                self.characters[crId].desc = ''
+
+            if self.characters[crId].bio is None:
+                self.characters[crId].bio = ''
+
+            if self.characters[crId].goals is None:
+                self.characters[crId].goals = ''
+
+            if self.characters[crId].isMajor is None:
+                self.characters[crId].isMajor = False
+
+            if self.characters[crId].tags is None:
+                self.characters[crId].tags = ['']
+
+            if self.characters[crId].notes is None:
+                self.characters[crId].notes = ''
+
+            table.append('CrID:' + str(crId)
+                         + self._SEPARATOR
+                         + self.characters[crId].title
+                         + self._SEPARATOR
+                         + self.characters[crId].fullName
+                         + self._SEPARATOR
+                         + self.characters[crId].aka
+                         + self._SEPARATOR
+                         + self.characters[crId].desc.rstrip().replace('\n', self._LINEBREAK)
+                         + self._SEPARATOR
+                         + self.characters[crId].bio
+                         + self._SEPARATOR
+                         + self.characters[crId].goals
+                         + self._SEPARATOR
+                         + importance(self.characters[crId].isMajor)
+                         + self._SEPARATOR
+                         + ';'.join(self.characters[crId].tags)
+                         + self._SEPARATOR
+                         + self.characters[crId].notes.rstrip().replace('\n', self._LINEBREAK)
+                         + '\n')
+
+        try:
+            with open(self._filePath, 'w', encoding='utf-8') as f:
+                f.writelines(table)
+
+        except(PermissionError):
+            return 'ERROR: ' + self._filePath + '" is write protected.'
+
+        return 'SUCCESS: "' + self._filePath + '" saved.'
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+        return None
+
+
+
+
+class CsvLocList(Novel):
+    """csv file representation of an yWriter project's locations table. 
+
+    Represents a csv file with a record per location.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR location.
+    """
+
+    _FILE_EXTENSION = 'csv'
+    # overwrites Novel._FILE_EXTENSION
+
+    _SEPARATOR = '|'     # delimits data fields within a record.
+    _LINEBREAK = '\t'    # substitutes embedded line breaks.
+
+    _TABLE_HEADER = ('ID'
+                     + _SEPARATOR
+                     + 'Name'
+                     + _SEPARATOR
+                     + 'Description'
+                     + _SEPARATOR
+                     + 'Aka'
+                     + _SEPARATOR
+                     + 'Tags'
+                     + '\n')
+
+    def read(self):
+        """Parse the csv file located at filePath, 
+        fetching the Object attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        if lines[0] != self._TABLE_HEADER:
+            return 'ERROR: Wrong lines content.'
+
+        cellsInLine = len(self._TABLE_HEADER.split(self._SEPARATOR))
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            if 'LcID:' in cell[0]:
+                lcId = re.search('LcID\:([0-9]+)', cell[0]).group(1)
+                self.locations[lcId] = Object()
+                self.locations[lcId].title = cell[1]
+                self.locations[lcId].desc = cell[2].replace(
+                    self._LINEBREAK, '\n')
+                self.locations[lcId].aka = cell[3]
+                self.locations[lcId].tags = cell[4].split(';')
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+    def merge(self, novel):
+        """Copy selected novel attributes.
+        """
+
+        if novel.locations is not None:
+            self.locations = novel.locations
+
+    def write(self):
+        """Generate a csv file containing per location:
+        - location ID, 
+        - location title,
+        - location description, 
+        - location alternative name, 
+        - location tags.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        # first record: the table's column headings
+
+        table = [self._TABLE_HEADER]
+
+        # Add a record for each location
+
+        for lcId in self.locations:
+
+            if self.locations[lcId].desc is None:
+                self.locations[lcId].desc = ''
+
+            if self.locations[lcId].aka is None:
+                self.locations[lcId].aka = ''
+
+            if self.locations[lcId].tags is None:
+                self.locations[lcId].tags = ['']
+
+            table.append('LcID:' + str(lcId)
+                         + self._SEPARATOR
+                         + self.locations[lcId].title
+                         + self._SEPARATOR
+                         + self.locations[lcId].desc.rstrip().replace('\n', self._LINEBREAK)
+                         + self._SEPARATOR
+                         + self.locations[lcId].aka
+                         + self._SEPARATOR
+                         + ';'.join(self.locations[lcId].tags)
+                         + '\n')
+
+        try:
+            with open(self._filePath, 'w', encoding='utf-8') as f:
+                f.writelines(table)
+
+        except(PermissionError):
+            return 'ERROR: ' + self._filePath + '" is write protected.'
+
+        return 'SUCCESS: "' + self._filePath + '" saved.'
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+        return None
+
+
+
+
+class CsvItemList(Novel):
+    """csv file representation of an yWriter project's items table. 
+
+    Represents a csv file with a record per item.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR item.
+    """
+
+    _FILE_EXTENSION = 'csv'
+    # overwrites Novel._FILE_EXTENSION
+
+    _SEPARATOR = '|'     # delimits data fields within a record.
+    _LINEBREAK = '\t'    # substitutes embedded line breaks.
+
+    _TABLE_HEADER = ('ID'
+                     + _SEPARATOR
+                     + 'Name'
+                     + _SEPARATOR
+                     + 'Description'
+                     + _SEPARATOR
+                     + 'Aka'
+                     + _SEPARATOR
+                     + 'Tags'
+                     + '\n')
+
+    def read(self):
+        """Parse the csv file located at filePath, 
+        fetching the Object attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        if lines[0] != self._TABLE_HEADER:
+            return 'ERROR: Wrong lines content.'
+
+        cellsInLine = len(self._TABLE_HEADER.split(self._SEPARATOR))
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            if 'ItID:' in cell[0]:
+                itId = re.search('ItID\:([0-9]+)', cell[0]).group(1)
+                self.items[itId] = Object()
+                self.items[itId].title = cell[1]
+                self.items[itId].desc = cell[2].replace(
+                    self._LINEBREAK, '\n')
+                self.items[itId].aka = cell[3]
+                self.items[itId].tags = cell[4].split(';')
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+    def merge(self, novel):
+        """Copy selected novel attributes.
+        """
+
+        if novel.items is not None:
+            self.items = novel.items
+
+    def write(self):
+        """Generate a csv file containing per item:
+        - item ID, 
+        - item title,
+        - item description, 
+        - item alternative name, 
+        - item tags.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        # first record: the table's column headings
+
+        table = [self._TABLE_HEADER]
+
+        # Add a record for each item
+
+        for itId in self.items:
+
+            if self.items[itId].desc is None:
+                self.items[itId].desc = ''
+
+            if self.items[itId].aka is None:
+                self.items[itId].aka = ''
+
+            if self.items[itId].tags is None:
+                self.items[itId].tags = ['']
+
+            table.append('ItID:' + str(itId)
+                         + self._SEPARATOR
+                         + self.items[itId].title
+                         + self._SEPARATOR
+                         + self.items[itId].desc.rstrip().replace('\n',
+                                                                  self._LINEBREAK)
+                         + self._SEPARATOR
+                         + self.items[itId].aka
+                         + self._SEPARATOR
+                         + ';'.join(self.items[itId].tags)
+                         + '\n')
+
+        try:
+            with open(self._filePath, 'w', encoding='utf-8') as f:
+                f.writelines(table)
+
+        except(PermissionError):
+            return 'ERROR: ' + self._filePath + '" is write protected.'
+
+        return 'SUCCESS: "' + self._filePath + '" saved.'
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+        return None
+
 import uno
 
 from msgbox import MsgBox
@@ -4504,7 +4925,10 @@ def run(sourcePath, suffix):
 
     fileName, FileExtension = os.path.splitext(sourcePath)
 
-    if suffix == PROOF_SUFFIX:
+    if suffix == '':
+        targetDoc = OdtFile(fileName + '.odt')
+
+    elif suffix == PROOF_SUFFIX:
         targetDoc = OdtProof(fileName + suffix + '.odt')
 
     elif suffix == MANUSCRIPT_SUFFIX:
@@ -4525,8 +4949,17 @@ def run(sourcePath, suffix):
     elif suffix == PLOTLIST_SUFFIX:
         targetDoc = CsvPlotList(fileName + suffix + '.csv')
 
+    elif suffix == CHARLIST_SUFFIX:
+        targetDoc = CsvCharList(fileName + suffix + '.csv')
+
+    elif suffix == LOCLIST_SUFFIX:
+        targetDoc = CsvLocList(fileName + suffix + '.csv')
+
+    elif suffix == ITEMLIST_SUFFIX:
+        targetDoc = CsvItemList(fileName + suffix + '.csv')
+
     else:
-        targetDoc = OdtFile(fileName + '.odt')
+        return('ERROR: Target file type not supported')
 
     ywFile = YwFile(sourcePath)
     converter = YwCnv()
@@ -4535,7 +4968,7 @@ def run(sourcePath, suffix):
     return message
 
 
-def open_yw7(suffix):
+def open_yw7(suffix, newExt):
 
     # Set last opened yWriter project as default (if existing).
 
@@ -4546,10 +4979,10 @@ def open_yw7(suffix):
 
     try:
         config.read(inifile)
-        lastOpened = config.get('FILES', 'LAST_OPEN')
+        ywLastOpen = config.get('FILES', 'yw_last_open')
 
-        if os.path.isfile(lastOpened.replace('file:///', '')):
-            defaultFile = lastOpened
+        if os.path.isfile(ywLastOpen.replace('file:///', '')):
+            defaultFile = ywLastOpen
 
     except:
         pass
@@ -4562,22 +4995,22 @@ def open_yw7(suffix):
         return
 
     sourcePath = ywFile.replace('file:///', '')
-    extension = os.path.splitext(sourcePath)[1]
+    ywExt = os.path.splitext(sourcePath)[1]
 
-    if not extension in ['.yw6', '.yw7']:
-        msgbox('Please choose an yWriter 6/7 project.')
+    if not ywExt in ['.yw6', '.yw7']:
+        msgbox('Please choose a yWriter 6/7 project.')
         return
 
     # Store selected yWriter project as "last opened".
 
-    newFile = ywFile.replace(extension, suffix + '.odt')
+    newFile = ywFile.replace(ywExt, suffix + newExt)
     dirName, filename = os.path.split(newFile)
     lockFile = (dirName + '/.~lock.' + filename + '#').replace('file:///', '')
 
     if not config.has_section('FILES'):
         config.add_section('FILES')
 
-    config.set('FILES', 'LAST_OPEN', ywFile)
+    config.set('FILES', 'yw_last_open', ywFile)
 
     with open(inifile, 'w') as f:
         config.write(f)
@@ -4606,14 +5039,72 @@ def import_yw(*args):
     '''Import scenes from yWriter 6/7 to a Writer document
     without chapter and scene markers. 
     '''
-    open_yw7('')
+    open_yw7('', '.odt')
 
 
 def proof_yw(*args):
     '''Import scenes from yWriter 6/7 to a Writer document
     with visible chapter and scene markers. 
     '''
-    open_yw7(PROOF_SUFFIX)
+    open_yw7(PROOF_SUFFIX, '.odt')
+
+
+def get_manuscript(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(MANUSCRIPT_SUFFIX, '.odt')
+
+
+def get_partdesc(*args):
+    '''Import pard descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(PARTDESC_SUFFIX, '.odt')
+
+
+def get_chapterdesc(*args):
+    '''Import chapter descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(CHAPTERDESC_SUFFIX, '.odt')
+
+
+def get_scenedesc(*args):
+    '''Import scene descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(SCENEDESC_SUFFIX, '.odt')
+
+
+def get_scenelist(*args):
+    '''Import a scene list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(SCENELIST_SUFFIX, '.csv')
+
+
+def get_plotlist(*args):
+    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(PLOTLIST_SUFFIX, '.csv')
+
+
+def get_charlist(*args):
+    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(CHARLIST_SUFFIX, '.csv')
+
+
+def get_loclist(*args):
+    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(LOCLIST_SUFFIX, '.csv')
+
+
+def get_itemlist(*args):
+    '''Import an item list from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(ITEMLIST_SUFFIX, '.csv')
 
 
 if __name__ == '__main__':

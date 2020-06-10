@@ -18,9 +18,13 @@ from pywriter.html.html_scenedesc import HtmlSceneDesc
 from pywriter.html.html_chapterdesc import HtmlChapterDesc
 from pywriter.html.html_import import HtmlImport
 from pywriter.yw.yw_file import YwFile
+from pywriter.yw.yw_new_file import YwNewFile
 from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
+from pywriter.csv.csv_charlist import CsvCharList
+from pywriter.csv.csv_loclist import CsvLocList
+from pywriter.csv.csv_itemlist import CsvItemList
 
 import uno
 
@@ -28,7 +32,7 @@ from uno_wrapper.uno_tools import *
 
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
-         '.html', '.html', SCENELIST_SUFFIX + '.csv',
+         '.html', SCENELIST_SUFFIX + '.csv',
          PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv', ITEMLIST_SUFFIX + '.csv']
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
@@ -57,12 +61,12 @@ def delete_tempfile(filePath):
 def run(sourcePath):
     sourcePath = sourcePath.replace('file:///', '').replace('%20', ' ')
 
+    ywPath = None
+
     for tail in TAILS:
         # Determine the document type
 
         if sourcePath.endswith(tail):
-
-            ywPath = None
 
             for ywExtension in YW_EXTENSIONS:
                 # Determine the yWriter project file path
@@ -92,19 +96,32 @@ def run(sourcePath):
         elif tail == PARTDESC_SUFFIX + '.html':
             sourceDoc = HtmlChapterDesc(sourcePath)
 
-        elif tail == '.html':
-            sourceDoc = HtmlImport(sourcePath)
-
         elif tail == SCENELIST_SUFFIX + '.csv':
             sourceDoc = CsvSceneList(sourcePath)
 
         elif tail == PLOTLIST_SUFFIX + '.csv':
             sourceDoc = CsvPlotList(sourcePath)
 
+        elif tail == CHARLIST_SUFFIX + '.csv':
+            sourceDoc = CsvCharList(sourcePath)
+
+        elif tail == LOCLIST_SUFFIX + '.csv':
+            sourceDoc = CsvLocList(sourcePath)
+
+        elif tail == ITEMLIST_SUFFIX + '.csv':
+            sourceDoc = CsvItemList(sourcePath)
+
         else:
             return 'ERROR: File format not supported.'
 
         ywFile = YwFile(ywPath)
+        converter = YwCnv()
+        message = converter.document_to_yw(sourceDoc, ywFile)
+
+    elif sourcePath.endswith('.html'):
+        sourceDoc = HtmlImport(sourcePath)
+        ywPath = sourcePath.replace('.html', '.yw7')
+        ywFile = YwNewFile(ywPath)
         converter = YwCnv()
         message = converter.document_to_yw(sourceDoc, ywFile)
 
