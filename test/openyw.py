@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.17.0
+Version 0.18.0
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -1582,7 +1582,6 @@ class Novel():
                 lines.append('  ScID:' + str(scId) + '\n')
 
         return ''.join(lines)
-from html import escape
 
 
 def to_odt(text):
@@ -1624,7 +1623,9 @@ def to_odt(text):
             newlines.append(line)
 
         text = '\n'.join(newlines)
-        text = escape(text)
+        text = text.replace('&', '&amp;')
+        text = text.replace('>', '&gt;')
+        text = text.replace('<', '&lt;')
         text = text.rstrip().replace(
             '\n', '</text:p>\n<text:p text:style-name="First_20_line_20_indent">')
         text = text.replace(
@@ -1667,47 +1668,55 @@ class OdtFile(Novel, OdtTemplate):
 
         for chId in self.srtChapters:
 
-            if (not self.chapters[chId].isUnused) and self.chapters[chId].chType == 0:
+            if self.chapters[chId].isUnused:
+                continue
 
-                # Write chapter heading.
+            if self.chapters[chId].chType != 0:
+                continue
 
-                lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
-                             self.chapters[chId].get_title() + self._ODT_HEADING_END)
-                firstSceneInChapter = True
+            # Write chapter heading.
 
-                for scId in self.chapters[chId].srtScenes:
+            lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
+                         self.chapters[chId].get_title() + self._ODT_HEADING_END)
+            firstSceneInChapter = True
 
-                    if not self.scenes[scId].isUnused:
+            for scId in self.chapters[chId].srtScenes:
 
-                        # Write Scene divider.
+                if self.scenes[scId].isUnused:
+                    continue
 
-                        if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
-                            lines.append(
-                                self._ODT_SCENEDIV_START + self._SCENE_DIVIDER + self._ODT_PARA_END)
+                if self.scenes[scId].doNotExport:
+                    continue
 
-                        if self.scenes[scId].appendToPrev:
-                            scenePrefix = self._ODT_PARA_START
+                # Write Scene divider.
 
-                        else:
-                            scenePrefix = self._ODT_FIRST_PARA_START
+                if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
+                    lines.append(
+                        self._ODT_SCENEDIV_START + self._SCENE_DIVIDER + self._ODT_PARA_END)
 
-                        # Write scene title as comment.
+                if self.scenes[scId].appendToPrev:
+                    scenePrefix = self._ODT_PARA_START
 
-                        scenePrefix += ('<office:annotation>\n' +
-                                        '<dc:creator>scene title</dc:creator>\n' +
-                                        '<text:p>' + self.scenes[scId].title + '</text:p>\n' +
-                                        '</office:annotation>')
+                else:
+                    scenePrefix = self._ODT_FIRST_PARA_START
 
-                        # Write scene content.
+                # Write scene title as comment.
 
-                        if self.scenes[scId].sceneContent is not None:
-                            lines.append(scenePrefix +
-                                         to_odt(self.scenes[scId].sceneContent) + self._ODT_PARA_END)
+                scenePrefix += ('<office:annotation>\n' +
+                                '<dc:creator>scene title</dc:creator>\n' +
+                                '<text:p>' + self.scenes[scId].title + '</text:p>\n' +
+                                '</office:annotation>')
 
-                        else:
-                            lines.append(scenePrefix + self._ODT_PARA_END)
+                # Write scene content.
 
-                        firstSceneInChapter = False
+                if self.scenes[scId].sceneContent is not None:
+                    lines.append(scenePrefix +
+                                 to_odt(self.scenes[scId].sceneContent) + self._ODT_PARA_END)
+
+                else:
+                    lines.append(scenePrefix + self._ODT_PARA_END)
+
+                firstSceneInChapter = False
 
         lines.append(self._CONTENT_XML_FOOTER)
         text = '\n'.join(lines)
@@ -1850,6 +1859,9 @@ class OdtProof(OdtFile):
 
             for scId in self.chapters[chId].srtScenes:
 
+                if self.scenes[scId].doNotExport:
+                    continue
+
                 # Write Scene divider.
 
                 if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
@@ -1957,79 +1969,84 @@ class OdtManuscript(OdtFile):
 
         for chId in self.srtChapters:
 
+            if self.chapters[chId].isUnused:
+                continue
+
+            if self.chapters[chId].chType != 0:
+                continue
+
             # Write invisible "start chapter" tag.
 
-            if self.chapters[chId].chType == 0 and not self.chapters[chId].isUnused:
+            lines.append(
+                '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
+
+            # Write chapter heading
+            # with hyperlink to chapter or part description.
+
+            lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
+                         '<text:a xlink:href="' +
+                         chapterDescPath[self.chapters[chId].chLevel] +
+                         '#ChID:' + chId + '%7Cregion">' +
+                         self.chapters[chId].get_title() +
+                         '</text:a>' +
+                         self._ODT_HEADING_END)
+
+            firstSceneInChapter = True
+
+            for scId in self.chapters[chId].srtScenes:
+
+                if self.scenes[scId].isUnused:
+                    continue
+
+                if self.scenes[scId].doNotExport:
+                    continue
+
+                # Write Scene divider.
+
+                if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
+                    lines.append(
+                        self._ODT_SCENEDIV_START + self._SCENE_DIVIDER + self._ODT_PARA_END)
+
+                # Write invisible "start scene" tag.
+
                 lines.append(
-                    '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
+                    '<text:section text:style-name="Sect1" text:name="ScID:' + scId + '">')
 
-            if (not self.chapters[chId].isUnused) and self.chapters[chId].chType == 0:
+                if self.scenes[scId].appendToPrev:
+                    scenePrefix = self._ODT_PARA_START
 
-                # Write chapter heading
-                # with hyperlink to chapter or part description.
+                else:
+                    scenePrefix = self._ODT_FIRST_PARA_START
 
-                lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
-                             '<text:a xlink:href="' +
-                             chapterDescPath[self.chapters[chId].chLevel] +
-                             '#ChID:' + chId + '%7Cregion">' +
-                             self.chapters[chId].get_title() +
-                             '</text:a>' +
-                             self._ODT_HEADING_END)
+                # Write scene title as comment.
 
-                firstSceneInChapter = True
+                scenePrefix += ('<office:annotation>\n' +
+                                '<dc:creator>scene title</dc:creator>\n' +
+                                '<text:p>' + self.scenes[scId].title + '</text:p>\n' +
+                                '<text:p/>\n' +
+                                '<text:p><text:a xlink:href="' +
+                                sceneDescPath + '#ScID:' +
+                                scId + '%7Cregion">→Summary</text:a></text:p>\n' +
+                                '</office:annotation>')
 
-                for scId in self.chapters[chId].srtScenes:
+                # Write scene content.
 
-                    if not self.scenes[scId].isUnused:
+                if self.scenes[scId].sceneContent is not None:
+                    lines.append(scenePrefix +
+                                 to_odt(self.scenes[scId].sceneContent) + self._ODT_PARA_END)
 
-                        # Write Scene divider.
+                else:
+                    lines.append(scenePrefix + self._ODT_PARA_END)
 
-                        if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
-                            lines.append(
-                                self._ODT_SCENEDIV_START + self._SCENE_DIVIDER + self._ODT_PARA_END)
+                firstSceneInChapter = False
 
-                        # Write invisible "start scene" tag.
-
-                        lines.append(
-                            '<text:section text:style-name="Sect1" text:name="ScID:' + scId + '">')
-
-                        if self.scenes[scId].appendToPrev:
-                            scenePrefix = self._ODT_PARA_START
-
-                        else:
-                            scenePrefix = self._ODT_FIRST_PARA_START
-
-                        # Write scene title as comment.
-
-                        scenePrefix += ('<office:annotation>\n' +
-                                        '<dc:creator>scene title</dc:creator>\n' +
-                                        '<text:p>' + self.scenes[scId].title + '</text:p>\n' +
-                                        '<text:p/>\n' +
-                                        '<text:p><text:a xlink:href="' +
-                                        sceneDescPath + '#ScID:' +
-                                        scId + '%7Cregion">→Summary</text:a></text:p>\n' +
-                                        '</office:annotation>')
-
-                        # Write scene content.
-
-                        if self.scenes[scId].sceneContent is not None:
-                            lines.append(scenePrefix +
-                                         to_odt(self.scenes[scId].sceneContent) + self._ODT_PARA_END)
-
-                        else:
-                            lines.append(scenePrefix + self._ODT_PARA_END)
-
-                        firstSceneInChapter = False
-
-                        # Write invisible "end scene" tag.
-
-                        lines.append('</text:section>')
-
-            if self.chapters[chId].chType == 0 and not self.chapters[chId].isUnused:
-
-                # Write invisible "end chapter" tag.
+                # Write invisible "end scene" tag.
 
                 lines.append('</text:section>')
+
+            # Write invisible "end chapter" tag.
+
+            lines.append('</text:section>')
 
         lines.append(self._CONTENT_XML_FOOTER)
         text = '\n'.join(lines)
@@ -2076,75 +2093,80 @@ class OdtSceneDesc(OdtFile):
 
         for chId in self.srtChapters:
 
+            if self.chapters[chId].isUnused:
+                continue
+
+            if self.chapters[chId].chType != 0:
+                continue
+
             # Write invisible "start chapter" tag.
 
-            if self.chapters[chId].chType == 0 and not self.chapters[chId].isUnused:
+            lines.append(
+                '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
+
+            # Write chapter heading
+            # with hyperlink to chapter or part description.
+
+            lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
+                         '<text:a xlink:href="' +
+                         chapterDescPath[self.chapters[chId].chLevel] +
+                         '#ChID:' + chId + '%7Cregion">' +
+                         self.chapters[chId].get_title() +
+                         '</text:a>' +
+                         self._ODT_HEADING_END)
+
+            firstSceneInChapter = True
+
+            for scId in self.chapters[chId].srtScenes:
+
+                if self.scenes[scId].isUnused:
+                    continue
+
+                if self.scenes[scId].doNotExport:
+                    continue
+
+                # Write Scene divider.
+
+                if not firstSceneInChapter:
+                    lines.append(
+                        self._ODT_SCENEDIV_START + self._SCENE_DIVIDER + self._ODT_PARA_END)
+
+                # Write invisible "start scene" tag.
+
                 lines.append(
-                    '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
+                    '<text:section text:style-name="Sect1" text:name="ScID:' + scId + '">')
 
-            if (not self.chapters[chId].isUnused) and self.chapters[chId].chType == 0:
+                scenePrefix = self._ODT_FIRST_PARA_START
 
-                # Write chapter heading
-                # with hyperlink to chapter or part description.
+                # Write scene title as comment.
 
-                lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
-                             '<text:a xlink:href="' +
-                             chapterDescPath[self.chapters[chId].chLevel] +
-                             '#ChID:' + chId + '%7Cregion">' +
-                             self.chapters[chId].get_title() +
-                             '</text:a>' +
-                             self._ODT_HEADING_END)
+                scenePrefix += ('<office:annotation>\n' +
+                                '<dc:creator>scene title</dc:creator>\n' +
+                                '<text:p>' + self.scenes[scId].title + '</text:p>\n' +
+                                '<text:p/>\n' +
+                                '<text:p><text:a xlink:href="' +
+                                manuscriptPath + '#ScID:' +
+                                scId + '%7Cregion">→Manuscript</text:a></text:p>\n' +
+                                '</office:annotation>')
 
-                firstSceneInChapter = True
+                # Write scene summary.
 
-                for scId in self.chapters[chId].srtScenes:
+                if self.scenes[scId].desc is not None:
+                    lines.append(scenePrefix +
+                                 to_odt(self.scenes[scId].desc) + self._ODT_PARA_END)
 
-                    if not self.scenes[scId].isUnused:
+                else:
+                    lines.append(scenePrefix + self._ODT_PARA_END)
 
-                        # Write Scene divider.
+                firstSceneInChapter = False
 
-                        if not firstSceneInChapter:
-                            lines.append(
-                                self._ODT_SCENEDIV_START + self._SCENE_DIVIDER + self._ODT_PARA_END)
-
-                        # Write invisible "start scene" tag.
-
-                        lines.append(
-                            '<text:section text:style-name="Sect1" text:name="ScID:' + scId + '">')
-
-                        scenePrefix = self._ODT_FIRST_PARA_START
-
-                        # Write scene title as comment.
-
-                        scenePrefix += ('<office:annotation>\n' +
-                                        '<dc:creator>scene title</dc:creator>\n' +
-                                        '<text:p>' + self.scenes[scId].title + '</text:p>\n' +
-                                        '<text:p/>\n' +
-                                        '<text:p><text:a xlink:href="' +
-                                        manuscriptPath + '#ScID:' +
-                                        scId + '%7Cregion">→Manuscript</text:a></text:p>\n' +
-                                        '</office:annotation>')
-
-                        # Write scene summary.
-
-                        if self.scenes[scId].desc is not None:
-                            lines.append(scenePrefix +
-                                         to_odt(self.scenes[scId].desc) + self._ODT_PARA_END)
-
-                        else:
-                            lines.append(scenePrefix + self._ODT_PARA_END)
-
-                        firstSceneInChapter = False
-
-                        # Write invisible "end scene" tag.
-
-                        lines.append('</text:section>')
-
-            if self.chapters[chId].chType == 0 and not self.chapters[chId].isUnused:
-
-                # Write invisible "end chapter" tag.
+                # Write invisible "end scene" tag.
 
                 lines.append('</text:section>')
+
+            # Write invisible "end chapter" tag.
+
+            lines.append('</text:section>')
 
         lines.append(self._CONTENT_XML_FOOTER)
         text = '\n'.join(lines)
@@ -2190,40 +2212,45 @@ class OdtChapterDesc(OdtFile):
 
         for chId in self.srtChapters:
 
-            if self.chapters[chId].chType == 0 and not self.chapters[chId].isUnused:
+            if self.chapters[chId].isUnused:
+                continue
 
-                # Write chapter heading
-                # with hyperlink to manuscript or part description.
+            if self.chapters[chId].chType != 0:
+                continue
 
-                lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
-                             '<text:a xlink:href="' +
-                             linkPath[self.chapters[chId].chLevel] +
-                             '#ChID:' + chId + '%7Cregion">' +
-                             self.chapters[chId].get_title() +
-                             '</text:a>' +
-                             self._ODT_HEADING_END)
+            # Write chapter heading
+            # with hyperlink to manuscript or part description.
 
-                if self.chapters[chId].chLevel == 0:
+            lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
+                         '<text:a xlink:href="' +
+                         linkPath[self.chapters[chId].chLevel] +
+                         '#ChID:' + chId + '%7Cregion">' +
+                         self.chapters[chId].get_title() +
+                         '</text:a>' +
+                         self._ODT_HEADING_END)
 
-                    # Write invisible "start chapter" tag.
+            if self.chapters[chId].chLevel != 0:
+                continue
 
-                    lines.append(
-                        '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
+            # Write invisible "start chapter" tag.
 
-                    if self.chapters[chId].desc is not None:
+            lines.append(
+                '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
 
-                        # Write chapter summary.
+            if self.chapters[chId].desc is not None:
 
-                        lines.append(self._ODT_FIRST_PARA_START +
-                                     to_odt(self.chapters[chId].desc) + self._ODT_PARA_END)
+                # Write chapter summary.
 
-                    else:
-                        lines.append(self._ODT_FIRST_PARA_START +
-                                     self._ODT_PARA_END)
+                lines.append(self._ODT_FIRST_PARA_START +
+                             to_odt(self.chapters[chId].desc) + self._ODT_PARA_END)
 
-                    # Write invisible "end chapter" tag.
+            else:
+                lines.append(self._ODT_FIRST_PARA_START +
+                             self._ODT_PARA_END)
 
-                    lines.append('</text:section>')
+            # Write invisible "end chapter" tag.
+
+            lines.append('</text:section>')
 
         lines.append(self._CONTENT_XML_FOOTER)
         text = '\n'.join(lines)
@@ -2266,39 +2293,44 @@ class OdtPartDesc(OdtFile):
 
         for chId in self.srtChapters:
 
-            if self.chapters[chId].chType == 0 and not self.chapters[chId].isUnused:
+            if self.chapters[chId].isUnused:
+                continue
 
-                if self.chapters[chId].chLevel == 1:
+            if self.chapters[chId].chType != 0:
+                continue
 
-                    # Write chapter heading
-                    # with hyperlink to manuscript.
+            if self.chapters[chId].chLevel != 1:
+                continue
 
-                    lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
-                                 '<text:a xlink:href="' +
-                                 manuscriptPath + '#ChID:' + chId + '%7Cregion">' +
-                                 self.chapters[chId].get_title() +
-                                 '</text:a>' +
-                                 self._ODT_HEADING_END)
+            # Write chapter heading
+            # with hyperlink to manuscript.
 
-                    # Write invisible "start chapter" tag.
+            lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
+                         '<text:a xlink:href="' +
+                         manuscriptPath + '#ChID:' + chId + '%7Cregion">' +
+                         self.chapters[chId].get_title() +
+                         '</text:a>' +
+                         self._ODT_HEADING_END)
 
-                    lines.append(
-                        '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
+            # Write invisible "start chapter" tag.
 
-                    if self.chapters[chId].desc is not None:
+            lines.append(
+                '<text:section text:style-name="Sect1" text:name="ChID:' + chId + '">')
 
-                        # Write chapter summary.
+            if self.chapters[chId].desc is not None:
 
-                        lines.append(self._ODT_FIRST_PARA_START +
-                                     to_odt(self.chapters[chId].desc) + self._ODT_PARA_END)
+                # Write chapter summary.
 
-                    else:
-                        lines.append(self._ODT_FIRST_PARA_START +
-                                     self._ODT_PARA_END)
+                lines.append(self._ODT_FIRST_PARA_START +
+                             to_odt(self.chapters[chId].desc) + self._ODT_PARA_END)
 
-                    # Write invisible "end chapter" tag.
+            else:
+                lines.append(self._ODT_FIRST_PARA_START +
+                             self._ODT_PARA_END)
 
-                    lines.append('</text:section>')
+            # Write invisible "end chapter" tag.
+
+            lines.append('</text:section>')
 
         lines.append(self._CONTENT_XML_FOOTER)
         text = '\n'.join(lines)
@@ -2344,19 +2376,23 @@ class Chapter():
 
         self.isUnused = None
         # bool
-        # xml: <Unused>
+        # xml: <Unused> -1
 
         self.suppressChapterTitle = None
         # bool
-        # xml: <Fields><Field_SuppressChapterTitle>
+        # xml: <Fields><Field_SuppressChapterTitle> 1
         # True: Remove 'Chapter ' from the chapter title upon import.
         # False: Do not modify the chapter title.
 
         self.isTrash = None
         # bool
-        # xml: <Fields><Field_IsTrash>
+        # xml: <Fields><Field_IsTrash> 1
         # True: This chapter is the yw7 project's "trash bin".
         # False: This chapter is not a "trash bin".
+
+        self.doNotExport = None
+        # bool
+        # xml: <<Fields>Field_SuppressChapterBreak> 0
 
         self.srtScenes = []
         # list of str
@@ -2409,7 +2445,7 @@ class Scene():
 
         self.isUnused = None
         # bool
-        # xml: <Unused>
+        # xml: <Unused> -1
 
         self.status = None
         # int # xml: <Status>
@@ -2440,15 +2476,15 @@ class Scene():
 
         self.appendToPrev = None
         # bool
-        # xml: <AppendToPrev>
+        # xml: <AppendToPrev> -1
 
         self.isReactionScene = None
         # bool
-        # xml: <ReactionScene>
+        # xml: <ReactionScene> -1
 
         self.isSubPlot = None
         # bool
-        # xml: <SubPlot>
+        # xml: <SubPlot> -1
 
         self.goal = None
         # str
@@ -2842,6 +2878,17 @@ class YwFile(Novel):
                     else:
                         self.chapters[chId].isTrash = False
 
+                if fields.find('Field_SuppressChapterBreak') is not None:
+
+                    if fields.find('Field_SuppressChapterTitle').text == '0':
+                        self.chapters[chId].doNotExport = True
+
+                    else:
+                        self.chapters[chId].doNotExport = False
+
+                else:
+                    self.chapters[chId].doNotExport = False
+
             self.chapters[chId].srtScenes = []
 
             if chp.find('Scenes') is not None:
@@ -2856,7 +2903,6 @@ class YwFile(Novel):
 
         for scn in root.iter('SCENE'):
             scId = scn.find('ID').text
-
             self.scenes[scId] = Scene()
             self.scenes[scId].title = scn.find('Title').text
 
@@ -2874,6 +2920,15 @@ class YwFile(Novel):
 
             else:
                 self.scenes[scId].isUnused = False
+
+            if scn.find('ExportCondSpecific') is None:
+                self.scenes[scId].doNotExport = False
+
+            elif scn.find('ExportWhenRTF') is not None:
+                self.scenes[scId].doNotExport = False
+
+            else:
+                self.scenes[scId].doNotExport = True
 
             if scn.find('Status') is not None:
                 self.scenes[scId].status = int(scn.find('Status').text)
@@ -3194,7 +3249,8 @@ class YwFile(Novel):
                 if self.locations[lcId].desc is not None:
 
                     if loc.find('Desc') is None:
-                        ET.SubElement(loc, 'Desc').text = self.locations[lcId].desc
+                        ET.SubElement(
+                            loc, 'Desc').text = self.locations[lcId].desc
 
                     else:
                         loc.find('Desc').text = self.locations[lcId].desc
@@ -3982,146 +4038,154 @@ class CsvSceneList(Novel):
 
         for chId in self.srtChapters:
 
-            if (not self.chapters[chId].isUnused) and self.chapters[chId].chType == 0:
+            if self.chapters[chId].isUnused:
+                continue
 
-                for scId in self.chapters[chId].srtScenes:
+            if self.chapters[chId].chType != 0:
+                continue
 
-                    if not self.scenes[scId].isUnused:
+            for scId in self.chapters[chId].srtScenes:
 
-                        if self.scenes[scId].isReactionScene:
-                            pacingType = self._REACTION_MARKER
+                if self.scenes[scId].isUnused:
+                    continue
 
-                        else:
-                            pacingType = self._ACTION_MARKER
+                if self.scenes[scId].doNotExport:
+                    continue
 
-                        sceneCount += 1
-                        wordCount += self.scenes[scId].wordCount
+                if self.scenes[scId].isReactionScene:
+                    pacingType = self._REACTION_MARKER
 
-                        if self.scenes[scId].desc is None:
-                            self.scenes[scId].desc = ''
+                else:
+                    pacingType = self._ACTION_MARKER
 
-                        if self.scenes[scId].tags is None:
-                            self.scenes[scId].tags = ['']
+                sceneCount += 1
+                wordCount += self.scenes[scId].wordCount
 
-                        if self.scenes[scId].sceneNotes is None:
-                            self.scenes[scId].sceneNotes = ''
+                if self.scenes[scId].desc is None:
+                    self.scenes[scId].desc = ''
 
-                        if self.scenes[scId].isReactionScene is None:
-                            self.scenes[scId].isReactionScene = False
+                if self.scenes[scId].tags is None:
+                    self.scenes[scId].tags = ['']
 
-                        if self.scenes[scId].goal is None:
-                            self.scenes[scId].goal = ''
+                if self.scenes[scId].sceneNotes is None:
+                    self.scenes[scId].sceneNotes = ''
 
-                        if self.scenes[scId].conflict is None:
-                            self.scenes[scId].conflict = ''
+                if self.scenes[scId].isReactionScene is None:
+                    self.scenes[scId].isReactionScene = False
 
-                        if self.scenes[scId].outcome is None:
-                            self.scenes[scId].outcome = ''
+                if self.scenes[scId].goal is None:
+                    self.scenes[scId].goal = ''
 
-                        if self.scenes[scId].field1 is None:
-                            self.scenes[scId].field1 = ''
+                if self.scenes[scId].conflict is None:
+                    self.scenes[scId].conflict = ''
 
-                        if self.scenes[scId].field2 is None:
-                            self.scenes[scId].field2 = ''
+                if self.scenes[scId].outcome is None:
+                    self.scenes[scId].outcome = ''
 
-                        if self.scenes[scId].field3 is None:
-                            self.scenes[scId].field3 = ''
+                if self.scenes[scId].field1 is None:
+                    self.scenes[scId].field1 = ''
 
-                        if self.scenes[scId].field4 is None:
-                            self.scenes[scId].field4 = ''
+                if self.scenes[scId].field2 is None:
+                    self.scenes[scId].field2 = ''
 
-                        rating1 = ''
-                        if self.scenes[scId].field1 != '1':
-                            rating1 = self.scenes[scId].field1
+                if self.scenes[scId].field3 is None:
+                    self.scenes[scId].field3 = ''
 
-                        rating2 = ''
-                        if self.scenes[scId].field2 != '1':
-                            rating2 = self.scenes[scId].field2
+                if self.scenes[scId].field4 is None:
+                    self.scenes[scId].field4 = ''
 
-                        rating3 = ''
-                        if self.scenes[scId].field3 != '1':
-                            rating3 = self.scenes[scId].field3
+                rating1 = ''
+                if self.scenes[scId].field1 != '1':
+                    rating1 = self.scenes[scId].field1
 
-                        rating4 = ''
-                        if self.scenes[scId].field4 != '1':
-                            rating4 = self.scenes[scId].field4
+                rating2 = ''
+                if self.scenes[scId].field2 != '1':
+                    rating2 = self.scenes[scId].field2
 
-                        charas = ''
+                rating3 = ''
+                if self.scenes[scId].field3 != '1':
+                    rating3 = self.scenes[scId].field3
 
-                        if self.scenes[scId].characters is not None:
+                rating4 = ''
+                if self.scenes[scId].field4 != '1':
+                    rating4 = self.scenes[scId].field4
 
-                            for crId in self.scenes[scId].characters:
+                charas = ''
 
-                                if charas != '':
-                                    charas += '; '
+                if self.scenes[scId].characters is not None:
 
-                                charas += self.characters[crId].title
+                    for crId in self.scenes[scId].characters:
 
-                        locas = ''
+                        if charas != '':
+                            charas += '; '
 
-                        if self.scenes[scId].locations is not None:
+                        charas += self.characters[crId].title
 
-                            for lcId in self.scenes[scId].locations:
+                locas = ''
 
-                                if locas != '':
-                                    locas += '; '
+                if self.scenes[scId].locations is not None:
 
-                                locas += self.locations[lcId].title
+                    for lcId in self.scenes[scId].locations:
 
-                        items = ''
+                        if locas != '':
+                            locas += '; '
 
-                        if self.scenes[scId].items is not None:
+                        locas += self.locations[lcId].title
 
-                            for itId in self.scenes[scId].items:
+                items = ''
 
-                                if items != '':
-                                    items += '; '
+                if self.scenes[scId].items is not None:
 
-                                items += self.items[itId].title
+                    for itId in self.scenes[scId].items:
 
-                        table.append('=HYPERLINK("file:///'
-                                     + odtPath + '#ScID:' + scId + '%7Cregion";"ScID:' + scId + '")'
-                                     + self._SEPARATOR
-                                     + self.scenes[scId].title
-                                     + self._SEPARATOR
-                                     + self.scenes[scId].desc.rstrip().replace('\n', self._LINEBREAK)
-                                     + self._SEPARATOR
-                                     + ';'.join(self.scenes[scId].tags)
-                                     + self._SEPARATOR
-                                     + self.scenes[scId].sceneNotes.rstrip().replace('\n', self._LINEBREAK)
-                                     + self._SEPARATOR
-                                     + pacingType
-                                     + self._SEPARATOR
-                                     + self.scenes[scId].goal
-                                     + self._SEPARATOR
-                                     + self.scenes[scId].conflict
-                                     + self._SEPARATOR
-                                     + self.scenes[scId].outcome
-                                     + self._SEPARATOR
-                                     + str(sceneCount)
-                                     + self._SEPARATOR
-                                     + str(wordCount)
-                                     + self._SEPARATOR
-                                     + rating1
-                                     + self._SEPARATOR
-                                     + rating2
-                                     + self._SEPARATOR
-                                     + rating3
-                                     + self._SEPARATOR
-                                     + rating4
-                                     + self._SEPARATOR
-                                     + str(self.scenes[scId].wordCount)
-                                     + self._SEPARATOR
-                                     + str(self.scenes[scId].letterCount)
-                                     + self._SEPARATOR
-                                     + Scene.STATUS[self.scenes[scId].status]
-                                     + self._SEPARATOR
-                                     + charas
-                                     + self._SEPARATOR
-                                     + locas
-                                     + self._SEPARATOR
-                                     + items
-                                     + '\n')
+                        if items != '':
+                            items += '; '
+
+                        items += self.items[itId].title
+
+                table.append('=HYPERLINK("file:///'
+                             + odtPath + '#ScID:' + scId + '%7Cregion";"ScID:' + scId + '")'
+                             + self._SEPARATOR
+                             + self.scenes[scId].title
+                             + self._SEPARATOR
+                             + self.scenes[scId].desc.rstrip().replace('\n', self._LINEBREAK)
+                             + self._SEPARATOR
+                             + ';'.join(self.scenes[scId].tags)
+                             + self._SEPARATOR
+                             + self.scenes[scId].sceneNotes.rstrip().replace('\n', self._LINEBREAK)
+                             + self._SEPARATOR
+                             + pacingType
+                             + self._SEPARATOR
+                             + self.scenes[scId].goal
+                             + self._SEPARATOR
+                             + self.scenes[scId].conflict
+                             + self._SEPARATOR
+                             + self.scenes[scId].outcome
+                             + self._SEPARATOR
+                             + str(sceneCount)
+                             + self._SEPARATOR
+                             + str(wordCount)
+                             + self._SEPARATOR
+                             + rating1
+                             + self._SEPARATOR
+                             + rating2
+                             + self._SEPARATOR
+                             + rating3
+                             + self._SEPARATOR
+                             + rating4
+                             + self._SEPARATOR
+                             + str(self.scenes[scId].wordCount)
+                             + self._SEPARATOR
+                             + str(self.scenes[scId].letterCount)
+                             + self._SEPARATOR
+                             + Scene.STATUS[self.scenes[scId].status]
+                             + self._SEPARATOR
+                             + charas
+                             + self._SEPARATOR
+                             + locas
+                             + self._SEPARATOR
+                             + items
+                             + '\n')
 
         try:
             with open(self._filePath, 'w', encoding='utf-8') as f:
@@ -4362,87 +4426,93 @@ class CsvPlotList(Novel):
 
         for chId in self.srtChapters:
 
-            if not self.chapters[chId].isUnused:
+            if self.chapters[chId].isUnused:
+                continue
 
-                if self.chapters[chId].chType == 1:
-                    # Chapter marked "Other" precedes and describes a Plot section.
-                    # Put chapter description to "details".
+            if self.chapters[chId].chType == 1:
+                # Chapter marked "Other" precedes and describes a Plot section.
+                # Put chapter description to "details".
 
-                    if self.chapters[chId].desc is None:
-                        self.chapters[chId].desc = ''
+                if self.chapters[chId].desc is None:
+                    self.chapters[chId].desc = ''
 
-                    table.append('ChID:' + chId
+                table.append('ChID:' + chId
+                             + self._SEPARATOR
+                             + self.chapters[chId].title
+                             + self._SEPARATOR
+                             + self._SEPARATOR
+                             + self._SEPARATOR
+                             + self.chapters[chId].desc.rstrip().replace('\n', self._LINEBREAK)
+                             + self._SEPARATOR
+                             + self._SEPARATOR
+                             + self._SEPARATOR
+                             + self._SEPARATOR
+                             + self._SEPARATOR
+                             + self._SEPARATOR
+                             + '\n')
+
+            else:
+                for scId in self.chapters[chId].srtScenes:
+
+                    if self.scenes[scId].isUnused:
+                        continue
+
+                    if self.scenes[scId].doNotExport:
+                        continue
+
+                    sceneCount += 1
+                    wordCount += self.scenes[scId].wordCount
+
+                    # If the scene contains plot information:
+                    # a tag marks the plot event (e.g. inciting event, plot point, climax).
+                    # Put scene note text to "details".
+                    # Transfer scene ratings > 1 to storyline arc
+                    # states.
+
+                    if self.scenes[scId].sceneNotes is None:
+                        self.scenes[scId].sceneNotes = ''
+
+                    if self.scenes[scId].tags is None:
+                        self.scenes[scId].tags = ['']
+
+                    arcState1 = ''
+                    if arc1 and self.scenes[scId].field1 != '1':
+                        arcState1 = self.scenes[scId].field1
+
+                    arcState2 = ''
+                    if arc2 and self.scenes[scId].field2 != '1':
+                        arcState2 = self.scenes[scId].field2
+
+                    arcState3 = ''
+                    if arc3 and self.scenes[scId].field3 != '1':
+                        arcState3 = self.scenes[scId].field3
+
+                    arcState4 = ''
+                    if arc4 and self.scenes[scId].field4 != '1':
+                        arcState4 = self.scenes[scId].field4
+
+                    table.append('=HYPERLINK("file:///'
+                                 + odtPath + '#ScID:' + scId + '%7Cregion";"ScID:' + scId + '")'
                                  + self._SEPARATOR
-                                 + self.chapters[chId].title
                                  + self._SEPARATOR
+                                 + ';'.join(self.scenes[scId].tags)
                                  + self._SEPARATOR
+                                 + self.scenes[scId].title
                                  + self._SEPARATOR
-                                 + self.chapters[chId].desc.rstrip().replace('\n', self._LINEBREAK)
+                                 + self.scenes[scId].sceneNotes.rstrip().replace('\n', self._LINEBREAK)
                                  + self._SEPARATOR
+                                 + str(sceneCount)
                                  + self._SEPARATOR
+                                 + str(wordCount)
                                  + self._SEPARATOR
+                                 + arcState1
                                  + self._SEPARATOR
+                                 + arcState2
                                  + self._SEPARATOR
+                                 + arcState3
                                  + self._SEPARATOR
+                                 + arcState4
                                  + '\n')
-
-                else:
-                    for scId in self.chapters[chId].srtScenes:
-
-                        if not self.scenes[scId].isUnused:
-                            sceneCount += 1
-                            wordCount += self.scenes[scId].wordCount
-
-                            # If the scene contains plot information:
-                            # a tag marks the plot event (e.g. inciting event, plot point, climax).
-                            # Put scene note text to "details".
-                            # Transfer scene ratings > 1 to storyline arc
-                            # states.
-
-                            if self.scenes[scId].sceneNotes is None:
-                                self.scenes[scId].sceneNotes = ''
-
-                            if self.scenes[scId].tags is None:
-                                self.scenes[scId].tags = ['']
-
-                            arcState1 = ''
-                            if arc1 and self.scenes[scId].field1 != '1':
-                                arcState1 = self.scenes[scId].field1
-
-                            arcState2 = ''
-                            if arc2 and self.scenes[scId].field2 != '1':
-                                arcState2 = self.scenes[scId].field2
-
-                            arcState3 = ''
-                            if arc3 and self.scenes[scId].field3 != '1':
-                                arcState3 = self.scenes[scId].field3
-
-                            arcState4 = ''
-                            if arc4 and self.scenes[scId].field4 != '1':
-                                arcState4 = self.scenes[scId].field4
-
-                            table.append('=HYPERLINK("file:///'
-                                         + odtPath + '#ScID:' + scId + '%7Cregion";"ScID:' + scId + '")'
-                                         + self._SEPARATOR
-                                         + self._SEPARATOR
-                                         + ';'.join(self.scenes[scId].tags)
-                                         + self._SEPARATOR
-                                         + self.scenes[scId].title
-                                         + self._SEPARATOR
-                                         + self.scenes[scId].sceneNotes.rstrip().replace('\n', self._LINEBREAK)
-                                         + self._SEPARATOR
-                                         + str(sceneCount)
-                                         + self._SEPARATOR
-                                         + str(wordCount)
-                                         + self._SEPARATOR
-                                         + arcState1
-                                         + self._SEPARATOR
-                                         + arcState2
-                                         + self._SEPARATOR
-                                         + arcState3
-                                         + self._SEPARATOR
-                                         + arcState4
-                                         + '\n')
 
         try:
             with open(self._filePath, 'w', encoding='utf-8') as f:
