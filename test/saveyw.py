@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.16.0
+Version 0.17.0
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -890,7 +890,7 @@ class Character(Object):
         self.isMajor = None
         # bool
         # xml: <Major>
-import html
+from html import unescape
 
 EM_DASH = '—'
 EN_DASH = '–'
@@ -952,8 +952,7 @@ def xml_postprocess(filePath, fileEncoding, cdataTags: list):
     newXml = ''.join(newlines)
     newXml = newXml.replace('[CDATA[ \n', '[CDATA[')
     newXml = newXml.replace('\n]]', ']]')
-    newXml = newXml.replace('&amp;', '&')
-    newXml = html.unescape(newXml)
+    newXml = unescape(newXml)
 
     try:
         with open(filePath, 'w', encoding=fileEncoding) as f:
