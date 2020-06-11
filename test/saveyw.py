@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.19.0
+Version 0.19.1
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -4012,6 +4012,7 @@ class CsvItemList(Novel):
         return None
 
 import uno
+import unohelper
 
 from msgbox import MsgBox
 
@@ -4169,62 +4170,89 @@ def run(sourcePath):
 def export_yw(*args):
     '''Export the document to a yWriter 6/7 project.
     '''
-    documentPath = ''
 
     # Get document's filename
 
-    desktop = XSCRIPTCONTEXT.getDesktop()
+    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    # document   = ThisComponent.CurrentController.Frame
 
-    """
-    document   = ThisComponent.CurrentController.Frame
-    dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-    documentPath = ThisComponent.getURL()
-    """
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    smgr = ctx.getServiceManager()
+    dispatcher = smgr.createInstanceWithContext(
+        "com.sun.star.frame.DispatchHelper", ctx)
+    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    documentPath = XSCRIPTCONTEXT.getDocument().getURL()
+    # documentPath = ThisComponent.getURL()
+
     documentPath = documentPath.lower()
 
     if documentPath.endswith('.odt') or documentPath.endswith('.html'):
         odtPath = documentPath.replace('.html', '.odt')
         htmlPath = documentPath.replace('.odt', '.html')
-        """
-        dim args1(1) as new com.sun.star.beans.PropertyValue
 
         # Save document in HTML format
 
-        args1(0).Name = "URL"
-        args1(0).Value = htmlPath
-        args1(1).Name = "FilterName"
-        args1(1).Value = "HTML (StarWriter)"
+        from com.sun.star.beans import PropertyValue
+        args1 = []
+        args1.append(PropertyValue())
+        args1.append(PropertyValue())
+        # dim args1(1) as new com.sun.star.beans.PropertyValue
 
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+        args1[0].Name = 'URL'
+        # args1(0).Name = "URL"
+        args1[0].Value = htmlPath
+        # args1(0).Value = htmlPath
+        args1[1].Name = 'FilterName'
+        # args1(1).Name = "FilterName"
+        args1[1].Value = 'HTML (StarWriter)'
+        # args1(1).Value = "HTML (StarWriter)"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         # Save document in OpenDocument format
 
-        args1(0).Value = odtPath
-        args1(1).Value = "writer8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-        """
+        args1[0].Value = odtPath
+        # args1(0).Value = odtPath
+        args1[1].Value = 'writer8'
+        # args1(1).Value = "writer8"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
         result = run(htmlPath)
 
     elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
         odsPath = documentPath.replace('.csv', '.ods')
         csvPath = documentPath.replace('.ods', '.csv')
-        """
-        dim args1(1) as new com.sun.star.beans.PropertyValue
 
         # Save document in csv format
 
-        args1(0).Name = "URL"
-        args1(0).Value = csvPath
-        args1(1).Name = "FilterName"
-        args1(1).Value = "Text - txt - csv (StarCalc)"    
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+        args1[0].Name = 'URL'
+        # args1(0).Name = "URL"
+        args1[0].Value = csvPath
+        # args1(0).Value = csvPath
+        args1[1].Name = 'FilterName'
+        # args1(1).Name = "FilterName"
+        args1[1].Value = 'Text - txt - csv (StarCalc)'
+        # args1(1).Value = "Text - txt - csv (StarCalc)"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         # Save document in OpenDocument format
 
-        args1(0).Value = odsPath
-        args1(1).Value = "calc8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-        """
+        args1.append(PropertyValue())
+
+        args1[0].Value = odsPath
+        # args1(0).Value = odsPath
+        args1[1].Value = 'calc8'
+        # args1(1).Value = "calc8"
+        args1[2].Name = "FilterOptions"
+        # args1(2).Name = "FilterOptions"
+        args1[2].Value = "124,34,76,1,,0,false,true,true"
+        # args1(2).Value = "124,34,76,1,,0,false,true,true"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
         result = run(csvPath)
 
     else:
