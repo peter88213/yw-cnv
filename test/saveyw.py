@@ -4063,7 +4063,7 @@ def msgbox(message):
 
 
 
-TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
+TAILS = [PROOF_SUFFIX + '.html', '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
          '.html', SCENELIST_SUFFIX + '.csv',
          PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv', ITEMLIST_SUFFIX + '.csv']
@@ -4114,7 +4114,10 @@ def run(sourcePath):
 
     if ywPath:
 
-        if tail == PROOF_SUFFIX + '.html':
+        if tail == '.html':
+            return 'ERROR: yWriter project already exists.'
+
+        elif tail == PROOF_SUFFIX + '.html':
             sourceDoc = HtmlProof(sourcePath)
 
         elif tail == MANUSCRIPT_SUFFIX + '.html':
