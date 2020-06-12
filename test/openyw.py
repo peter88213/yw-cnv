@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.19.1
+Version 0.19.2
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -61,8 +61,6 @@ class OdtTemplate():
  <office:font-face-decls>
   <style:font-face style:name="StarSymbol" svg:font-family="StarSymbol" style:font-charset="x-symbol"/>
   <style:font-face style:name="Courier New" svg:font-family="&apos;Courier New&apos;" style:font-adornments="Standard" style:font-family-generic="modern" style:font-pitch="fixed"/>
-  <style:font-face style:name="Courier Prime" svg:font-family="&apos;Courier Prime&apos;, &apos;Courier New&apos;" style:font-adornments="Standard" style:font-family-generic="modern" style:font-pitch="fixed"/>
-  <style:font-face style:name="Courier New1" svg:font-family="&apos;Courier New&apos;" style:font-family-generic="roman" style:font-pitch="fixed"/>
    </office:font-face-decls>
  <office:automatic-styles>
   <style:style style:name="Sect1" style:family="section">
@@ -222,13 +220,9 @@ class OdtTemplate():
 <office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" office:version="1.2">
  <office:font-face-decls>
   <style:font-face style:name="StarSymbol" svg:font-family="StarSymbol" style:font-charset="x-symbol"/>
-  <style:font-face style:name="Segoe UI1" svg:font-family="&apos;Segoe UI&apos;" style:font-family-generic="swiss"/>
+  <style:font-face style:name="Arial" svg:font-family="&apos;Arial&apos;" style:font-family-generic="swiss"/>
   <style:font-face style:name="Courier New" svg:font-family="&apos;Courier New&apos;" style:font-adornments="Standard" style:font-family-generic="modern" style:font-pitch="fixed"/>
-  <style:font-face style:name="Courier Prime" svg:font-family="&apos;Courier Prime&apos;, &apos;Courier New&apos;" style:font-adornments="Standard" style:font-family-generic="modern" style:font-pitch="fixed"/>
-  <style:font-face style:name="Cumberland" svg:font-family="Cumberland" style:font-family-generic="modern" style:font-pitch="fixed"/>
-  <style:font-face style:name="Courier New1" svg:font-family="&apos;Courier New&apos;" style:font-family-generic="roman" style:font-pitch="fixed"/>
   <style:font-face style:name="Segoe UI" svg:font-family="&apos;Segoe UI&apos;" style:font-family-generic="roman" style:font-pitch="variable"/>
-  <style:font-face style:name="ITC Officina Sans Book" svg:font-family="&apos;ITC Officina Sans Book&apos;" style:font-family-generic="swiss" style:font-pitch="variable"/>
  </office:font-face-decls>
  <office:styles>
   <style:default-style style:family="graphic">
@@ -236,11 +230,11 @@ class OdtTemplate():
    <style:paragraph-properties style:text-autospace="ideograph-alpha" style:line-break="strict" style:writing-mode="lr-tb" style:font-independent-line-spacing="false">
     <style:tab-stops/>
    </style:paragraph-properties>
-   <style:text-properties fo:color="#000000" fo:font-size="10pt" fo:language="de" fo:country="DE" style:letter-kerning="true" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none"/>
+   <style:text-properties fo:color="#000000" fo:font-size="10pt" fo:language="en" fo:country="US" style:letter-kerning="true" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none"/>
   </style:default-style>
   <style:default-style style:family="paragraph">
    <style:paragraph-properties fo:hyphenation-ladder-count="no-limit" style:text-autospace="ideograph-alpha" style:punctuation-wrap="hanging" style:line-break="strict" style:tab-stop-distance="1.251cm" style:writing-mode="lr-tb"/>
-   <style:text-properties fo:color="#000000" style:font-name="Segoe UI" fo:font-size="10pt" fo:language="de" fo:country="DE" style:letter-kerning="true" style:font-name-asian="Segoe UI" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-name-complex="Segoe UI" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2"/>
+   <style:text-properties fo:color="#000000" style:font-name="Segoe UI" fo:font-size="10pt" fo:language="en" fo:country="US" style:letter-kerning="true" style:font-name-asian="Segoe UI" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-name-complex="Segoe UI" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2"/>
   </style:default-style>
   <style:default-style style:family="table">
    <style:table-properties table:border-model="separating"/>
@@ -250,7 +244,7 @@ class OdtTemplate():
   </style:default-style>
   <style:style style:name="Standard" style:family="paragraph" style:class="text" style:master-page-name="">
    <style:paragraph-properties fo:line-height="0.73cm" style:page-number="auto"/>
-   <style:text-properties style:font-name="Courier Prime" fo:font-size="12pt" fo:font-weight="normal"/>
+   <style:text-properties style:font-name="Courier New" fo:font-size="12pt" fo:font-weight="normal"/>
   </style:style>
   <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="text" style:master-page-name="">
    <style:paragraph-properties fo:line-height="0.73cm" fo:text-align="center" style:justify-single-word="false" style:page-number="auto" fo:keep-with-next="always">
@@ -787,7 +781,7 @@ class OdtTemplate():
    <style:text-properties style:font-name="Courier New" fo:font-size="8pt"/>
   </style:style>
   <style:style style:name="Page_20_Number" style:display-name="Page Number" style:family="text">
-   <style:text-properties style:font-name="ITC Officina Sans Book" fo:font-size="7pt" fo:letter-spacing="0.071cm" fo:font-weight="bold"/>
+   <style:text-properties style:font-name="Courier New" fo:font-size="8pt"/>
   </style:style>
   <style:style style:name="Caption_20_characters" style:display-name="Caption characters" style:family="text"/>
   <style:style style:name="Drop_20_Caps" style:display-name="Drop Caps" style:family="text"/>
@@ -1674,10 +1668,13 @@ class OdtFile(Novel, OdtTemplate):
             if self.chapters[chId].chType != 0:
                 continue
 
-            # Write chapter heading.
+            if not self.chapters[chId].suppressChapterTitle:
 
-            lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
-                         self.chapters[chId].get_title() + self._ODT_HEADING_END)
+                # Write chapter heading.
+
+                lines.append(self._ODT_HEADING_STARTS[self.chapters[chId].chLevel] +
+                             self.chapters[chId].get_title() + self._ODT_HEADING_END)
+
             firstSceneInChapter = True
 
             for scId in self.chapters[chId].srtScenes:
@@ -2353,6 +2350,11 @@ class Chapter():
     # xml: <CHAPTERS><CHAPTER>
     """
 
+    stripChapterFromTitle = False
+    # bool
+    # True: Remove 'Chapter ' from the chapter title upon import.
+    # False: Do not modify the chapter title.
+
     def __init__(self):
         self.title = None
         # str
@@ -2381,8 +2383,8 @@ class Chapter():
         self.suppressChapterTitle = None
         # bool
         # xml: <Fields><Field_SuppressChapterTitle> 1
-        # True: Remove 'Chapter ' from the chapter title upon import.
-        # False: Do not modify the chapter title.
+        # True: Chapter heading not to be displayed in written document.
+        # False: Chapter heading to be displayed in written document.
 
         self.isTrash = None
         # bool
@@ -2404,7 +2406,7 @@ class Chapter():
         """Fix auto-chapter titles for non-English """
         text = self.title
 
-        if self.suppressChapterTitle:
+        if self.stripChapterFromTitle:
             text = text.replace('Chapter ', '')
 
         return text
@@ -2872,7 +2874,8 @@ class YwFile(Novel):
 
                 if fields.find('Field_SuppressChapterTitle') is not None:
 
-                    if fields.find('Field_SuppressChapterTitle').text == '1':
+                    if (fields.find('Field_SuppressChapterTitle').text == '1'
+                            or self.chapters[chId].title.startswith('@')):
                         self.chapters[chId].suppressChapterTitle = True
 
                     else:

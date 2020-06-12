@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.19.1
+Version 0.19.2
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -170,6 +170,11 @@ class Chapter():
     # xml: <CHAPTERS><CHAPTER>
     """
 
+    stripChapterFromTitle = False
+    # bool
+    # True: Remove 'Chapter ' from the chapter title upon import.
+    # False: Do not modify the chapter title.
+
     def __init__(self):
         self.title = None
         # str
@@ -198,8 +203,8 @@ class Chapter():
         self.suppressChapterTitle = None
         # bool
         # xml: <Fields><Field_SuppressChapterTitle> 1
-        # True: Remove 'Chapter ' from the chapter title upon import.
-        # False: Do not modify the chapter title.
+        # True: Chapter heading not to be displayed in written document.
+        # False: Chapter heading to be displayed in written document.
 
         self.isTrash = None
         # bool
@@ -221,7 +226,7 @@ class Chapter():
         """Fix auto-chapter titles for non-English """
         text = self.title
 
-        if self.suppressChapterTitle:
+        if self.stripChapterFromTitle:
             text = text.replace('Chapter ', '')
 
         return text
@@ -1057,7 +1062,7 @@ class HtmlImport(HtmlManuscript):
             self.chapters[chId].title = chapterTitles[chId]
             self.chapters[chId].chLevel = chapterLevels[chId]
             self.chapters[chId].chType = 0
-            self.chapters[chId].suppressChapterTitle = True
+            self.chapters[chId].suppressChapterTitle = False
 
             if chId in chapterDescs:
                 self.chapters[chId].desc = chapterDescs[chId]
@@ -1396,7 +1401,8 @@ class YwFile(Novel):
 
                 if fields.find('Field_SuppressChapterTitle') is not None:
 
-                    if fields.find('Field_SuppressChapterTitle').text == '1':
+                    if (fields.find('Field_SuppressChapterTitle').text == '1'
+                            or self.chapters[chId].title.startswith('@')):
                         self.chapters[chId].suppressChapterTitle = True
 
                     else:
@@ -2691,6 +2697,9 @@ class YwNewFile(Novel):
                 ET.SubElement(sortSc, 'ScID').text = scId
 
             chFields = ET.SubElement(chp, 'Fields')
+
+            if self.chapters[chId].title.startswith('@'):
+                self.chapters[chId].suppressChapterTitle = True
 
             if self.chapters[chId].suppressChapterTitle:
                 ET.SubElement(
