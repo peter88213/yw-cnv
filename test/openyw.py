@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.20.0
+Version 0.20.1
 
 Copyright (c) 2020, peter88213
 For further information see https://github.com/peter88213/PyWriter
@@ -5071,7 +5071,8 @@ def open_yw7(suffix, newExt):
     # Set last opened yWriter project as default (if existing).
 
     scriptLocation = os.path.dirname(__file__)
-    inifile = (scriptLocation + '/' + INI_FILE).replace('file:///', '')
+    inifile = (scriptLocation + '/' + INI_FILE).replace('file:///',
+                                                        '').replace('%20', ' ')
     defaultFile = None
     config = ConfigParser()
 
@@ -5079,8 +5080,8 @@ def open_yw7(suffix, newExt):
         config.read(inifile)
         ywLastOpen = config.get('FILES', 'yw_last_open')
 
-        if os.path.isfile(ywLastOpen.replace('file:///', '')):
-            defaultFile = ywLastOpen
+        if os.path.isfile(ywLastOpen):
+            defaultFile = 'file:///' + ywLastOpen.replace(' ', '%20')
 
     except:
         pass
@@ -5092,7 +5093,7 @@ def open_yw7(suffix, newExt):
     if ywFile is None:
         return
 
-    sourcePath = ywFile.replace('file:///', '')
+    sourcePath = ywFile.replace('file:///', '').replace('%20', ' ')
     ywExt = os.path.splitext(sourcePath)[1]
 
     if not ywExt in ['.yw6', '.yw7']:
@@ -5103,12 +5104,14 @@ def open_yw7(suffix, newExt):
 
     newFile = ywFile.replace(ywExt, suffix + newExt)
     dirName, filename = os.path.split(newFile)
-    lockFile = (dirName + '/.~lock.' + filename + '#').replace('file:///', '')
+    lockFile = (dirName + '/.~lock.' + filename +
+                '#').replace('file:///', '').replace('%20', ' ')
 
     if not config.has_section('FILES'):
         config.add_section('FILES')
 
-    config.set('FILES', 'yw_last_open', ywFile)
+    config.set('FILES', 'yw_last_open', ywFile.replace(
+        'file:///', '').replace('%20', ' '))
 
     with open(inifile, 'w') as f:
         config.write(f)
