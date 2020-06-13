@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.19.3" />
+	<property name="release" value="0.20.0" />
 	<property name="oxt_file" value="pywlo-${release}.oxt" />
 	
 	<property name="oxt" location="../oxt" />
 	<property name="src" location="../src" />
 	<property name="test" location="../test" />
 	<property name="dist" location="../dist" />
-	<property name="reg" location="../reg" />
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="release-name" value="${project-name}_v${release}" />
 
@@ -27,32 +26,42 @@
 	<target name="dist" description="generate the distribution">
 		
 		<mkdir dir="${dist}" />
-		<mkdir dir="${dist}/pywlo_v${release}" />
-		<mkdir dir="${dist}/pywlo_v${release}/setup" />
-		<mkdir dir="${dist}/pywlo_v${release}/setup/program" />
+		<mkdir dir="${dist}/pywlo-v${release}" />
+		<mkdir dir="${dist}/pywlo-v${release}/Descriptions" />
+		<mkdir dir="${dist}/pywlo-v${release}/icons" />
+		<mkdir dir="${dist}/pywlo-v${release}/META-INF" />
+		<mkdir dir="${dist}/pywlo-v${release}/pywlo" />
+		<mkdir dir="${dist}/pywlo-v${release}/Tooltips" />
 
 		<replace file="${test}/saveyw.py" token="@release" value="${release}" />
-		<copy file="${test}/saveyw.py" todir="${dist}/pywlo_v${release}/setup/program" />
+		<copy file="${test}/saveyw.py" todir="${dist}/pywlo-v${release}/pywlo" />
 
 		<replace file="${test}/openyw.py" token="@release" value="${release}" />
-		<copy file="${test}/openyw.py" todir="${dist}/pywlo_v${release}/setup/program" />
+		<copy file="${test}/openyw.py" todir="${dist}/pywlo-v${release}/pywlo" />
 
-		<copy file="${oxt}/${oxt_file}" todir="${dist}/pywlo_v${release}/setup/program" />
-		<copy file="${reg}/add_cm.reg" todir="${dist}/pywlo_v${release}/setup" />
-		<copy file="${reg}/del_cm.reg" todir="${dist}/pywlo_v${release}/setup" />
+		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/pywlo-v${release}/Descriptions" />
+		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/pywlo-v${release}/Descriptions" />
+		
+		<copy file="${oxt}/icons/yWriter_16.png" todir="${dist}/pywlo-v${release}/icons" />
+		<copy file="${oxt}/icons/yWriter_26.png" todir="${dist}/pywlo-v${release}/icons" />
 
-		<copy file="./Install.bat" todir="${dist}/pywlo_v${release}" />
-		<replace file="${dist}/pywlo_v${release}/Install.bat" token="@release" value="${release}" />
-		<replace file="${dist}/pywlo_v${release}/Install.bat" token="@oxt_file" value="${oxt_file}" />
+		<copy file="${oxt}/META-INF/manifest.xml" todir="${dist}/pywlo-v${release}/META-INF" />
+		
+		<copy file="${oxt}/Tooltips/tip-en.txt" todir="${dist}/pywlo-v${release}/Tooltips" />
+		<copy file="${oxt}/Tooltips/tip-de.txt" todir="${dist}/pywlo-v${release}/Tooltips" />
 
-		<copy file="./Uninstall.bat" todir="${dist}/pywlo_v${release}" />
-		<replace file="${dist}/pywlo_v${release}/Uninstall.bat" token="@release" value="${release}" />
-		<replace file="${dist}/pywlo_v${release}/Uninstall.bat" token="@oxt_file" value="${oxt_file}" />
+		<replace file="${oxt}/AddonUI.xcu" token="|pywlo$|" value="|pywlo|" />
+		<replace file="${oxt}/AddonUI.xcu" token="pywlo-L-" value="pywlo-" />
+		<copy file="${oxt}/AddonUI.xcu" todir="${dist}/pywlo-v${release}" />
+		<replace file="${dist}/pywlo-v${release}/AddonUI.xcu" token="0.99.0" value="${release}" />
 
-		<copy file="../README.md" todir="${dist}/pywlo_v${release}" />
-		<copy file="../LICENSE" todir="${dist}/pywlo_v${release}" />
+		<copy file="${oxt}/description.xml" todir="${dist}/pywlo-v${release}" />
+		<replace file="${dist}/pywlo-v${release}/description.xml" token="@release" value="${release}" />
 
-		<zip destfile="${dist}/pywlo-v${release}.oxt" basedir="${dist}/pywlo_v${release}" />
+		<copy file="../README.md" todir="${dist}/pywlo-v${release}" />
+		<copy file="../LICENSE" todir="${dist}/pywlo-v${release}" />
+
+		<zip destfile="${dist}/pywlo-v${release}.oxt" basedir="${dist}/pywlo-v${release}" />
 	</target>
 
 	<target name="clean" description="clean up">
