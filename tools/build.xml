@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
 	<property name="release" value="0.19.3" />
-	<property name="oxt_file" value="SaveYw-L-1.0.0.oxt" />
+	<property name="oxt_file" value="pywlo-${release}.oxt" />
 	
 	<property name="oxt" location="../oxt" />
 	<property name="src" location="../src" />
@@ -27,32 +27,32 @@
 	<target name="dist" description="generate the distribution">
 		
 		<mkdir dir="${dist}" />
-		<mkdir dir="${dist}/PyWriter_LO_v${release}" />
-		<mkdir dir="${dist}/PyWriter_LO_v${release}/setup" />
-		<mkdir dir="${dist}/PyWriter_LO_v${release}/setup/program" />
+		<mkdir dir="${dist}/pywlo_v${release}" />
+		<mkdir dir="${dist}/pywlo_v${release}/setup" />
+		<mkdir dir="${dist}/pywlo_v${release}/setup/program" />
 
 		<replace file="${test}/saveyw.py" token="@release" value="${release}" />
-		<copy file="${test}/saveyw.py" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
+		<copy file="${test}/saveyw.py" todir="${dist}/pywlo_v${release}/setup/program" />
 
 		<replace file="${test}/openyw.py" token="@release" value="${release}" />
-		<copy file="${test}/openyw.py" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
+		<copy file="${test}/openyw.py" todir="${dist}/pywlo_v${release}/setup/program" />
 
-		<copy file="${oxt}/${oxt_file}" todir="${dist}/PyWriter_LO_v${release}/setup/program" />
-		<copy file="${reg}/add_cm.reg" todir="${dist}/PyWriter_LO_v${release}/setup" />
-		<copy file="${reg}/del_cm.reg" todir="${dist}/PyWriter_LO_v${release}/setup" />
+		<copy file="${oxt}/${oxt_file}" todir="${dist}/pywlo_v${release}/setup/program" />
+		<copy file="${reg}/add_cm.reg" todir="${dist}/pywlo_v${release}/setup" />
+		<copy file="${reg}/del_cm.reg" todir="${dist}/pywlo_v${release}/setup" />
 
-		<copy file="./Install.bat" todir="${dist}/PyWriter_LO_v${release}" />
-		<replace file="${dist}/PyWriter_LO_v${release}/Install.bat" token="@release" value="${release}" />
-		<replace file="${dist}/PyWriter_LO_v${release}/Install.bat" token="@oxt_file" value="${oxt_file}" />
+		<copy file="./Install.bat" todir="${dist}/pywlo_v${release}" />
+		<replace file="${dist}/pywlo_v${release}/Install.bat" token="@release" value="${release}" />
+		<replace file="${dist}/pywlo_v${release}/Install.bat" token="@oxt_file" value="${oxt_file}" />
 
-		<copy file="./Uninstall.bat" todir="${dist}/PyWriter_LO_v${release}" />
-		<replace file="${dist}/PyWriter_LO_v${release}/Uninstall.bat" token="@release" value="${release}" />
-		<replace file="${dist}/PyWriter_LO_v${release}/Uninstall.bat" token="@oxt_file" value="${oxt_file}" />
+		<copy file="./Uninstall.bat" todir="${dist}/pywlo_v${release}" />
+		<replace file="${dist}/pywlo_v${release}/Uninstall.bat" token="@release" value="${release}" />
+		<replace file="${dist}/pywlo_v${release}/Uninstall.bat" token="@oxt_file" value="${oxt_file}" />
 
-		<copy file="../README.md" todir="${dist}/PyWriter_LO_v${release}" />
-		<copy file="../LICENSE" todir="${dist}/PyWriter_LO_v${release}" />
+		<copy file="../README.md" todir="${dist}/pywlo_v${release}" />
+		<copy file="../LICENSE" todir="${dist}/pywlo_v${release}" />
 
-		<zip destfile="${dist}/PyWriter_LO_v${release}.zip" basedir="${dist}/PyWriter_LO_v${release}" />
+		<zip destfile="${dist}/pywlo-v${release}.oxt" basedir="${dist}/pywlo_v${release}" />
 	</target>
 
 	<target name="clean" description="clean up">

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Extension files were created by Extension Compiler - version 2.1.2 -->
+<description xmlns="http://openoffice.org/extensions/description/2006"
+ xmlns:dep="http://openoffice.org/extensions/description/2006"
+ xmlns:l="http://libreoffice.org/extensions/description/2011"
+ xmlns:xlink="http://www.w3.org/1999/xlink" >
+   <identifier value="org.peter88213.pywlo" />
+   <version value="0.1.0" />
+   <extension-description>
+      <src xlink:href="Descriptions/descr-en.txt" lang="en"/>
+      <src xlink:href="Descriptions/descr-de.txt" lang="de"/>
+   </extension-description>
+   <dependencies>
+      <l:LibreOffice-minimal-version value="5.0" dep:name="LibreOffice 5.0 minimum, or more recent" />
+   </dependencies>
+   <display-name>
+      <name lang="en">pywlo – yWriter project import and export..</name>
+      <name lang="de">pywlo – yWriter-Projekt importieren und exportieren.</name>
+   </display-name>
+</description>

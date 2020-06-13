@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:component-data xmlns:oor="http://openoffice.org/2001/registry" 
+ xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ oor:name="Addons" oor:package="org.openoffice.Office">
+   <node oor:name="AddonUI">
+
+      <node oor:name="AddonMenu">
+         <node oor:name="org.peter88213.pywlo.N001" oor:op="replace">
+            <prop oor:name="Context" oor:type="xs:string">
+               <value/>
+            </prop>
+            <prop oor:name="Title" oor:type="xs:string">
+               <value xml:lang="en">yWriter</value>
+               <value xml:lang="de">yWriter</value>
+            </prop>
+            <node oor:name="Submenu">
+               <node oor:name="N002" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value>com.sun.star.text.TextDocument</value>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Import from yWriter</value>
+                     <value xml:lang="de">von yWriter importieren</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N003" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value>com.sun.star.text.TextDocument</value>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Import from yWriter for proof reading</value>
+                     <value xml:lang="de">von yWriter zum Korrekturlesen importieren</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N004" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value>com.sun.star.text.TextDocument</value>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Export to yWriter</value>
+                     <value xml:lang="de">Nach yWriter exportieren</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N005" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value>com.sun.star.sheet.SpreadsheetDocument</value>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Import from yWriter</value>
+                     <value xml:lang="de">von yWriter importieren</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N006" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value>com.sun.star.sheet.SpreadsheetDocument</value>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Export to yWriter</value>
+                     <value xml:lang="de">Nach yWriter exportieren</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+            </node>
+         </node>
+      </node>
+
+      <node oor:name="Images">
+         <node oor:name="org.peter88213.pywlo.N001" oor:op="replace">
+            <prop oor:name="URL" oor:type="xs:string">
+               <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+            </prop>
+            <node oor:name="UserDefinedImages">
+               <prop oor:name="ImageSmallURL" oor:type="xs:string">
+                  <value>%origin%/icons/yWriter_16.png</value>
+               </prop>
+               <prop oor:name="ImageBigURL" oor:type="xs:string">
+                  <value>%origin%/icons/yWriter_26.png</value>
+               </prop>
+            </node>
+         </node>
+         <node oor:name="org.peter88213.pywlo.N002" oor:op="replace">
+            <prop oor:name="URL" oor:type="xs:string">
+               <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+            </prop>
+            <node oor:name="UserDefinedImages">
+               <prop oor:name="ImageSmallURL" oor:type="xs:string">
+                  <value>%origin%/icons/yWriter_16.png</value>
+               </prop>
+               <prop oor:name="ImageBigURL" oor:type="xs:string">
+                  <value>%origin%/icons/yWriter_26.png</value>
+               </prop>
+            </node>
+         </node>
+         <node oor:name="org.peter88213.pywlo.N003" oor:op="replace">
+            <prop oor:name="URL" oor:type="xs:string">
+               <value>vnd.sun.star.script:pywlo-L-0.1.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+            </prop>
+            <node oor:name="UserDefinedImages">
+               <prop oor:name="ImageSmallURL" oor:type="xs:string">
+                  <value>%origin%/icons/yWriter_16.png</value>
+               </prop>
+               <prop oor:name="ImageBigURL" oor:type="xs:string">
+                  <value>%origin%/icons/yWriter_26.png</value>
+               </prop>
+            </node>
+         </node>
+      </node>
+
+   </node>
+</oor:component-data>
