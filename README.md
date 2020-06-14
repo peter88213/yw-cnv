@@ -6,7 +6,7 @@
 
 ### yWriter5 style proof reading
 
-#### Export an yWriter 6/7 project to an OpenDocument file with chapter and scene markers. 
+#### Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers. 
 
 * The proof read document is placed in the same folder as the yWriter project.
 * Document's filename: `<yW project name>_proof.odt`
