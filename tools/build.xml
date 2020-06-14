@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.23.0" />
+	<property name="release" value="0.23.1" />
 	<property name="oxt_file" value="pywlo-L-${release}.oxt" />
 	
 	<property name="oxt" location="../oxt" />
@@ -28,7 +28,7 @@
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist}/pywlo-L-${release}" />
 		<mkdir dir="${dist}/pywlo-L-${release}/Descriptions" />
-		<mkdir dir="${dist}/pywlo-L-${release}/icons" />
+		<!--mkdir dir="${dist}/pywlo-L-${release}/icons" /-->
 		<mkdir dir="${dist}/pywlo-L-${release}/META-INF" />
 		<mkdir dir="${dist}/pywlo-L-${release}/pywlo" />
 		<mkdir dir="${dist}/pywlo-L-${release}/Tooltips" />
@@ -42,8 +42,8 @@
 		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/pywlo-L-${release}/Descriptions" />
 		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/pywlo-L-${release}/Descriptions" />
 		
-		<copy file="${oxt}/icons/yWriter_16.png" todir="${dist}/pywlo-L-${release}/icons" />
-		<copy file="${oxt}/icons/yWriter_26.png" todir="${dist}/pywlo-L-${release}/icons" />
+		<!--copy file="${oxt}/icons/yWriter_16.png" todir="${dist}/pywlo-L-${release}/icons" /-->
+		<!--copy file="${oxt}/icons/yWriter_26.png" todir="${dist}/pywlo-L-${release}/icons" /-->
 
 		<copy file="${oxt}/META-INF/manifest.xml" todir="${dist}/pywlo-L-${release}/META-INF" />
 		

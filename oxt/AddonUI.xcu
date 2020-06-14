@@ -184,47 +184,5 @@
          </node>
       </node>
 
-      <node oor:name="Images">
-         <node oor:name="org.peter88213.pywlo.N001" oor:op="replace">
-            <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
-            </prop>
-            <node oor:name="UserDefinedImages">
-               <prop oor:name="ImageSmallURL" oor:type="xs:string">
-                  <value>%origin%/icons/yWriter_16.png</value>
-               </prop>
-               <prop oor:name="ImageBigURL" oor:type="xs:string">
-                  <value>%origin%/icons/yWriter_26.png</value>
-               </prop>
-            </node>
-         </node>
-         <node oor:name="org.peter88213.pywlo.N002" oor:op="replace">
-            <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
-            </prop>
-            <node oor:name="UserDefinedImages">
-               <prop oor:name="ImageSmallURL" oor:type="xs:string">
-                  <value>%origin%/icons/yWriter_16.png</value>
-               </prop>
-               <prop oor:name="ImageBigURL" oor:type="xs:string">
-                  <value>%origin%/icons/yWriter_26.png</value>
-               </prop>
-            </node>
-         </node>
-         <node oor:name="org.peter88213.pywlo.N003" oor:op="replace">
-            <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
-            </prop>
-            <node oor:name="UserDefinedImages">
-               <prop oor:name="ImageSmallURL" oor:type="xs:string">
-                  <value>%origin%/icons/yWriter_16.png</value>
-               </prop>
-               <prop oor:name="ImageBigURL" oor:type="xs:string">
-                  <value>%origin%/icons/yWriter_26.png</value>
-               </prop>
-            </node>
-         </node>
-      </node>
-
    </node>
 </oor:component-data>
