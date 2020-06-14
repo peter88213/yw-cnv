@@ -1,5 +1,7 @@
 # The pywlo extension for LibreOffice: Import and export yWriter 6/7 projects 
 
+![Screenshot: Menu in LibreOffice](https://raw.githubusercontent.com/peter88213/pywlo/master/docs/Screenshots/lo_menu.png)
+
 ## Features
 
 ### yWriter5 style proof reading
