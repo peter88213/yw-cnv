@@ -33,11 +33,11 @@
 		<mkdir dir="${dist}/pywlo-L-${release}/pywlo" />
 		<mkdir dir="${dist}/pywlo-L-${release}/Tooltips" />
 
-		<replace file="${test}/saveyw.py" token="0.99.0" value="${release}" />
 		<copy file="${test}/saveyw.py" todir="${dist}/pywlo-L-${release}/pywlo" />
+		<replace file="${dist}/pywlo-L-${release}/pywlo/saveyw.py" token="@release" value="${release}" />
 
-		<replace file="${test}/openyw.py" token="0.99.0" value="${release}" />
 		<copy file="${test}/openyw.py" todir="${dist}/pywlo-L-${release}/pywlo" />
+		<replace file="${dist}/pywlo-L-${release}/pywlo/openyw.py" token="@release" value="${release}" />
 
 		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/pywlo-L-${release}/Descriptions" />
 		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/pywlo-L-${release}/Descriptions" />
