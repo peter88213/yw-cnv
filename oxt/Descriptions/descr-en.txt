@@ -1,2 +1,16 @@
-pywlo – yWriter project import and export.
+yWriter project import and export.
+ 
+yWriter5 style proof reading:
+- Export an yWriter 6/7 project to an OpenDocument file with chapter and scene markers.
+- Write back the proofread scenes to the yWriter 6/7 project file.
+
+Import from yw6/7 project:
+- Generate a "standard manuscript" formatted OpenDocument textfile from an yWriter 6/7 project.
+
+Export to a yw7 project:
+- Generate a new yWriter 6/7 project from a work in progress or an outline.
+
+
+
+
 

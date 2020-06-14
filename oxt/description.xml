@@ -5,7 +5,7 @@
  xmlns:l="http://libreoffice.org/extensions/description/2011"
  xmlns:xlink="http://www.w3.org/1999/xlink" >
    <identifier value="org.peter88213.pywlo" />
-   <version value="@release" />
+   <version value="0.99.0" />
    <extension-description>
       <src xlink:href="Descriptions/descr-en.txt" lang="en"/>
       <src xlink:href="Descriptions/descr-de.txt" lang="de"/>
@@ -14,7 +14,7 @@
       <l:LibreOffice-minimal-version value="5.0" dep:name="LibreOffice 5.0 minimum, or more recent" />
    </dependencies>
    <display-name>
-      <name lang="en">pywlo – yWriter project import and export..</name>
-      <name lang="de">pywlo – yWriter-Projekt importieren und exportieren.</name>
+      <name lang="en">pywlo - yWriter support for LibreOffice.</name>
+      <name lang="de">pywlo - yWriter-Unterstützung für LibreOffice.</name>
    </display-name>
 </description>
