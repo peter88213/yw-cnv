@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.22.0" />
+	<property name="release" value="0.22.1" />
 	<property name="oxt_file" value="pywlo-L-${release}.oxt" />
 	
 	<property name="oxt" location="../oxt" />
