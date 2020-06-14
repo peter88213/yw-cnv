@@ -24,9 +24,9 @@ Generate a "standard manuscript" formatted OpenDocument textfile from an yWriter
 * Document's filename: `<yW project name>.odt`
 
 
-### Export to a yw7 project 
+### Create a new yw7 project 
 
-Generate a new yWriter 6/7 project from a work in progress or an outline.
+Generate a new yWriter 7 project from a work in progress or an outline.
 
 * The new yWriter project is placed in the same folder as the document.
 * yWriter project's filename: `<document name>.yw7`
@@ -43,7 +43,7 @@ Generate a new yWriter 6/7 project from a work in progress or an outline.
 * `* * *`  -->  Scene divider
 * Optional: _Heading 3_  -->  New scene title
 
-#### Outline mode
+#### Outline mode (optional)
 
 * `{outline}` at the top of the document
 * _Heading 1_  -->  New chapter title (beginning a new section)
