@@ -9,7 +9,7 @@
 #### Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers. 
 
 * The proof read document is placed in the same folder as the yWriter project.
-* Document's filename: `<yW project name>_proof.odt`
+* Document's filename: `<yW project name>_proof.odt`.
 
 #### Write back the proofread scenes to the yWriter 6/7 project file.
 
@@ -21,7 +21,7 @@
 Generate a "standard manuscript" formatted OpenDocument textfile from an yWriter 6/7 project.
 
 * The document is placed in the same folder as the yWriter project.
-* Document's filename: `<yW project name>.odt`
+* Document's filename: `<yW project name>.odt`.
 
 
 ### Create a new yw7 project 
@@ -29,26 +29,26 @@ Generate a "standard manuscript" formatted OpenDocument textfile from an yWriter
 Generate a new yWriter 7 project from a work in progress or an outline.
 
 * The new yWriter project is placed in the same folder as the document.
-* yWriter project's filename: `<document name>.yw7`
+* yWriter project's filename: `<document name>.yw7`.
 * Existing yWriter 7 projects will not be overwritten.
 
 
 #### Formatting a work in progress or outline
 
-* _Heading 1_  -->  New chapter title (beginning a new section)
-* _Heading 2_  -->  New chapter title
-* Optional: `{#`Chapter description`#}` 
-* Optional: `{_`Scene description`_}`
+* _Heading 1_  -->  New chapter title (beginning a new section).
+* _Heading 2_  -->  New chapter title.
+* Optional: `{#`Chapter description`#}`.
+* Optional: `{_`Scene description`_}`.
 * Text in paragraphs is considered to be scene content.
-* `* * *`  -->  Scene divider
-* Optional: _Heading 3_  -->  New scene title
+* `* * *`  -->  Scene divider (unless there is a heading).
+* Optional: _Heading 3_  -->  New scene title.
 
 #### Outline mode (optional)
 
-* `{outline}` at the top of the document
-* _Heading 1_  -->  New chapter title (beginning a new section)
-* _Heading 2_  -->  New chapter title
-* _Heading 3_  -->  New scene title
+* `{outline}` at the top of the document.
+* _Heading 1_  -->  New chapter title (beginning a new section).
+* _Heading 2_  -->  New chapter title.
+* _Heading 3_  -->  New scene title.
 * All other text is considered to be chapter/scene description.
  
 ## Requirements
