@@ -29,7 +29,7 @@
                         <value xml:lang="de">Nach yWriter exportieren</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
-                        <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                        <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                      </prop>
                      <prop oor:name="Target" oor:type="xs:string">
                         <value>_self</value>
@@ -79,7 +79,7 @@
                               <value xml:lang="de">von yWriter importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -94,7 +94,7 @@
                               <value xml:lang="de">von yWriter zum Korrekturlesen importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -131,7 +131,7 @@
                      <value xml:lang="de">von yWriter importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -146,7 +146,7 @@
                      <value xml:lang="de">von yWriter zum Korrekturlesen importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -161,7 +161,7 @@
                      <value xml:lang="de">Nach yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -176,7 +176,7 @@
                      <value xml:lang="de">von yWriter importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -191,7 +191,7 @@
                      <value xml:lang="de">Nach yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -204,7 +204,7 @@
       <node oor:name="Images">
          <node oor:name="org.peter88213.pywlo.N001" oor:op="replace">
             <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+               <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
             </prop>
             <node oor:name="UserDefinedImages">
                <prop oor:name="ImageSmallURL" oor:type="xs:string">
@@ -217,7 +217,7 @@
          </node>
          <node oor:name="org.peter88213.pywlo.N002" oor:op="replace">
             <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+               <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
             </prop>
             <node oor:name="UserDefinedImages">
                <prop oor:name="ImageSmallURL" oor:type="xs:string">
@@ -230,7 +230,7 @@
          </node>
          <node oor:name="org.peter88213.pywlo.N003" oor:op="replace">
             <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+               <value>vnd.sun.star.script:pywlo-L-0.22.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
             </prop>
             <node oor:name="UserDefinedImages">
                <prop oor:name="ImageSmallURL" oor:type="xs:string">
