@@ -41,7 +41,7 @@ Generate a new yWriter 6/7 project from a work in progress or an outline.
 * Optional: `{_`Scene description`_}`
 * Text in paragraphs is considered to be scene content.
 * `* * *`  -->  Scene divider
-* Optional: _Heading 3_  -->  New scene
+* Optional: _Heading 3_  -->  New scene title
 
 #### Outline mode
 
@@ -51,5 +51,10 @@ Generate a new yWriter 6/7 project from a work in progress or an outline.
 * _Heading 3_  -->  New scene title
 * All other text is considered to be chapter/scene description.
  
+## Requirements
+
+* LibreOffice 5.4 or more recent.
+* Java Runtime Environment (LibreOffice needs it for macro execution).
+* yWriter 7. 
 
 The  _pywlo_  extension is distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
