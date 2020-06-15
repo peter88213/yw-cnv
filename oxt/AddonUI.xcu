@@ -5,7 +5,7 @@
    <node oor:name="AddonUI">
 
       <node oor:name="OfficeMenuBarMerging">
-         <node oor:name="org.peter88213.pywlo" oor:op="replace">
+         <node oor:name="org.peter88213.yw-cnv" oor:op="replace">
             <node oor:name="N001" oor:op="replace">
                <prop oor:name="MergeContext" oor:type="xs:string">
                   <value>com.sun.star.text.TextDocument</value>
@@ -42,7 +42,7 @@
                               <value xml:lang="de">Von yWriter importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -57,7 +57,7 @@
                               <value xml:lang="de">Von yWriter zum Korrekturlesen importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -77,7 +77,7 @@
                               <value xml:lang="de">Zu yWriter exportieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -96,7 +96,7 @@
       </node>
 
       <node oor:name="AddonMenu">
-         <node oor:name="org.peter88213.pywlo.N001" oor:op="replace">
+         <node oor:name="org.peter88213.yw-cnv.N001" oor:op="replace">
             <prop oor:name="Context" oor:type="xs:string">
                <value/>
             </prop>
@@ -114,7 +114,7 @@
                      <value xml:lang="de">von yWriter importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -129,7 +129,7 @@
                      <value xml:lang="de">von yWriter zum Korrekturlesen importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|openyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -144,7 +144,7 @@
                      <value xml:lang="de">Nach yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -159,7 +159,7 @@
                      <value xml:lang="de">von yWriter importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|openyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -174,7 +174,7 @@
                      <value xml:lang="de">Nach yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:pywlo-L-0.99.0.oxt|pywlo|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>

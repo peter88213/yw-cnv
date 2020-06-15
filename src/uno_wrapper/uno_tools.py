@@ -2,9 +2,9 @@
 
 Python wrappers for UNO widgets.
 
-Part of the pywlo project.
+Part of the yw-cnv project.
 Copyright (c) 2020, peter88213
-For further information see https://github.com/peter88213/pywlo
+For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import uno

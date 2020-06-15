@@ -5,7 +5,7 @@ Input file format: html (with visible or invisible chapter and scene tags).
 Version @release
 
 Copyright (c) 2020, peter88213
-For further information see https://github.com/peter88213/PyWriter
+For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import sys

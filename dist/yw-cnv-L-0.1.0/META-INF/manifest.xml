@@ -6,7 +6,7 @@
    <manifest:file-entry manifest:media-type="application/vnd.sun.star.package-bundle-description;locale=de"
       manifest:full-path="Tooltips/tip-de.txt" />
    <manifest:file-entry manifest:media-type="application/vnd.sun.star.framework-script" 
-      manifest:full-path="pywlo/" />
+      manifest:full-path="yw-cnv/" />
    <manifest:file-entry manifest:media-type="application/vnd.sun.star.configuration-data" 
       manifest:full-path="AddonUI.xcu" />
 </manifest:manifest>
