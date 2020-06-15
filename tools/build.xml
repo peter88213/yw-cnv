@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.1.0" />
+	<property name="release" value="0.24.0" />
 	<property name="oxt_file" value="yw-cnv-L-${release}.oxt" />
 	
 	<property name="oxt" location="../oxt" />
@@ -12,6 +12,7 @@
 
 	<target name="build" description="inline all library modules">
 		
+		<mkdir dir="${test}" />
 		<delete dir="${dist}" />
 		<delete file="${test}/saveyw.py" />
 		<delete file="${test}/openyw.py" />

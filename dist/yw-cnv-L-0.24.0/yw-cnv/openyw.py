@@ -3,9 +3,9 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.1.0
+Version 0.24.0
 
-Copyright (c) 2020, peter88213
+Copyright (c) 2020, peter88213 (petert88213@gmail.com)
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
