@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.24.1
+Version 0.24.2
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -4203,17 +4203,17 @@ def export_yw(*args):
 
     documentPath = documentPath.lower()
 
+    from com.sun.star.beans import PropertyValue
+    args1 = []
+    args1.append(PropertyValue())
+    args1.append(PropertyValue())
+    # dim args1(1) as new com.sun.star.beans.PropertyValue
+
     if documentPath.endswith('.odt') or documentPath.endswith('.html'):
         odtPath = documentPath.replace('.html', '.odt')
         htmlPath = documentPath.replace('.odt', '.html')
 
         # Save document in HTML format
-
-        from com.sun.star.beans import PropertyValue
-        args1 = []
-        args1.append(PropertyValue())
-        args1.append(PropertyValue())
-        # dim args1(1) as new com.sun.star.beans.PropertyValue
 
         args1[0].Name = 'URL'
         # args1(0).Name = "URL"
