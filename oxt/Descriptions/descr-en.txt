@@ -10,7 +10,4 @@ Import from yw6/7 project:
 Export to a yw7 project:
 - Generate a new yWriter 6/7 project from a work in progress or an outline.
 
-
-
-
-
+Adds a submenu in the "File" menu.

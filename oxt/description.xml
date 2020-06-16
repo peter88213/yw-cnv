@@ -10,6 +10,11 @@
       <src xlink:href="Descriptions/descr-en.txt" lang="en"/>
       <src xlink:href="Descriptions/descr-de.txt" lang="de"/>
    </extension-description>
+   <registration>
+      <simple-license accept-by="admin" suppress-on-update="true" >
+         <license-text xlink:href="Legal/license-en.txt" lang="en" />
+      </simple-license>
+   </registration>
    <update-information>
       <src xlink:href="https://raw.githubusercontent.com/peter88213/yw-cnv/master/yw-cnv-L.update.xml" />
    </update-information>
@@ -20,4 +25,7 @@
       <name lang="en">yw-cnv - yWriter support for LibreOffice.</name>
       <name lang="de">yw-cnv - yWriter-Unterstützung für LibreOffice.</name>
    </display-name>
+   <publisher>
+      <name lang="en" xlink:href="https://github.com/peter88213">Peter Triesberger</name>
+   </publisher>
 </description>

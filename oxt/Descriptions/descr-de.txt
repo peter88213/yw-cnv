@@ -10,3 +10,5 @@ Aus einem yw6/7 Projekt importieren:
 In ein yw7 Projekt exportieren:
 - Ein neues yWriter 6/7 Projekt aus einem Text (work in progress) oder einer Dokumentenstruktur (outline) erzeugen.
 
+Fügt ein Untermenü im Menü "Datei" hinzu.
+
