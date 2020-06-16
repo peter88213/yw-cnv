@@ -5,7 +5,7 @@ Output file format: odt (with visible or invisible chapter and scene tags) or cs
 
 Version @release
 
-Copyright (c) 2020, peter88213 (petert88213@gmail.com)
+Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
