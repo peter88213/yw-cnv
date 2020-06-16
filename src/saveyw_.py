@@ -31,10 +31,11 @@ import unohelper
 
 from uno_wrapper.uno_tools import *
 
-TAILS = [PROOF_SUFFIX + '.html', '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
+TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
          '.html', SCENELIST_SUFFIX + '.csv',
-         PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv', ITEMLIST_SUFFIX + '.csv']
+         PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv',
+         ITEMLIST_SUFFIX + '.csv', '.html']
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
 
