@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="pywriter_lo" basedir=".">
-	<property name="release" value="0.24.0" />
+	<property name="release" value="0.24.1" />
 	<property name="oxt_file" value="yw-cnv-L-${release}.oxt" />
 	
 	<property name="oxt" location="../oxt" />
@@ -29,7 +29,7 @@
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist}/yw-cnv-L-${release}" />
 		<mkdir dir="${dist}/yw-cnv-L-${release}/Descriptions" />
-		<!--mkdir dir="${dist}/yw-cnv-L-${release}/icons" /-->
+		<mkdir dir="${dist}/yw-cnv-L-${release}/Legal" />
 		<mkdir dir="${dist}/yw-cnv-L-${release}/META-INF" />
 		<mkdir dir="${dist}/yw-cnv-L-${release}/yw-cnv" />
 		<mkdir dir="${dist}/yw-cnv-L-${release}/Tooltips" />
@@ -42,9 +42,7 @@
 
 		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/yw-cnv-L-${release}/Descriptions" />
 		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/yw-cnv-L-${release}/Descriptions" />
-		
-		<!--copy file="${oxt}/icons/yWriter_16.png" todir="${dist}/yw-cnv-L-${release}/icons" /-->
-		<!--copy file="${oxt}/icons/yWriter_26.png" todir="${dist}/yw-cnv-L-${release}/icons" /-->
+		<copy file="${oxt}/Legal/license-en.txt" todir="${dist}/yw-cnv-L-${release}/Legal" />
 
 		<copy file="${oxt}/META-INF/manifest.xml" todir="${dist}/yw-cnv-L-${release}/META-INF" />
 		
@@ -58,7 +56,6 @@
 		<replace file="${dist}/yw-cnv-L-${release}/description.xml" token="0.99.0" value="${release}" />
 
 		<copy file="../README.md" todir="${dist}/yw-cnv-L-${release}" />
-		<copy file="../LICENSE" todir="${dist}/yw-cnv-L-${release}" />
 
 		<zip destfile="${dist}/yw-cnv-L-${release}.oxt" basedir="${dist}/yw-cnv-L-${release}" />
 
