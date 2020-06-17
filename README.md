@@ -69,4 +69,12 @@ Generate a new yWriter 7 project from a work in progress or an outline.
 * Java Runtime Environment (LibreOffice needs it for macro execution).
 * yWriter 7. 
 
-The  _yw-cnv_  extension is distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
+## Credits
+
+[yWriter](http://spacejock.com/yWriter7.html) by Simon Haynes.
+
+[OpenOffice Extension Compiler](https://wiki.openoffice.org/wiki/Extensions_Packager#Extension_Compiler) by Bernard Marcelly.
+
+## License
+
+This extension is distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
