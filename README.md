@@ -51,6 +51,18 @@ Generate a new yWriter 7 project from a work in progress or an outline.
 * _Heading 3_  -->  New scene title.
 * All other text is considered to be chapter/scene description.
  
+## Download and install
+
+[Download page](https://github.com/peter88213/yw-cnv/releases/latest)
+
+* Download the `OXT` file.
+
+* Install it using the OpenOffice/Libreoffice extension manager.
+
+* After installation (and Office restart) you find a new "yWriter" submenu in the "Files" menu.
+
+* If no additional "yWriter" submenu shows up in the "Files" menu, please look in the "Tools > Extensions" menu.
+
 ## Requirements
 
 * LibreOffice 5.4 or more recent.
