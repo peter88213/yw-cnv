@@ -10,7 +10,6 @@
 	<property name="src" location="../src" />
 	<property name="test" location="../test" />
 	<property name="dist" location="../dist" />
-	<property name="oxt_file" value="${release-name-L}.oxt" />
 
 	<target name="build" description="inline all library modules">
 		
