@@ -4,4 +4,4 @@ Since Python scripts placed in LibreOffice extensions are very limited in import
 
 Location of the  _PyWriter_  library: https://github.com/peter88213/PyWriter
 
-It is advised to clone the  _PyWriter_  project at the same directory level as the yw-cnv project. So the build scripts can generate the  _yw-cnv_  scripts.
+It is advised to clone the  _PyWriter_  project at the same directory level as the  _yw-cnv_  project. So the build scripts can generate the  _yw-cnv_  scripts.
