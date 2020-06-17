@@ -59,9 +59,9 @@ Generate a new yWriter 7 project from a work in progress or an outline.
 
 * Install it using the OpenOffice/Libreoffice extension manager.
 
-* After installation (and Office restart) you find a new "yWriter" submenu in the "Files" menu.
+* After installation (and Office restart) you find a new "yWriter Import/Export" submenu in the "Files" menu.
 
-* If no additional "yWriter" submenu shows up in the "Files" menu, please look in the "Tools > Extensions" menu.
+* If no additional "yWriter Import/Export" submenu shows up in the "Files" menu, please look in the "Tools > Extensions" menu.
 
 ## Requirements
 
