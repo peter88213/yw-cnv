@@ -24,10 +24,13 @@
 			</exec>
 	</target>
 
-	<target name="dist-L" description="generate the LibreOffice distribution">
+	<target name="dist" description="Generate the extension">
 		
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}" />
+
+		<!-- Generate the LibreOffice distribution -->
+		
 		<mkdir dir="${dist}/${release-name-L}" />
 		<mkdir dir="${dist}/${release-name-L}/${ant.project.name}" />
 
