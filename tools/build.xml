@@ -36,11 +36,11 @@
 		<mkdir dir="${dist}/${release-name-L}/yw-cnv" />
 		<mkdir dir="${dist}/${release-name-L}/Tooltips" />
 
-		<copy file="${test}/saveyw.py" todir="${dist}/${release-name-L}/yw-cnv" />
-		<replace file="${dist}/${release-name-L}/yw-cnv/saveyw.py" token="@release" value="${release}" />
+		<copy file="${test}/saveyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
+		<replace file="${dist}/${release-name-L}/${ant.project.name}/saveyw.py" token="@release" value="${release}" />
 
 		<copy file="${test}/openyw.py" todir="${dist}/${release-name-L}/yw-cnv" />
-		<replace file="${dist}/${release-name-L}/yw-cnv/openyw.py" token="@release" value="${release}" />
+		<replace file="${dist}/${release-name-L}/${ant.project.name}/openyw.py" token="@release" value="${release}" />
 
 		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/${release-name-L}/Descriptions" />
 		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/${release-name-L}/Descriptions" />
