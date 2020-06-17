@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="pywriter_lo" basedir=".">
+<project name="yw-cnv" basedir=".">
 	<property name="release" value="0.25.0" />
-	<property name="oxt_file" value="yw-cnv-L-${release}.oxt" />
+	<property name="project-name" value="${ant.project.name}" />
+	<property name="release-name" value="${project-name}-${release}" />
+	<property name="release-name-L" value="${project-name}-L-${release}" />
+	<property name="release-name-A" value="${project-name}-A-${release}" />
 	
 	<property name="oxt" location="../oxt" />
 	<property name="src" location="../src" />
 	<property name="test" location="../test" />
 	<property name="dist" location="../dist" />
-	<property name="project-name" value="${ant.project.name}" />
-	<property name="release-name" value="${project-name}_v${release}" />
+	<property name="oxt_file" value="${release-name-L}.oxt" />
 
 	<target name="build" description="inline all library modules">
 		
@@ -24,40 +26,40 @@
 			</exec>
 	</target>
 
-	<target name="dist" description="generate the distribution">
+	<target name="dist-L" description="generate the LibreOffice distribution">
 		
 		<mkdir dir="${dist}" />
-		<mkdir dir="${dist}/yw-cnv-L-${release}" />
-		<mkdir dir="${dist}/yw-cnv-L-${release}/Descriptions" />
-		<mkdir dir="${dist}/yw-cnv-L-${release}/Legal" />
-		<mkdir dir="${dist}/yw-cnv-L-${release}/META-INF" />
-		<mkdir dir="${dist}/yw-cnv-L-${release}/yw-cnv" />
-		<mkdir dir="${dist}/yw-cnv-L-${release}/Tooltips" />
+		<mkdir dir="${dist}/${release-name-L}" />
+		<mkdir dir="${dist}/${release-name-L}/Descriptions" />
+		<mkdir dir="${dist}/${release-name-L}/Legal" />
+		<mkdir dir="${dist}/${release-name-L}/META-INF" />
+		<mkdir dir="${dist}/${release-name-L}/yw-cnv" />
+		<mkdir dir="${dist}/${release-name-L}/Tooltips" />
 
-		<copy file="${test}/saveyw.py" todir="${dist}/yw-cnv-L-${release}/yw-cnv" />
-		<replace file="${dist}/yw-cnv-L-${release}/yw-cnv/saveyw.py" token="@release" value="${release}" />
+		<copy file="${test}/saveyw.py" todir="${dist}/${release-name-L}/yw-cnv" />
+		<replace file="${dist}/${release-name-L}/yw-cnv/saveyw.py" token="@release" value="${release}" />
 
-		<copy file="${test}/openyw.py" todir="${dist}/yw-cnv-L-${release}/yw-cnv" />
-		<replace file="${dist}/yw-cnv-L-${release}/yw-cnv/openyw.py" token="@release" value="${release}" />
+		<copy file="${test}/openyw.py" todir="${dist}/${release-name-L}/yw-cnv" />
+		<replace file="${dist}/${release-name-L}/yw-cnv/openyw.py" token="@release" value="${release}" />
 
-		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/yw-cnv-L-${release}/Descriptions" />
-		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/yw-cnv-L-${release}/Descriptions" />
-		<copy file="${oxt}/Legal/license-en.txt" todir="${dist}/yw-cnv-L-${release}/Legal" />
+		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/${release-name-L}/Descriptions" />
+		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/${release-name-L}/Descriptions" />
+		<copy file="${oxt}/Legal/license-en.txt" todir="${dist}/${release-name-L}/Legal" />
 
-		<copy file="${oxt}/META-INF/manifest.xml" todir="${dist}/yw-cnv-L-${release}/META-INF" />
+		<copy file="${oxt}/META-INF/manifest.xml" todir="${dist}/${release-name-L}/META-INF" />
 		
-		<copy file="${oxt}/Tooltips/tip-en.txt" todir="${dist}/yw-cnv-L-${release}/Tooltips" />
-		<copy file="${oxt}/Tooltips/tip-de.txt" todir="${dist}/yw-cnv-L-${release}/Tooltips" />
+		<copy file="${oxt}/Tooltips/tip-en.txt" todir="${dist}/${release-name-L}/Tooltips" />
+		<copy file="${oxt}/Tooltips/tip-de.txt" todir="${dist}/${release-name-L}/Tooltips" />
 
-		<copy file="${oxt}/AddonUI.xcu" todir="${dist}/yw-cnv-L-${release}" />
-		<replace file="${dist}/yw-cnv-L-${release}/AddonUI.xcu" token="0.99.0" value="${release}" />
+		<copy file="${oxt}/AddonUI.xcu" todir="${dist}/${release-name-L}" />
+		<replace file="${dist}/${release-name-L}/AddonUI.xcu" token="0.99.0" value="${release}" />
 
-		<copy file="${oxt}/description.xml" todir="${dist}/yw-cnv-L-${release}" />
-		<replace file="${dist}/yw-cnv-L-${release}/description.xml" token="0.99.0" value="${release}" />
+		<copy file="${oxt}/description.xml" todir="${dist}/${release-name-L}" />
+		<replace file="${dist}/${release-name-L}/description.xml" token="0.99.0" value="${release}" />
 
-		<copy file="../README.md" todir="${dist}/yw-cnv-L-${release}" />
+		<copy file="../README.md" todir="${dist}/${release-name-L}" />
 
-		<zip destfile="${dist}/yw-cnv-L-${release}.oxt" basedir="${dist}/yw-cnv-L-${release}" />
+		<zip destfile="${dist}/${release-name-L}.oxt" basedir="${dist}/${release-name-L}" />
 
 		<copy file="./yw-cnv-L.update.xml" overwrite="True" todir=".." />
 		<replace file="../yw-cnv-L.update.xml" token="0.99.0" value="${release}" />
