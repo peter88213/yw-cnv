@@ -29,26 +29,29 @@
 		<delete dir="${dist}" />
 		<mkdir dir="${dist}" />
 		<mkdir dir="${dist}/${release-name-L}" />
-		<mkdir dir="${dist}/${release-name-L}/Descriptions" />
-		<mkdir dir="${dist}/${release-name-L}/Legal" />
-		<mkdir dir="${dist}/${release-name-L}/META-INF" />
 		<mkdir dir="${dist}/${release-name-L}/${ant.project.name}" />
-		<mkdir dir="${dist}/${release-name-L}/Tooltips" />
 
+		<copy todir="${dist}/${release-name-L}/META-INF"> 
+			<fileset dir="${oxt}/META-INF" />
+		</copy>
+		
+		<copy todir="${dist}/${release-name-L}/Descriptions"> 
+			<fileset dir="${oxt}/Descriptions" />
+		</copy>
+		
+		<copy todir="${dist}/${release-name-L}/Legal"> 
+			<fileset dir="${oxt}/Legal" />
+		</copy>
+		
+		<copy todir="${dist}/${release-name-L}/Tooltips"> 
+			<fileset dir="${oxt}/Tooltips" />
+		</copy>
+		
 		<copy file="${test}/saveyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
 		<replace file="${dist}/${release-name-L}/${ant.project.name}/saveyw.py" token="@release" value="${release}" />
 
 		<copy file="${test}/openyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
 		<replace file="${dist}/${release-name-L}/${ant.project.name}/openyw.py" token="@release" value="${release}" />
-
-		<copy file="${oxt}/Descriptions/descr-de.txt" todir="${dist}/${release-name-L}/Descriptions" />
-		<copy file="${oxt}/Descriptions/descr-en.txt" todir="${dist}/${release-name-L}/Descriptions" />
-		<copy file="${oxt}/Legal/license-en.txt" todir="${dist}/${release-name-L}/Legal" />
-
-		<copy file="${oxt}/META-INF/manifest.xml" todir="${dist}/${release-name-L}/META-INF" />
-		
-		<copy file="${oxt}/Tooltips/tip-en.txt" todir="${dist}/${release-name-L}/Tooltips" />
-		<copy file="${oxt}/Tooltips/tip-de.txt" todir="${dist}/${release-name-L}/Tooltips" />
 
 		<copy file="${oxt}/AddonUI.xcu" todir="${dist}/${release-name-L}" />
 		<replace file="${dist}/${release-name-L}/AddonUI.xcu" token="0.99.0" value="${release}" />
