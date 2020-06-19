@@ -17,6 +17,7 @@ from pywriter.html.html_manuscript import HtmlManuscript
 from pywriter.html.html_scenedesc import HtmlSceneDesc
 from pywriter.html.html_chapterdesc import HtmlChapterDesc
 from pywriter.html.html_import import HtmlImport
+from pywriter.html.html_outline import HtmlOutline
 from pywriter.yw.yw_file import YwFile
 from pywriter.yw.yw_new_file import YwNewFile
 from pywriter.converter.yw_cnv import YwCnv
@@ -25,6 +26,7 @@ from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.csv.csv_charlist import CsvCharList
 from pywriter.csv.csv_loclist import CsvLocList
 from pywriter.csv.csv_itemlist import CsvItemList
+from pywriter.html.html_form import *
 
 import uno
 import unohelper
@@ -124,7 +126,16 @@ def run(sourcePath):
         message = converter.document_to_yw(sourceDoc, ywFile)
 
     elif sourcePath.endswith('.html'):
-        sourceDoc = HtmlImport(sourcePath)
+        result = read_html_file(sourcePath)
+
+        if 'SUCCESS' in result[0]:
+
+            if "<h3" in result[1].lower():
+                sourceDoc = HtmlOutline(sourcePath)
+
+            else:
+                sourceDoc = HtmlImport(sourcePath)
+
         ywPath = sourcePath.replace('.html', '.yw7')
         ywFile = YwNewFile(ywPath)
         converter = YwCnv()

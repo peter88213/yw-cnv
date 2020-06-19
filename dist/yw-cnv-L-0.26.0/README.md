@@ -51,10 +51,30 @@ Generate a new yWriter 7 project from a work in progress or an outline.
 * _Heading 3_  -->  New scene title.
 * All other text is considered to be chapter/scene description.
  
+## Download and install
+
+[Download page](https://github.com/peter88213/yw-cnv/releases/latest)
+
+* Download the `OXT` file.
+
+* Install it using the OpenOffice/Libreoffice extension manager.
+
+* After installation (and Office restart) you find a new "yWriter Import/Export" submenu in the "Files" menu.
+
+* If no additional "yWriter Import/Export" submenu shows up in the "Files" menu, please look at the "Tools" > "Extensions" menu.
+
 ## Requirements
 
 * LibreOffice 5.4 or more recent.
 * Java Runtime Environment (LibreOffice needs it for macro execution).
 * yWriter 7. 
 
-The  _yw-cnv_  extension is distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
+## Credits
+
+[yWriter](http://spacejock.com/yWriter7.html) by Simon Haynes.
+
+[OpenOffice Extension Compiler](https://wiki.openoffice.org/wiki/Extensions_Packager#Extension_Compiler) by Bernard Marcelly.
+
+## License
+
+This extension is distributed under the [MIT License](http://www.opensource.org/licenses/mit-license.php).
