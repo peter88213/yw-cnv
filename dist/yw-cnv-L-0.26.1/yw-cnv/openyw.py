@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.26.0
+Version 0.26.1
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
