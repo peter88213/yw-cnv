@@ -33,24 +33,25 @@ Generate a new yWriter 7 project from a work in progress or an outline.
 * Existing yWriter 7 projects will not be overwritten.
 
 
-#### Formatting a work in progress or outline
+#### Formatting a work in progress
+
+A work in progress has no third level heading.
 
 * _Heading 1_  -->  New chapter title (beginning a new section).
 * _Heading 2_  -->  New chapter title.
-* Optional: `{#`Chapter description`#}`.
-* Optional: `{_`Scene description`_}`.
-* Text in paragraphs is considered to be scene content.
-* `* * *`  -->  Scene divider (unless there is a heading).
-* Optional: _Heading 3_  -->  New scene title.
+* `* * *`  -->  Scene divider (not needed for the first scenes in a chapter).
+* All other text is considered to be scene content.
 
-#### Outline mode (optional)
+#### Formatting an outline
 
-* `{outline}` at the top of the document.
+An outline has at least one third level heading.
+
 * _Heading 1_  -->  New chapter title (beginning a new section).
 * _Heading 2_  -->  New chapter title.
 * _Heading 3_  -->  New scene title.
 * All other text is considered to be chapter/scene description.
- 
+
+
 ## Download and install
 
 [Download page](https://github.com/peter88213/yw-cnv/releases/latest)
