@@ -11,6 +11,8 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
+from urllib.parse import unquote
+
 from pywriter.globals import *
 from pywriter.html.html_proof import HtmlProof
 from pywriter.html.html_manuscript import HtmlManuscript
@@ -63,7 +65,7 @@ def delete_tempfile(filePath):
 
 
 def run(sourcePath):
-    sourcePath = sourcePath.replace('file:///', '').replace('%20', ' ')
+    sourcePath = unquote(sourcePath.replace('file:///', ''))
 
     ywPath = None
 
