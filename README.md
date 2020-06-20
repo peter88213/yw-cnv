@@ -8,8 +8,14 @@
 
 #### Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers. 
 
+* Please consider the following conventions:
+    * Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.
+    * All chapters and scenes will be exported, whether "used" or "unused".
+    
+* Back up your yWriter project and close yWriter before.
 * The proof read document is placed in the same folder as the yWriter project.
 * Document's filename: `<yW project name>_proof.odt`.
+* The document contains chapter `[ChID:x]` and scene `[ScID:y]` markers according to yWriter 5 standard.  __Do not touch lines containing the markers__  if you want to be able to reimport the document into yWriter.
 
 #### Write back the proofread scenes to the yWriter 6/7 project file.
 

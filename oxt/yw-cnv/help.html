@@ -20,6 +20,11 @@ em, code {color: maroon;}
 <h3>Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers.</h3>
 
 <ul>
+<li>Please consider the following conventions:</li>
+	<ul>
+    <li>Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.</li>
+    <li>All chapters and scenes will be exported, whether "used" or "unused".</li>
+	</ul>
 <li>Back up your yWriter project and close yWriter before.</li>
 <li>The proof read document is placed in the same folder as the yWriter project.</li>
 <li>Document's filename: <code>&#139;yW project name&#155;_proof.odt</code>.</li>
@@ -37,8 +42,9 @@ em, code {color: maroon;}
 <p>Generate a "standard manuscript pages" formatted OpenDocument textfile from an yWriter 6/7 project:</p>
 
 <ul>
-<li>The document is placed in the same folder as the yWriter project.<</li>
+<li>The document is placed in the same folder as the yWriter project.</li>
 <li>Document's filename: <code>&#139;yW project name&#155;.odt</code>.</li>
+<li>The document contains chapter <code>[ChID:x]</code> and scene <code>[ScID:y]</code> markers according to yWriter 5 standard. <strong>Do not touch lines containing the markers</strong> if you want to be able to reimport the document into yWriter.</li>
 </ul>
 
 <h2>Create a new yw7 project</h2>
