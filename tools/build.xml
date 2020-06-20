@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="yw-cnv" basedir=".">
-	<property name="release" value="0.26.5" />
+	<property name="release" value="0.27.0" />
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="release-name" value="${project-name}-${release}" />
 	<property name="release-name-L" value="${project-name}-L-${release}" />
@@ -34,6 +34,10 @@
 		<mkdir dir="${dist}/${release-name-L}" />
 		<mkdir dir="${dist}/${release-name-L}/${ant.project.name}" />
 
+		<copy todir="${dist}/${release-name-L}/${ant.project.name}"> 
+			<fileset dir="${oxt}/${ant.project.name}" />
+		</copy>
+		
 		<copy todir="${dist}/${release-name-L}/META-INF"> 
 			<fileset dir="${oxt}/META-INF" />
 		</copy>

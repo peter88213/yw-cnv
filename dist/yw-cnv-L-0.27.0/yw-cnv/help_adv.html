@@ -1,0 +1,94 @@
+<html>
+<head>
+<title>yw-cnv Help</title>
+<style type='text/css'>
+<!--
+h1, h2, h3 {font-family: sans-serif;}
+h1, h2 {color: green;}
+h3 {font-style: italic; font-size: 1em;}
+em, code {color: maroon;}
+cite {font-weight: bold; color: red;}
+-->
+</style>
+</head>
+
+<body>
+
+<h1>yw-cnv: Advanced features</h1>
+
+<h2>Warning!</h2>
+
+<cite>
+<p>The "advanced features" are meant to be used by experienced LibreOffice users only. If you aren't familiar with the following concepts, please do not use the advanced features. You could damage your work by accident. Be sure to try out the features with a test project first.</p>
+</cite>
+
+<ul>
+<li>Sections in LibreOffice Writer. </li>
+<li>LibreOffice Calc (similar to Excel).</li>
+<li>The csv format and how to use it for import and export with LibreOffice Calc.</li>
+</ul>
+
+<h2>Convert the manuscript without visible chapter/scene tags</h2>
+
+<p>Export an yWriter 6/7 project to an OpenDocument file with invisible chapter and scene sections (to be seen in the Navigator). Write back the proofread scenes to the yWriter 6/7 project file.</p>
+
+
+<h2>Editable reports</h2>
+
+<ul>
+<li>Very brief synopsis (Part descriptions): Chapter titles and chapter descriptions that can be edited in Office Writer and written back to yWriter format. Applies only to chapters marked This chapter begins a new section in yWriter.</li>
+
+<li>Brief synopsis (Chapter descriptions): Chapter titles and chapter descriptions that can be edited in Office Writer and written back to yWriter format. Doesn't apply to chapters marked This chapter begins a new section in yWriter.</li>
+
+<li>Full synopsis (Scene descriptions): Chapter titles and scene descriptions that can be edited in Office Writer and written back to yWriter format.</li>
+</ul>
+
+
+<h2>Scene list</h2>
+
+<p>Create (via csv) a spreadsheet table listing scene title, scene descriptions, and links to the manuscript's scene sections. This list can be enhanced with scene metadata (e.g. tags, goals, time).</p>
+
+<h2>World building lists</h2>
+
+<ul>
+<li>Character sheets that can be edited in Office Calc and written back to yWriter format.</li>
+
+<li>Location sheets that can be edited in Office Calc and written back to yWriter format.</li>
+
+<li>Item sheets that can be edited in Office Calc and written back to yWriter format.</li>
+</ul>
+
+
+<h2>Plot list</h2>
+
+<p>Create (via csv) spreadsheet tables containing plot related metadata that can be displayed and edited.</p>
+
+<h3>Plotting conventions</h3>
+
+<p>In yWriter, you can divide your novel into <strong>Plot Sections</strong> (e.g. acts or steps) by inserting chapters marked "other". They will show up in blue color and won't get exported.</p>
+
+<p><strong>Plot-related events</strong> (e.g. "Mid Point", "Climax") can be identified by "scene tags" if you want to link them to a specific scene.</p>
+
+<p>You can use scene notes for <strong>plot-specific explanations</strong>.</p>
+
+<p>If you want to <strong>visualize character arcs</strong>, you can use the project's rating names by changing them to the names of up to four main characters. Then you can quantify the state of these four characters and put them into the scenes. It's easy then to let LibreOffice Calc show a diagram for the scene ratings over scene count or word count.</p>
+
+<ul>
+<li>Only rating field names corresponding to character names or containing the string "story", e.g. "A-Story", "BStoryline" (up to 10 case insensitive characters) appear in the plot list.</li>
+
+<li>Only ratings greater than 1 appear in the plot list, i.e. 1 means "a rating is not set for this chapter".</li>
+
+<li>Recommended ratings:
+<ul>
+<li>1 = N/A</li>
+<li>2 = unhappy</li>
+<li>3 = dissatisfied</li>
+<li>4 = vague</li>
+<li>5 = satisfied</li>
+<li>6 = happy</li>
+</ul>
+<li>Ratings deleted while editing the plotlist will be converted to 1 on writing back.</li>
+</ul>
+
+
+</body>
