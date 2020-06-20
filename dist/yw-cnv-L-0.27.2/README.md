@@ -19,7 +19,7 @@
 
 #### Write back the proofread scenes to the yWriter 6/7 project file.
 
-* The yWriter 6/7 project to rewrite must exist in the document folder.
+* The yWriter 6/7 project to rewrite must exist in the same folder as the document.
 * If both yw6 and yw7 project files exist, yw7 is rewritten. 
 
 ### Import from yw6/7 project 
