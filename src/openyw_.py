@@ -30,6 +30,9 @@ from pywriter.odt.odt_file import OdtFile
 from pywriter.csv.csv_charlist import CsvCharList
 from pywriter.csv.csv_loclist import CsvLocList
 from pywriter.csv.csv_itemlist import CsvItemList
+from pywriter.odt.odt_characters import OdtCharacters
+from pywriter.odt.odt_items import OdtItems
+from pywriter.odt.odt_locations import OdtLocations
 
 import uno
 
@@ -59,6 +62,15 @@ def run(sourcePath, suffix):
 
     elif suffix == PARTDESC_SUFFIX:
         targetDoc = OdtPartDesc(fileName + suffix + '.odt')
+
+    elif suffix == CHARDESC_SUFFIX:
+        targetDoc = OdtCharacters(fileName + suffix + '.odt')
+
+    elif suffix == LOCDESC_SUFFIX:
+        targetDoc = OdtLocations(fileName + suffix + '.odt')
+
+    elif suffix == ITEMDESC_SUFFIX:
+        targetDoc = OdtItems(fileName + suffix + '.odt')
 
     elif suffix == SCENELIST_SUFFIX:
         targetDoc = CsvSceneList(fileName + suffix + '.csv')
@@ -100,7 +112,7 @@ def open_yw7(suffix, newExt):
         ywLastOpen = config.get('FILES', 'yw_last_open')
 
         if os.path.isfile(ywLastOpen):
-            defaultFile = quote('file:///' + ywLastOpen)
+            defaultFile = quote('file:///' + ywLastOpen, '/:')
 
     except:
         pass
@@ -197,32 +209,50 @@ def get_scenedesc(*args):
     open_yw7(SCENEDESC_SUFFIX, '.odt')
 
 
+def get_chardesc(*args):
+    '''Import character descriptions from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(CHARDESC_SUFFIX, '.odt')
+
+
+def get_locdesc(*args):
+    '''Import location descriptions from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(LOCDESC_SUFFIX, '.odt')
+
+
+def get_itemdesc(*args):
+    '''Import item descriptions from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(ITEMDESC_SUFFIX, '.odt')
+
+
 def get_scenelist(*args):
-    '''Import a scene list from yWriter 6/7 to a Writer document.
+    '''Import a scene list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(SCENELIST_SUFFIX, '.csv')
 
 
 def get_plotlist(*args):
-    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''Import a plot list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(PLOTLIST_SUFFIX, '.csv')
 
 
 def get_charlist(*args):
-    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''Import a character list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(CHARLIST_SUFFIX, '.csv')
 
 
 def get_loclist(*args):
-    '''Import a plot list from yWriter 6/7 to a Writer document.
+    '''Import a location list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(LOCLIST_SUFFIX, '.csv')
 
 
 def get_itemlist(*args):
-    '''Import an item list from yWriter 6/7 to a Writer document.
+    '''Import an item list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(ITEMLIST_SUFFIX, '.csv')
 

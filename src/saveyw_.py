@@ -20,6 +20,9 @@ from pywriter.html.html_scenedesc import HtmlSceneDesc
 from pywriter.html.html_chapterdesc import HtmlChapterDesc
 from pywriter.html.html_import import HtmlImport
 from pywriter.html.html_outline import HtmlOutline
+from pywriter.html.html_characters import HtmlCharacters
+from pywriter.html.html_locations import HtmlLocations
+from pywriter.html.html_items import HtmlItems
 from pywriter.yw.yw_file import YwFile
 from pywriter.yw.yw_new_file import YwNewFile
 from pywriter.converter.yw_cnv import YwCnv
@@ -37,7 +40,8 @@ from uno_wrapper.uno_tools import *
 
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
-         '.html', SCENELIST_SUFFIX + '.csv',
+         '.html', CHARDESC_SUFFIX + '.html', CHARDESC_SUFFIX +
+         '.html', ITEMDESC_SUFFIX + '.html', SCENELIST_SUFFIX + '.csv',
          PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv',
          ITEMLIST_SUFFIX + '.csv', '.html']
 
@@ -104,6 +108,15 @@ def run(sourcePath):
 
         elif tail == PARTDESC_SUFFIX + '.html':
             sourceDoc = HtmlChapterDesc(sourcePath)
+
+        elif tail == CHARDESC_SUFFIX + '.html':
+            sourceDoc = HtmlCharacters(sourcePath)
+
+        elif tail == LOCDESC_SUFFIX + '.html':
+            sourceDoc = HtmlLocations(sourcePath)
+
+        elif tail == ITEMDESC_SUFFIX + '.html':
+            sourceDoc = HtmlItems(sourcePath)
 
         elif tail == SCENELIST_SUFFIX + '.csv':
             sourceDoc = CsvSceneList(sourcePath)
