@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.27.3
+Version 0.27.4
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -4080,7 +4080,7 @@ def msgbox(message):
 
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
-         '.html', CHARDESC_SUFFIX + '.html', CHARDESC_SUFFIX +
+         '.html', CHARDESC_SUFFIX + '.html', LOCDESC_SUFFIX +
          '.html', ITEMDESC_SUFFIX + '.html', SCENELIST_SUFFIX + '.csv',
          PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv',
          ITEMLIST_SUFFIX + '.csv', '.html']

@@ -40,7 +40,7 @@ from uno_wrapper.uno_tools import *
 
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
-         '.html', CHARDESC_SUFFIX + '.html', CHARDESC_SUFFIX +
+         '.html', CHARDESC_SUFFIX + '.html', LOCDESC_SUFFIX +
          '.html', ITEMDESC_SUFFIX + '.html', SCENELIST_SUFFIX + '.csv',
          PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv',
          ITEMLIST_SUFFIX + '.csv', '.html']
