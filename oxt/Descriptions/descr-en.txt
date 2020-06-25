@@ -1,7 +1,7 @@
 yWriter project import and export.
  
 yWriter5 style proof reading:
-- Export an yWriter 6/7 project to an OpenDocument file with chapter and scene markers.
+- Import an yWriter 6/7 project into an OpenDocument file with chapter and scene markers.
 - Write back the proofread scenes to the yWriter 6/7 project file.
 
 Import from yw6/7 project:

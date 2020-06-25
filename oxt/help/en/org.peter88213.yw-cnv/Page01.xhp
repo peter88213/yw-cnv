@@ -11,165 +11,143 @@
          The yw-cnv extension for LibreOffice: Import and export yWriter 6/7 projects
       </paragraph>
       <paragraph role="heading" level="2" xml-lang="en" id="N0002">
-         Features
-      </paragraph>
-      <paragraph role="heading" level="3" xml-lang="en" id="N0003">
          yWriter5 style proof reading
       </paragraph>
-      <paragraph role="heading" level="4" xml-lang="en" id="N0004">
+      <paragraph role="heading" level="3" xml-lang="en" id="N0003">
          Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0004">
+         Please consider the following conventions:
       </paragraph>
       <list type="unordered">
          <listitem>
             <paragraph role="listitem" xml-lang="en" id="N0005">
-               The proof read document is placed in the same folder as the yWriter project.
+               Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.
             </paragraph>
          </listitem>
          <listitem>
             <paragraph role="listitem" xml-lang="en" id="N0006">
-               Document&apos;s filename: <emph>&lt;yW project name&gt;_proof.odt</emph>.
+               All chapters and scenes will be exported, whether &quot;used&quot; or &quot;unused&quot;.
             </paragraph>
          </listitem>
       </list>
-      <paragraph role="heading" level="4" xml-lang="en" id="N0007">
+      <paragraph role="paragraph" xml-lang="en" id="N0007">
+         Back up your yWriter project and close yWriter before.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0008">
+         The proof read document is placed in the same folder as the yWriter project.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0009">
+         Document&apos;s filename: <emph>&lt;yW project name&gt;_proof.odt</emph>.
+      </paragraph>
+      <paragraph role="heading" level="3" xml-lang="en" id="N0010">
          Write back the proofread scenes to the yWriter 6/7 project file.
       </paragraph>
-      <list type="unordered">
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0008">
-               The yWriter 6/7 project to rewrite must exist in the document folder.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0009">
-               If both yw6 and yw7 project files exist, yw7 is rewritten. 
-            </paragraph>
-         </listitem>
-      </list>
-      <paragraph role="heading" level="3" xml-lang="en" id="N0010">
+      <paragraph role="paragraph" xml-lang="en" id="N0011">
+         The yWriter 6/7 project to rewrite must exist in the same folder as the document.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0012">
+         If both yw6 and yw7 project files exist, yw7 is rewritten. 
+      </paragraph>
+      <paragraph role="heading" level="2" xml-lang="en" id="N0013">
          Import from yw6/7 project
       </paragraph>
-      <paragraph role="heading" level="4" xml-lang="en" id="N0011">
+      <paragraph role="heading" level="3" xml-lang="en" id="N0014">
          Generate a &quot;standard manuscript pages&quot; formatted OpenDocument textfile from an yWriter 6/7 project.
       </paragraph>
-      <list type="unordered">
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0012">
-               The document is placed in the same folder as the yWriter project.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0013">
-               Document&apos;s filename: <emph>&lt;yW project name&gt;.odt</emph>.
-            </paragraph>
-         </listitem>
-      </list>
-      <paragraph role="heading" level="3" xml-lang="en" id="N0014">
+      <paragraph role="paragraph" xml-lang="en" id="N0015">
+         The document is placed in the same folder as the yWriter project.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0016">
+         Document&apos;s filename: <emph>&lt;yW project name&gt;.odt</emph>.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0017">
+         The document contains chapter <emph>[ChID:x]</emph> and scene <emph>[ScID:y]</emph> markers according to yWriter 5 standard. <emph>Do not touch lines containing the markers </emph>if you want to be able to reimport the document into yWriter.
+      </paragraph>
+      <paragraph role="heading" level="2" xml-lang="en" id="N0018">
          Create a new yw7 project 
       </paragraph>
-      <paragraph role="heading" level="4" xml-lang="en" id="N0015">
-         Generate a new yWriter 7 project from a work in progress or an outline.
+      <paragraph role="heading" level="3" xml-lang="en" id="N0019">
+         Generate a new yWriter 7 project from a work in progress or an outline:
       </paragraph>
-      <list type="unordered">
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0016">
-               The new yWriter project is placed in the same folder as the document.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0017">
-               yWriter project&apos;s filename: <emph>&lt;document name&gt;.yw7</emph>.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0018">
-               Existing yWriter 7 projects will not be overwritten.
-            </paragraph>
-         </listitem>
-      </list>
-      <paragraph role="paragraph" xml-lang="en" id="N0019">
+      <paragraph role="paragraph" xml-lang="en" id="N0020">
+         The new yWriter project is placed in the same folder as the document.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0021">
+         yWriter project&apos;s filename: <emph>&lt;document name&gt;.yw7</emph>.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0022">
+         Existing yWriter 7 projects will not be overwritten.
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0023">
          
       </paragraph>
-      <paragraph role="heading" level="5" xml-lang="en" id="N0020">
-         Format a work in progress or outline:
+      <paragraph role="heading" level="5" xml-lang="en" id="N0024">
+         Formatting a work in progress:
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0025">
+         A work in progress has no third level heading.
       </paragraph>
       <list type="unordered">
          <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0021">
-               <emph>Heading 1</emph>  --&gt;  New chapter title (beginning a new section).
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0022">
-               <emph>Heading 2</emph>  --&gt;  New chapter title.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0023">
-               Optional: <emph>{#</emph>Chapter description<emph>#}</emph>.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0024">
-               Optional: <emph>{_</emph>Scene description<emph>_}</emph>.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0025">
-               Text in paragraphs is considered to be scene content.
-            </paragraph>
-         </listitem>
-         <listitem>
             <paragraph role="listitem" xml-lang="en" id="N0026">
-               <emph>* * *</emph>  --&gt;  Scene divider (unless there is a heading).
+               <emph>Heading 1</emph>  --&gt;  New chapter title (beginning a new section).
             </paragraph>
          </listitem>
          <listitem>
             <paragraph role="listitem" xml-lang="en" id="N0027">
-               Optional: <emph>Heading 3</emph> --&gt;  New scene title.
-            </paragraph>
-         </listitem>
-      </list>
-      <paragraph role="heading" level="5" xml-lang="en" id="N0028">
-         Outline mode (optional):
-      </paragraph>
-      <list type="unordered">
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0029">
-               <emph>{outline}</emph> at the top of the document.
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0030">
-               <emph>Heading 1</emph>  --&gt;  New chapter title (beginning a new section).
-            </paragraph>
-         </listitem>
-         <listitem>
-            <paragraph role="listitem" xml-lang="en" id="N0031">
                <emph>Heading 2</emph>  --&gt;  New chapter title.
             </paragraph>
          </listitem>
          <listitem>
+            <paragraph role="listitem" xml-lang="en" id="N0028">
+               <emph>* * *</emph>  --&gt;  Scene divider (unless there is a heading).
+            </paragraph>
+         </listitem>
+         <listitem>
+            <paragraph role="listitem" xml-lang="en" id="N0029">
+               All other text is considered to be scene content.
+            </paragraph>
+         </listitem>
+      </list>
+      <paragraph role="heading" level="5" xml-lang="en" id="N0030">
+         Formatting an outline:
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0031">
+         An outline has at least one third level heading.
+      </paragraph>
+      <list type="unordered">
+         <listitem>
             <paragraph role="listitem" xml-lang="en" id="N0032">
-               <emph>Heading 3</emph> --&gt;  New scene title.
+               <emph>Heading 1</emph>  --&gt;  New chapter title (beginning a new section).
             </paragraph>
          </listitem>
          <listitem>
             <paragraph role="listitem" xml-lang="en" id="N0033">
+               <emph>Heading 2</emph>  --&gt;  New chapter title.
+            </paragraph>
+         </listitem>
+         <listitem>
+            <paragraph role="listitem" xml-lang="en" id="N0034">
+               <emph>Heading 3</emph> --&gt;  New scene title.
+            </paragraph>
+         </listitem>
+         <listitem>
+            <paragraph role="listitem" xml-lang="en" id="N0035">
                All other text is considered to be chapter/scene description.
             </paragraph>
          </listitem>
       </list>
-      <paragraph role="paragraph" xml-lang="en" id="N0034">
-         
-      </paragraph>
-      <paragraph role="paragraph" xml-lang="en" id="N0035">
-         
-      </paragraph>
       <paragraph role="paragraph" xml-lang="en" id="N0036">
          
       </paragraph>
       <paragraph role="paragraph" xml-lang="en" id="N0037">
+         
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0038">
+         
+      </paragraph>
+      <paragraph role="paragraph" xml-lang="en" id="N0039">
          
       </paragraph>
    </body>
