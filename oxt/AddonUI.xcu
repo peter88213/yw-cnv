@@ -14,7 +14,7 @@
                <value xml:lang="de">Hilfe</value>
             </prop>
             <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+               <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
             </prop>
             <prop oor:name="Target" oor:type="xs:string">
                <value>_self</value>
@@ -115,7 +115,7 @@
                               <value xml:lang="de">Hilfe</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -139,8 +139,7 @@
                <value/>
             </prop>
             <prop oor:name="Title" oor:type="xs:string">
-               <value xml:lang="en">yWriter</value>
-               <value xml:lang="de">yWriter</value>
+               <value>yWriter Import/Export</value>
             </prop>
             <node oor:name="Submenu">
                <node oor:name="N002" oor:op="replace">
@@ -160,7 +159,7 @@
                </node>
                <node oor:name="N003" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
-                     <value>com.sun.star.text.TextDocument</value>
+                     <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
                      <value xml:lang="en">Import from yWriter for proof reading</value>
@@ -174,12 +173,17 @@
                   </prop>
                </node>
                <node oor:name="N004" oor:op="replace">
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>private:separator</value>
+                  </prop>
+               </node>
+               <node oor:name="N005" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
                      <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
                      <value xml:lang="en">Export to yWriter</value>
-                     <value xml:lang="de">Nach yWriter exportieren</value>
+                     <value xml:lang="de">Zu yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|saveyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
@@ -188,12 +192,12 @@
                      <value>_self</value>
                   </prop>
                </node>
-               <node oor:name="N005" oor:op="replace">
+               <node oor:name="N006" oor:op="replace">
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>private:separator</value>
                   </prop>
                </node>
-               <node oor:name="N006" oor:op="replace">
+               <node oor:name="N007" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
                      <value/>
                   </prop>
@@ -202,18 +206,18 @@
                      <value xml:lang="de">Hilfe</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
                   </prop>
                </node>
-               <node oor:name="N007" oor:op="replace">
+               <node oor:name="N008" oor:op="replace">
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>private:separator</value>
                   </prop>
                </node>
-               <node oor:name="N008" oor:op="replace">
+               <node oor:name="N009" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
                      <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                   </prop>
@@ -221,7 +225,7 @@
                      <value xml:lang="en">Advanced features</value>
                   </prop>
                   <node oor:name="Submenu">
-                     <node oor:name="N009" oor:op="replace">
+                     <node oor:name="N010" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -235,7 +239,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N010" oor:op="replace">
+                     <node oor:name="N011" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -249,7 +253,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N011" oor:op="replace">
+                     <node oor:name="N012" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -263,7 +267,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N012" oor:op="replace">
+                     <node oor:name="N013" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -277,12 +281,12 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N013" oor:op="replace">
+                     <node oor:name="N014" oor:op="replace">
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>private:separator</value>
                         </prop>
                      </node>
-                     <node oor:name="N014" oor:op="replace">
+                     <node oor:name="N015" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -296,7 +300,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N015" oor:op="replace">
+                     <node oor:name="N016" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -310,7 +314,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N016" oor:op="replace">
+                     <node oor:name="N017" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -324,12 +328,12 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N017" oor:op="replace">
+                     <node oor:name="N018" oor:op="replace">
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>private:separator</value>
                         </prop>
                      </node>
-                     <node oor:name="N018" oor:op="replace">
+                     <node oor:name="N019" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -343,7 +347,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N019" oor:op="replace">
+                     <node oor:name="N020" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -357,7 +361,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N020" oor:op="replace">
+                     <node oor:name="N021" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -371,7 +375,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N021" oor:op="replace">
+                     <node oor:name="N022" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -385,7 +389,7 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N022" oor:op="replace">
+                     <node oor:name="N023" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                         </prop>
@@ -399,12 +403,12 @@
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N023" oor:op="replace">
+                     <node oor:name="N024" oor:op="replace">
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>private:separator</value>
                         </prop>
                      </node>
-                     <node oor:name="N024" oor:op="replace">
+                     <node oor:name="N025" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value/>
                         </prop>
@@ -412,7 +416,7 @@
                            <value xml:lang="en">Help</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>

@@ -1,7 +1,7 @@
 yWriter-Projekt importieren und exportieren.
 
 Korrekturlesen (wie bei yWriter 5):
-- Ein yWriter 6/7 Projekt in eine OpenDocument-Datei mit Kapitel- und Szenenmarkierungen exportieren.
+- Ein yWriter 6/7 Projekt in eine OpenDocument-Datei mit Kapitel- und Szenenmarkierungen importieren.
 - Korrekturgelesene Szenen in die yWriter 6/7 Projektdatei zurückschreiben.
 
 Aus einem yw6/7 Projekt importieren:
