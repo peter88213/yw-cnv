@@ -25,8 +25,9 @@ def main():
         pass
 
     inliner.run(SOURCE_FILE,
+                TARGET_FILE, 'uno_wrapper', '../src/')
+    inliner.run(TARGET_FILE,
                 TARGET_FILE, 'pywriter', '../../PyWriter/src/')
-    inliner.run(TARGET_FILE, TARGET_FILE, 'uno_wrapper', '../src/')
     print('Done.')
 
 

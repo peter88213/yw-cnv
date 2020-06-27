@@ -23,7 +23,6 @@ from pywriter.odt.odt_scenedesc import OdtSceneDesc
 from pywriter.odt.odt_chapterdesc import OdtChapterDesc
 from pywriter.odt.odt_partdesc import OdtPartDesc
 from pywriter.yw.yw_file import YwFile
-from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.odt.odt_file import OdtFile
@@ -37,6 +36,7 @@ from pywriter.odt.odt_locations import OdtLocations
 import uno
 
 from uno_wrapper.uno_tools import *
+from uno_wrapper.yw_cnv_uno import YwCnvUno
 
 INI_FILE = 'openyw.ini'
 
@@ -91,7 +91,7 @@ def run(sourcePath, suffix):
         return('ERROR: Target file type not supported')
 
     ywFile = YwFile(sourcePath)
-    converter = YwCnv()
+    converter = YwCnvUno()
     message = converter.yw_to_document(ywFile, targetDoc)
 
     return message
@@ -128,7 +128,8 @@ def open_yw7(suffix, newExt):
     ywExt = os.path.splitext(sourcePath)[1]
 
     if not ywExt in ['.yw6', '.yw7']:
-        msgbox('Please choose a yWriter 6/7 project.')
+        msgbox('Please choose a yWriter 6/7 project.',
+               'Import from yWriter', type_msg='errorbox')
         return
 
     # Store selected yWriter project as "last opened".
@@ -150,7 +151,8 @@ def open_yw7(suffix, newExt):
     # Check if import file is already open in LibreOffice:
 
     if os.path.isfile(lockFile):
-        msgbox('Please close "' + filename + '" first.')
+        msgbox('Please close "' + filename + '" first.',
+               'Import from yWriter', type_msg='errorbox')
         return
 
     # Open yWriter project and convert data.
@@ -160,7 +162,7 @@ def open_yw7(suffix, newExt):
     result = run(sourcePath, suffix)
 
     if result.startswith('ERROR'):
-        msgbox(result)
+        msgbox(result, 'Import from yWriter', type_msg='errorbox')
 
     else:
         desktop = XSCRIPTCONTEXT.getDesktop()

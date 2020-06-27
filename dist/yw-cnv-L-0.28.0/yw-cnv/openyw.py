@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.27.5
+Version 0.28.0
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3698,106 +3698,6 @@ class YwFile(Novel):
             return False
 
 
-class YwCnv():
-    """Converter for yWriter project files.
-
-    # Methods
-
-    yw_to_document : str
-        Arguments
-            ywFile : YwFile
-                an object representing the source file.
-            documentFile : Novel
-                a Novel subclass instance representing the target file.
-        Read yWriter file, parse xml and create a document file.
-        Return a message beginning with SUCCESS or ERROR.    
-
-    document_to_yw : str
-        Arguments
-            documentFile : Novel
-                a Novel subclass instance representing the source file.
-            ywFile : YwFile
-                an object representing the target file.
-        Read document file, convert its content to xml, and replace yWriter file.
-        Return a message beginning with SUCCESS or ERROR.
-
-    confirm_overwrite : bool
-        Arguments
-            fileName : str
-                Path to the file to be overwritten
-        Ask for permission to overwrite the target file.
-        Returns True by default.
-        This method is to be overwritten by subclasses with an user interface.
-    """
-
-    def yw_to_document(self, ywFile, documentFile):
-        """Read yWriter file and convert xml to a document file."""
-        if ywFile.is_locked():
-            return 'ERROR: yWriter seems to be open. Please close first.'
-
-        if ywFile.filePath is None:
-            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
-
-        message = ywFile.read()
-
-        if message.startswith('ERROR'):
-            return message
-
-        if documentFile.file_exists():
-
-            if not self.confirm_overwrite(documentFile.filePath):
-                return 'Program abort by user.'
-
-        documentFile.merge(ywFile)
-        return documentFile.write()
-
-    def document_to_yw(self, documentFile, ywFile):
-        """Read document file, convert its content to xml, and replace yWriter file."""
-        if ywFile.is_locked():
-            return 'ERROR: yWriter seems to be open. Please close first.'
-
-        if ywFile.filePath is None:
-            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
-
-        if ywFile.file_exists() and not self.confirm_overwrite(ywFile.filePath):
-            return 'Program abort by user.'
-
-        if documentFile.filePath is None:
-            return 'ERROR: Document is not of the supported type.'
-
-        if not documentFile.file_exists():
-            return 'ERROR: "' + documentFile.filePath + '" not found.'
-
-        message = documentFile.read()
-
-        if message.startswith('ERROR'):
-            return message
-
-        if ywFile.file_exists():
-            message = ywFile.read()
-            # initialize ywFile data
-
-            if message.startswith('ERROR'):
-                return message
-
-        prjStructure = documentFile.get_structure()
-
-        if prjStructure is not None:
-
-            if prjStructure == '':
-                return 'ERROR: Source file contains no yWriter project structure information.'
-
-            if prjStructure != ywFile.get_structure():
-                return 'ERROR: Structure mismatch - yWriter project not modified.'
-
-        ywFile.merge(documentFile)
-        return ywFile.write()
-
-    def confirm_overwrite(self, fileName):
-        """To be overwritten by subclasses with UI."""
-        return True
-
-
 
 
 
@@ -5232,7 +5132,37 @@ class OdtLocations(OdtFile):
 
 import uno
 
-from msgbox import MsgBox
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
+from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
+
+CTX = uno.getComponentContext()
+SM = CTX.getServiceManager()
+
+
+def create_instance(name, with_context=False):
+    if with_context:
+        instance = SM.createInstanceWithContext(name, CTX)
+    else:
+        instance = SM.createInstance(name)
+    return instance
+
+
+def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg='infobox'):
+    """ Create message box
+        type_msg: infobox, warningbox, errorbox, querybox, messbox
+
+        MSG_BUTTONS: BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, 
+        BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
+
+        MSG_RESULTS: OK, YES, NO, CANCEL
+
+        http://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1awt_1_1XMessageBoxFactory.html
+    """
+    toolkit = create_instance('com.sun.star.awt.Toolkit')
+    parent = toolkit.getDesktopWindow()
+    mb = toolkit.createMessageBox(
+        parent, type_msg, buttons, title, str(message))
+    return mb.execute()
 
 
 class Stub():
@@ -5272,14 +5202,124 @@ def FilePicker(path=None, mode=0):
         return filepicker.getFiles()[0]
 
 
-def msgbox(message):
-    myBox = MsgBox(XSCRIPTCONTEXT.getComponentContext())
-    myBox.addButton('OK')
-    myBox.renderFromBoxSize(200)
-    myBox.numberOflines = 3
-    myBox.show(message, 0, 'PyWriter')
+from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
 
 
+
+class YwCnv():
+    """Converter for yWriter project files.
+
+    # Methods
+
+    yw_to_document : str
+        Arguments
+            ywFile : YwFile
+                an object representing the source file.
+            documentFile : Novel
+                a Novel subclass instance representing the target file.
+        Read yWriter file, parse xml and create a document file.
+        Return a message beginning with SUCCESS or ERROR.    
+
+    document_to_yw : str
+        Arguments
+            documentFile : Novel
+                a Novel subclass instance representing the source file.
+            ywFile : YwFile
+                an object representing the target file.
+        Read document file, convert its content to xml, and replace yWriter file.
+        Return a message beginning with SUCCESS or ERROR.
+
+    confirm_overwrite : bool
+        Arguments
+            fileName : str
+                Path to the file to be overwritten
+        Ask for permission to overwrite the target file.
+        Returns True by default.
+        This method is to be overwritten by subclasses with an user interface.
+    """
+
+    def yw_to_document(self, ywFile, documentFile):
+        """Read yWriter file and convert xml to a document file."""
+        if ywFile.is_locked():
+            return 'ERROR: yWriter seems to be open. Please close first.'
+
+        if ywFile.filePath is None:
+            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
+
+        message = ywFile.read()
+
+        if message.startswith('ERROR'):
+            return message
+
+        if documentFile.file_exists():
+
+            if not self.confirm_overwrite(documentFile.filePath):
+                return 'Program abort by user.'
+
+        documentFile.merge(ywFile)
+        return documentFile.write()
+
+    def document_to_yw(self, documentFile, ywFile):
+        """Read document file, convert its content to xml, and replace yWriter file."""
+        if ywFile.is_locked():
+            return 'ERROR: yWriter seems to be open. Please close first.'
+
+        if ywFile.filePath is None:
+            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
+
+        if ywFile.file_exists() and not self.confirm_overwrite(ywFile.filePath):
+            return 'Program abort by user.'
+
+        if documentFile.filePath is None:
+            return 'ERROR: Document is not of the supported type.'
+
+        if not documentFile.file_exists():
+            return 'ERROR: "' + documentFile.filePath + '" not found.'
+
+        message = documentFile.read()
+
+        if message.startswith('ERROR'):
+            return message
+
+        if ywFile.file_exists():
+            message = ywFile.read()
+            # initialize ywFile data
+
+            if message.startswith('ERROR'):
+                return message
+
+        prjStructure = documentFile.get_structure()
+
+        if prjStructure is not None:
+
+            if prjStructure == '':
+                return 'ERROR: Source file contains no yWriter project structure information.'
+
+            if prjStructure != ywFile.get_structure():
+                return 'ERROR: Structure mismatch - yWriter project not modified.'
+
+        ywFile.merge(documentFile)
+        return ywFile.write()
+
+    def confirm_overwrite(self, fileName):
+        """To be overwritten by subclasses with UI."""
+        return True
+
+
+class YwCnvUno(YwCnv):
+    """Converter for yWriter project files.
+    Variant with UNO UI.
+    """
+
+    def confirm_overwrite(self, filePath):
+        result = msgbox('Overwrite existing file "' + filePath + '"?',
+                        'WARNING', BUTTONS_YES_NO, 'warningbox')
+
+        if result == YES:
+            return True
+
+        else:
+            return False
 
 INI_FILE = 'openyw.ini'
 
@@ -5334,7 +5374,7 @@ def run(sourcePath, suffix):
         return('ERROR: Target file type not supported')
 
     ywFile = YwFile(sourcePath)
-    converter = YwCnv()
+    converter = YwCnvUno()
     message = converter.yw_to_document(ywFile, targetDoc)
 
     return message
@@ -5371,7 +5411,8 @@ def open_yw7(suffix, newExt):
     ywExt = os.path.splitext(sourcePath)[1]
 
     if not ywExt in ['.yw6', '.yw7']:
-        msgbox('Please choose a yWriter 6/7 project.')
+        msgbox('Please choose a yWriter 6/7 project.',
+               'Import from yWriter', type_msg='errorbox')
         return
 
     # Store selected yWriter project as "last opened".
@@ -5393,7 +5434,8 @@ def open_yw7(suffix, newExt):
     # Check if import file is already open in LibreOffice:
 
     if os.path.isfile(lockFile):
-        msgbox('Please close "' + filename + '" first.')
+        msgbox('Please close "' + filename + '" first.',
+               'Import from yWriter', type_msg='errorbox')
         return
 
     # Open yWriter project and convert data.
@@ -5403,7 +5445,7 @@ def open_yw7(suffix, newExt):
     result = run(sourcePath, suffix)
 
     if result.startswith('ERROR'):
-        msgbox(result)
+        msgbox(result, 'Import from yWriter', type_msg='errorbox')
 
     else:
         desktop = XSCRIPTCONTEXT.getDesktop()

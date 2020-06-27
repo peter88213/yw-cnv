@@ -25,7 +25,6 @@ from pywriter.html.html_locations import HtmlLocations
 from pywriter.html.html_items import HtmlItems
 from pywriter.yw.yw_file import YwFile
 from pywriter.yw.yw_new_file import YwNewFile
-from pywriter.converter.yw_cnv import YwCnv
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.csv.csv_charlist import CsvCharList
@@ -37,6 +36,7 @@ import uno
 import unohelper
 
 from uno_wrapper.uno_tools import *
+from uno_wrapper.yw_cnv_uno import YwCnvUno
 
 TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
          CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
@@ -137,7 +137,7 @@ def run(sourcePath):
             return 'ERROR: File format not supported.'
 
         ywFile = YwFile(ywPath)
-        converter = YwCnv()
+        converter = YwCnvUno()
         message = converter.document_to_yw(sourceDoc, ywFile)
 
     elif sourcePath.endswith('.html'):
@@ -153,7 +153,7 @@ def run(sourcePath):
 
         ywPath = sourcePath.replace('.html', '.yw7')
         ywFile = YwNewFile(ywPath)
-        converter = YwCnv()
+        converter = YwCnvUno()
         message = converter.document_to_yw(sourceDoc, ywFile)
 
     else:
@@ -256,7 +256,13 @@ def export_yw(*args):
     else:
         result = "ERROR: File type not supported."
 
-    msgbox(result)
+    if result.startswith('ERROR'):
+        msgType = 'errorbox'
+
+    else:
+        msgType = 'infobox'
+
+    msgbox(result, 'Export to yWriter', type_msg=msgType)
 
 
 if __name__ == '__main__':
