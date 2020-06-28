@@ -59,23 +59,23 @@
 		<copy file="${src}/help.py" todir="${dist}/${release-name-L}/help" />
 
 		<copy file="${test}/saveyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
-		<replace file="${dist}/${release-name-L}/${ant.project.name}/saveyw.py" token="@release" value="${release}" />
+		<replace encoding="utf-8" file="${dist}/${release-name-L}/${ant.project.name}/saveyw.py" token="@release" value="${release}" />
 
 		<copy file="${test}/openyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
-		<replace file="${dist}/${release-name-L}/${ant.project.name}/openyw.py" token="@release" value="${release}" />
+		<replace encoding="utf-8" file="${dist}/${release-name-L}/${ant.project.name}/openyw.py" token="@release" value="${release}" />
 
 		<copy file="${oxt}/AddonUI.xcu" todir="${dist}/${release-name-L}" />
-		<replace file="${dist}/${release-name-L}/AddonUI.xcu" token="0.99.0" value="${release}" />
+		<replace encoding="utf-8" file="${dist}/${release-name-L}/AddonUI.xcu" token="0.99.0" value="${release}" />
 
 		<copy file="${oxt}/description.xml" todir="${dist}/${release-name-L}" />
-		<replace file="${dist}/${release-name-L}/description.xml" token="0.99.0" value="${release}" />
+		<replace encoding="utf-8" file="${dist}/${release-name-L}/description.xml" token="0.99.0" value="${release}" />
 
 		<copy file="../README.md" todir="${dist}/${release-name-L}" />
 
 		<zip destfile="${dist}/${release-name-L}.oxt" basedir="${dist}/${release-name-L}" />
 
 		<copy file="./${ant.project.name}-L.update.xml" overwrite="True" todir=".." />
-		<replace file="../${ant.project.name}-L.update.xml" token="0.99.0" value="${release}" />
+		<replace encoding="utf-8" file="../${ant.project.name}-L.update.xml" token="0.99.0" value="${release}" />
 
 	</target>
 
