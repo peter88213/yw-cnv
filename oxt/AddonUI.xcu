@@ -10,8 +10,8 @@
                <value/>
             </prop>
             <prop oor:name="Title" oor:type="xs:string">
-               <value xml:lang="en">Help</value>
-               <value xml:lang="de">Hilfe</value>
+               <value xml:lang="en">yWriter Import/Export Help</value>
+               <value xml:lang="de">yWriter Import/Export Hilfe</value>
             </prop>
             <prop oor:name="URL" oor:type="xs:string">
                <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
