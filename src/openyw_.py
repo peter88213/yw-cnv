@@ -25,7 +25,7 @@ from pywriter.odt.odt_partdesc import OdtPartDesc
 from pywriter.yw.yw_file import YwFile
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
-from pywriter.odt.odt_file import OdtFile
+from pywriter.odt.odt_export import OdtExport
 from pywriter.csv.csv_charlist import CsvCharList
 from pywriter.csv.csv_loclist import CsvLocList
 from pywriter.csv.csv_itemlist import CsvItemList
@@ -46,7 +46,7 @@ def run(sourcePath, suffix):
     fileName, FileExtension = os.path.splitext(sourcePath)
 
     if suffix == '':
-        targetDoc = OdtFile(fileName + '.odt')
+        targetDoc = OdtExport(fileName + '.odt')
 
     elif suffix == PROOF_SUFFIX:
         targetDoc = OdtProof(fileName + suffix + '.odt')
