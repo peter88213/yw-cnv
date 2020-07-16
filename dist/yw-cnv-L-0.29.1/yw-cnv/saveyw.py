@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.29.0
+Version 0.29.1
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -492,7 +492,7 @@ class HtmlFile(Novel, HTMLParser):
     """HTML file representation of an yWriter project's part.
     """
 
-    EXTENSION = 'html'
+    EXTENSION = '.html'
 
     def __init__(self, filePath):
         Novel.__init__(self, filePath)
@@ -3857,19 +3857,19 @@ class YwCnvUno(YwCnv):
         else:
             return False
 
-TAILS = [HtmlProof.SUFFIX + HtmlProof.EXTENSION, +
-         HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION, +
-         HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION, +
-         HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION, +
-         HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION, +
-         HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION, +
-         HtmlLocations.SUFFIX + HtmlLocations.EXTENSION, +
-         HtmlItems.SUFFIX + HtmlItems.EXTENSION, +
-         CsvSceneList.SUFFIX + CsvSceneList.EXTENSION, +
-         CsvPlotList.SUFFIX + CsvPlotList.EXTENSION, +
-         CsvCharList.SUFFIX + CsvCharList.EXTENSION, +
+TAILS = [HtmlProof.SUFFIX + HtmlProof.EXTENSION,
+         HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION,
+         HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION,
+         HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION,
+         HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION,
+         HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION,
+         HtmlLocations.SUFFIX + HtmlLocations.EXTENSION,
+         HtmlItems.SUFFIX + HtmlItems.EXTENSION,
+         CsvSceneList.SUFFIX + CsvSceneList.EXTENSION,
+         CsvPlotList.SUFFIX + CsvPlotList.EXTENSION,
+         CsvCharList.SUFFIX + CsvCharList.EXTENSION,
          CsvLocList.SUFFIX + CsvLocList.EXTENSION,
-         CsvItemList.SUFFIX + CsvItemList.EXTENSION, +
+         CsvItemList.SUFFIX + CsvItemList.EXTENSION,
          '.html']
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']

@@ -38,19 +38,19 @@ import unohelper
 from uno_wrapper.uno_tools import *
 from uno_wrapper.yw_cnv_uno import YwCnvUno
 
-TAILS = [HtmlProof.SUFFIX + HtmlProof.EXTENSION, +
-         HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION, +
-         HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION, +
-         HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION, +
-         HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION, +
-         HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION, +
-         HtmlLocations.SUFFIX + HtmlLocations.EXTENSION, +
-         HtmlItems.SUFFIX + HtmlItems.EXTENSION, +
-         CsvSceneList.SUFFIX + CsvSceneList.EXTENSION, +
-         CsvPlotList.SUFFIX + CsvPlotList.EXTENSION, +
-         CsvCharList.SUFFIX + CsvCharList.EXTENSION, +
+TAILS = [HtmlProof.SUFFIX + HtmlProof.EXTENSION,
+         HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION,
+         HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION,
+         HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION,
+         HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION,
+         HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION,
+         HtmlLocations.SUFFIX + HtmlLocations.EXTENSION,
+         HtmlItems.SUFFIX + HtmlItems.EXTENSION,
+         CsvSceneList.SUFFIX + CsvSceneList.EXTENSION,
+         CsvPlotList.SUFFIX + CsvPlotList.EXTENSION,
+         CsvCharList.SUFFIX + CsvCharList.EXTENSION,
          CsvLocList.SUFFIX + CsvLocList.EXTENSION,
-         CsvItemList.SUFFIX + CsvItemList.EXTENSION, +
+         CsvItemList.SUFFIX + CsvItemList.EXTENSION,
          '.html']
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
