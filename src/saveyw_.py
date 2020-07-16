@@ -13,23 +13,23 @@ import os
 
 from urllib.parse import unquote
 
-from pywriter.globals import *
 from pywriter.html.html_proof import HtmlProof
 from pywriter.html.html_manuscript import HtmlManuscript
 from pywriter.html.html_scenedesc import HtmlSceneDesc
 from pywriter.html.html_chapterdesc import HtmlChapterDesc
-from pywriter.html.html_import import HtmlImport
-from pywriter.html.html_outline import HtmlOutline
+from pywriter.html.html_partdesc import HtmlPartDesc
 from pywriter.html.html_characters import HtmlCharacters
 from pywriter.html.html_locations import HtmlLocations
 from pywriter.html.html_items import HtmlItems
-from pywriter.yw.yw_file import YwFile
-from pywriter.yw.yw_new_file import YwNewFile
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.csv.csv_charlist import CsvCharList
 from pywriter.csv.csv_loclist import CsvLocList
 from pywriter.csv.csv_itemlist import CsvItemList
+from pywriter.html.html_import import HtmlImport
+from pywriter.html.html_outline import HtmlOutline
+from pywriter.yw.yw_file import YwFile
+from pywriter.yw.yw_new_file import YwNewFile
 from pywriter.html.html_form import *
 
 import uno
@@ -38,12 +38,20 @@ import unohelper
 from uno_wrapper.uno_tools import *
 from uno_wrapper.yw_cnv_uno import YwCnvUno
 
-TAILS = [PROOF_SUFFIX + '.html', MANUSCRIPT_SUFFIX + '.html', SCENEDESC_SUFFIX + '.html',
-         CHAPTERDESC_SUFFIX + '.html', PARTDESC_SUFFIX +
-         '.html', CHARDESC_SUFFIX + '.html', LOCDESC_SUFFIX +
-         '.html', ITEMDESC_SUFFIX + '.html', SCENELIST_SUFFIX + '.csv',
-         PLOTLIST_SUFFIX + '.csv', CHARLIST_SUFFIX + '.csv', LOCLIST_SUFFIX + '.csv',
-         ITEMLIST_SUFFIX + '.csv', '.html']
+TAILS = [HtmlProof.SUFFIX + HtmlProof.EXTENSION, +
+         HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION, +
+         HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION, +
+         HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION, +
+         HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION, +
+         HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION, +
+         HtmlLocations.SUFFIX + HtmlLocations.EXTENSION, +
+         HtmlItems.SUFFIX + HtmlItems.EXTENSION, +
+         CsvSceneList.SUFFIX + CsvSceneList.EXTENSION, +
+         CsvPlotList.SUFFIX + CsvPlotList.EXTENSION, +
+         CsvCharList.SUFFIX + CsvCharList.EXTENSION, +
+         CsvLocList.SUFFIX + CsvLocList.EXTENSION,
+         CsvItemList.SUFFIX + CsvItemList.EXTENSION, +
+         '.html']
 
 YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
 
@@ -94,43 +102,43 @@ def run(sourcePath):
         if tail == '.html':
             return 'ERROR: yWriter project already exists.'
 
-        elif tail == PROOF_SUFFIX + '.html':
+        elif tail == HtmlProof.SUFFIX + HtmlProof.EXTENSION:
             sourceDoc = HtmlProof(sourcePath)
 
-        elif tail == MANUSCRIPT_SUFFIX + '.html':
+        elif tail == HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION:
             sourceDoc = HtmlManuscript(sourcePath)
 
-        elif tail == SCENEDESC_SUFFIX + '.html':
+        elif tail == HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION:
             sourceDoc = HtmlSceneDesc(sourcePath)
 
-        elif tail == CHAPTERDESC_SUFFIX + '.html':
+        elif tail == HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION:
             sourceDoc = HtmlChapterDesc(sourcePath)
 
-        elif tail == PARTDESC_SUFFIX + '.html':
-            sourceDoc = HtmlChapterDesc(sourcePath)
+        elif tail == HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION:
+            sourceDoc = HtmlPartDesc(sourcePath)
 
-        elif tail == CHARDESC_SUFFIX + '.html':
+        elif tail == HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION:
             sourceDoc = HtmlCharacters(sourcePath)
 
-        elif tail == LOCDESC_SUFFIX + '.html':
+        elif tail == HtmlLocations.SUFFIX + HtmlLocations.EXTENSION:
             sourceDoc = HtmlLocations(sourcePath)
 
-        elif tail == ITEMDESC_SUFFIX + '.html':
+        elif tail == HtmlItems.SUFFIX + HtmlItems.EXTENSION:
             sourceDoc = HtmlItems(sourcePath)
 
-        elif tail == SCENELIST_SUFFIX + '.csv':
+        elif tail == CsvSceneList.SUFFIX + CsvSceneList.EXTENSION:
             sourceDoc = CsvSceneList(sourcePath)
 
-        elif tail == PLOTLIST_SUFFIX + '.csv':
+        elif tail == CsvPlotList.SUFFIX + CsvPlotList.EXTENSION:
             sourceDoc = CsvPlotList(sourcePath)
 
-        elif tail == CHARLIST_SUFFIX + '.csv':
+        elif tail == CsvCharList.SUFFIX + CsvCharList.EXTENSION:
             sourceDoc = CsvCharList(sourcePath)
 
-        elif tail == LOCLIST_SUFFIX + '.csv':
+        elif tail == CsvLocList.SUFFIX + CsvLocList.EXTENSION:
             sourceDoc = CsvLocList(sourcePath)
 
-        elif tail == ITEMLIST_SUFFIX + '.csv':
+        elif tail == CsvItemList.SUFFIX + CsvItemList.EXTENSION:
             sourceDoc = CsvItemList(sourcePath)
 
         else:
