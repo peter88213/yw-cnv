@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.28.1
+Version 0.28.2
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -2407,7 +2407,7 @@ class Chapter():
 
         self.doNotExport = None
         # bool
-        # xml: <<Fields>Field_SuppressChapterBreak> 0
+        # xml: <Fields><Field_SuppressChapterBreak> 0
 
         self.srtScenes = []
         # list of str
@@ -2434,6 +2434,8 @@ class Scene():
     # Emulate an enumeration for the scene status
 
     STATUS = [None, 'Outline', 'Draft', '1st Edit', '2nd Edit', 'Done']
+    ACTION_MARKER = 'A'
+    REACTION_MARKER = 'R'
 
     def __init__(self):
         self.title = None
@@ -2461,6 +2463,10 @@ class Scene():
         self.isUnused = None
         # bool
         # xml: <Unused> -1
+
+        self.doNotExport = None
+        # bool
+        # xml: <ExportCondSpecific><ExportWhenRTF>
 
         self.status = None
         # int # xml: <Status>
@@ -2525,15 +2531,38 @@ class Scene():
         # list of str
         # xml: <Items><ItemID>
 
-        # xml: <SpecificDateMode>-1</SpecificDateMode>
-        # xml: <SpecificDateTime>1900-06-01 20:38:00</SpecificDateTime>
+        self.date = None
+        # str
+        # xml: <SpecificDateMode>-1
+        # xml: <SpecificDateTime>1900-06-01 20:38:00
 
+        self.time = None
+        # str
+        # xml: <SpecificDateMode>-1
+        # xml: <SpecificDateTime>1900-06-01 20:38:00
+
+        self.minute = None
+        # str
         # xml: <Minute>
+
+        self.hour = None
+        # str
         # xml: <Hour>
+
+        self.day = None
+        # str
         # xml: <Day>
 
+        self.lastsMinutes = None
+        # str
         # xml: <LastsMinutes>
+
+        self.lastsHours = None
+        # str
         # xml: <LastsHours>
+
+        self.lastsDays = None
+        # str
         # xml: <LastsDays>
 
     @property
@@ -2586,6 +2615,9 @@ class Character(Object):
     """yWriter character representation.
     # xml: <CHARACTERS><CHARACTER>
     """
+
+    MAJOR_MARKER = 'Major'
+    MINOR_MARKER = 'Minor'
 
     def __init__(self):
         Object.__init__(self)
@@ -2988,6 +3020,30 @@ class YwFile(Novel):
             else:
                 self.scenes[scId].appendToPrev = False
 
+            if scn.find('SpecificDateTime') is not None:
+                dateTime = scn.find('SpecificDateTime').text.split(' ')
+                self.scenes[scId].date = dateTime[0]
+                self.scenes[scId].time = dateTime[1]
+
+            else:
+                if scn.find('Day') is not None:
+                    self.scenes[scId].day = scn.find('Day').text
+
+                if scn.find('Hour') is not None:
+                    self.scenes[scId].hour = scn.find('Hour').text
+
+                if scn.find('Minute') is not None:
+                    self.scenes[scId].minute = scn.find('Minute').text
+
+            if scn.find('LastsDays') is not None:
+                self.scenes[scId].lastsDays = scn.find('LastsDays').text
+
+            if scn.find('LastsHours') is not None:
+                self.scenes[scId].lastsHours = scn.find('LastsHours').text
+
+            if scn.find('LastsMinutes') is not None:
+                self.scenes[scId].lastsMinutes = scn.find('LastsMinutes').text
+
             if scn.find('ReactionScene') is not None:
                 self.scenes[scId].isReactionScene = True
 
@@ -3036,80 +3092,229 @@ class YwFile(Novel):
         return 'SUCCESS: ' + str(len(self.scenes)) + ' Scenes read from "' + self._filePath + '".'
 
     def merge(self, novel):
-        """Copy selected novel attributes.
+        """Merge attributes.
         """
-
         # Merge locations.
 
-        if novel.locations != {}:
+        for lcId in novel.locations:
 
-            for lcId in novel.locations:
+            if not lcId in self.locations:
+                self.locations[lcId] = Object()
 
-                if novel.locations[lcId].title:
-                    # avoids deleting the title, if it is empty by accident
-                    self.locations[lcId].title = novel.locations[lcId].title
+            if novel.locations[lcId].title:
+                # avoids deleting the title, if it is empty by accident
+                self.locations[lcId].title = novel.locations[lcId].title
 
-                if novel.locations[lcId].desc is not None:
-                    self.locations[lcId].desc = novel.locations[lcId].desc
+            if novel.locations[lcId].desc is not None:
+                self.locations[lcId].desc = novel.locations[lcId].desc
 
-                if novel.locations[lcId].aka is not None:
-                    self.locations[lcId].aka = novel.locations[lcId].aka
+            if novel.locations[lcId].aka is not None:
+                self.locations[lcId].aka = novel.locations[lcId].aka
 
-                if novel.locations[lcId].tags is not None:
-                    self.locations[lcId].tags = novel.locations[lcId].tags
+            if novel.locations[lcId].tags is not None:
+                self.locations[lcId].tags = novel.locations[lcId].tags
 
         # Merge items.
 
-        if novel.items != {}:
+        for itId in novel.items:
 
-            for itId in novel.items:
+            if not itId in self.items:
+                self.items[itId] = Object()
 
-                if novel.items[itId].title:
-                    # avoids deleting the title, if it is empty by accident
-                    self.items[itId].title = novel.items[itId].title
+            if novel.items[itId].title:
+                # avoids deleting the title, if it is empty by accident
+                self.items[itId].title = novel.items[itId].title
 
-                if novel.items[itId].desc is not None:
-                    self.items[itId].desc = novel.items[itId].desc
+            if novel.items[itId].desc is not None:
+                self.items[itId].desc = novel.items[itId].desc
 
-                if novel.items[itId].aka is not None:
-                    self.items[itId].aka = novel.items[itId].aka
+            if novel.items[itId].aka is not None:
+                self.items[itId].aka = novel.items[itId].aka
 
-                if novel.items[itId].tags is not None:
-                    self.items[itId].tags = novel.items[itId].tags
+            if novel.items[itId].tags is not None:
+                self.items[itId].tags = novel.items[itId].tags
 
         # Merge characters.
 
-        if novel.characters != {}:
+        for crId in novel.characters:
 
-            for crId in novel.characters:
+            if not crId in self.characters:
+                self.characters[crId] = Character()
 
-                if novel.characters[crId].title:
-                    # avoids deleting the title, if it is empty by accident
-                    self.characters[crId].title = novel.characters[crId].title
+            if novel.characters[crId].title:
+                # avoids deleting the title, if it is empty by accident
+                self.characters[crId].title = novel.characters[crId].title
 
-                if novel.characters[crId].desc is not None:
-                    self.characters[crId].desc = novel.characters[crId].desc
+            if novel.characters[crId].desc is not None:
+                self.characters[crId].desc = novel.characters[crId].desc
 
-                if novel.characters[crId].aka is not None:
-                    self.characters[crId].aka = novel.characters[crId].aka
+            if novel.characters[crId].aka is not None:
+                self.characters[crId].aka = novel.characters[crId].aka
 
-                if novel.characters[crId].tags is not None:
-                    self.characters[crId].tags = novel.characters[crId].tags
+            if novel.characters[crId].tags is not None:
+                self.characters[crId].tags = novel.characters[crId].tags
 
-                if novel.characters[crId].notes is not None:
-                    self.characters[crId].notes = novel.characters[crId].notes
+            if novel.characters[crId].notes is not None:
+                self.characters[crId].notes = novel.characters[crId].notes
 
-                if novel.characters[crId].bio is not None:
-                    self.characters[crId].bio = novel.characters[crId].bio
+            if novel.characters[crId].bio is not None:
+                self.characters[crId].bio = novel.characters[crId].bio
 
-                if novel.characters[crId].goals is not None:
-                    self.characters[crId].goals = novel.characters[crId].goals
+            if novel.characters[crId].goals is not None:
+                self.characters[crId].goals = novel.characters[crId].goals
 
-                if novel.characters[crId].fullName is not None:
-                    self.characters[crId].fullName = novel.characters[crId].fullName
+            if novel.characters[crId].fullName is not None:
+                self.characters[crId].fullName = novel.characters[crId].fullName
 
-                if novel.characters[crId].isMajor is not None:
-                    self.characters[crId].isMajor = novel.characters[crId].isMajor
+            if novel.characters[crId].isMajor is not None:
+                self.characters[crId].isMajor = novel.characters[crId].isMajor
+
+        # Merge scenes.
+
+        for scId in novel.scenes:
+
+            if not scId in self.scenes:
+                self.scenes[scId] = Scene()
+
+            if novel.scenes[scId].title:
+                # avoids deleting the title, if it is empty by accident
+                self.scenes[scId].title = novel.scenes[scId].title
+
+            if novel.scenes[scId].desc is not None:
+                self.scenes[scId].desc = novel.scenes[scId].desc
+
+            if novel.scenes[scId].sceneContent is not None:
+                self.scenes[scId].sceneContent = novel.scenes[scId].sceneContent
+
+            if novel.scenes[scId].isUnused is not None:
+                self.scenes[scId].isUnused = novel.scenes[scId].isUnused
+
+            if novel.scenes[scId].status is not None:
+                self.scenes[scId].status = novel.scenes[scId].status
+
+            if novel.scenes[scId].sceneNotes is not None:
+                self.scenes[scId].sceneNotes = novel.scenes[scId].sceneNotes
+
+            if novel.scenes[scId].tags is not None:
+                self.scenes[scId].tags = novel.scenes[scId].tags
+
+            if novel.scenes[scId].field1 is not None:
+                self.scenes[scId].field1 = novel.scenes[scId].field1
+
+            if novel.scenes[scId].field2 is not None:
+                self.scenes[scId].field2 = novel.scenes[scId].field2
+
+            if novel.scenes[scId].field3 is not None:
+                self.scenes[scId].field3 = novel.scenes[scId].field3
+
+            if novel.scenes[scId].field4 is not None:
+                self.scenes[scId].field4 = novel.scenes[scId].field4
+
+            if novel.scenes[scId].appendToPrev is not None:
+                self.scenes[scId].appendToPrev = novel.scenes[scId].appendToPrev
+
+            if novel.scenes[scId].date is not None:
+                self.scenes[scId].date = novel.scenes[scId].date
+
+            if novel.scenes[scId].time is not None:
+                self.scenes[scId].time = novel.scenes[scId].time
+
+            if novel.scenes[scId].minute is not None:
+                self.scenes[scId].minute = novel.scenes[scId].minute
+
+            if novel.scenes[scId].hour is not None:
+                self.scenes[scId].hour = novel.scenes[scId].hour
+
+            if novel.scenes[scId].day is not None:
+                self.scenes[scId].day = novel.scenes[scId].day
+
+            if novel.scenes[scId].lastsMinutes is not None:
+                self.scenes[scId].lastsMinutes = novel.scenes[scId].lastsMinutes
+
+            if novel.scenes[scId].lastsHours is not None:
+                self.scenes[scId].lastsHours = novel.scenes[scId].lastsHours
+
+            if novel.scenes[scId].lastsDays is not None:
+                self.scenes[scId].lastsDays = novel.scenes[scId].lastsDays
+
+            if novel.scenes[scId].isReactionScene is not None:
+                self.scenes[scId].isReactionScene = novel.scenes[scId].isReactionScene
+
+            if novel.scenes[scId].isSubPlot is not None:
+                self.scenes[scId].isSubPlot = novel.scenes[scId].isSubPlot
+
+            if novel.scenes[scId].goal is not None:
+                self.scenes[scId].goal = novel.scenes[scId].goal
+
+            if novel.scenes[scId].conflict is not None:
+                self.scenes[scId].conflict = novel.scenes[scId].conflict
+
+            if novel.scenes[scId].outcome is not None:
+                self.scenes[scId].outcome = novel.scenes[scId].outcome
+
+            if novel.scenes[scId].characters is not None:
+                self.scenes[scId].characters = []
+
+                for crId in novel.scenes[scId].characters:
+
+                    if crId in self.characters:
+                        self.scenes[scId].characters.append(crId)
+
+            if novel.scenes[scId].locations is not None:
+                self.scenes[scId].locations = []
+
+                for lcId in novel.scenes[scId].locations:
+
+                    if lcId in self.locations:
+                        self.scenes[scId].locations.append(lcId)
+
+            if novel.scenes[scId].items is not None:
+                self.scenes[scId].items = []
+
+                for itId in novel.scenes[scId].items:
+
+                    if itId in self.items:
+                        self.scenes[scId].append(itId)
+
+        # Merge chapters.
+
+        scenesAssigned = []
+
+        for chId in novel.chapters:
+
+            if not chId in self.chapters:
+                self.chapters[chId] = Chapter()
+
+            if novel.chapters[chId].title:
+                # avoids deleting the title, if it is empty by accident
+                self.chapters[chId].title = novel.chapters[chId].title
+
+            if novel.chapters[chId].desc is not None:
+                self.chapters[chId].desc = novel.chapters[chId].desc
+
+            if novel.chapters[chId].chLevel is not None:
+                self.chapters[chId].chLevel = novel.chapters[chId].chLevel
+
+            if novel.chapters[chId].chType is not None:
+                self.chapters[chId].chType = novel.chapters[chId].chType
+
+            if novel.chapters[chId].isUnused is not None:
+                self.chapters[chId].isUnused = novel.chapters[chId].isUnused
+
+            if novel.chapters[chId].suppressChapterTitle is not None:
+                self.chapters[chId].suppressChapterTitle = novel.chapters[chId].suppressChapterTitle
+
+            if novel.chapters[chId].isTrash is not None:
+                self.chapters[chId].isTrash = novel.chapters[chId].isTrash
+
+            if novel.chapters[chId].srtScenes is not None:
+                self.chapters[chId].srtScenes = []
+
+                for scId in novel.chapters[chId].srtScenes:
+
+                    if (scId in self.scenes) and not (scId in scenesAssigned):
+                        self.chapters[chId].srtScenes.append(scId)
+                        scenesAssigned.append(scId)
 
         # Merge attributes at novel level.
 
@@ -3135,129 +3340,13 @@ class YwFile(Novel):
         if novel.fieldTitle4 is not None:
             self.fieldTitle4 = novel.fieldTitle4
 
-        '''Do not modify these items yet:
-        
         if novel.srtChapters != []:
-            self.srtChapters = novel.srtChapters
-            
-        '''
+            self.srtChapters = []
 
-        # Merge attributes at chapter level.
+            for chId in novel.srtChapters:
 
-        if novel.chapters != {}:
-
-            for chId in novel.chapters:
-
-                if novel.chapters[chId].title:
-                    # avoids deleting the title, if it is empty by accident
-                    self.chapters[chId].title = novel.chapters[chId].title
-
-                if novel.chapters[chId].desc is not None:
-                    self.chapters[chId].desc = novel.chapters[chId].desc
-
-                if novel.chapters[chId].chLevel is not None:
-                    self.chapters[chId].chLevel = novel.chapters[chId].chLevel
-
-                if novel.chapters[chId].chType is not None:
-                    self.chapters[chId].chType = novel.chapters[chId].chType
-
-                if novel.chapters[chId].isUnused is not None:
-                    self.chapters[chId].isUnused = novel.chapters[chId].isUnused
-
-                if novel.chapters[chId].suppressChapterTitle is not None:
-                    self.chapters[chId].suppressChapterTitle = novel.chapters[chId].suppressChapterTitle
-
-                if novel.chapters[chId].isTrash is not None:
-                    self.chapters[chId].isTrash = novel.chapters[chId].isTrash
-
-                '''Do not modify these items yet:
-                
-                if novel.chapters[chId].srtScenes != []:
-                    self.chapters[chId].srtScenes = novel.chapters[chId].srtScenes
-
-                '''
-
-        # Merge attributes at scene level.
-
-        if novel.scenes != {}:
-
-            for scId in novel.scenes:
-
-                if novel.scenes[scId].title:
-                    # avoids deleting the title, if it is empty by accident
-                    self.scenes[scId].title = novel.scenes[scId].title
-
-                if novel.scenes[scId].desc is not None:
-                    self.scenes[scId].desc = novel.scenes[scId].desc
-
-                if novel.scenes[scId].sceneContent is not None:
-                    self.scenes[scId].sceneContent = novel.scenes[scId].sceneContent
-
-                if novel.scenes[scId].isUnused is not None:
-                    self.scenes[scId].isUnused = novel.scenes[scId].isUnused
-
-                if novel.scenes[scId].status is not None:
-                    self.scenes[scId].status = novel.scenes[scId].status
-
-                if novel.scenes[scId].sceneNotes is not None:
-                    self.scenes[scId].sceneNotes = novel.scenes[scId].sceneNotes
-
-                if novel.scenes[scId].tags is not None:
-                    self.scenes[scId].tags = novel.scenes[scId].tags
-
-                if novel.scenes[scId].field1 is not None:
-                    self.scenes[scId].field1 = novel.scenes[scId].field1
-
-                if novel.scenes[scId].field2 is not None:
-                    self.scenes[scId].field2 = novel.scenes[scId].field2
-
-                if novel.scenes[scId].field3 is not None:
-                    self.scenes[scId].field3 = novel.scenes[scId].field3
-
-                if novel.scenes[scId].field4 is not None:
-                    self.scenes[scId].field4 = novel.scenes[scId].field4
-
-                if novel.scenes[scId].appendToPrev is not None:
-                    self.scenes[scId].appendToPrev = novel.scenes[scId].appendToPrev
-
-                if novel.scenes[scId].isReactionScene is not None:
-                    self.scenes[scId].isReactionScene = novel.scenes[scId].isReactionScene
-
-                if novel.scenes[scId].isSubPlot is not None:
-                    self.scenes[scId].isSubPlot = novel.scenes[scId].isSubPlot
-
-                if novel.scenes[scId].goal is not None:
-                    self.scenes[scId].goal = novel.scenes[scId].goal
-
-                if novel.scenes[scId].conflict is not None:
-                    self.scenes[scId].conflict = novel.scenes[scId].conflict
-
-                if novel.scenes[scId].outcome is not None:
-                    self.scenes[scId].outcome = novel.scenes[scId].outcome
-
-                if novel.scenes[scId].characters is not None:
-                    self.scenes[scId].characters = []
-
-                    for crId in novel.scenes[scId].characters:
-
-                        if crId in self.characters:
-                            self.scenes[scId].characters.append(crId)
-
-                if novel.scenes[scId].locations is not None:
-                    self.scenes[scId].locations = []
-
-                    for lcId in novel.scenes[scId].locations:
-
-                        if lcId in self.locations:
-                            self.scenes[scId].locations.append(lcId)
-
-                if novel.scenes[scId].items is not None:
-                    self.scenes[scId].items = []
-
-                    for itId in novel.scenes[scId].items:
-
-                        if itId in self.items:
-                            self.scenes[scId].append(crId)
+                if chId in self.chapters:
+                    self.srtChapters.append(chId)
 
     def write(self):
         """Open the yWriter xml file located at filePath and 
@@ -3590,6 +3679,95 @@ class YwFile(Novel):
 
                 elif scn.find('AppendToPrev') is not None:
                     scn.remove(scn.find('AppendToPrev'))
+
+                # Date/time information
+
+                if (self.scenes[scId].date is not None) and (self.scenes[scId].time is not None):
+                    dateTime = self.scenes[scId].date + \
+                        ' ' + self.scenes[scId].time
+
+                    if scn.find('SpecificDateTime') is not None:
+                        scn.find('SpecificDateTime').text = dateTime
+
+                    else:
+                        ET.SubElement(scn, 'SpecificDateTime').text = dateTime
+                        ET.SubElement(scn, 'SpecificDateMode').text = '-1'
+
+                        if scn.find('Day') is not None:
+                            scn.remove(scn.find('Day'))
+
+                        if scn.find('Hour') is not None:
+                            scn.remove(scn.find('Hour'))
+
+                        if scn.find('Minute') is not None:
+                            scn.remove(scn.find('Minute'))
+
+                elif (self.scenes[scId].day is not None) or (self.scenes[scId].hour is not None) or (self.scenes[scId].minute is not None):
+
+                    if scn.find('SpecificDateTime') is not None:
+                        scn.remove(scn.find('SpecificDateTime'))
+
+                    if scn.find('SpecificDateMode') is not None:
+                        scn.remove(scn.find('SpecificDateMode'))
+
+                    if self.scenes[scId].day is not None:
+
+                        if scn.find('Day') is not None:
+                            scn.find('Day').text = self.scenes[scId].day
+
+                        else:
+                            ET.SubElement(
+                                scn, 'Day').text = self.scenes[scId].day
+
+                    if self.scenes[scId].hour is not None:
+
+                        if scn.find('Hour') is not None:
+                            scn.find('Hour').text = self.scenes[scId].hour
+
+                        else:
+                            ET.SubElement(
+                                scn, 'Hour').text = self.scenes[scId].hour
+
+                    if self.scenes[scId].minute is not None:
+
+                        if scn.find('Minute') is not None:
+                            scn.find('Minute').text = self.scenes[scId].minute
+
+                        else:
+                            ET.SubElement(
+                                scn, 'Minute').text = self.scenes[scId].minute
+
+                if self.scenes[scId].lastsDays is not None:
+
+                    if scn.find('LastsDays') is not None:
+                        scn.find(
+                            'LastsDays').text = self.scenes[scId].lastsDays
+
+                    else:
+                        ET.SubElement(
+                            scn, 'LastsDays').text = self.scenes[scId].lastsDays
+
+                if self.scenes[scId].lastsHours is not None:
+
+                    if scn.find('LastsHours') is not None:
+                        scn.find(
+                            'LastsHours').text = self.scenes[scId].lastsHours
+
+                    else:
+                        ET.SubElement(
+                            scn, 'LastsHours').text = self.scenes[scId].lastsHours
+
+                if self.scenes[scId].lastsMinutes is not None:
+
+                    if scn.find('LastsMinutes') is not None:
+                        scn.find(
+                            'LastsMinutes').text = self.scenes[scId].lastsMinutes
+
+                    else:
+                        ET.SubElement(
+                            scn, 'LastsMinutes').text = self.scenes[scId].lastsMinutes
+
+                # Plot related information
 
                 if self.scenes[scId].isReactionScene:
 
@@ -4546,9 +4724,7 @@ class CsvCharList(Novel):
     def merge(self, novel):
         """Copy selected novel attributes.
         """
-
-        if novel.characters is not None:
-            self.characters = novel.characters
+        self.characters = novel.characters
 
     def write(self):
         """Generate a csv file containing per character:
@@ -4704,9 +4880,7 @@ class CsvLocList(Novel):
     def merge(self, novel):
         """Copy selected novel attributes.
         """
-
-        if novel.locations is not None:
-            self.locations = novel.locations
+        self.locations = novel.locations
 
     def write(self):
         """Generate a csv file containing per location:
@@ -4824,9 +4998,7 @@ class CsvItemList(Novel):
     def merge(self, novel):
         """Copy selected novel attributes.
         """
-
-        if novel.items is not None:
-            self.items = novel.items
+        self.items = novel.items
 
     def write(self):
         """Generate a csv file containing per item:
