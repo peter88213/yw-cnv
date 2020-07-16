@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.29.1
+Version 0.29.2
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -4009,8 +4009,6 @@ def export_yw(*args):
 
     documentPath = XSCRIPTCONTEXT.getDocument().getURL()
     # documentPath = ThisComponent.getURL()
-
-    documentPath = documentPath.lower()
 
     from com.sun.star.beans import PropertyValue
     args1 = []

@@ -191,8 +191,6 @@ def export_yw(*args):
     documentPath = XSCRIPTCONTEXT.getDocument().getURL()
     # documentPath = ThisComponent.getURL()
 
-    documentPath = documentPath.lower()
-
     from com.sun.star.beans import PropertyValue
     args1 = []
     args1.append(PropertyValue())
