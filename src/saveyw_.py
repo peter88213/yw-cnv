@@ -30,6 +30,7 @@ from pywriter.html.html_import import HtmlImport
 from pywriter.html.html_outline import HtmlOutline
 from pywriter.yw.yw_file import YwFile
 from pywriter.yw.yw_new_file import YwNewFile
+from pywriter.html.html_fop import read_html_file
 
 import uno
 import unohelper
