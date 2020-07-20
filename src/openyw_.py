@@ -16,7 +16,6 @@ from configparser import ConfigParser
 from urllib.parse import unquote
 from urllib.parse import quote
 
-from pywriter.globals import *
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
@@ -25,7 +24,7 @@ from pywriter.odt.odt_partdesc import OdtPartDesc
 from pywriter.yw.yw_file import YwFile
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
-from pywriter.odt.odt_file import OdtFile
+from pywriter.odt.odt_export import OdtExport
 from pywriter.csv.csv_charlist import CsvCharList
 from pywriter.csv.csv_loclist import CsvLocList
 from pywriter.csv.csv_itemlist import CsvItemList
@@ -46,46 +45,47 @@ def run(sourcePath, suffix):
     fileName, FileExtension = os.path.splitext(sourcePath)
 
     if suffix == '':
-        targetDoc = OdtFile(fileName + '.odt')
+        targetDoc = OdtExport(fileName + OdtExport.EXTENSION)
 
-    elif suffix == PROOF_SUFFIX:
-        targetDoc = OdtProof(fileName + suffix + '.odt')
+    elif suffix == OdtProof.SUFFIX:
+        targetDoc = OdtProof(fileName + suffix + OdtProof.EXTENSION)
 
-    elif suffix == MANUSCRIPT_SUFFIX:
-        targetDoc = OdtManuscript(fileName + suffix + '.odt')
+    elif suffix == OdtManuscript.SUFFIX:
+        targetDoc = OdtManuscript(fileName + suffix + OdtManuscript.EXTENSION)
 
-    elif suffix == SCENEDESC_SUFFIX:
-        targetDoc = OdtSceneDesc(fileName + suffix + '.odt')
+    elif suffix == OdtSceneDesc.SUFFIX:
+        targetDoc = OdtSceneDesc(fileName + suffix + OdtSceneDesc.EXTENSION)
 
-    elif suffix == CHAPTERDESC_SUFFIX:
-        targetDoc = OdtChapterDesc(fileName + suffix + '.odt')
+    elif suffix == OdtChapterDesc.SUFFIX:
+        targetDoc = OdtChapterDesc(
+            fileName + suffix + OdtChapterDesc.EXTENSION)
 
-    elif suffix == PARTDESC_SUFFIX:
-        targetDoc = OdtPartDesc(fileName + suffix + '.odt')
+    elif suffix == OdtPartDesc.SUFFIX:
+        targetDoc = OdtPartDesc(fileName + suffix + OdtPartDesc.EXTENSION)
 
-    elif suffix == CHARDESC_SUFFIX:
-        targetDoc = OdtCharacters(fileName + suffix + '.odt')
+    elif suffix == OdtCharacters.SUFFIX:
+        targetDoc = OdtCharacters(fileName + suffix + OdtCharacters.EXTENSION)
 
-    elif suffix == LOCDESC_SUFFIX:
-        targetDoc = OdtLocations(fileName + suffix + '.odt')
+    elif suffix == OdtLocations.SUFFIX:
+        targetDoc = OdtLocations(fileName + suffix + OdtLocations.EXTENSION)
 
-    elif suffix == ITEMDESC_SUFFIX:
-        targetDoc = OdtItems(fileName + suffix + '.odt')
+    elif suffix == OdtItems.SUFFIX:
+        targetDoc = OdtItems(fileName + suffix + OdtItems.EXTENSION)
 
-    elif suffix == SCENELIST_SUFFIX:
-        targetDoc = CsvSceneList(fileName + suffix + '.csv')
+    elif suffix == CsvSceneList.SUFFIX:
+        targetDoc = CsvSceneList(fileName + suffix + CsvSceneList.EXTENSION)
 
-    elif suffix == PLOTLIST_SUFFIX:
-        targetDoc = CsvPlotList(fileName + suffix + '.csv')
+    elif suffix == CsvPlotList.SUFFIX:
+        targetDoc = CsvPlotList(fileName + suffix + CsvPlotList.EXTENSION)
 
-    elif suffix == CHARLIST_SUFFIX:
-        targetDoc = CsvCharList(fileName + suffix + '.csv')
+    elif suffix == CsvCharList.SUFFIX:
+        targetDoc = CsvCharList(fileName + suffix + CsvCharList.EXTENSION)
 
-    elif suffix == LOCLIST_SUFFIX:
-        targetDoc = CsvLocList(fileName + suffix + '.csv')
+    elif suffix == CsvLocList.SUFFIX:
+        targetDoc = CsvLocList(fileName + suffix + CsvLocList.EXTENSION)
 
-    elif suffix == ITEMLIST_SUFFIX:
-        targetDoc = CsvItemList(fileName + suffix + '.csv')
+    elif suffix == CsvItemList.SUFFIX:
+        targetDoc = CsvItemList(fileName + suffix + CsvItemList.EXTENSION)
 
     else:
         return('ERROR: Target file type not supported')
@@ -180,83 +180,83 @@ def proof_yw(*args):
     '''Import scenes from yWriter 6/7 to a Writer document
     with visible chapter and scene markers. 
     '''
-    open_yw7(PROOF_SUFFIX, '.odt')
+    open_yw7(OdtProof.SUFFIX, OdtProof.EXTENSION)
 
 
 def get_manuscript(*args):
     '''Import scenes from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(MANUSCRIPT_SUFFIX, '.odt')
+    open_yw7(OdtManuscript.SUFFIX, OdtManuscript.EXTENSION)
 
 
 def get_partdesc(*args):
     '''Import pard descriptions from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(PARTDESC_SUFFIX, '.odt')
+    open_yw7(OdtPartDesc.SUFFIX, OdtPartDesc.EXTENSION)
 
 
 def get_chapterdesc(*args):
     '''Import chapter descriptions from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(CHAPTERDESC_SUFFIX, '.odt')
+    open_yw7(OdtChapterDesc.SUFFIX, OdtChapterDesc.EXTENSION)
 
 
 def get_scenedesc(*args):
     '''Import scene descriptions from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(SCENEDESC_SUFFIX, '.odt')
+    open_yw7(OdtSceneDesc.SUFFIX, OdtSceneDesc.EXTENSION)
 
 
 def get_chardesc(*args):
     '''Import character descriptions from yWriter 6/7 to a Writer document.
     '''
-    open_yw7(CHARDESC_SUFFIX, '.odt')
+    open_yw7(OdtCharacters.SUFFIX, OdtCharacters.EXTENSION)
 
 
 def get_locdesc(*args):
     '''Import location descriptions from yWriter 6/7 to a Writer document.
     '''
-    open_yw7(LOCDESC_SUFFIX, '.odt')
+    open_yw7(OdtLocations.SUFFIX, OdtLocations.EXTENSION)
 
 
 def get_itemdesc(*args):
     '''Import item descriptions from yWriter 6/7 to a Writer document.
     '''
-    open_yw7(ITEMDESC_SUFFIX, '.odt')
+    open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
 
 
 def get_scenelist(*args):
     '''Import a scene list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(SCENELIST_SUFFIX, '.csv')
+    open_yw7(CsvSceneList.SUFFIX, CsvSceneList.EXTENSION)
 
 
 def get_plotlist(*args):
     '''Import a plot list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(PLOTLIST_SUFFIX, '.csv')
+    open_yw7(CsvPlotList.SUFFIX, CsvPlotList.EXTENSION)
 
 
 def get_charlist(*args):
     '''Import a character list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CHARLIST_SUFFIX, '.csv')
+    open_yw7(CsvCharList.SUFFIX, CsvCharList.EXTENSION)
 
 
 def get_loclist(*args):
     '''Import a location list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(LOCLIST_SUFFIX, '.csv')
+    open_yw7(CsvLocList.SUFFIX, CsvLocList.EXTENSION)
 
 
 def get_itemlist(*args):
     '''Import an item list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(ITEMLIST_SUFFIX, '.csv')
+    open_yw7(CsvItemList.SUFFIX, CsvItemList.EXTENSION)
 
 
 if __name__ == '__main__':
