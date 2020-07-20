@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.29.2
+Version 0.29.3
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1767,6 +1767,18 @@ class Novel():
         To be overwritten by file format specific subclasses.
         """
 
+    @abstractmethod
+    def convert_to_yw(self, text):
+        """Convert source format to yw7 markup.
+        To be overwritten by file format specific subclasses.
+        """
+
+    @abstractmethod
+    def convert_from_yw(self, text):
+        """Convert yw7 markup to target format.
+        To be overwritten by file format specific subclasses.
+        """
+
     def file_exists(self):
         """Check whether the file specified by _filePath exists. """
         if os.path.isfile(self._filePath):
@@ -1812,7 +1824,7 @@ class FileExport(Novel):
     itemTemplate = ''
     fileFooter = ''
 
-    def convert_markup(self, text):
+    def convert_from_yw(self, text):
         """Convert yw7 markup to target format.
         To be overwritten by file format specific subclasses.
         """
@@ -1889,7 +1901,7 @@ class FileExport(Novel):
     def get_projectTemplateSubst(self):
         return dict(
             Title=self.title,
-            Desc=self.convert_markup(self.desc),
+            Desc=self.convert_from_yw(self.desc),
             AuthorName=self.author,
             FieldTitle1=self.fieldTitle1,
             FieldTitle2=self.fieldTitle2,
@@ -1902,7 +1914,7 @@ class FileExport(Novel):
             ID=chId,
             ChapterNumber=chapterNumber,
             Title=self.chapters[chId].title,
-            Desc=self.convert_markup(self.chapters[chId].desc),
+            Desc=self.convert_from_yw(self.chapters[chId].desc),
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
         )
@@ -1960,13 +1972,13 @@ class FileExport(Novel):
             ID=scId,
             SceneNumber=sceneNumber,
             Title=self.scenes[scId].title,
-            Desc=self.convert_markup(self.scenes[scId].desc),
+            Desc=self.convert_from_yw(self.scenes[scId].desc),
             WordCount=str(self.scenes[scId].wordCount),
             WordsTotal=wordsTotal,
             LetterCount=str(self.scenes[scId].letterCount),
             LettersTotal=lettersTotal,
             Status=Scene.STATUS[self.scenes[scId].status],
-            SceneContent=self.convert_markup(
+            SceneContent=self.convert_from_yw(
                 self.scenes[scId].sceneContent),
             FieldTitle1=self.fieldTitle1,
             FieldTitle2=self.fieldTitle2,
@@ -1985,15 +1997,15 @@ class FileExport(Novel):
             LastsHours=self.scenes[scId].lastsHours,
             LastsMinutes=self.scenes[scId].lastsMinutes,
             ReactionScene=reactionScene,
-            Goal=self.convert_markup(self.scenes[scId].goal),
-            Conflict=self.convert_markup(self.scenes[scId].conflict),
-            Outcome=self.convert_markup(self.scenes[scId].outcome),
+            Goal=self.convert_from_yw(self.scenes[scId].goal),
+            Conflict=self.convert_from_yw(self.scenes[scId].conflict),
+            Outcome=self.convert_from_yw(self.scenes[scId].outcome),
             Tags=tags,
             Characters=sceneChars,
             Viewpoint=viewpointChar,
             Locations=sceneLocs,
             Items=sceneItems,
-            Notes=self.convert_markup(self.scenes[scId].sceneNotes),
+            Notes=self.convert_from_yw(self.scenes[scId].sceneNotes),
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
         )
@@ -2015,13 +2027,13 @@ class FileExport(Novel):
         return dict(
             ID=crId,
             Title=self.characters[crId].title,
-            Desc=self.convert_markup(self.characters[crId].desc),
+            Desc=self.convert_from_yw(self.characters[crId].desc),
             Tags=tags,
-            AKA=FileExport.convert_markup(self, self.characters[crId].aka),
-            Notes=self.convert_markup(self.characters[crId].notes),
-            Bio=self.convert_markup(self.characters[crId].bio),
-            Goals=self.convert_markup(self.characters[crId].goals),
-            FullName=FileExport.convert_markup(
+            AKA=FileExport.convert_from_yw(self, self.characters[crId].aka),
+            Notes=self.convert_from_yw(self.characters[crId].notes),
+            Bio=self.convert_from_yw(self.characters[crId].bio),
+            Goals=self.convert_from_yw(self.characters[crId].goals),
+            FullName=FileExport.convert_from_yw(
                 self, self.characters[crId].fullName),
             Status=characterStatus,
         )
@@ -2037,9 +2049,9 @@ class FileExport(Novel):
         return dict(
             ID=lcId,
             Title=self.locations[lcId].title,
-            Desc=self.convert_markup(self.locations[lcId].desc),
+            Desc=self.convert_from_yw(self.locations[lcId].desc),
             Tags=tags,
-            AKA=FileExport.convert_markup(self, self.locations[lcId].aka),
+            AKA=FileExport.convert_from_yw(self, self.locations[lcId].aka),
         )
 
     def get_itemSubst(self, itId):
@@ -2053,9 +2065,9 @@ class FileExport(Novel):
         return dict(
             ID=itId,
             Title=self.items[itId].title,
-            Desc=self.convert_markup(self.items[itId].desc),
+            Desc=self.convert_from_yw(self.items[itId].desc),
             Tags=tags,
-            AKA=FileExport.convert_markup(self, self.items[itId].aka),
+            AKA=FileExport.convert_from_yw(self, self.items[itId].aka),
         )
 
     def write(self):
@@ -2171,7 +2183,7 @@ class OdtFile(FileExport, OdtTemplate):
     EXTENSION = '.odt'
     # overwrites Novel._FILE_EXTENSION
 
-    def convert_markup(self, text):
+    def convert_from_yw(self, text):
         """Convert yw7 raw markup to odt. Return an xml string."""
 
         try:
@@ -2224,7 +2236,7 @@ class OdtFile(FileExport, OdtTemplate):
                 '[b]', '<text:span text:style-name="Strong_20_Emphasis">')
             text = text.replace('[/b]', '</text:span>')
             text = text.replace(
-                '/*', '<office:annotation><dc:creator>' + self.author + '</dc:creator><text:p>-- ')
+                '/*', '<office:annotation><dc:creator>' + self.author + '</dc:creator><text:p>')
             text = text.replace('*/', '</text:p></office:annotation>')
 
         except AttributeError:
@@ -2355,9 +2367,9 @@ class OdtManuscript(OdtFile):
     sceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="Text_20_body"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>$Title</text:p>
+<text:p>- $Title</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a></text:p>
+<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a> -</text:p>
 </office:annotation>$SceneContent</text:p>
 </text:section>
 '''
@@ -2391,9 +2403,9 @@ class OdtSceneDesc(OdtFile):
     sceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="Text_20_body"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>$Title</text:p>
+<text:p>- $Title</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a></text:p>
+<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a> -</text:p>
 </office:annotation>$Desc</text:p>
 </text:section>
 '''
@@ -3769,11 +3781,22 @@ class CsvFile(FileExport):
     _LIST_SEPARATOR = ','
     # delimits items listed within a data field
 
-    def convert_markup(self, text):
-        """Convert yw7 raw markup to odt. Return an xml string."""
+    def convert_from_yw(self, text):
+        """Convert line breaks."""
 
         try:
             text = text.rstrip().replace('\n', self._LINEBREAK)
+
+        except AttributeError:
+            text = ''
+
+        return text
+
+    def convert_to_yw(self, text):
+        """Convert line breaks."""
+
+        try:
+            text = text.replace(self._LINEBREAK, '\n')
 
         except AttributeError:
             text = ''
@@ -3860,13 +3883,11 @@ class CsvSceneList(CsvFile):
                 i += 1
                 self.scenes[scId].title = cell[i]
                 i += 1
-                self.scenes[scId].desc = cell[i].replace(
-                    self._LINEBREAK, '\n')
+                self.scenes[scId].desc = self.convert_to_yw(cell[i])
                 i += 1
                 self.scenes[scId].tags = cell[i].split(self._LIST_SEPARATOR)
                 i += 1
-                self.scenes[scId].sceneNotes = cell[i].replace(
-                    self._LINEBREAK, '\n')
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[i])
                 i += 1
 
                 if Scene.REACTION_MARKER.lower() in cell[i].lower():
@@ -3876,14 +3897,11 @@ class CsvSceneList(CsvFile):
                     self.scenes[scId].isReactionScene = False
 
                 i += 1
-                self.scenes[scId].goal = cell[i].replace(
-                    self._LINEBREAK, ' ')
+                self.scenes[scId].goal = cell[i]
                 i += 1
-                self.scenes[scId].conflict = cell[i].replace(
-                    self._LINEBREAK, ' ')
+                self.scenes[scId].conflict = cell[i]
                 i += 1
-                self.scenes[scId].outcome = cell[i].replace(
-                    self._LINEBREAK, ' ')
+                self.scenes[scId].outcome = cell[i]
                 i += 1
                 # Don't write back sceneCount
                 i += 1
@@ -4100,16 +4118,14 @@ class CsvPlotList(CsvFile):
                 chId = re.search('ChID\:([0-9]+)', cell[0]).group(1)
                 self.chapters[chId] = Chapter()
                 self.chapters[chId].title = cell[1]
-                self.chapters[chId].desc = cell[4].replace(
-                    self._LINEBREAK, '\n')
+                self.chapters[chId].desc = self.convert_to_yw(cell[4])
 
             if 'ScID:' in cell[0]:
                 scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
                 self.scenes[scId] = Scene()
                 self.scenes[scId].tags = cell[2].split(self._LIST_SEPARATOR)
                 self.scenes[scId].title = cell[3]
-                self.scenes[scId].sceneNotes = cell[4].replace(
-                    self._LINEBREAK, '\n')
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[4])
 
                 i = 5
                 # Don't write back sceneCount
@@ -4168,7 +4184,7 @@ class OdtExport(OdtFile):
 
     sceneTemplate = '''<text:p text:style-name="Text_20_body"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>$Title</text:p>
+<text:p>- $Title</text:p>
 </office:annotation>$SceneContent</text:p>
 '''
 
@@ -4225,8 +4241,7 @@ class CsvCharList(CsvFile):
                 self.characters[crId].title = cell[1]
                 self.characters[crId].fullName = cell[2]
                 self.characters[crId].aka = cell[3]
-                self.characters[crId].desc = cell[4].replace(
-                    self._LINEBREAK, '\n')
+                self.characters[crId].desc = self.convert_to_yw(cell[4])
                 self.characters[crId].bio = cell[5]
                 self.characters[crId].goals = cell[6]
 
@@ -4237,8 +4252,7 @@ class CsvCharList(CsvFile):
                     self.characters[crId].isMajor = False
 
                 self.characters[crId].tags = cell[8].split(';')
-                self.characters[crId].notes = cell[9].replace(
-                    self._LINEBREAK, '\n')
+                self.characters[crId].notes = self.convert_to_yw(cell[9])
 
         return 'SUCCESS: Data read from "' + self._filePath + '".'
 
@@ -4293,8 +4307,7 @@ class CsvLocList(CsvFile):
                 lcId = re.search('LcID\:([0-9]+)', cell[0]).group(1)
                 self.locations[lcId] = Object()
                 self.locations[lcId].title = cell[1]
-                self.locations[lcId].desc = cell[2].replace(
-                    self._LINEBREAK, '\n')
+                self.locations[lcId].desc = self.convert_to_yw(cell[2])
                 self.locations[lcId].aka = cell[3]
                 self.locations[lcId].tags = cell[4].split(';')
 
@@ -4351,8 +4364,7 @@ class CsvItemList(CsvFile):
                 itId = re.search('ItID\:([0-9]+)', cell[0]).group(1)
                 self.items[itId] = Object()
                 self.items[itId].title = cell[1]
-                self.items[itId].desc = cell[2].replace(
-                    self._LINEBREAK, '\n')
+                self.items[itId].desc = self.convert_to_yw(cell[2])
                 self.items[itId].aka = cell[3]
                 self.items[itId].tags = cell[4].split(';')
 

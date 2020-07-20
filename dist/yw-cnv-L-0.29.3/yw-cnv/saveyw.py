@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.29.2
+Version 0.29.3
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -14,6 +14,7 @@ import os
 from urllib.parse import unquote
 
 
+import re
 
 from html.parser import HTMLParser
 
@@ -147,6 +148,18 @@ class Novel():
         To be overwritten by file format specific subclasses.
         """
 
+    @abstractmethod
+    def convert_to_yw(self, text):
+        """Convert source format to yw7 markup.
+        To be overwritten by file format specific subclasses.
+        """
+
+    @abstractmethod
+    def convert_from_yw(self, text):
+        """Convert yw7 markup to target format.
+        To be overwritten by file format specific subclasses.
+        """
+
     def file_exists(self):
         """Check whether the file specified by _filePath exists. """
         if os.path.isfile(self._filePath):
@@ -237,7 +250,6 @@ class Chapter():
 
         return text
 
-import re
 
 
 class Scene():
@@ -401,70 +413,6 @@ class Scene():
         self.letterCount = len(text)
 
 
-
-def to_yw7(text):
-    """Convert html tags to yWriter 6/7 raw markup. 
-    Return a yw6/7 markup string.
-    """
-
-    # Clean up polluted HTML code.
-
-    text = re.sub('</*font.*?>', '', text)
-    text = re.sub('</*span.*?>', '', text)
-    text = re.sub('</*FONT.*?>', '', text)
-    text = re.sub('</*SPAN.*?>', '', text)
-
-    # Put everything in one line.
-
-    text = text.replace('\n', ' ')
-    text = text.replace('\r', ' ')
-    text = text.replace('\t', ' ')
-
-    while '  ' in text:
-        text = text.replace('  ', ' ').rstrip().lstrip()
-
-    # Replace HTML tags by yWriter markup.
-
-    text = text.replace('<i>', '[i]')
-    text = text.replace('<I>', '[i]')
-    text = text.replace('</i>', '[/i]')
-    text = text.replace('</I>', '[/i]')
-    text = text.replace('</em>', '[/i]')
-    text = text.replace('</EM>', '[/i]')
-    text = text.replace('<b>', '[b]')
-    text = text.replace('<B>', '[b]')
-    text = text.replace('</b>', '[/b]')
-    text = text.replace('</B>', '[/b]')
-    text = text.replace('</strong>', '[/b]')
-    text = text.replace('</STRONG>', '[/b]')
-    text = re.sub('<em.*?>', '[i]', text)
-    text = re.sub('<EM.*?>', '[i]', text)
-    text = re.sub('<strong.*?>', '[b]', text)
-    text = re.sub('<STRONG.*?>', '[b]', text)
-
-    # Remove orphaned tags.
-
-    text = text.replace('[/b][b]', '')
-    text = text.replace('[/i][i]', '')
-    text = text.replace('[/b][b]', '')
-
-    return text
-
-
-def strip_markup(text):
-    """Strip yWriter 6/7 raw markup. Return a plain text string."""
-    try:
-        text = text.replace('[i]', '')
-        text = text.replace('[/i]', '')
-        text = text.replace('[b]', '')
-        text = text.replace('[/b]', '')
-
-    except:
-        pass
-
-    return text
-
-
 def read_html_file(filePath):
     """Open a html file being encoded utf-8 or ANSI.
     Return a tuple:
@@ -501,10 +449,72 @@ class HtmlFile(Novel, HTMLParser):
         self._scId = None
         self._chId = None
 
-    def preprocess(self, text):
-        """Process the html text before parsing.
+    def convert_to_yw(self, text):
+        """Convert html tags to yWriter 6/7 raw markup. 
+        Return a yw6/7 markup string.
         """
-        return strip_markup(to_yw7(text))
+
+        # Clean up polluted HTML code.
+
+        text = re.sub('</*font.*?>', '', text)
+        text = re.sub('</*span.*?>', '', text)
+        text = re.sub('</*FONT.*?>', '', text)
+        text = re.sub('</*SPAN.*?>', '', text)
+
+        # Put everything in one line.
+
+        text = text.replace('\n', ' ')
+        text = text.replace('\r', ' ')
+        text = text.replace('\t', ' ')
+
+        while '  ' in text:
+            text = text.replace('  ', ' ').rstrip().lstrip()
+
+        # Replace HTML tags by yWriter markup.
+
+        text = text.replace('<i>', '[i]')
+        text = text.replace('<I>', '[i]')
+        text = text.replace('</i>', '[/i]')
+        text = text.replace('</I>', '[/i]')
+        text = text.replace('</em>', '[/i]')
+        text = text.replace('</EM>', '[/i]')
+        text = text.replace('<b>', '[b]')
+        text = text.replace('<B>', '[b]')
+        text = text.replace('</b>', '[/b]')
+        text = text.replace('</B>', '[/b]')
+        text = text.replace('</strong>', '[/b]')
+        text = text.replace('</STRONG>', '[/b]')
+        text = re.sub('<em.*?>', '[i]', text)
+        text = re.sub('<EM.*?>', '[i]', text)
+        text = re.sub('<strong.*?>', '[b]', text)
+        text = re.sub('<STRONG.*?>', '[b]', text)
+
+        # Remove orphaned tags.
+
+        text = text.replace('[/b][b]', '')
+        text = text.replace('[/i][i]', '')
+        text = text.replace('[/b][b]', '')
+
+        # Remove scene title annotations.
+
+        text = re.sub('\<\!-- - .*? - -->', '', text)
+
+        # Convert author's comments
+
+        text = text.replace('<!--', '/*')
+        text = text.replace('-->', '*/')
+
+        return text
+
+    def preprocess(self, text):
+        """Strip yWriter 6/7 raw markup. Return a plain text string."""
+
+        text = self.convert_to_yw(text)
+        text = text.replace('[i]', '')
+        text = text.replace('[/i]', '')
+        text = text.replace('[b]', '')
+        text = text.replace('[/b]', '')
+        return text
 
     def postprocess(self):
         """Process the plain text after parsing.
@@ -563,7 +573,7 @@ class HtmlProof(HtmlFile):
     def preprocess(self, text):
         """Process the html text before parsing.
         """
-        return to_yw7(text)
+        return self.convert_to_yw(text)
 
     def postprocess(self):
         """Parse the converted text to identify chapters and scenes.
@@ -633,7 +643,7 @@ class HtmlManuscript(HtmlFile):
     def preprocess(self, text):
         """Process the html text before parsing.
         """
-        return to_yw7(text)
+        return self.convert_to_yw(text)
 
     def handle_endtag(self, tag):
         """Recognize the end of the scene section and save data.
@@ -984,7 +994,7 @@ class FileExport(Novel):
     itemTemplate = ''
     fileFooter = ''
 
-    def convert_markup(self, text):
+    def convert_from_yw(self, text):
         """Convert yw7 markup to target format.
         To be overwritten by file format specific subclasses.
         """
@@ -1061,7 +1071,7 @@ class FileExport(Novel):
     def get_projectTemplateSubst(self):
         return dict(
             Title=self.title,
-            Desc=self.convert_markup(self.desc),
+            Desc=self.convert_from_yw(self.desc),
             AuthorName=self.author,
             FieldTitle1=self.fieldTitle1,
             FieldTitle2=self.fieldTitle2,
@@ -1074,7 +1084,7 @@ class FileExport(Novel):
             ID=chId,
             ChapterNumber=chapterNumber,
             Title=self.chapters[chId].title,
-            Desc=self.convert_markup(self.chapters[chId].desc),
+            Desc=self.convert_from_yw(self.chapters[chId].desc),
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
         )
@@ -1132,13 +1142,13 @@ class FileExport(Novel):
             ID=scId,
             SceneNumber=sceneNumber,
             Title=self.scenes[scId].title,
-            Desc=self.convert_markup(self.scenes[scId].desc),
+            Desc=self.convert_from_yw(self.scenes[scId].desc),
             WordCount=str(self.scenes[scId].wordCount),
             WordsTotal=wordsTotal,
             LetterCount=str(self.scenes[scId].letterCount),
             LettersTotal=lettersTotal,
             Status=Scene.STATUS[self.scenes[scId].status],
-            SceneContent=self.convert_markup(
+            SceneContent=self.convert_from_yw(
                 self.scenes[scId].sceneContent),
             FieldTitle1=self.fieldTitle1,
             FieldTitle2=self.fieldTitle2,
@@ -1157,15 +1167,15 @@ class FileExport(Novel):
             LastsHours=self.scenes[scId].lastsHours,
             LastsMinutes=self.scenes[scId].lastsMinutes,
             ReactionScene=reactionScene,
-            Goal=self.convert_markup(self.scenes[scId].goal),
-            Conflict=self.convert_markup(self.scenes[scId].conflict),
-            Outcome=self.convert_markup(self.scenes[scId].outcome),
+            Goal=self.convert_from_yw(self.scenes[scId].goal),
+            Conflict=self.convert_from_yw(self.scenes[scId].conflict),
+            Outcome=self.convert_from_yw(self.scenes[scId].outcome),
             Tags=tags,
             Characters=sceneChars,
             Viewpoint=viewpointChar,
             Locations=sceneLocs,
             Items=sceneItems,
-            Notes=self.convert_markup(self.scenes[scId].sceneNotes),
+            Notes=self.convert_from_yw(self.scenes[scId].sceneNotes),
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
         )
@@ -1187,13 +1197,13 @@ class FileExport(Novel):
         return dict(
             ID=crId,
             Title=self.characters[crId].title,
-            Desc=self.convert_markup(self.characters[crId].desc),
+            Desc=self.convert_from_yw(self.characters[crId].desc),
             Tags=tags,
-            AKA=FileExport.convert_markup(self, self.characters[crId].aka),
-            Notes=self.convert_markup(self.characters[crId].notes),
-            Bio=self.convert_markup(self.characters[crId].bio),
-            Goals=self.convert_markup(self.characters[crId].goals),
-            FullName=FileExport.convert_markup(
+            AKA=FileExport.convert_from_yw(self, self.characters[crId].aka),
+            Notes=self.convert_from_yw(self.characters[crId].notes),
+            Bio=self.convert_from_yw(self.characters[crId].bio),
+            Goals=self.convert_from_yw(self.characters[crId].goals),
+            FullName=FileExport.convert_from_yw(
                 self, self.characters[crId].fullName),
             Status=characterStatus,
         )
@@ -1209,9 +1219,9 @@ class FileExport(Novel):
         return dict(
             ID=lcId,
             Title=self.locations[lcId].title,
-            Desc=self.convert_markup(self.locations[lcId].desc),
+            Desc=self.convert_from_yw(self.locations[lcId].desc),
             Tags=tags,
-            AKA=FileExport.convert_markup(self, self.locations[lcId].aka),
+            AKA=FileExport.convert_from_yw(self, self.locations[lcId].aka),
         )
 
     def get_itemSubst(self, itId):
@@ -1225,9 +1235,9 @@ class FileExport(Novel):
         return dict(
             ID=itId,
             Title=self.items[itId].title,
-            Desc=self.convert_markup(self.items[itId].desc),
+            Desc=self.convert_from_yw(self.items[itId].desc),
             Tags=tags,
-            AKA=FileExport.convert_markup(self, self.items[itId].aka),
+            AKA=FileExport.convert_from_yw(self, self.items[itId].aka),
         )
 
     def write(self):
@@ -1355,11 +1365,22 @@ class CsvFile(FileExport):
     _LIST_SEPARATOR = ','
     # delimits items listed within a data field
 
-    def convert_markup(self, text):
-        """Convert yw7 raw markup to odt. Return an xml string."""
+    def convert_from_yw(self, text):
+        """Convert line breaks."""
 
         try:
             text = text.rstrip().replace('\n', self._LINEBREAK)
+
+        except AttributeError:
+            text = ''
+
+        return text
+
+    def convert_to_yw(self, text):
+        """Convert line breaks."""
+
+        try:
+            text = text.replace(self._LINEBREAK, '\n')
 
         except AttributeError:
             text = ''
@@ -1446,13 +1467,11 @@ class CsvSceneList(CsvFile):
                 i += 1
                 self.scenes[scId].title = cell[i]
                 i += 1
-                self.scenes[scId].desc = cell[i].replace(
-                    self._LINEBREAK, '\n')
+                self.scenes[scId].desc = self.convert_to_yw(cell[i])
                 i += 1
                 self.scenes[scId].tags = cell[i].split(self._LIST_SEPARATOR)
                 i += 1
-                self.scenes[scId].sceneNotes = cell[i].replace(
-                    self._LINEBREAK, '\n')
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[i])
                 i += 1
 
                 if Scene.REACTION_MARKER.lower() in cell[i].lower():
@@ -1462,14 +1481,11 @@ class CsvSceneList(CsvFile):
                     self.scenes[scId].isReactionScene = False
 
                 i += 1
-                self.scenes[scId].goal = cell[i].replace(
-                    self._LINEBREAK, ' ')
+                self.scenes[scId].goal = cell[i]
                 i += 1
-                self.scenes[scId].conflict = cell[i].replace(
-                    self._LINEBREAK, ' ')
+                self.scenes[scId].conflict = cell[i]
                 i += 1
-                self.scenes[scId].outcome = cell[i].replace(
-                    self._LINEBREAK, ' ')
+                self.scenes[scId].outcome = cell[i]
                 i += 1
                 # Don't write back sceneCount
                 i += 1
@@ -1686,16 +1702,14 @@ class CsvPlotList(CsvFile):
                 chId = re.search('ChID\:([0-9]+)', cell[0]).group(1)
                 self.chapters[chId] = Chapter()
                 self.chapters[chId].title = cell[1]
-                self.chapters[chId].desc = cell[4].replace(
-                    self._LINEBREAK, '\n')
+                self.chapters[chId].desc = self.convert_to_yw(cell[4])
 
             if 'ScID:' in cell[0]:
                 scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
                 self.scenes[scId] = Scene()
                 self.scenes[scId].tags = cell[2].split(self._LIST_SEPARATOR)
                 self.scenes[scId].title = cell[3]
-                self.scenes[scId].sceneNotes = cell[4].replace(
-                    self._LINEBREAK, '\n')
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[4])
 
                 i = 5
                 # Don't write back sceneCount
@@ -1785,8 +1799,7 @@ class CsvCharList(CsvFile):
                 self.characters[crId].title = cell[1]
                 self.characters[crId].fullName = cell[2]
                 self.characters[crId].aka = cell[3]
-                self.characters[crId].desc = cell[4].replace(
-                    self._LINEBREAK, '\n')
+                self.characters[crId].desc = self.convert_to_yw(cell[4])
                 self.characters[crId].bio = cell[5]
                 self.characters[crId].goals = cell[6]
 
@@ -1797,8 +1810,7 @@ class CsvCharList(CsvFile):
                     self.characters[crId].isMajor = False
 
                 self.characters[crId].tags = cell[8].split(';')
-                self.characters[crId].notes = cell[9].replace(
-                    self._LINEBREAK, '\n')
+                self.characters[crId].notes = self.convert_to_yw(cell[9])
 
         return 'SUCCESS: Data read from "' + self._filePath + '".'
 
@@ -1853,8 +1865,7 @@ class CsvLocList(CsvFile):
                 lcId = re.search('LcID\:([0-9]+)', cell[0]).group(1)
                 self.locations[lcId] = Object()
                 self.locations[lcId].title = cell[1]
-                self.locations[lcId].desc = cell[2].replace(
-                    self._LINEBREAK, '\n')
+                self.locations[lcId].desc = self.convert_to_yw(cell[2])
                 self.locations[lcId].aka = cell[3]
                 self.locations[lcId].tags = cell[4].split(';')
 
@@ -1911,8 +1922,7 @@ class CsvItemList(CsvFile):
                 itId = re.search('ItID\:([0-9]+)', cell[0]).group(1)
                 self.items[itId] = Object()
                 self.items[itId].title = cell[1]
-                self.items[itId].desc = cell[2].replace(
-                    self._LINEBREAK, '\n')
+                self.items[itId].desc = self.convert_to_yw(cell[2])
                 self.items[itId].aka = cell[3]
                 self.items[itId].tags = cell[4].split(';')
 
@@ -1945,7 +1955,7 @@ class HtmlImport(HtmlFile):
     def preprocess(self, text):
         """Process the html text before parsing.
         """
-        return to_yw7(text)
+        return self.convert_to_yw(text)
 
     def handle_starttag(self, tag, attrs):
 
