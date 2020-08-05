@@ -1,0 +1,82 @@
+<html>
+<head>
+<title>yw-cnv Help</title>
+<style type='text/css'>
+<!--
+h1, h2, h3 {font-family: sans-serif;}
+h1, h2 {color: green;}
+h3 {font-style: italic; font-size: 1em;}
+em, code {color: maroon;}
+-->
+</style>
+</head>
+
+<body>
+
+<h1>The yw-cnv extension for LibreOffice: Import and export yWriter 6/7 projects</h1>
+
+<h2>yWriter5 style proof reading</h2>
+
+<h3>Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers.</h3>
+
+<ul>
+<li>Please consider the following conventions:</li>
+	<ul>
+    <li>Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.</li>
+    <li>All chapters and scenes will be exported, whether "used" or "unused".</li>
+	</ul>
+<li>Back up your yWriter project and close yWriter before.</li>
+<li>The proof read document is placed in the same folder as the yWriter project.</li>
+<li>Document's filename: <code>&#139;yW project name&#155;_proof.odt</code>.</li>
+</ul>
+
+<h3>Write back the proofread scenes to the yWriter 6/7 project file.</h3>
+
+<ul>
+<li>The yWriter 6/7 project to rewrite must exist in the same folder as the document.</li>
+<li>If both yw6 and yw7 project files exist, yw7 is rewritten. </li>
+</ul>
+
+<h2>Import from yw6/7 project</h2>
+
+<p>Generate a "standard manuscript pages" formatted OpenDocument textfile from an yWriter 6/7 project:</p>
+
+<ul>
+<li>The document is placed in the same folder as the yWriter project.</li>
+<li>Document's filename: <code>&#139;yW project name&#155;.odt</code>.</li>
+<li>The document contains chapter <code>[ChID:x]</code> and scene <code>[ScID:y]</code> markers according to yWriter 5 standard. <strong>Do not touch lines containing the markers</strong> if you want to be able to reimport the document into yWriter.</li>
+</ul>
+
+<h2>Create a new yw7 project</h2>
+
+<p>Generate a new yWriter 7 project from a work in progress or an outline:</p>
+
+<ul>
+<li>The new yWriter project is placed in the same folder as the document.</li>
+<li>yWriter project's filename: <code>&#139;document name&#155;.yw7</code>.</li>
+<li>Existing yWriter 7 projects will not be overwritten.</li>
+</ul>
+
+<h3>Formatting a work in progress:</h3>
+
+<p>A work in progress has no third level heading.</p>
+
+<ul>
+<li><em>Heading 1</em>  &#150;&#155;  New chapter title (beginning a new section).</li>
+<li><em>Heading 2</em>  &#150;&#155;  New chapter title.</li>
+<li><code>* * *</code>  &#150;&#155;  Scene divider (not needed for the first scenes in a chapter).</li>
+<li>All other text is considered to be scene content.</li>
+</ul>
+
+<h3>Formatting an outline:</h3>
+
+<p>An outline has at least one third level heading.</p>
+
+<ul>
+<li><em>Heading 1</em>  &#150;&#155;  New chapter title (beginning a new section).</li>
+<li><em>Heading 2</em>  &#150;&#155;  New chapter title.</li>
+<li><em>Heading 3</em> &#150;&#155;  New scene title.</li>
+<li>All other text is considered to be chapter/scene description.</li>
+</ul>
+
+</body>
