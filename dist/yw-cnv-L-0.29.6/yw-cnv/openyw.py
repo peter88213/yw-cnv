@@ -2461,6 +2461,16 @@ class OdtSceneDesc(OdtFile):
 </text:section>
 '''
 
+    appendedSceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
+<text:p text:style-name="First_20_line_20_indent"><office:annotation>
+<dc:creator>scene title</dc:creator>
+<text:p>- $Title</text:p>
+<text:p/>
+<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a> -</text:p>
+</office:annotation>$Desc</text:p>
+</text:section>
+'''
+
     sceneDivider = '''<text:p text:style-name="Heading_20_4">* * *</text:p>
 '''
 
