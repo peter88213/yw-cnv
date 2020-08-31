@@ -3,7 +3,7 @@
 Input file format: yWriter
 Output file format: odt (with visible or invisible chapter and scene tags) or csv.
 
-Version 0.30.0
+Version 0.30.1
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1507,6 +1507,11 @@ class Scene():
         # xml: <SceneContent>
         # Scene text with yW7 raw markup.
 
+        self.rtfFile = None
+        # str
+        # xml: <RTFFile>
+        # Name of the file containing the scene in yWriter 5.
+
         self.wordCount = 0
         # int # xml: <WordCount>
         # To be updated by the sceneContent setter
@@ -2279,6 +2284,20 @@ class OdtFile(FileExport, OdtTemplate):
     def convert_from_yw(self, text):
         """Convert yw7 raw markup to odt. Return an xml string."""
 
+        ODT_REPLACEMENTS = [
+            ['&', '&amp;'],
+            ['>', '&gt;'],
+            ['<', '&lt;'],
+            ['\n', '</text:p>\n<text:p text:style-name="First_20_line_20_indent">'],
+            ['[i]', '<text:span text:style-name="Emphasis">'],
+            ['[/i]', '</text:span>'],
+            ['[b]', '<text:span text:style-name="Strong_20_Emphasis">'],
+            ['[/b]', '</text:span>'],
+            ['/*', '<office:annotation><dc:creator>' +
+                self.author + '</dc:creator><text:p>'],
+            ['*/', '</text:p></office:annotation>'],
+        ]
+
         try:
 
             # process italics and bold markup reaching across linebreaks
@@ -2316,21 +2335,10 @@ class OdtFile(FileExport, OdtTemplate):
 
                 newlines.append(line)
 
-            text = '\n'.join(newlines)
-            text = text.replace('&', '&amp;')
-            text = text.replace('>', '&gt;')
-            text = text.replace('<', '&lt;')
-            text = text.rstrip().replace(
-                '\n', '</text:p>\n<text:p text:style-name="First_20_line_20_indent">')
-            text = text.replace(
-                '[i]', '<text:span text:style-name="Emphasis">')
-            text = text.replace('[/i]', '</text:span>')
-            text = text.replace(
-                '[b]', '<text:span text:style-name="Strong_20_Emphasis">')
-            text = text.replace('[/b]', '</text:span>')
-            text = text.replace(
-                '/*', '<office:annotation><dc:creator>' + self.author + '</dc:creator><text:p>')
-            text = text.replace('*/', '</text:p></office:annotation>')
+            text = '\n'.join(newlines).rstrip()
+
+            for r in ODT_REPLACEMENTS:
+                text = text.replace(r[0], r[1])
 
         except AttributeError:
             text = ''
@@ -2668,15 +2676,6 @@ class Chapter():
         return text
 from html import unescape
 
-EM_DASH = '—'
-EN_DASH = '–'
-SAFE_DASH = '--'
-
-
-def replace_unsafe_glyphs(text):
-    """Replace glyphs being corrupted by yWriter with safe substitutes. """
-    return text  # .replace(EN_DASH, SAFE_DASH).replace(EM_DASH, SAFE_DASH)
-
 
 def indent(elem, level=0):
     """xml pretty printer
@@ -2705,13 +2704,21 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-def xml_postprocess(filePath, fileEncoding, cdataTags: list):
+def xml_postprocess(filePath, fileEncoding, version, cdataTags: list):
     '''Postprocess the xml file created by ElementTree:
        Put a header on top, insert the missing CDATA tags,
-       and replace "ampersand" xml entity by plain text.
+       and replace xml entities by plain text.
     '''
-    with open(filePath, 'r', encoding=fileEncoding) as f:
-        lines = f.readlines()
+
+    if version > 5:
+
+        with open(filePath, 'r', encoding='utf-8') as f:
+            lines = f.readlines()
+
+    else:
+
+        with open(filePath, 'r') as f:
+            lines = f.readlines()
 
     newlines = ['<?xml version="1.0" encoding="' + fileEncoding + '"?>\n']
 
@@ -2731,11 +2738,18 @@ def xml_postprocess(filePath, fileEncoding, cdataTags: list):
     newXml = unescape(newXml)
 
     try:
-        with open(filePath, 'w', encoding=fileEncoding) as f:
-            f.write(newXml)
+        if version > 5:
+
+            with open(filePath, 'w', encoding='utf-8') as f:
+                f.write(newXml)
+
+        else:
+
+            with open(filePath, 'w') as f:
+                f.write(newXml)
 
     except:
-        return 'ERROR: Can not write"' + filePath + '".'
+        return 'ERROR: Can not write "' + filePath + '".'
 
     return 'SUCCESS: "' + filePath + '" written.'
 
@@ -2766,16 +2780,19 @@ class YwFile(Novel):
         """Accept only filenames with the correct extension. """
 
         if filePath.lower().endswith('.yw7'):
+            self._VERSION = 7
             self.EXTENSION = '.yw7'
             self._ENCODING = 'utf-8'
             self._filePath = filePath
 
         elif filePath.lower().endswith('.yw6'):
+            self._VERSION = 6
             self.EXTENSION = '.yw6'
             self._ENCODING = 'utf-8'
             self._filePath = filePath
 
         elif filePath.lower().endswith('.yw5'):
+            self._VERSION = 5
             self.EXTENSION = '.yw5'
             self._ENCODING = 'iso-8859-1'
             self._filePath = filePath
@@ -2785,33 +2802,36 @@ class YwFile(Novel):
         Return a message beginning with SUCCESS or ERROR.
         """
 
-        # Complete the list of tags requiring CDATA (if incomplete).
+        _TEMPFILE = '._tempfile.xml'
 
-        try:
-            with open(self._filePath, 'r', encoding=self._ENCODING) as f:
-                xmlData = f.read()
+        if self._VERSION == 5:
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            try:
 
-        lines = xmlData.split('\n')
+                with open(self.filePath, 'r') as f:
+                    project = f.readlines()
 
-        for line in lines:
-            tag = re.search('\<(.+?)\>\<\!\[CDATA', line)
+                project[0] = project[0].replace('<?xml version="1.0" encoding="iso-8859-1"?>',
+                                                '<?xml version="1.0" encoding="cp1252"?>')
 
-            if tag is not None:
+                with open(_TEMPFILE, 'w') as f:
+                    f.writelines(project)
 
-                if not (tag.group(1) in self._cdataTags):
-                    self._cdataTags.append(tag.group(1))
+                self._tree = ET.parse(_TEMPFILE)
+                root = self._tree.getroot()
+                os.remove(_TEMPFILE)
 
-        # Open the file again to let ElementTree parse its xml structure.
+            except:
+                return 'ERROR: Can not process "' + self._filePath + '".'
 
-        try:
-            self._tree = ET.parse(self._filePath)
-            root = self._tree.getroot()
+        else:
 
-        except:
-            return 'ERROR: Can not process "' + self._filePath + '".'
+            try:
+                self._tree = ET.parse(self._filePath)
+                root = self._tree.getroot()
+
+            except:
+                return 'ERROR: Can not process "' + self._filePath + '".'
 
         # Read locations from the xml element tree.
 
@@ -2997,11 +3017,24 @@ class YwFile(Novel):
             if scn.find('Desc') is not None:
                 self.scenes[scId].desc = scn.find('Desc').text
 
+            if scn.find('RTFFile') is not None:
+                self.scenes[scId].rtfFile = scn.find('RTFFile').text
+
             if scn.find('SceneContent') is not None:
                 sceneContent = scn.find('SceneContent').text
 
                 if sceneContent is not None:
                     self.scenes[scId].sceneContent = sceneContent
+
+            elif self._VERSION == 5:
+
+                if scn.find('WordCount') is not None:
+                    self.scenes[scId].wordCount = int(
+                        scn.find('WordCount').text)
+
+                if scn.find('LetterCount') is not None:
+                    self.scenes[scId].letterCount = int(
+                        scn.find('LetterCount').text)
 
             if scn.find('Unused') is not None:
                 self.scenes[scId].isUnused = True
@@ -3230,6 +3263,9 @@ class YwFile(Novel):
             if novel.scenes[scId].sceneContent is not None:
                 self.scenes[scId].sceneContent = novel.scenes[scId].sceneContent
 
+            if novel.scenes[scId].rtfFile is not None:
+                self.scenes[scId].sceneContent = novel.scenes[scId].sceneContent
+
             if novel.scenes[scId].isUnused is not None:
                 self.scenes[scId].isUnused = novel.scenes[scId].isUnused
 
@@ -3352,7 +3388,12 @@ class YwFile(Novel):
                 self.chapters[chId].chType = novel.chapters[chId].chType
 
             if novel.chapters[chId].isUnused is not None:
-                self.chapters[chId].isUnused = novel.chapters[chId].isUnused
+
+                if self._VERSION > 5:
+                    self.chapters[chId].isUnused = novel.chapters[chId].isUnused
+
+                elif novel.chapters[chId].oldType == 1:
+                    self.chapters[chId].isUnused = False
 
             if novel.chapters[chId].suppressChapterTitle is not None:
                 self.chapters[chId].suppressChapterTitle = novel.chapters[chId].suppressChapterTitle
@@ -3576,6 +3617,12 @@ class YwFile(Novel):
         prj = root.find('PROJECT')
         prj.find('Title').text = self.title
 
+        if self._VERSION > 6:
+            prj.find('Ver').text = str(self._VERSION)
+
+        else:
+            prj.find('Ver').text = '5'
+
         if self.desc is not None:
 
             if prj.find('Desc') is None:
@@ -3659,9 +3706,41 @@ class YwFile(Novel):
                     else:
                         scn.find('Desc').text = self.scenes[scId].desc
 
-                if self.scenes[scId]._sceneContent is not None:
-                    scn.find(
-                        'SceneContent').text = replace_unsafe_glyphs(self.scenes[scId]._sceneContent)
+                # Write scene content.
+
+                if self._VERSION > 5:
+
+                    if self.scenes[scId].sceneContent is not None:
+                        scn.find(
+                            'SceneContent').text = self.scenes[scId].sceneContent
+                        scn.find('WordCount').text = str(
+                            self.scenes[scId].wordCount)
+                        scn.find('LetterCount').text = str(
+                            self.scenes[scId].letterCount)
+
+                    try:
+                        scn.remove(scn.find('RTFFile'))
+
+                    except:
+                        pass
+
+                else:
+
+                    try:
+                        scn.remove(scn.find('SceneContent'))
+
+                    except:
+                        pass
+
+                    if scn.find('RTFFile') is None:
+                        ET.SubElement(scn, 'RTFFile')
+
+                    try:
+                        scn.find(
+                            'RTFFile').text = self.scenes[scId].rtfFile
+                    except:
+                        return 'ERROR: yWriter 5 RTF file not generated.'
+
                     scn.find('WordCount').text = str(
                         self.scenes[scId].wordCount)
                     scn.find('LetterCount').text = str(
@@ -3941,6 +4020,9 @@ class YwFile(Novel):
                     for itId in self.scenes[scId].items:
                         ET.SubElement(items, 'ItemID').text = itId
 
+        if self._VERSION == 5:
+            root.tag = 'YWRITER5'
+
         # Pretty print the xml tree.
 
         indent(root)
@@ -3959,7 +4041,7 @@ class YwFile(Novel):
         # Postprocess the xml file created by ElementTree.
 
         message = xml_postprocess(
-            self._filePath, self._ENCODING, self._cdataTags)
+            self._filePath, self._ENCODING, self._VERSION, self._cdataTags)
 
         if message.startswith('ERROR'):
             return message
@@ -3996,11 +4078,18 @@ class CsvFile(FileExport):
     _LIST_SEPARATOR = ','
     # delimits items listed within a data field
 
+    CSV_REPLACEMENTS = [
+        ['\n', _LINEBREAK],
+    ]
+
     def convert_from_yw(self, text):
         """Convert line breaks."""
 
         try:
-            text = text.rstrip().replace('\n', self._LINEBREAK)
+            text = text.rstrip()
+
+            for r in self.CSV_REPLACEMENTS:
+                text = text.replace(r[0], r[1])
 
         except AttributeError:
             text = ''
@@ -4011,7 +4100,9 @@ class CsvFile(FileExport):
         """Convert line breaks."""
 
         try:
-            text = text.replace(self._LINEBREAK, '\n')
+
+            for r in self.CSV_REPLACEMENTS:
+                text = text.replace(r[1], r[0])
 
         except AttributeError:
             text = ''
