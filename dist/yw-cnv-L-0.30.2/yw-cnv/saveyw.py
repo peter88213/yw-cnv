@@ -2,7 +2,7 @@
 
 Input file format: html (with visible or invisible chapter and scene tags).
 
-Version 0.30.1
+Version 0.30.2
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -2235,104 +2235,963 @@ class HtmlOutline(HtmlFile):
     def get_structure(self):
         """This file format has no comparable structure."""
 
+
+
 import xml.etree.ElementTree as ET
+
+
+
+class YwTreeReader():
+    """Read yWriter xml project file."""
+
+    @abstractmethod
+    def read_element_tree(self, ywFile):
+        """Parse the yWriter xml file located at filePath, fetching the Novel attributes.
+        Return a message beginning with SUCCESS or ERROR.
+        To be overwritten by file format specific subclasses.
+        """
+
+
+class Utf8TreeReader(YwTreeReader):
+    """Read yWriter xml project file."""
+
+    def read_element_tree(self, ywFile):
+        """Parse the yWriter xml file located at filePath, fetching the Novel attributes.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        try:
+            ywFile._tree = ET.parse(ywFile._filePath)
+
+        except:
+            return 'ERROR: Can not process "' + ywFile._filePath + '".'
+
+        return 'SUCCESS: XML element tree read in.'
+
+
+
+class AnsiTreeReader(YwTreeReader):
+    """Read yWriter xml project file."""
+
+    def read_element_tree(self, ywFile):
+        """Parse the yWriter xml file located at filePath, fetching the Novel attributes.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        _TEMPFILE = '._tempfile.xml'
+
+        try:
+
+            with open(ywFile.filePath, 'r') as f:
+                project = f.readlines()
+
+            project[0] = project[0].replace('<?xml version="1.0" encoding="iso-8859-1"?>',
+                                            '<?xml version="1.0" encoding="cp1252"?>')
+
+            with open(_TEMPFILE, 'w') as f:
+                f.writelines(project)
+
+            ywFile._tree = ET.parse(_TEMPFILE)
+            os.remove(_TEMPFILE)
+
+        except:
+            return 'ERROR: Can not process "' + ywFile._filePath + '".'
+
+        return 'SUCCESS: XML element tree read in.'
+
+
+
+
+class YwTreeWriter():
+    """Write yWriter 7 xml project file."""
+
+    @abstractmethod
+    def write_element_tree(self, ywProject):
+        """Write back the xml element tree to a yWriter xml file located at filePath.
+        Return a message beginning with SUCCESS or ERROR.
+        To be overwritten by file format specific subclasses.
+        """
+
+
+class Utf8TreeWriter(YwTreeWriter):
+    """Write utf-8 encoded yWriter project file."""
+
+    def write_element_tree(self, ywProject):
+        """Write back the xml element tree to a yWriter xml file located at filePath.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        try:
+            ywProject._tree.write(
+                ywProject._filePath, xml_declaration=False, encoding='utf-8')
+
+        except(PermissionError):
+            return 'ERROR: "' + ywProject._filePath + '" is write protected.'
+
+        return 'SUCCESS'
+
+
+
+class AnsiTreeWriter(YwTreeWriter):
+    """Write ANSI encoded yWriter project file."""
+
+    def write_element_tree(self, ywProject):
+        """Write back the xml element tree to a yWriter xml file located at filePath.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        try:
+            ywProject._tree.write(
+                ywProject._filePath, xml_declaration=False, encoding='iso-8859-1')
+
+        except(PermissionError):
+            return 'ERROR: "' + ywProject._filePath + '" is write protected.'
+
+        return 'SUCCESS'
+
 
 from html import unescape
 
 
-def indent(elem, level=0):
-    """xml pretty printer
+class YwPostprocessor():
 
-    Kudos to to Fredrik Lundh. 
-    Source: http://effbot.org/zone/element-lib.htm#prettyprint
-    """
-    i = "\n" + level * "  "
+    @abstractmethod
+    def postprocess_xml_file(self, ywFile):
+        '''Postprocess the xml file created by ElementTree:
+        Put a header on top, insert the missing CDATA tags,
+        and replace xml entities by plain text.
+        Return a message beginning with SUCCESS or ERROR.
+        To be overwritten by file format specific subclasses.
+        '''
 
-    if len(elem):
+    def format_xml(self, text):
+        '''Postprocess the xml file created by ElementTree:
+           Insert the missing CDATA tags,
+           and replace xml entities by plain text.
+        '''
 
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
+        cdataTags = ['Title', 'AuthorName', 'Bio', 'Desc',
+                     'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
+                     'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
+                     'AKA', 'ImageFile', 'FullName', 'Goals',
+                     'Notes', 'RTFFile', 'SceneContent',
+                     'Outcome', 'Goal', 'Conflict']
+        # Names of yWriter xml elements containing CDATA.
+        # ElementTree.write omits CDATA tags, so they have to be inserted
+        # afterwards.
 
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
+        lines = text.split('\n')
+        newlines = []
 
-        for elem in elem:
-            indent(elem, level + 1)
+        for line in lines:
 
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
+            for tag in cdataTags:
+                line = re.sub('\<' + tag + '\>', '<' +
+                              tag + '><![CDATA[', line)
+                line = re.sub('\<\/' + tag + '\>',
+                              ']]></' + tag + '>', line)
 
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
+            newlines.append(line)
+
+        text = '\n'.join(newlines)
+        text = text.replace('[CDATA[ \n', '[CDATA[')
+        text = text.replace('\n]]', ']]')
+        text = unescape(text)
+
+        return text
 
 
-def xml_postprocess(filePath, fileEncoding, version, cdataTags: list):
-    '''Postprocess the xml file created by ElementTree:
-       Put a header on top, insert the missing CDATA tags,
-       and replace xml entities by plain text.
-    '''
+class Utf8Postprocessor(YwPostprocessor):
+    """Postprocess ANSI encoded yWriter project."""
 
-    if version > 5:
+    def postprocess_xml_file(self, filePath):
+        '''Postprocess the xml file created by ElementTree:
+        Put a header on top, insert the missing CDATA tags,
+        and replace xml entities by plain text.
+        Return a message beginning with SUCCESS or ERROR.
+        '''
 
         with open(filePath, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
+            text = f.read()
 
-    else:
+        text = self.format_xml(text)
+        text = '<?xml version="1.0" encoding="utf-8"?>\n' + text
 
-        with open(filePath, 'r') as f:
-            lines = f.readlines()
-
-    newlines = ['<?xml version="1.0" encoding="' + fileEncoding + '"?>\n']
-
-    for line in lines:
-
-        for tag in cdataTags:
-            line = re.sub('\<' + tag + '\>', '<' +
-                          tag + '><![CDATA[', line)
-            line = re.sub('\<\/' + tag + '\>',
-                          ']]></' + tag + '>', line)
-
-        newlines.append(line)
-
-    newXml = ''.join(newlines)
-    newXml = newXml.replace('[CDATA[ \n', '[CDATA[')
-    newXml = newXml.replace('\n]]', ']]')
-    newXml = unescape(newXml)
-
-    try:
-        if version > 5:
+        try:
 
             with open(filePath, 'w', encoding='utf-8') as f:
-                f.write(newXml)
+                f.write(text)
 
-        else:
+        except:
+            return 'ERROR: Can not write "' + filePath + '".'
+
+        return 'SUCCESS'
+
+
+
+class AnsiPostprocessor(YwPostprocessor):
+    """Postprocess ANSI encoded yWriter project."""
+
+    def postprocess_xml_file(self, filePath):
+        '''Postprocess the xml file created by ElementTree:
+        Put a header on top, insert the missing CDATA tags,
+        and replace xml entities by plain text.
+        Return a message beginning with SUCCESS or ERROR.
+        '''
+
+        with open(filePath, 'r') as f:
+            text = f.read()
+
+        text = self.format_xml(text)
+        text = '<?xml version="1.0" encoding="iso-8859-1"?>\n' + text
+
+        try:
 
             with open(filePath, 'w') as f:
-                f.write(newXml)
+                f.write(text)
 
-    except:
-        return 'ERROR: Can not write "' + filePath + '".'
+        except:
+            return 'ERROR: Can not write "' + filePath + '".'
 
-    return 'SUCCESS: "' + filePath + '" written.'
+        return 'SUCCESS'
 
 
+
+
+
+class YwTreeBuilder():
+    """Build yWriter project xml tree."""
+
+    @abstractmethod
+    def build_element_tree(self, ywProject):
+        """Modify the yWriter project attributes of an existing xml element tree.
+        Return a message beginning with SUCCESS or ERROR.
+        To be overwritten by file format specific subclasses.
+        """
+        root = ywProject._tree.getroot()
+
+        # Write locations to the xml element tree.
+
+        for loc in root.iter('LOCATION'):
+            lcId = loc.find('ID').text
+
+            if lcId in ywProject.locations:
+
+                if ywProject.locations[lcId].title is not None:
+                    loc.find('Title').text = ywProject.locations[lcId].title
+
+                if ywProject.locations[lcId].desc is not None:
+
+                    if loc.find('Desc') is None:
+                        ET.SubElement(
+                            loc, 'Desc').text = ywProject.locations[lcId].desc
+
+                    else:
+                        loc.find('Desc').text = ywProject.locations[lcId].desc
+
+                if ywProject.locations[lcId].aka is not None:
+
+                    if loc.find('AKA') is None:
+                        ET.SubElement(
+                            loc, 'AKA').text = ywProject.locations[lcId].aka
+
+                    else:
+                        loc.find('AKA').text = ywProject.locations[lcId].aka
+
+                if ywProject.locations[lcId].tags is not None:
+
+                    if loc.find('Tags') is None:
+                        ET.SubElement(loc, 'Tags').text = ';'.join(
+                            ywProject.locations[lcId].tags)
+
+                    else:
+                        loc.find('Tags').text = ';'.join(
+                            ywProject.locations[lcId].tags)
+
+        # Write items to the xml element tree.
+
+        for itm in root.iter('ITEM'):
+            itId = itm.find('ID').text
+
+            if itId in ywProject.items:
+
+                if ywProject.items[itId].title is not None:
+                    itm.find('Title').text = ywProject.items[itId].title
+
+                if ywProject.items[itId].desc is not None:
+
+                    if itm.find('Desc') is None:
+                        ET.SubElement(
+                            itm, 'Desc').text = ywProject.items[itId].desc
+
+                    else:
+                        itm.find('Desc').text = ywProject.items[itId].desc
+
+                if ywProject.items[itId].aka is not None:
+
+                    if itm.find('AKA') is None:
+                        ET.SubElement(
+                            itm, 'AKA').text = ywProject.items[itId].aka
+
+                    else:
+                        itm.find('AKA').text = ywProject.items[itId].aka
+
+                if ywProject.items[itId].tags is not None:
+
+                    if itm.find('Tags') is None:
+                        ET.SubElement(itm, 'Tags').text = ';'.join(
+                            ywProject.items[itId].tags)
+
+                    else:
+                        itm.find('Tags').text = ';'.join(
+                            ywProject.items[itId].tags)
+
+        # Write characters to the xml element tree.
+
+        for crt in root.iter('CHARACTER'):
+            crId = crt.find('ID').text
+
+            if crId in ywProject.characters:
+
+                if ywProject.characters[crId].title is not None:
+                    crt.find('Title').text = ywProject.characters[crId].title
+
+                if ywProject.characters[crId].desc is not None:
+
+                    if crt.find('Desc') is None:
+                        ET.SubElement(
+                            crt, 'Desc').text = ywProject.characters[crId].desc
+
+                    else:
+                        crt.find('Desc').text = ywProject.characters[crId].desc
+
+                if ywProject.characters[crId].aka is not None:
+
+                    if crt.find('AKA') is None:
+                        ET.SubElement(
+                            crt, 'AKA').text = ywProject.characters[crId].aka
+
+                    else:
+                        crt.find('AKA').text = ywProject.characters[crId].aka
+
+                if ywProject.characters[crId].tags is not None:
+
+                    if crt.find('Tags') is None:
+                        ET.SubElement(crt, 'Tags').text = ';'.join(
+                            ywProject.characters[crId].tags)
+
+                    else:
+                        crt.find('Tags').text = ';'.join(
+                            ywProject.characters[crId].tags)
+
+                if ywProject.characters[crId].notes is not None:
+
+                    if crt.find('Notes') is None:
+                        ET.SubElement(
+                            crt, 'Notes').text = ywProject.characters[crId].notes
+
+                    else:
+                        crt.find(
+                            'Notes').text = ywProject.characters[crId].notes
+
+                if ywProject.characters[crId].bio is not None:
+
+                    if crt.find('Bio') is None:
+                        ET.SubElement(
+                            crt, 'Bio').text = ywProject.characters[crId].bio
+
+                    else:
+                        crt.find('Bio').text = ywProject.characters[crId].bio
+
+                if ywProject.characters[crId].goals is not None:
+
+                    if crt.find('Goals') is None:
+                        ET.SubElement(
+                            crt, 'Goals').text = ywProject.characters[crId].goals
+
+                    else:
+                        crt.find(
+                            'Goals').text = ywProject.characters[crId].goals
+
+                if ywProject.characters[crId].fullName is not None:
+
+                    if crt.find('FullName') is None:
+                        ET.SubElement(
+                            crt, 'FullName').text = ywProject.characters[crId].fullName
+
+                    else:
+                        crt.find(
+                            'FullName').text = ywProject.characters[crId].fullName
+
+                majorMarker = crt.find('Major')
+
+                if majorMarker is not None:
+
+                    if not ywProject.characters[crId].isMajor:
+                        crt.remove(majorMarker)
+
+                else:
+                    if ywProject.characters[crId].isMajor:
+                        ET.SubElement(crt, 'Major').text = '-1'
+
+        # Write attributes at novel level to the xml element tree.
+
+        prj = root.find('PROJECT')
+        prj.find('Title').text = ywProject.title
+
+        if ywProject.desc is not None:
+
+            if prj.find('Desc') is None:
+                ET.SubElement(prj, 'Desc').text = ywProject.desc
+
+            else:
+                prj.find('Desc').text = ywProject.desc
+
+        if ywProject.author is not None:
+
+            if prj.find('AuthorName') is None:
+                ET.SubElement(prj, 'AuthorName').text = ywProject.author
+
+            else:
+                prj.find('AuthorName').text = ywProject.author
+
+        prj.find('FieldTitle1').text = ywProject.fieldTitle1
+        prj.find('FieldTitle2').text = ywProject.fieldTitle2
+        prj.find('FieldTitle3').text = ywProject.fieldTitle3
+        prj.find('FieldTitle4').text = ywProject.fieldTitle4
+
+        # Write attributes at chapter level to the xml element tree.
+
+        for chp in root.iter('CHAPTER'):
+            chId = chp.find('ID').text
+
+            if chId in ywProject.chapters:
+                chp.find('Title').text = ywProject.chapters[chId].title
+
+                if ywProject.chapters[chId].desc is not None:
+
+                    if chp.find('Desc') is None:
+                        ET.SubElement(
+                            chp, 'Desc').text = ywProject.chapters[chId].desc
+
+                    else:
+                        chp.find('Desc').text = ywProject.chapters[chId].desc
+
+                levelInfo = chp.find('SectionStart')
+
+                if levelInfo is not None:
+
+                    if ywProject.chapters[chId].chLevel == 0:
+                        chp.remove(levelInfo)
+
+                chp.find('Type').text = str(ywProject.chapters[chId].oldType)
+
+                if ywProject.chapters[chId].chType is not None:
+
+                    if chp.find('ChapterType') is not None:
+                        chp.find('ChapterType').text = str(
+                            ywProject.chapters[chId].chType)
+                    else:
+                        ET.SubElement(chp, 'ChapterType').text = str(
+                            ywProject.chapters[chId].chType)
+
+                if ywProject.chapters[chId].isUnused:
+
+                    if chp.find('Unused') is None:
+                        ET.SubElement(chp, 'Unused').text = '-1'
+
+                elif chp.find('Unused') is not None:
+                    chp.remove(chp.find('Unused'))
+
+        # Write attributes at scene level to the xml element tree.
+
+        for scn in root.iter('SCENE'):
+            scId = scn.find('ID').text
+
+            if scId in ywProject.scenes:
+
+                if ywProject.scenes[scId].title is not None:
+                    scn.find('Title').text = ywProject.scenes[scId].title
+
+                if ywProject.scenes[scId].desc is not None:
+
+                    if scn.find('Desc') is None:
+                        ET.SubElement(
+                            scn, 'Desc').text = ywProject.scenes[scId].desc
+
+                    else:
+                        scn.find('Desc').text = ywProject.scenes[scId].desc
+
+                # Scene content is written in subclasses.
+
+                if ywProject.scenes[scId].isUnused:
+
+                    if scn.find('Unused') is None:
+                        ET.SubElement(scn, 'Unused').text = '-1'
+
+                elif scn.find('Unused') is not None:
+                    scn.remove(scn.find('Unused'))
+
+                if ywProject.scenes[scId].isNotesScene:
+
+                    if scn.find('Fields') is None:
+                        scFields = ET.SubElement(scn, 'Fields')
+
+                    else:
+                        scFields = scn.find('Fields')
+
+                    if scFields.find('Field_SceneType') is None:
+                        ET.SubElement(scFields, 'Field_SceneType').text = '1'
+
+                elif scn.find('Fields') is not None:
+                    scFields = scn.find('Fields')
+
+                    if scFields.find('Field_SceneType') is not None:
+
+                        if scFields.find('Field_SceneType').text == '1':
+                            scFields.remove(scFields.find('Field_SceneType'))
+
+                if ywProject.scenes[scId].isTodoScene:
+
+                    if scn.find('Fields') is None:
+                        scFields = ET.SubElement(scn, 'Fields')
+
+                    else:
+                        scFields = scn.find('Fields')
+
+                    if scFields.find('Field_SceneType') is None:
+                        ET.SubElement(scFields, 'Field_SceneType').text = '2'
+
+                elif scn.find('Fields') is not None:
+                    scFields = scn.find('Fields')
+
+                    if scFields.find('Field_SceneType') is not None:
+
+                        if scFields.find('Field_SceneType').text == '2':
+                            scFields.remove(scFields.find('Field_SceneType'))
+
+                if ywProject.scenes[scId].status is not None:
+                    scn.find('Status').text = str(
+                        ywProject.scenes[scId].status)
+
+                if ywProject.scenes[scId].sceneNotes is not None:
+
+                    if scn.find('Notes') is None:
+                        ET.SubElement(
+                            scn, 'Notes').text = ywProject.scenes[scId].sceneNotes
+
+                    else:
+                        scn.find(
+                            'Notes').text = ywProject.scenes[scId].sceneNotes
+
+                if ywProject.scenes[scId].tags is not None:
+
+                    if scn.find('Tags') is None:
+                        ET.SubElement(scn, 'Tags').text = ';'.join(
+                            ywProject.scenes[scId].tags)
+
+                    else:
+                        scn.find('Tags').text = ';'.join(
+                            ywProject.scenes[scId].tags)
+
+                if ywProject.scenes[scId].field1 is not None:
+
+                    if scn.find('Field1') is None:
+                        ET.SubElement(
+                            scn, 'Field1').text = ywProject.scenes[scId].field1
+
+                    else:
+                        scn.find('Field1').text = ywProject.scenes[scId].field1
+
+                if ywProject.scenes[scId].field2 is not None:
+
+                    if scn.find('Field2') is None:
+                        ET.SubElement(
+                            scn, 'Field2').text = ywProject.scenes[scId].field2
+
+                    else:
+                        scn.find('Field2').text = ywProject.scenes[scId].field2
+
+                if ywProject.scenes[scId].field3 is not None:
+
+                    if scn.find('Field3') is None:
+                        ET.SubElement(
+                            scn, 'Field3').text = ywProject.scenes[scId].field3
+
+                    else:
+                        scn.find('Field3').text = ywProject.scenes[scId].field3
+
+                if ywProject.scenes[scId].field4 is not None:
+
+                    if scn.find('Field4') is None:
+                        ET.SubElement(
+                            scn, 'Field4').text = ywProject.scenes[scId].field4
+
+                    else:
+                        scn.find('Field4').text = ywProject.scenes[scId].field4
+
+                if ywProject.scenes[scId].appendToPrev:
+
+                    if scn.find('AppendToPrev') is None:
+                        ET.SubElement(scn, 'AppendToPrev').text = '-1'
+
+                elif scn.find('AppendToPrev') is not None:
+                    scn.remove(scn.find('AppendToPrev'))
+
+                # Date/time information
+
+                if (ywProject.scenes[scId].date is not None) and (ywProject.scenes[scId].time is not None):
+                    dateTime = ywProject.scenes[scId].date + \
+                        ' ' + ywProject.scenes[scId].time
+
+                    if scn.find('SpecificDateTime') is not None:
+                        scn.find('SpecificDateTime').text = dateTime
+
+                    else:
+                        ET.SubElement(scn, 'SpecificDateTime').text = dateTime
+                        ET.SubElement(scn, 'SpecificDateMode').text = '-1'
+
+                        if scn.find('Day') is not None:
+                            scn.remove(scn.find('Day'))
+
+                        if scn.find('Hour') is not None:
+                            scn.remove(scn.find('Hour'))
+
+                        if scn.find('Minute') is not None:
+                            scn.remove(scn.find('Minute'))
+
+                elif (ywProject.scenes[scId].day is not None) or (ywProject.scenes[scId].hour is not None) or (ywProject.scenes[scId].minute is not None):
+
+                    if scn.find('SpecificDateTime') is not None:
+                        scn.remove(scn.find('SpecificDateTime'))
+
+                    if scn.find('SpecificDateMode') is not None:
+                        scn.remove(scn.find('SpecificDateMode'))
+
+                    if ywProject.scenes[scId].day is not None:
+
+                        if scn.find('Day') is not None:
+                            scn.find('Day').text = ywProject.scenes[scId].day
+
+                        else:
+                            ET.SubElement(
+                                scn, 'Day').text = ywProject.scenes[scId].day
+
+                    if ywProject.scenes[scId].hour is not None:
+
+                        if scn.find('Hour') is not None:
+                            scn.find('Hour').text = ywProject.scenes[scId].hour
+
+                        else:
+                            ET.SubElement(
+                                scn, 'Hour').text = ywProject.scenes[scId].hour
+
+                    if ywProject.scenes[scId].minute is not None:
+
+                        if scn.find('Minute') is not None:
+                            scn.find(
+                                'Minute').text = ywProject.scenes[scId].minute
+
+                        else:
+                            ET.SubElement(
+                                scn, 'Minute').text = ywProject.scenes[scId].minute
+
+                if ywProject.scenes[scId].lastsDays is not None:
+
+                    if scn.find('LastsDays') is not None:
+                        scn.find(
+                            'LastsDays').text = ywProject.scenes[scId].lastsDays
+
+                    else:
+                        ET.SubElement(
+                            scn, 'LastsDays').text = ywProject.scenes[scId].lastsDays
+
+                if ywProject.scenes[scId].lastsHours is not None:
+
+                    if scn.find('LastsHours') is not None:
+                        scn.find(
+                            'LastsHours').text = ywProject.scenes[scId].lastsHours
+
+                    else:
+                        ET.SubElement(
+                            scn, 'LastsHours').text = ywProject.scenes[scId].lastsHours
+
+                if ywProject.scenes[scId].lastsMinutes is not None:
+
+                    if scn.find('LastsMinutes') is not None:
+                        scn.find(
+                            'LastsMinutes').text = ywProject.scenes[scId].lastsMinutes
+
+                    else:
+                        ET.SubElement(
+                            scn, 'LastsMinutes').text = ywProject.scenes[scId].lastsMinutes
+
+                # Plot related information
+
+                if ywProject.scenes[scId].isReactionScene:
+
+                    if scn.find('ReactionScene') is None:
+                        ET.SubElement(scn, 'ReactionScene').text = '-1'
+
+                elif scn.find('ReactionScene') is not None:
+                    scn.remove(scn.find('ReactionScene'))
+
+                if ywProject.scenes[scId].isSubPlot:
+
+                    if scn.find('SubPlot') is None:
+                        ET.SubElement(scn, 'SubPlot').text = '-1'
+
+                elif scn.find('SubPlot') is not None:
+                    scn.remove(scn.find('SubPlot'))
+
+                if ywProject.scenes[scId].goal is not None:
+
+                    if scn.find('Goal') is None:
+                        ET.SubElement(
+                            scn, 'Goal').text = ywProject.scenes[scId].goal
+
+                    else:
+                        scn.find('Goal').text = ywProject.scenes[scId].goal
+
+                if ywProject.scenes[scId].conflict is not None:
+
+                    if scn.find('Conflict') is None:
+                        ET.SubElement(
+                            scn, 'Conflict').text = ywProject.scenes[scId].conflict
+
+                    else:
+                        scn.find(
+                            'Conflict').text = ywProject.scenes[scId].conflict
+
+                if ywProject.scenes[scId].outcome is not None:
+
+                    if scn.find('Outcome') is None:
+                        ET.SubElement(
+                            scn, 'Outcome').text = ywProject.scenes[scId].outcome
+
+                    else:
+                        scn.find(
+                            'Outcome').text = ywProject.scenes[scId].outcome
+
+                if ywProject.scenes[scId].characters is not None:
+                    characters = scn.find('Characters')
+
+                    for oldCrId in characters.findall('CharID'):
+                        characters.remove(oldCrId)
+
+                    for crId in ywProject.scenes[scId].characters:
+                        ET.SubElement(characters, 'CharID').text = crId
+
+                if ywProject.scenes[scId].locations is not None:
+                    locations = scn.find('Locations')
+
+                    for oldLcId in locations.findall('LocID'):
+                        locations.remove(oldLcId)
+
+                    for lcId in ywProject.scenes[scId].locations:
+                        ET.SubElement(locations, 'LocID').text = lcId
+
+                if ywProject.scenes[scId].items is not None:
+                    items = scn.find('Items')
+
+                    for oldItId in items.findall('ItemID'):
+                        items.remove(oldItId)
+
+                    for itId in ywProject.scenes[scId].items:
+                        ET.SubElement(items, 'ItemID').text = itId
+
+        self.indent_xml(root)
+        ywProject._tree = ET.ElementTree(root)
+
+        return 'SUCCESS'
+
+    def indent_xml(self, elem, level=0):
+        """xml pretty printer
+
+        Kudos to to Fredrik Lundh. 
+        Source: http://effbot.org/zone/element-lib.htm#prettyprint
+        """
+        i = "\n" + level * "  "
+
+        if len(elem):
+
+            if not elem.text or not elem.text.strip():
+                elem.text = i + "  "
+
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+
+            for elem in elem:
+                self.indent_xml(elem, level + 1)
+
+            if not elem.tail or not elem.tail.strip():
+                elem.tail = i
+
+        else:
+            if level and (not elem.tail or not elem.tail.strip()):
+                elem.tail = i
+
+
+class Yw7TreeBuilder(YwTreeBuilder):
+    """Build yWriter 7 project xml tree."""
+
+    def build_element_tree(self, ywProject):
+        """Modify the yWriter project attributes of an existing xml element tree.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        root = ywProject._tree.getroot()
+
+        for scn in root.iter('SCENE'):
+            scId = scn.find('ID').text
+
+            if ywProject.scenes[scId].sceneContent is not None:
+                scn.find(
+                    'SceneContent').text = ywProject.scenes[scId].sceneContent
+                scn.find('WordCount').text = str(
+                    ywProject.scenes[scId].wordCount)
+                scn.find('LetterCount').text = str(
+                    ywProject.scenes[scId].letterCount)
+
+            try:
+                scn.remove(scn.find('RTFFile'))
+
+            except:
+                pass
+
+        root.tag = 'YWRITER7'
+        root.find('PROJECT').find('Ver').text = '7'
+        ywProject._tree = ET.ElementTree(root)
+
+        return YwTreeBuilder.build_element_tree(self, ywProject)
+
+
+
+class Yw6TreeBuilder(YwTreeBuilder):
+    """Build yWriter 6 project xml tree."""
+
+    def build_element_tree(self, ywProject):
+        """Modify the yWriter project attributes of an existing xml element tree.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        root = ywProject._tree.getroot()
+
+        for scn in root.iter('SCENE'):
+            scId = scn.find('ID').text
+
+            if ywProject.scenes[scId].sceneContent is not None:
+                scn.find(
+                    'SceneContent').text = ywProject.scenes[scId].sceneContent
+                scn.find('WordCount').text = str(
+                    ywProject.scenes[scId].wordCount)
+                scn.find('LetterCount').text = str(
+                    ywProject.scenes[scId].letterCount)
+
+        root.tag = 'YWRITER6'
+        root.find('PROJECT').find('Ver').text = '5'
+        ywProject._tree = ET.ElementTree(root)
+
+        return YwTreeBuilder.build_element_tree(self, ywProject)
+
+
+
+
+class Yw5TreeBuilder(YwTreeBuilder):
+    """Build yWriter 5 project xml tree."""
+
+    def convert_to_rtf(self, text):
+        """Convert yw6/7 raw markup to rtf. 
+        Return a rtf encoded string.
+        """
+
+        RTF_HEADER = '{\\rtf1\\ansi\\deff0\\nouicompat{\\fonttbl{\\f0\\fnil\\fcharset0 Courier New;}}{\\*\\generator PyWriter}\\viewkind4\\uc1 \\pard\\sa0\\sl240\\slmult1\\f0\\fs24\\lang9 '
+        RTF_FOOTER = ' }'
+
+        RTF_REPLACEMENTS = [
+            ['\n\n', '\\line\\par '],
+            ['\n', '\\par '],
+            ['[i]', '{\\i '],
+            ['[/i]', '}'],
+            ['[b]', '{\\b '],
+            ['[/b]', '}'],
+            ['–', '--'],
+            ['—', '--'],
+            ['„', '\\u8222?'],
+            ['‚', '\\u8218?'],
+            ['‘', '\\lquote '],
+            ['’', '\\rquote '],
+            ['“', '\\ldblquote '],
+            ['”', '\\rdblquote '],
+            ['\u202f', '\\~'],
+            ['»', '\\u0187?'],
+            ['«', '\\u0171?'],
+            ['›', '\\u8250?'],
+            ['‹', '\\u8249?'],
+            ['…', '\\u8230?'],
+        ]
+
+        try:
+
+            for r in RTF_REPLACEMENTS:
+                text = text.replace(r[0], r[1])
+
+        except AttributeError:
+            text = ''
+
+        return RTF_HEADER + text + RTF_FOOTER
+
+    def build_element_tree(self, ywProject):
+        """Modify the yWriter project attributes of an existing xml element tree.
+        Write scene contents to RTF files.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        rtfDir = os.path.split(ywProject.filePath)[0] + '/RTF5'
+
+        for chId in ywProject.chapters:
+
+            if ywProject.chapters[chId].oldType == 1:
+                ywProject.chapters[chId].isUnused = False
+
+        root = ywProject._tree.getroot()
+
+        for scn in root.iter('SCENE'):
+            scId = scn.find('ID').text
+
+            try:
+                scn.remove(scn.find('SceneContent'))
+
+            except:
+                pass
+
+            if ywProject.scenes[scId].rtfFile is not None:
+
+                if scn.find('RTFFile') is None:
+                    ET.SubElement(
+                        scn, 'RTFFile').text = ywProject.scenes[scId].rtfFile
+
+                rtfPath = rtfDir + '/' + ywProject.scenes[scId].rtfFile
+                rtfScene = self.convert_to_rtf(
+                    ywProject.scenes[scId].sceneContent)
+
+                try:
+
+                    with open(rtfPath, 'w') as f:
+                        f.write(rtfScene)
+
+                except:
+
+                    return 'ERROR: Can not write scene file "' + rtfPath + '".'
+
+        root.tag = 'YWRITER5'
+        root.find('PROJECT').find('Ver').text = '5'
+        ywProject._tree = ET.ElementTree(root)
+
+        return YwTreeBuilder.build_element_tree(self, ywProject)
 
 
 class YwFile(Novel):
     """yWriter xml project file representation."""
-
-    def __init__(self, filePath):
-        Novel.__init__(self, filePath)
-        self._cdataTags = ['Title', 'AuthorName', 'Bio', 'Desc',
-                           'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
-                           'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
-                           'AKA', 'ImageFile', 'FullName', 'Goals',
-                           'Notes', 'RTFFile', 'SceneContent',
-                           'Outcome', 'Goal', 'Conflict']
-        # Names of yWriter xml elements containing CDATA.
-        # ElementTree.write omits CDATA tags, so they have to be inserted
-        # afterwards.
 
     @property
     def filePath(self):
@@ -2343,58 +3202,40 @@ class YwFile(Novel):
         """Accept only filenames with the correct extension. """
 
         if filePath.lower().endswith('.yw7'):
-            self._VERSION = 7
             self.EXTENSION = '.yw7'
-            self._ENCODING = 'utf-8'
             self._filePath = filePath
+            self.ywTreeReader = Utf8TreeReader()
+            self.ywTreeBuilder = Yw7TreeBuilder()
+            self.ywTreeWriter = Utf8TreeWriter()
+            self.ywPostprocessor = Utf8Postprocessor()
 
         elif filePath.lower().endswith('.yw6'):
-            self._VERSION = 6
             self.EXTENSION = '.yw6'
-            self._ENCODING = 'utf-8'
             self._filePath = filePath
+            self.ywTreeReader = Utf8TreeReader()
+            self.ywTreeBuilder = Yw6TreeBuilder()
+            self.ywTreeWriter = Utf8TreeWriter()
+            self.ywPostprocessor = Utf8Postprocessor()
 
         elif filePath.lower().endswith('.yw5'):
-            self._VERSION = 5
             self.EXTENSION = '.yw5'
-            self._ENCODING = 'iso-8859-1'
             self._filePath = filePath
+            self.ywTreeReader = AnsiTreeReader()
+            self.ywTreeBuilder = Yw5TreeBuilder()
+            self.ywTreeWriter = AnsiTreeWriter()
+            self.ywPostprocessor = AnsiPostprocessor()
 
     def read(self):
         """Parse the yWriter xml file located at filePath, fetching the Novel attributes.
         Return a message beginning with SUCCESS or ERROR.
         """
 
-        _TEMPFILE = '._tempfile.xml'
+        message = self.ywTreeReader.read_element_tree(self)
 
-        if self._VERSION == 5:
+        if message.startswith('ERROR'):
+            return message
 
-            try:
-
-                with open(self.filePath, 'r') as f:
-                    project = f.readlines()
-
-                project[0] = project[0].replace('<?xml version="1.0" encoding="iso-8859-1"?>',
-                                                '<?xml version="1.0" encoding="cp1252"?>')
-
-                with open(_TEMPFILE, 'w') as f:
-                    f.writelines(project)
-
-                self._tree = ET.parse(_TEMPFILE)
-                root = self._tree.getroot()
-                os.remove(_TEMPFILE)
-
-            except:
-                return 'ERROR: Can not process "' + self._filePath + '".'
-
-        else:
-
-            try:
-                self._tree = ET.parse(self._filePath)
-                root = self._tree.getroot()
-
-            except:
-                return 'ERROR: Can not process "' + self._filePath + '".'
+        root = self._tree.getroot()
 
         # Read locations from the xml element tree.
 
@@ -2583,21 +3424,21 @@ class YwFile(Novel):
             if scn.find('RTFFile') is not None:
                 self.scenes[scId].rtfFile = scn.find('RTFFile').text
 
+            # This is relevant for yW5 files with no SceneContent:
+
+            if scn.find('WordCount') is not None:
+                self.scenes[scId].wordCount = int(
+                    scn.find('WordCount').text)
+
+            if scn.find('LetterCount') is not None:
+                self.scenes[scId].letterCount = int(
+                    scn.find('LetterCount').text)
+
             if scn.find('SceneContent') is not None:
                 sceneContent = scn.find('SceneContent').text
 
                 if sceneContent is not None:
                     self.scenes[scId].sceneContent = sceneContent
-
-            elif self._VERSION == 5:
-
-                if scn.find('WordCount') is not None:
-                    self.scenes[scId].wordCount = int(
-                        scn.find('WordCount').text)
-
-                if scn.find('LetterCount') is not None:
-                    self.scenes[scId].letterCount = int(
-                        scn.find('LetterCount').text)
 
             if scn.find('Unused') is not None:
                 self.scenes[scId].isUnused = True
@@ -2951,12 +3792,7 @@ class YwFile(Novel):
                 self.chapters[chId].chType = novel.chapters[chId].chType
 
             if novel.chapters[chId].isUnused is not None:
-
-                if self._VERSION > 5:
-                    self.chapters[chId].isUnused = novel.chapters[chId].isUnused
-
-                elif novel.chapters[chId].oldType == 1:
-                    self.chapters[chId].isUnused = False
+                self.chapters[chId].isUnused = novel.chapters[chId].isUnused
 
             if novel.chapters[chId].suppressChapterTitle is not None:
                 self.chapters[chId].suppressChapterTitle = novel.chapters[chId].suppressChapterTitle
@@ -3011,600 +3847,17 @@ class YwFile(Novel):
         Return a message beginning with SUCCESS or ERROR.
         """
 
-        root = self._tree.getroot()
+        message = self.ywTreeBuilder.build_element_tree(self)
 
-        # Write locations to the xml element tree.
+        if message.startswith('ERROR'):
+            return message
 
-        for loc in root.iter('LOCATION'):
-            lcId = loc.find('ID').text
+        message = self.ywTreeWriter.write_element_tree(self)
 
-            if lcId in self.locations:
+        if message.startswith('ERROR'):
+            return message
 
-                if self.locations[lcId].title is not None:
-                    loc.find('Title').text = self.locations[lcId].title
-
-                if self.locations[lcId].desc is not None:
-
-                    if loc.find('Desc') is None:
-                        ET.SubElement(
-                            loc, 'Desc').text = self.locations[lcId].desc
-
-                    else:
-                        loc.find('Desc').text = self.locations[lcId].desc
-
-                if self.locations[lcId].aka is not None:
-
-                    if loc.find('AKA') is None:
-                        ET.SubElement(
-                            loc, 'AKA').text = self.locations[lcId].aka
-
-                    else:
-                        loc.find('AKA').text = self.locations[lcId].aka
-
-                if self.locations[lcId].tags is not None:
-
-                    if loc.find('Tags') is None:
-                        ET.SubElement(loc, 'Tags').text = ';'.join(
-                            self.locations[lcId].tags)
-
-                    else:
-                        loc.find('Tags').text = ';'.join(
-                            self.locations[lcId].tags)
-
-        # Write items to the xml element tree.
-
-        for itm in root.iter('ITEM'):
-            itId = itm.find('ID').text
-
-            if itId in self.items:
-
-                if self.items[itId].title is not None:
-                    itm.find('Title').text = self.items[itId].title
-
-                if self.items[itId].desc is not None:
-
-                    if itm.find('Desc') is None:
-                        ET.SubElement(itm, 'Desc').text = self.items[itId].desc
-
-                    else:
-                        itm.find('Desc').text = self.items[itId].desc
-
-                if self.items[itId].aka is not None:
-
-                    if itm.find('AKA') is None:
-                        ET.SubElement(itm, 'AKA').text = self.items[itId].aka
-
-                    else:
-                        itm.find('AKA').text = self.items[itId].aka
-
-                if self.items[itId].tags is not None:
-
-                    if itm.find('Tags') is None:
-                        ET.SubElement(itm, 'Tags').text = ';'.join(
-                            self.items[itId].tags)
-
-                    else:
-                        itm.find('Tags').text = ';'.join(
-                            self.items[itId].tags)
-
-        # Write characters to the xml element tree.
-
-        for crt in root.iter('CHARACTER'):
-            crId = crt.find('ID').text
-
-            if crId in self.characters:
-
-                if self.characters[crId].title is not None:
-                    crt.find('Title').text = self.characters[crId].title
-
-                if self.characters[crId].desc is not None:
-
-                    if crt.find('Desc') is None:
-                        ET.SubElement(
-                            crt, 'Desc').text = self.characters[crId].desc
-
-                    else:
-                        crt.find('Desc').text = self.characters[crId].desc
-
-                if self.characters[crId].aka is not None:
-
-                    if crt.find('AKA') is None:
-                        ET.SubElement(
-                            crt, 'AKA').text = self.characters[crId].aka
-
-                    else:
-                        crt.find('AKA').text = self.characters[crId].aka
-
-                if self.characters[crId].tags is not None:
-
-                    if crt.find('Tags') is None:
-                        ET.SubElement(crt, 'Tags').text = ';'.join(
-                            self.characters[crId].tags)
-
-                    else:
-                        crt.find('Tags').text = ';'.join(
-                            self.characters[crId].tags)
-
-                if self.characters[crId].notes is not None:
-
-                    if crt.find('Notes') is None:
-                        ET.SubElement(
-                            crt, 'Notes').text = self.characters[crId].notes
-
-                    else:
-                        crt.find(
-                            'Notes').text = self.characters[crId].notes
-
-                if self.characters[crId].bio is not None:
-
-                    if crt.find('Bio') is None:
-                        ET.SubElement(
-                            crt, 'Bio').text = self.characters[crId].bio
-
-                    else:
-                        crt.find('Bio').text = self.characters[crId].bio
-
-                if self.characters[crId].goals is not None:
-
-                    if crt.find('Goals') is None:
-                        ET.SubElement(
-                            crt, 'Goals').text = self.characters[crId].goals
-
-                    else:
-                        crt.find(
-                            'Goals').text = self.characters[crId].goals
-
-                if self.characters[crId].fullName is not None:
-
-                    if crt.find('FullName') is None:
-                        ET.SubElement(
-                            crt, 'FullName').text = self.characters[crId].fullName
-
-                    else:
-                        crt.find(
-                            'FullName').text = self.characters[crId].fullName
-
-                majorMarker = crt.find('Major')
-
-                if majorMarker is not None:
-
-                    if not self.characters[crId].isMajor:
-                        crt.remove(majorMarker)
-
-                else:
-                    if self.characters[crId].isMajor:
-                        ET.SubElement(crt, 'Major').text = '-1'
-
-        # Write attributes at novel level to the xml element tree.
-
-        prj = root.find('PROJECT')
-        prj.find('Title').text = self.title
-
-        if self._VERSION > 6:
-            prj.find('Ver').text = str(self._VERSION)
-
-        else:
-            prj.find('Ver').text = '5'
-
-        if self.desc is not None:
-
-            if prj.find('Desc') is None:
-                ET.SubElement(prj, 'Desc').text = self.desc
-
-            else:
-                prj.find('Desc').text = self.desc
-
-        if self.author is not None:
-
-            if prj.find('AuthorName') is None:
-                ET.SubElement(prj, 'AuthorName').text = self.author
-
-            else:
-                prj.find('AuthorName').text = self.author
-
-        prj.find('FieldTitle1').text = self.fieldTitle1
-        prj.find('FieldTitle2').text = self.fieldTitle2
-        prj.find('FieldTitle3').text = self.fieldTitle3
-        prj.find('FieldTitle4').text = self.fieldTitle4
-
-        # Write attributes at chapter level to the xml element tree.
-
-        for chp in root.iter('CHAPTER'):
-            chId = chp.find('ID').text
-
-            if chId in self.chapters:
-                chp.find('Title').text = self.chapters[chId].title
-
-                if self.chapters[chId].desc is not None:
-
-                    if chp.find('Desc') is None:
-                        ET.SubElement(
-                            chp, 'Desc').text = self.chapters[chId].desc
-
-                    else:
-                        chp.find('Desc').text = self.chapters[chId].desc
-
-                levelInfo = chp.find('SectionStart')
-
-                if levelInfo is not None:
-
-                    if self.chapters[chId].chLevel == 0:
-                        chp.remove(levelInfo)
-
-                chp.find('Type').text = str(self.chapters[chId].oldType)
-
-                if self.chapters[chId].chType is not None:
-
-                    if chp.find('ChapterType') is not None:
-                        chp.find('ChapterType').text = str(
-                            self.chapters[chId].chType)
-                    else:
-                        ET.SubElement(chp, 'ChapterType').text = str(
-                            self.chapters[chId].chType)
-
-                if self.chapters[chId].isUnused:
-
-                    if chp.find('Unused') is None:
-                        ET.SubElement(chp, 'Unused').text = '-1'
-
-                elif chp.find('Unused') is not None:
-                    chp.remove(chp.find('Unused'))
-
-        # Write attributes at scene level to the xml element tree.
-
-        for scn in root.iter('SCENE'):
-            scId = scn.find('ID').text
-
-            if scId in self.scenes:
-
-                if self.scenes[scId].title is not None:
-                    scn.find('Title').text = self.scenes[scId].title
-
-                if self.scenes[scId].desc is not None:
-
-                    if scn.find('Desc') is None:
-                        ET.SubElement(
-                            scn, 'Desc').text = self.scenes[scId].desc
-
-                    else:
-                        scn.find('Desc').text = self.scenes[scId].desc
-
-                # Write scene content.
-
-                if self._VERSION > 5:
-
-                    if self.scenes[scId].sceneContent is not None:
-                        scn.find(
-                            'SceneContent').text = self.scenes[scId].sceneContent
-                        scn.find('WordCount').text = str(
-                            self.scenes[scId].wordCount)
-                        scn.find('LetterCount').text = str(
-                            self.scenes[scId].letterCount)
-
-                    try:
-                        scn.remove(scn.find('RTFFile'))
-
-                    except:
-                        pass
-
-                else:
-
-                    try:
-                        scn.remove(scn.find('SceneContent'))
-
-                    except:
-                        pass
-
-                    if scn.find('RTFFile') is None:
-                        ET.SubElement(scn, 'RTFFile')
-
-                    try:
-                        scn.find(
-                            'RTFFile').text = self.scenes[scId].rtfFile
-                    except:
-                        return 'ERROR: yWriter 5 RTF file not generated.'
-
-                    scn.find('WordCount').text = str(
-                        self.scenes[scId].wordCount)
-                    scn.find('LetterCount').text = str(
-                        self.scenes[scId].letterCount)
-
-                if self.scenes[scId].isUnused:
-
-                    if scn.find('Unused') is None:
-                        ET.SubElement(scn, 'Unused').text = '-1'
-
-                elif scn.find('Unused') is not None:
-                    scn.remove(scn.find('Unused'))
-
-                if self.scenes[scId].isNotesScene:
-
-                    if scn.find('Fields') is None:
-                        scFields = ET.SubElement(scn, 'Fields')
-
-                    else:
-                        scFields = scn.find('Fields')
-
-                    if scFields.find('Field_SceneType') is None:
-                        ET.SubElement(scFields, 'Field_SceneType').text = '1'
-
-                elif scn.find('Fields') is not None:
-                    scFields = scn.find('Fields')
-
-                    if scFields.find('Field_SceneType') is not None:
-
-                        if scFields.find('Field_SceneType').text == '1':
-                            scFields.remove(scFields.find('Field_SceneType'))
-
-                if self.scenes[scId].isTodoScene:
-
-                    if scn.find('Fields') is None:
-                        scFields = ET.SubElement(scn, 'Fields')
-
-                    else:
-                        scFields = scn.find('Fields')
-
-                    if scFields.find('Field_SceneType') is None:
-                        ET.SubElement(scFields, 'Field_SceneType').text = '2'
-
-                elif scn.find('Fields') is not None:
-                    scFields = scn.find('Fields')
-
-                    if scFields.find('Field_SceneType') is not None:
-
-                        if scFields.find('Field_SceneType').text == '2':
-                            scFields.remove(scFields.find('Field_SceneType'))
-
-                if self.scenes[scId].status is not None:
-                    scn.find('Status').text = str(self.scenes[scId].status)
-
-                if self.scenes[scId].sceneNotes is not None:
-
-                    if scn.find('Notes') is None:
-                        ET.SubElement(
-                            scn, 'Notes').text = self.scenes[scId].sceneNotes
-
-                    else:
-                        scn.find(
-                            'Notes').text = self.scenes[scId].sceneNotes
-
-                if self.scenes[scId].tags is not None:
-
-                    if scn.find('Tags') is None:
-                        ET.SubElement(scn, 'Tags').text = ';'.join(
-                            self.scenes[scId].tags)
-
-                    else:
-                        scn.find('Tags').text = ';'.join(
-                            self.scenes[scId].tags)
-
-                if self.scenes[scId].field1 is not None:
-
-                    if scn.find('Field1') is None:
-                        ET.SubElement(
-                            scn, 'Field1').text = self.scenes[scId].field1
-
-                    else:
-                        scn.find('Field1').text = self.scenes[scId].field1
-
-                if self.scenes[scId].field2 is not None:
-
-                    if scn.find('Field2') is None:
-                        ET.SubElement(
-                            scn, 'Field2').text = self.scenes[scId].field2
-
-                    else:
-                        scn.find('Field2').text = self.scenes[scId].field2
-
-                if self.scenes[scId].field3 is not None:
-
-                    if scn.find('Field3') is None:
-                        ET.SubElement(
-                            scn, 'Field3').text = self.scenes[scId].field3
-
-                    else:
-                        scn.find('Field3').text = self.scenes[scId].field3
-
-                if self.scenes[scId].field4 is not None:
-
-                    if scn.find('Field4') is None:
-                        ET.SubElement(
-                            scn, 'Field4').text = self.scenes[scId].field4
-
-                    else:
-                        scn.find('Field4').text = self.scenes[scId].field4
-
-                if self.scenes[scId].appendToPrev:
-
-                    if scn.find('AppendToPrev') is None:
-                        ET.SubElement(scn, 'AppendToPrev').text = '-1'
-
-                elif scn.find('AppendToPrev') is not None:
-                    scn.remove(scn.find('AppendToPrev'))
-
-                # Date/time information
-
-                if (self.scenes[scId].date is not None) and (self.scenes[scId].time is not None):
-                    dateTime = self.scenes[scId].date + \
-                        ' ' + self.scenes[scId].time
-
-                    if scn.find('SpecificDateTime') is not None:
-                        scn.find('SpecificDateTime').text = dateTime
-
-                    else:
-                        ET.SubElement(scn, 'SpecificDateTime').text = dateTime
-                        ET.SubElement(scn, 'SpecificDateMode').text = '-1'
-
-                        if scn.find('Day') is not None:
-                            scn.remove(scn.find('Day'))
-
-                        if scn.find('Hour') is not None:
-                            scn.remove(scn.find('Hour'))
-
-                        if scn.find('Minute') is not None:
-                            scn.remove(scn.find('Minute'))
-
-                elif (self.scenes[scId].day is not None) or (self.scenes[scId].hour is not None) or (self.scenes[scId].minute is not None):
-
-                    if scn.find('SpecificDateTime') is not None:
-                        scn.remove(scn.find('SpecificDateTime'))
-
-                    if scn.find('SpecificDateMode') is not None:
-                        scn.remove(scn.find('SpecificDateMode'))
-
-                    if self.scenes[scId].day is not None:
-
-                        if scn.find('Day') is not None:
-                            scn.find('Day').text = self.scenes[scId].day
-
-                        else:
-                            ET.SubElement(
-                                scn, 'Day').text = self.scenes[scId].day
-
-                    if self.scenes[scId].hour is not None:
-
-                        if scn.find('Hour') is not None:
-                            scn.find('Hour').text = self.scenes[scId].hour
-
-                        else:
-                            ET.SubElement(
-                                scn, 'Hour').text = self.scenes[scId].hour
-
-                    if self.scenes[scId].minute is not None:
-
-                        if scn.find('Minute') is not None:
-                            scn.find('Minute').text = self.scenes[scId].minute
-
-                        else:
-                            ET.SubElement(
-                                scn, 'Minute').text = self.scenes[scId].minute
-
-                if self.scenes[scId].lastsDays is not None:
-
-                    if scn.find('LastsDays') is not None:
-                        scn.find(
-                            'LastsDays').text = self.scenes[scId].lastsDays
-
-                    else:
-                        ET.SubElement(
-                            scn, 'LastsDays').text = self.scenes[scId].lastsDays
-
-                if self.scenes[scId].lastsHours is not None:
-
-                    if scn.find('LastsHours') is not None:
-                        scn.find(
-                            'LastsHours').text = self.scenes[scId].lastsHours
-
-                    else:
-                        ET.SubElement(
-                            scn, 'LastsHours').text = self.scenes[scId].lastsHours
-
-                if self.scenes[scId].lastsMinutes is not None:
-
-                    if scn.find('LastsMinutes') is not None:
-                        scn.find(
-                            'LastsMinutes').text = self.scenes[scId].lastsMinutes
-
-                    else:
-                        ET.SubElement(
-                            scn, 'LastsMinutes').text = self.scenes[scId].lastsMinutes
-
-                # Plot related information
-
-                if self.scenes[scId].isReactionScene:
-
-                    if scn.find('ReactionScene') is None:
-                        ET.SubElement(scn, 'ReactionScene').text = '-1'
-
-                elif scn.find('ReactionScene') is not None:
-                    scn.remove(scn.find('ReactionScene'))
-
-                if self.scenes[scId].isSubPlot:
-
-                    if scn.find('SubPlot') is None:
-                        ET.SubElement(scn, 'SubPlot').text = '-1'
-
-                elif scn.find('SubPlot') is not None:
-                    scn.remove(scn.find('SubPlot'))
-
-                if self.scenes[scId].goal is not None:
-
-                    if scn.find('Goal') is None:
-                        ET.SubElement(
-                            scn, 'Goal').text = self.scenes[scId].goal
-
-                    else:
-                        scn.find('Goal').text = self.scenes[scId].goal
-
-                if self.scenes[scId].conflict is not None:
-
-                    if scn.find('Conflict') is None:
-                        ET.SubElement(
-                            scn, 'Conflict').text = self.scenes[scId].conflict
-
-                    else:
-                        scn.find(
-                            'Conflict').text = self.scenes[scId].conflict
-
-                if self.scenes[scId].outcome is not None:
-
-                    if scn.find('Outcome') is None:
-                        ET.SubElement(
-                            scn, 'Outcome').text = self.scenes[scId].outcome
-
-                    else:
-                        scn.find(
-                            'Outcome').text = self.scenes[scId].outcome
-
-                if self.scenes[scId].characters is not None:
-                    characters = scn.find('Characters')
-
-                    for oldCrId in characters.findall('CharID'):
-                        characters.remove(oldCrId)
-
-                    for crId in self.scenes[scId].characters:
-                        ET.SubElement(characters, 'CharID').text = crId
-
-                if self.scenes[scId].locations is not None:
-                    locations = scn.find('Locations')
-
-                    for oldLcId in locations.findall('LocID'):
-                        locations.remove(oldLcId)
-
-                    for lcId in self.scenes[scId].locations:
-                        ET.SubElement(locations, 'LocID').text = lcId
-
-                if self.scenes[scId].items is not None:
-                    items = scn.find('Items')
-
-                    for oldItId in items.findall('ItemID'):
-                        items.remove(oldItId)
-
-                    for itId in self.scenes[scId].items:
-                        ET.SubElement(items, 'ItemID').text = itId
-
-        if self._VERSION == 5:
-            root.tag = 'YWRITER5'
-
-        # Pretty print the xml tree.
-
-        indent(root)
-
-        # Save the xml tree in a file.
-
-        self._tree = ET.ElementTree(root)
-
-        try:
-            self._tree.write(
-                self._filePath, xml_declaration=False, encoding=self._ENCODING)
-
-        except(PermissionError):
-            return 'ERROR: "' + self._filePath + '" is write protected.'
-
-        # Postprocess the xml file created by ElementTree.
-
-        message = xml_postprocess(
-            self._filePath, self._ENCODING, self._VERSION, self._cdataTags)
+        message = self.ywPostprocessor.postprocess_xml_file(self.filePath)
 
         if message.startswith('ERROR'):
             return message
@@ -3623,12 +3876,11 @@ class YwFile(Novel):
 
 
 
-class YwNewFile(YwFile):
-    """yWriter xml project file representation."""
+class Yw7TreeCreator(YwTreeBuilder):
+    """Create a new yWriter 7 project xml tree."""
 
-    def write(self):
-        """Open the yWriter xml file located at filePath and 
-        replace a set of attributes not being None.
+    def build_element_tree(self, ywProject):
+        """Put the yWriter project attributes to a new xml element tree.
         Return a message beginning with SUCCESS or ERROR.
         """
 
@@ -3639,241 +3891,250 @@ class YwNewFile(YwFile):
         prj = ET.SubElement(root, 'PROJECT')
         ET.SubElement(prj, 'Ver').text = '7'
 
-        if self.title is not None:
-            ET.SubElement(prj, 'Title').text = self.title
+        if ywProject.title is not None:
+            ET.SubElement(prj, 'Title').text = ywProject.title
 
-        if self.desc is not None:
-            ET.SubElement(prj, 'Desc').text = self.desc
+        if ywProject.desc is not None:
+            ET.SubElement(prj, 'Desc').text = ywProject.desc
 
-        if self.author is not None:
-            ET.SubElement(prj, 'AuthorName').text = self.author
+        if ywProject.author is not None:
+            ET.SubElement(prj, 'AuthorName').text = ywProject.author
 
-        if self.fieldTitle1 is not None:
-            ET.SubElement(prj, 'FieldTitle1').text = self.fieldTitle1
+        if ywProject.fieldTitle1 is not None:
+            ET.SubElement(prj, 'FieldTitle1').text = ywProject.fieldTitle1
 
-        if self.fieldTitle2 is not None:
-            ET.SubElement(prj, 'FieldTitle2').text = self.fieldTitle2
+        if ywProject.fieldTitle2 is not None:
+            ET.SubElement(prj, 'FieldTitle2').text = ywProject.fieldTitle2
 
-        if self.fieldTitle3 is not None:
-            ET.SubElement(prj, 'FieldTitle3').text = self.fieldTitle3
+        if ywProject.fieldTitle3 is not None:
+            ET.SubElement(prj, 'FieldTitle3').text = ywProject.fieldTitle3
 
-        if self.fieldTitle4 is not None:
-            ET.SubElement(prj, 'FieldTitle4').text = self.fieldTitle4
+        if ywProject.fieldTitle4 is not None:
+            ET.SubElement(prj, 'FieldTitle4').text = ywProject.fieldTitle4
 
         # Write locations to the xml element tree.
 
         locations = ET.SubElement(root, 'LOCATIONS')
 
-        for lcId in self.locations:
+        for lcId in ywProject.locations:
             loc = ET.SubElement(locations, 'LOCATION')
             ET.SubElement(loc, 'ID').text = lcId
 
-            if self.locations[lcId].title is not None:
-                ET.SubElement(loc, 'Title').text = self.locations[lcId].title
+            if ywProject.locations[lcId].title is not None:
+                ET.SubElement(
+                    loc, 'Title').text = ywProject.locations[lcId].title
 
-            if self.locations[lcId].desc is not None:
-                ET.SubElement(loc, 'Desc').text = self.locations[lcId].desc
+            if ywProject.locations[lcId].desc is not None:
+                ET.SubElement(
+                    loc, 'Desc').text = ywProject.locations[lcId].desc
 
-            if self.locations[lcId].aka is not None:
-                ET.SubElement(loc, 'AKA').text = self.locations[lcId].aka
+            if ywProject.locations[lcId].aka is not None:
+                ET.SubElement(loc, 'AKA').text = ywProject.locations[lcId].aka
 
-            if self.locations[lcId].tags is not None:
+            if ywProject.locations[lcId].tags is not None:
                 ET.SubElement(loc, 'Tags').text = ';'.join(
-                    self.locations[lcId].tags)
+                    ywProject.locations[lcId].tags)
 
         # Write items to the xml element tree.
 
         items = ET.SubElement(root, 'ITEMS')
 
-        for itId in self.items:
+        for itId in ywProject.items:
             itm = ET.SubElement(items, 'ITEM')
             ET.SubElement(itm, 'ID').text = itId
 
-            if self.items[itId].title is not None:
-                ET.SubElement(itm, 'Title').text = self.items[itId].title
+            if ywProject.items[itId].title is not None:
+                ET.SubElement(itm, 'Title').text = ywProject.items[itId].title
 
-            if self.items[itId].desc is not None:
-                ET.SubElement(itm, 'Desc').text = self.items[itId].desc
+            if ywProject.items[itId].desc is not None:
+                ET.SubElement(itm, 'Desc').text = ywProject.items[itId].desc
 
-            if self.items[itId].aka is not None:
-                ET.SubElement(itm, 'AKA').text = self.items[itId].aka
+            if ywProject.items[itId].aka is not None:
+                ET.SubElement(itm, 'AKA').text = ywProject.items[itId].aka
 
-            if self.items[itId].tags is not None:
+            if ywProject.items[itId].tags is not None:
                 ET.SubElement(itm, 'Tags').text = ';'.join(
-                    self.items[itId].tags)
+                    ywProject.items[itId].tags)
 
         # Write characters to the xml element tree.
 
         characters = ET.SubElement(root, 'CHARACTERS')
 
-        for crId in self.characters:
+        for crId in ywProject.characters:
             crt = ET.SubElement(characters, 'CHARACTER')
             ET.SubElement(crt, 'ID').text = crId
 
-            if self.characters[crId].title is not None:
+            if ywProject.characters[crId].title is not None:
                 ET.SubElement(
-                    crt, 'Title').text = self.characters[crId].title
+                    crt, 'Title').text = ywProject.characters[crId].title
 
-            if self.characters[crId].desc is not None:
+            if ywProject.characters[crId].desc is not None:
                 ET.SubElement(
-                    crt, 'Desc').text = self.characters[crId].desc
+                    crt, 'Desc').text = ywProject.characters[crId].desc
 
-            if self.characters[crId].aka is not None:
-                ET.SubElement(crt, 'AKA').text = self.characters[crId].aka
+            if ywProject.characters[crId].aka is not None:
+                ET.SubElement(crt, 'AKA').text = ywProject.characters[crId].aka
 
-            if self.characters[crId].tags is not None:
+            if ywProject.characters[crId].tags is not None:
                 ET.SubElement(crt, 'Tags').text = ';'.join(
-                    self.characters[crId].tags)
+                    ywProject.characters[crId].tags)
 
-            if self.characters[crId].notes is not None:
+            if ywProject.characters[crId].notes is not None:
                 ET.SubElement(
-                    crt, 'Notes').text = self.characters[crId].notes
+                    crt, 'Notes').text = ywProject.characters[crId].notes
 
-            if self.characters[crId].bio is not None:
-                ET.SubElement(crt, 'Bio').text = self.characters[crId].bio
+            if ywProject.characters[crId].bio is not None:
+                ET.SubElement(crt, 'Bio').text = ywProject.characters[crId].bio
 
-            if self.characters[crId].goals is not None:
+            if ywProject.characters[crId].goals is not None:
                 ET.SubElement(
-                    crt, 'Goals').text = self.characters[crId].goals
+                    crt, 'Goals').text = ywProject.characters[crId].goals
 
-            if self.characters[crId].fullName is not None:
+            if ywProject.characters[crId].fullName is not None:
                 ET.SubElement(
-                    crt, 'FullName').text = self.characters[crId].fullName
+                    crt, 'FullName').text = ywProject.characters[crId].fullName
 
-            if self.characters[crId].isMajor:
+            if ywProject.characters[crId].isMajor:
                 ET.SubElement(crt, 'Major').text = '-1'
 
         # Write attributes at scene level to the xml element tree.
 
         scenes = ET.SubElement(root, 'SCENES')
 
-        for scId in self.scenes:
+        for scId in ywProject.scenes:
             scn = ET.SubElement(scenes, 'SCENE')
             ET.SubElement(scn, 'ID').text = scId
 
-            if self.scenes[scId].title is not None:
-                ET.SubElement(scn, 'Title').text = self.scenes[scId].title
+            if ywProject.scenes[scId].title is not None:
+                ET.SubElement(scn, 'Title').text = ywProject.scenes[scId].title
 
-            for chId in self.chapters:
+            for chId in ywProject.chapters:
 
-                if scId in self.chapters[chId].srtScenes:
+                if scId in ywProject.chapters[chId].srtScenes:
                     ET.SubElement(scn, 'BelongsToChID').text = chId
                     break
 
-            if self.scenes[scId].desc is not None:
-                ET.SubElement(scn, 'Desc').text = self.scenes[scId].desc
+            if ywProject.scenes[scId].desc is not None:
+                ET.SubElement(scn, 'Desc').text = ywProject.scenes[scId].desc
 
-            if self.scenes[scId].sceneContent is not None:
+            if ywProject.scenes[scId].sceneContent is not None:
                 ET.SubElement(scn,
-                              'SceneContent').text = self.scenes[scId].sceneContent
+                              'SceneContent').text = ywProject.scenes[scId].sceneContent
                 ET.SubElement(scn, 'WordCount').text = str(
-                    self.scenes[scId].wordCount)
+                    ywProject.scenes[scId].wordCount)
                 ET.SubElement(scn, 'LetterCount').text = str(
-                    self.scenes[scId].letterCount)
+                    ywProject.scenes[scId].letterCount)
 
-            if self.scenes[scId].isUnused:
+            if ywProject.scenes[scId].isUnused:
                 ET.SubElement(scn, 'Unused').text = '-1'
 
             scFields = ET.SubElement(scn, 'Fields')
 
-            if self.scenes[scId].isNotesScene:
+            if ywProject.scenes[scId].isNotesScene:
                 ET.SubElement(scFields, 'Field_SceneType').text = '1'
 
-            elif self.scenes[scId].isTodoScene:
+            elif ywProject.scenes[scId].isTodoScene:
                 ET.SubElement(scFields, 'Field_SceneType').text = '2'
 
-            if self.scenes[scId].status is not None:
+            if ywProject.scenes[scId].status is not None:
                 ET.SubElement(scn, 'Status').text = str(
-                    self.scenes[scId].status)
+                    ywProject.scenes[scId].status)
 
-            if self.scenes[scId].sceneNotes is not None:
-                ET.SubElement(scn, 'Notes').text = self.scenes[scId].sceneNotes
+            if ywProject.scenes[scId].sceneNotes is not None:
+                ET.SubElement(
+                    scn, 'Notes').text = ywProject.scenes[scId].sceneNotes
 
-            if self.scenes[scId].tags is not None:
+            if ywProject.scenes[scId].tags is not None:
                 ET.SubElement(scn, 'Tags').text = ';'.join(
-                    self.scenes[scId].tags)
+                    ywProject.scenes[scId].tags)
 
-            if self.scenes[scId].field1 is not None:
-                ET.SubElement(scn, 'Field1').text = self.scenes[scId].field1
+            if ywProject.scenes[scId].field1 is not None:
+                ET.SubElement(
+                    scn, 'Field1').text = ywProject.scenes[scId].field1
 
-            if self.scenes[scId].field2 is not None:
-                ET.SubElement(scn, 'Field2').text = self.scenes[scId].field2
+            if ywProject.scenes[scId].field2 is not None:
+                ET.SubElement(
+                    scn, 'Field2').text = ywProject.scenes[scId].field2
 
-            if self.scenes[scId].field3 is not None:
-                ET.SubElement(scn, 'Field3').text = self.scenes[scId].field3
+            if ywProject.scenes[scId].field3 is not None:
+                ET.SubElement(
+                    scn, 'Field3').text = ywProject.scenes[scId].field3
 
-            if self.scenes[scId].field4 is not None:
-                ET.SubElement(scn, 'Field4').text = self.scenes[scId].field4
+            if ywProject.scenes[scId].field4 is not None:
+                ET.SubElement(
+                    scn, 'Field4').text = ywProject.scenes[scId].field4
 
-            if self.scenes[scId].appendToPrev:
+            if ywProject.scenes[scId].appendToPrev:
                 ET.SubElement(scn, 'AppendToPrev').text = '-1'
 
             # Date/time information
 
-            if (self.scenes[scId].date is not None) and (self.scenes[scId].time is not None):
+            if (ywProject.scenes[scId].date is not None) and (ywProject.scenes[scId].time is not None):
                 dateTime = ' '.join(
-                    self.scenes[scId].date, self.scenes[scId].time)
+                    ywProject.scenes[scId].date, ywProject.scenes[scId].time)
                 ET.SubElement(scn, 'SpecificDateTime').text = dateTime
                 ET.SubElement(scn, 'SpecificDateMode').text = '-1'
 
-            elif (self.scenes[scId].day is not None) or (self.scenes[scId].hour is not None) or (self.scenes[scId].minute is not None):
+            elif (ywProject.scenes[scId].day is not None) or (ywProject.scenes[scId].hour is not None) or (ywProject.scenes[scId].minute is not None):
 
-                if self.scenes[scId].day is not None:
-                    ET.SubElement(scn, 'Day').text = self.scenes[scId].day
+                if ywProject.scenes[scId].day is not None:
+                    ET.SubElement(scn, 'Day').text = ywProject.scenes[scId].day
 
-                if self.scenes[scId].hour is not None:
-                    ET.SubElement(scn, 'Hour').text = self.scenes[scId].hour
-
-                if self.scenes[scId].minute is not None:
+                if ywProject.scenes[scId].hour is not None:
                     ET.SubElement(
-                        scn, 'Minute').text = self.scenes[scId].minute
+                        scn, 'Hour').text = ywProject.scenes[scId].hour
 
-            if self.scenes[scId].lastsDays is not None:
-                ET.SubElement(
-                    scn, 'LastsDays').text = self.scenes[scId].lastsDays
+                if ywProject.scenes[scId].minute is not None:
+                    ET.SubElement(
+                        scn, 'Minute').text = ywProject.scenes[scId].minute
 
-            if self.scenes[scId].lastsHours is not None:
+            if ywProject.scenes[scId].lastsDays is not None:
                 ET.SubElement(
-                    scn, 'LastsHours').text = self.scenes[scId].lastsHours
+                    scn, 'LastsDays').text = ywProject.scenes[scId].lastsDays
 
-            if self.scenes[scId].lastsMinutes is not None:
+            if ywProject.scenes[scId].lastsHours is not None:
                 ET.SubElement(
-                    scn, 'LastsMinutes').text = self.scenes[scId].lastsMinutes
+                    scn, 'LastsHours').text = ywProject.scenes[scId].lastsHours
+
+            if ywProject.scenes[scId].lastsMinutes is not None:
+                ET.SubElement(
+                    scn, 'LastsMinutes').text = ywProject.scenes[scId].lastsMinutes
 
             # Plot related information
 
-            if self.scenes[scId].isReactionScene:
+            if ywProject.scenes[scId].isReactionScene:
                 ET.SubElement(scn, 'ReactionScene').text = '-1'
 
-            if self.scenes[scId].isSubPlot:
+            if ywProject.scenes[scId].isSubPlot:
                 ET.SubElement(scn, 'SubPlot').text = '-1'
 
-            if self.scenes[scId].goal is not None:
-                ET.SubElement(scn, 'Goal').text = self.scenes[scId].goal
+            if ywProject.scenes[scId].goal is not None:
+                ET.SubElement(scn, 'Goal').text = ywProject.scenes[scId].goal
 
-            if self.scenes[scId].conflict is not None:
+            if ywProject.scenes[scId].conflict is not None:
                 ET.SubElement(
-                    scn, 'Conflict').text = self.scenes[scId].conflict
+                    scn, 'Conflict').text = ywProject.scenes[scId].conflict
 
-            if self.scenes[scId].outcome is not None:
-                ET.SubElement(scn, 'Outcome').text = self.scenes[scId].outcome
+            if ywProject.scenes[scId].outcome is not None:
+                ET.SubElement(
+                    scn, 'Outcome').text = ywProject.scenes[scId].outcome
 
-            if self.scenes[scId].characters is not None:
+            if ywProject.scenes[scId].characters is not None:
                 scCharacters = ET.SubElement(scn, 'Characters')
 
-                for crId in self.scenes[scId].characters:
+                for crId in ywProject.scenes[scId].characters:
                     ET.SubElement(scCharacters, 'CharID').text = crId
 
-            if self.scenes[scId].locations is not None:
+            if ywProject.scenes[scId].locations is not None:
                 scLocations = ET.SubElement(scn, 'Locations')
 
-                for lcId in self.scenes[scId].locations:
+                for lcId in ywProject.scenes[scId].locations:
                     ET.SubElement(scLocations, 'LocID').text = lcId
 
-            if self.scenes[scId].items is not None:
+            if ywProject.scenes[scId].items is not None:
                 scItems = ET.SubElement(scn, 'Items')
 
-                for itId in self.scenes[scId].items:
+                for itId in ywProject.scenes[scId].items:
                     ET.SubElement(scItems, 'ItemID').text = itId
 
         # Write attributes at chapter level to the xml element tree.
@@ -3882,70 +4143,61 @@ class YwNewFile(YwFile):
 
         sortOrder = 0
 
-        for chId in self.srtChapters:
+        for chId in ywProject.srtChapters:
             sortOrder += 1
             chp = ET.SubElement(chapters, 'CHAPTER')
             ET.SubElement(chp, 'ID').text = chId
             ET.SubElement(chp, 'SortOrder').text = str(sortOrder)
 
-            if self.chapters[chId].title is not None:
-                ET.SubElement(chp, 'Title').text = self.chapters[chId].title
+            if ywProject.chapters[chId].title is not None:
+                ET.SubElement(
+                    chp, 'Title').text = ywProject.chapters[chId].title
 
-            if self.chapters[chId].desc is not None:
-                ET.SubElement(chp, 'Desc').text = self.chapters[chId].desc
+            if ywProject.chapters[chId].desc is not None:
+                ET.SubElement(chp, 'Desc').text = ywProject.chapters[chId].desc
 
-            if self.chapters[chId].chLevel == 1:
+            if ywProject.chapters[chId].chLevel == 1:
                 ET.SubElement(chp, 'SectionStart').text = '-1'
 
-            if self.chapters[chId].oldType is not None:
+            if ywProject.chapters[chId].oldType is not None:
                 ET.SubElement(chp, 'Type').text = str(
-                    self.chapters[chId].oldType)
+                    ywProject.chapters[chId].oldType)
 
-            if self.chapters[chId].chType is not None:
+            if ywProject.chapters[chId].chType is not None:
                 ET.SubElement(chp, 'ChapterType').text = str(
-                    self.chapters[chId].chType)
+                    ywProject.chapters[chId].chType)
 
-            if self.chapters[chId].isUnused:
+            if ywProject.chapters[chId].isUnused:
                 ET.SubElement(chp, 'Unused').text = '-1'
 
             sortSc = ET.SubElement(chp, 'Scenes')
 
-            for scId in self.chapters[chId].srtScenes:
+            for scId in ywProject.chapters[chId].srtScenes:
                 ET.SubElement(sortSc, 'ScID').text = scId
 
             chFields = ET.SubElement(chp, 'Fields')
 
-            if self.chapters[chId].title.startswith('@'):
-                self.chapters[chId].suppressChapterTitle = True
+            if ywProject.chapters[chId].title.startswith('@'):
+                ywProject.chapters[chId].suppressChapterTitle = True
 
-            if self.chapters[chId].suppressChapterTitle:
+            if ywProject.chapters[chId].suppressChapterTitle:
                 ET.SubElement(
                     chFields, 'Field_SuppressChapterTitle').text = '1'
 
-        # Pretty print the xml tree.
+        self.indent_xml(root)
+        ywProject._tree = ET.ElementTree(root)
 
-        indent(root)
+        return 'SUCCESS'
 
-        # Save the xml tree in a file.
 
-        self._tree = ET.ElementTree(root)
+class Yw7NewFile(YwFile):
+    """yWriter 7 xml project file representation."""
 
-        try:
-            self._tree.write(
-                self._filePath, xml_declaration=False, encoding=self._ENCODING)
+    EXTENSION = '.yw7'
 
-        except(PermissionError):
-            return 'ERROR: "' + self._filePath + '" is write protected.'
-
-        # Postprocess the xml file created by ElementTree.
-
-        message = xml_postprocess(
-            self._filePath, self._ENCODING, self._VERSION, self._cdataTags)
-
-        if message.startswith('ERROR'):
-            return message
-
-        return 'SUCCESS: project data written to "' + self._filePath + '".'
+    def write(self):
+        self.ywTreeBuilder = Yw7TreeCreator()
+        return YwFile.write(self)
 
 import uno
 import unohelper
@@ -4261,7 +4513,7 @@ def run(sourcePath):
                 sourceDoc = HtmlImport(sourcePath)
 
         ywPath = sourcePath.replace('.html', '.yw7')
-        ywFile = YwNewFile(ywPath)
+        ywFile = Yw7NewFile(ywPath)
         converter = YwCnvUno()
         message = converter.document_to_yw(sourceDoc, ywFile)
 
