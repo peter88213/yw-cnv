@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.31.beta8
+Version 0.31.beta11
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -6507,6 +6507,7 @@ class YwCnvUno(YwCnv):
 
     def convert(self, sourceFile, targetFile):
         """Determine the direction and invoke the converter. """
+        showBox = False
 
         # The conversion's direction depends on the sourcePath argument.
 
@@ -6525,9 +6526,11 @@ class YwCnvUno(YwCnv):
 
                 else:
                     message = self.document_to_yw(sourceFile, targetFile)
+                    showBox = True
 
             else:
                 message = self.document_to_yw(sourceFile, targetFile)
+                showBox = True
 
             # Visualize the outcome.
 
@@ -6537,8 +6540,10 @@ class YwCnvUno(YwCnv):
 
             else:
                 msgType = ERRORBOX
+                showBox = True
 
-            msgbox(message, type_msg=msgType)
+            if showBox:
+                msgbox(message, type_msg=msgType)
 
     def confirm_overwrite(self, filePath):
         result = msgbox('Overwrite existing file "' + filePath + '"?',

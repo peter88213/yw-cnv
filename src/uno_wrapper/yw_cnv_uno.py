@@ -38,6 +38,7 @@ class YwCnvUno(YwCnv):
 
     def convert(self, sourceFile, targetFile):
         """Determine the direction and invoke the converter. """
+        showBox = False
 
         # The conversion's direction depends on the sourcePath argument.
 
@@ -56,9 +57,11 @@ class YwCnvUno(YwCnv):
 
                 else:
                     message = self.document_to_yw(sourceFile, targetFile)
+                    showBox = True
 
             else:
                 message = self.document_to_yw(sourceFile, targetFile)
+                showBox = True
 
             # Visualize the outcome.
 
@@ -68,8 +71,10 @@ class YwCnvUno(YwCnv):
 
             else:
                 msgType = ERRORBOX
+                showBox = True
 
-            msgbox(message, type_msg=msgType)
+            if showBox:
+                msgbox(message, type_msg=msgType)
 
     def confirm_overwrite(self, filePath):
         result = msgbox('Overwrite existing file "' + filePath + '"?',
