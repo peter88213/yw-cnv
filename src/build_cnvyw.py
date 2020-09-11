@@ -11,8 +11,8 @@ import inliner
 
 SRC = '../src/'
 BUILD = '../test/'
-SOURCE_FILE = 'openyw_.py'
-TARGET_FILE = BUILD + 'openyw.py'
+SOURCE_FILE = 'cnvyw_.py'
+TARGET_FILE = BUILD + 'cnvyw.py'
 
 
 def main():

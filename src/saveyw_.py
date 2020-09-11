@@ -1,6 +1,4 @@
-"""Convert html or csv to yWriter format. 
-
-Input file format: html (with visible or invisible chapter and scene tags).
+"""Convert yWriter project to odt or csv and vice versa. 
 
 Version @release
 
@@ -11,49 +9,41 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import sys
 import os
 
+from configparser import ConfigParser
 from urllib.parse import unquote
+from urllib.parse import quote
 
-from pywriter.html.html_proof import HtmlProof
-from pywriter.html.html_manuscript import HtmlManuscript
-from pywriter.html.html_scenedesc import HtmlSceneDesc
-from pywriter.html.html_chapterdesc import HtmlChapterDesc
-from pywriter.html.html_partdesc import HtmlPartDesc
-from pywriter.html.html_characters import HtmlCharacters
-from pywriter.html.html_locations import HtmlLocations
-from pywriter.html.html_items import HtmlItems
+from pywriter.odt.odt_proof import OdtProof
+from pywriter.odt.odt_manuscript import OdtManuscript
+from pywriter.odt.odt_scenedesc import OdtSceneDesc
+from pywriter.odt.odt_chapterdesc import OdtChapterDesc
+from pywriter.odt.odt_partdesc import OdtPartDesc
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.csv.csv_charlist import CsvCharList
 from pywriter.csv.csv_loclist import CsvLocList
 from pywriter.csv.csv_itemlist import CsvItemList
-from pywriter.html.html_import import HtmlImport
-from pywriter.html.html_outline import HtmlOutline
-from pywriter.yw.yw_file import YwFile
-from pywriter.yw.yw7_new_file import Yw7NewFile
-from pywriter.html.html_fop import read_html_file
+from pywriter.odt.odt_characters import OdtCharacters
+from pywriter.odt.odt_items import OdtItems
+from pywriter.odt.odt_locations import OdtLocations
 
 import uno
-import unohelper
 
 from uno_wrapper.uno_tools import *
 from uno_wrapper.yw_cnv_uno import YwCnvUno
 
-TAILS = [HtmlProof.SUFFIX + HtmlProof.EXTENSION,
-         HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION,
-         HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION,
-         HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION,
-         HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION,
-         HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION,
-         HtmlLocations.SUFFIX + HtmlLocations.EXTENSION,
-         HtmlItems.SUFFIX + HtmlItems.EXTENSION,
-         CsvSceneList.SUFFIX + CsvSceneList.EXTENSION,
-         CsvPlotList.SUFFIX + CsvPlotList.EXTENSION,
-         CsvCharList.SUFFIX + CsvCharList.EXTENSION,
-         CsvLocList.SUFFIX + CsvLocList.EXTENSION,
-         CsvItemList.SUFFIX + CsvItemList.EXTENSION,
-         '.html']
+INI_FILE = 'openyw.ini'
 
-YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
+
+def run(sourcePath, suffix):
+    converter = YwCnvUno(sourcePath, suffix)
+
+    if converter.success:
+        delete_tempfile(sourcePath)
+        return True
+
+    else:
+        return False
 
 
 def delete_tempfile(filePath):
@@ -62,115 +52,184 @@ def delete_tempfile(filePath):
     if filePath.endswith('.html'):
 
         if os.path.isfile(filePath.replace('.html', '.odt')):
+
             try:
                 os.remove(filePath)
+
             except:
                 pass
 
     elif filePath.endswith('.csv'):
 
         if os.path.isfile(filePath.replace('.csv', '.ods')):
+
             try:
                 os.remove(filePath)
+
             except:
                 pass
 
 
-def run(sourcePath):
-    sourcePath = unquote(sourcePath.replace('file:///', ''))
+def open_yw7(suffix, newExt):
 
-    ywPath = None
+    # Set last opened yWriter project as default (if existing).
 
-    for tail in TAILS:
-        # Determine the document type
+    scriptLocation = os.path.dirname(__file__)
+    inifile = unquote(
+        (scriptLocation + '/' + INI_FILE).replace('file:///', ''))
+    defaultFile = None
+    config = ConfigParser()
 
-        if sourcePath.endswith(tail):
+    try:
+        config.read(inifile)
+        ywLastOpen = config.get('FILES', 'yw_last_open')
 
-            for ywExtension in YW_EXTENSIONS:
-                # Determine the yWriter project file path
+        if os.path.isfile(ywLastOpen):
+            defaultFile = quote('file:///' + ywLastOpen, '/:')
 
-                testPath = sourcePath.replace(tail, ywExtension)
+    except:
+        pass
 
-                if os.path.isfile(testPath):
-                    ywPath = testPath
-                    break
+    # Ask for yWriter 6 or 7 project to open:
 
-            break
+    ywFile = FilePicker(path=defaultFile)
 
-    if ywPath:
+    if ywFile is None:
+        return
 
-        if tail == '.html':
-            return 'ERROR: yWriter project already exists.'
+    sourcePath = unquote(ywFile.replace('file:///', ''))
+    ywExt = os.path.splitext(sourcePath)[1]
 
-        elif tail == HtmlProof.SUFFIX + HtmlProof.EXTENSION:
-            sourceDoc = HtmlProof(sourcePath)
+    if not ywExt in ['.yw6', '.yw7']:
+        msgbox('Please choose a yWriter 6/7 project.',
+               'Import from yWriter', type_msg='errorbox')
+        return
 
-        elif tail == HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION:
-            sourceDoc = HtmlManuscript(sourcePath)
+    # Store selected yWriter project as "last opened".
 
-        elif tail == HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION:
-            sourceDoc = HtmlSceneDesc(sourcePath)
+    newFile = ywFile.replace(ywExt, suffix + newExt)
+    dirName, filename = os.path.split(newFile)
+    lockFile = unquote((dirName + '/.~lock.' + filename +
+                        '#').replace('file:///', ''))
 
-        elif tail == HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION:
-            sourceDoc = HtmlChapterDesc(sourcePath)
+    if not config.has_section('FILES'):
+        config.add_section('FILES')
 
-        elif tail == HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION:
-            sourceDoc = HtmlPartDesc(sourcePath)
+    config.set('FILES', 'yw_last_open', unquote(
+        ywFile.replace('file:///', '')))
 
-        elif tail == HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION:
-            sourceDoc = HtmlCharacters(sourcePath)
+    with open(inifile, 'w') as f:
+        config.write(f)
 
-        elif tail == HtmlLocations.SUFFIX + HtmlLocations.EXTENSION:
-            sourceDoc = HtmlLocations(sourcePath)
+    # Check if import file is already open in LibreOffice:
 
-        elif tail == HtmlItems.SUFFIX + HtmlItems.EXTENSION:
-            sourceDoc = HtmlItems(sourcePath)
+    if os.path.isfile(lockFile):
+        msgbox('Please close "' + filename + '" first.',
+               'Import from yWriter', type_msg='errorbox')
+        return
 
-        elif tail == CsvSceneList.SUFFIX + CsvSceneList.EXTENSION:
-            sourceDoc = CsvSceneList(sourcePath)
+    # Open yWriter project and convert data.
 
-        elif tail == CsvPlotList.SUFFIX + CsvPlotList.EXTENSION:
-            sourceDoc = CsvPlotList(sourcePath)
+    workdir = os.path.dirname(sourcePath)
+    os.chdir(workdir)
+    result = run(sourcePath, suffix)
 
-        elif tail == CsvCharList.SUFFIX + CsvCharList.EXTENSION:
-            sourceDoc = CsvCharList(sourcePath)
-
-        elif tail == CsvLocList.SUFFIX + CsvLocList.EXTENSION:
-            sourceDoc = CsvLocList(sourcePath)
-
-        elif tail == CsvItemList.SUFFIX + CsvItemList.EXTENSION:
-            sourceDoc = CsvItemList(sourcePath)
-
-        else:
-            return 'ERROR: File format not supported.'
-
-        ywFile = YwFile(ywPath)
-        converter = YwCnvUno()
-        message = converter.document_to_yw(sourceDoc, ywFile)
-
-    elif sourcePath.endswith('.html'):
-        result = read_html_file(sourcePath)
-
-        if 'SUCCESS' in result[0]:
-
-            if "<h3" in result[1].lower():
-                sourceDoc = HtmlOutline(sourcePath)
-
-            else:
-                sourceDoc = HtmlImport(sourcePath)
-
-        ywPath = sourcePath.replace('.html', '.yw7')
-        ywFile = Yw7NewFile(ywPath)
-        converter = YwCnvUno()
-        message = converter.document_to_yw(sourceDoc, ywFile)
+    if not result:
+        msgbox(result, 'Import from yWriter', type_msg='errorbox')
 
     else:
-        message = 'ERROR: No yWriter project found.'
+        desktop = XSCRIPTCONTEXT.getDesktop()
+        doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
-    if not message.startswith('ERROR'):
-        delete_tempfile(sourcePath)
 
-    return message
+def import_yw(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    without chapter and scene markers. 
+    '''
+    open_yw7('', '.odt')
+
+
+def proof_yw(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    with visible chapter and scene markers. 
+    '''
+    open_yw7(OdtProof.SUFFIX, OdtProof.EXTENSION)
+
+
+def get_manuscript(*args):
+    '''Import scenes from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(OdtManuscript.SUFFIX, OdtManuscript.EXTENSION)
+
+
+def get_partdesc(*args):
+    '''Import pard descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(OdtPartDesc.SUFFIX, OdtPartDesc.EXTENSION)
+
+
+def get_chapterdesc(*args):
+    '''Import chapter descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(OdtChapterDesc.SUFFIX, OdtChapterDesc.EXTENSION)
+
+
+def get_scenedesc(*args):
+    '''Import scene descriptions from yWriter 6/7 to a Writer document
+    with invisible chapter and scene markers. 
+    '''
+    open_yw7(OdtSceneDesc.SUFFIX, OdtSceneDesc.EXTENSION)
+
+
+def get_chardesc(*args):
+    '''Import character descriptions from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(OdtCharacters.SUFFIX, OdtCharacters.EXTENSION)
+
+
+def get_locdesc(*args):
+    '''Import location descriptions from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(OdtLocations.SUFFIX, OdtLocations.EXTENSION)
+
+
+def get_itemdesc(*args):
+    '''Import item descriptions from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
+
+
+def get_scenelist(*args):
+    '''Import a scene list from yWriter 6/7 to a Calc document.
+    '''
+    open_yw7(CsvSceneList.SUFFIX, CsvSceneList.EXTENSION)
+
+
+def get_plotlist(*args):
+    '''Import a plot list from yWriter 6/7 to a Calc document.
+    '''
+    open_yw7(CsvPlotList.SUFFIX, CsvPlotList.EXTENSION)
+
+
+def get_charlist(*args):
+    '''Import a character list from yWriter 6/7 to a Calc document.
+    '''
+    open_yw7(CsvCharList.SUFFIX, CsvCharList.EXTENSION)
+
+
+def get_loclist(*args):
+    '''Import a location list from yWriter 6/7 to a Calc document.
+    '''
+    open_yw7(CsvLocList.SUFFIX, CsvLocList.EXTENSION)
+
+
+def get_itemlist(*args):
+    '''Import an item list from yWriter 6/7 to a Calc document.
+    '''
+    open_yw7(CsvItemList.SUFFIX, CsvItemList.EXTENSION)
 
 
 def export_yw(*args):
@@ -223,7 +282,7 @@ def export_yw(*args):
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        result = run(htmlPath)
+        run(htmlPath, None)
 
     elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
         odsPath = documentPath.replace('.csv', '.ods')
@@ -257,18 +316,7 @@ def export_yw(*args):
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        result = run(csvPath)
-
-    else:
-        result = "ERROR: File type not supported."
-
-    if result.startswith('ERROR'):
-        msgType = 'errorbox'
-
-    else:
-        msgType = 'infobox'
-
-    msgbox(result, 'Export to yWriter', type_msg=msgType)
+        run(csvPath, None)
 
 
 if __name__ == '__main__':
@@ -276,4 +324,17 @@ if __name__ == '__main__':
         sourcePath = sys.argv[1]
     except:
         sourcePath = ''
-    print(run(sourcePath))
+
+    fileName, FileExtension = os.path.splitext(sourcePath)
+
+    if FileExtension in ['.yw5', '.yw6', '.yw7']:
+        try:
+            suffix = sys.argv[2]
+        except:
+            suffix = ''
+
+    else:
+        sourcePath = unquote(sourcePath.replace('file:///', ''))
+        suffix = None
+
+    run(sourcePath, suffix, False)

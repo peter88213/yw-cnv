@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="yw-cnv" basedir=".">
-	<property name="release" value="0.30.2" />
+	<property name="release" value="0.31.beta2" />
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="release-name" value="${project-name}-${release}" />
 	<property name="release-name-L" value="${project-name}-L-${release}" />
@@ -14,13 +14,9 @@
 	<target name="build" description="inline all library modules">
 		
 		<mkdir dir="${test}" />
-		<delete file="${test}/saveyw.py" />
-		<delete file="${test}/openyw.py" />
+		<delete file="${test}/cnvyw.py" />
 			<exec executable="python" failonerror="true">
-			    <arg value="${src}/build_saveyw.py"/>
-			</exec>
-			<exec executable="python" failonerror="true">
-			    <arg value="${src}/build_openyw.py"/>
+			    <arg value="${src}/build_cnvyw.py"/>
 			</exec>
 	</target>
 
@@ -58,11 +54,8 @@
 		
 		<copy file="${src}/help.py" todir="${dist}/${release-name-L}/help" />
 
-		<copy file="${test}/saveyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
-		<replace encoding="utf-8" file="${dist}/${release-name-L}/${ant.project.name}/saveyw.py" token="@release" value="${release}" />
-
-		<copy file="${test}/openyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
-		<replace encoding="utf-8" file="${dist}/${release-name-L}/${ant.project.name}/openyw.py" token="@release" value="${release}" />
+		<copy file="${test}/cnvyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
+		<replace encoding="utf-8" file="${dist}/${release-name-L}/${ant.project.name}/cnvyw.py" token="@release" value="${release}" />
 
 		<copy file="${oxt}/AddonUI.xcu" todir="${dist}/${release-name-L}" />
 		<replace encoding="utf-8" file="${dist}/${release-name-L}/AddonUI.xcu" token="0.99.0" value="${release}" />
@@ -81,8 +74,7 @@
 
 	<target name="clean" description="clean up">
 		
-		<delete file="${test}/saveyw.py" />
-		<delete file="${test}/openyw.py" />
+		<delete file="${test}/cnvyw.py" />
 		
 	</target>
 	

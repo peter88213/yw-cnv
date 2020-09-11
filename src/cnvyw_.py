@@ -1,7 +1,4 @@
-"""Convert yWriter project to odt or csv. 
-
-Input file format: yWriter
-Output file format: odt (with visible or invisible chapter and scene tags) or csv.
+"""Convert yWriter project to odt or csv and vice versa. 
 
 Version @release
 
@@ -21,10 +18,8 @@ from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
 from pywriter.odt.odt_chapterdesc import OdtChapterDesc
 from pywriter.odt.odt_partdesc import OdtPartDesc
-from pywriter.yw.yw_file import YwFile
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
-from pywriter.odt.odt_export import OdtExport
 from pywriter.csv.csv_charlist import CsvCharList
 from pywriter.csv.csv_loclist import CsvLocList
 from pywriter.csv.csv_itemlist import CsvItemList
@@ -41,60 +36,38 @@ INI_FILE = 'openyw.ini'
 
 
 def run(sourcePath, suffix):
+    converter = YwCnvUno(sourcePath, suffix)
 
-    fileName, FileExtension = os.path.splitext(sourcePath)
-
-    if suffix == '':
-        targetDoc = OdtExport(fileName + OdtExport.EXTENSION)
-
-    elif suffix == OdtProof.SUFFIX:
-        targetDoc = OdtProof(fileName + suffix + OdtProof.EXTENSION)
-
-    elif suffix == OdtManuscript.SUFFIX:
-        targetDoc = OdtManuscript(fileName + suffix + OdtManuscript.EXTENSION)
-
-    elif suffix == OdtSceneDesc.SUFFIX:
-        targetDoc = OdtSceneDesc(fileName + suffix + OdtSceneDesc.EXTENSION)
-
-    elif suffix == OdtChapterDesc.SUFFIX:
-        targetDoc = OdtChapterDesc(
-            fileName + suffix + OdtChapterDesc.EXTENSION)
-
-    elif suffix == OdtPartDesc.SUFFIX:
-        targetDoc = OdtPartDesc(fileName + suffix + OdtPartDesc.EXTENSION)
-
-    elif suffix == OdtCharacters.SUFFIX:
-        targetDoc = OdtCharacters(fileName + suffix + OdtCharacters.EXTENSION)
-
-    elif suffix == OdtLocations.SUFFIX:
-        targetDoc = OdtLocations(fileName + suffix + OdtLocations.EXTENSION)
-
-    elif suffix == OdtItems.SUFFIX:
-        targetDoc = OdtItems(fileName + suffix + OdtItems.EXTENSION)
-
-    elif suffix == CsvSceneList.SUFFIX:
-        targetDoc = CsvSceneList(fileName + suffix + CsvSceneList.EXTENSION)
-
-    elif suffix == CsvPlotList.SUFFIX:
-        targetDoc = CsvPlotList(fileName + suffix + CsvPlotList.EXTENSION)
-
-    elif suffix == CsvCharList.SUFFIX:
-        targetDoc = CsvCharList(fileName + suffix + CsvCharList.EXTENSION)
-
-    elif suffix == CsvLocList.SUFFIX:
-        targetDoc = CsvLocList(fileName + suffix + CsvLocList.EXTENSION)
-
-    elif suffix == CsvItemList.SUFFIX:
-        targetDoc = CsvItemList(fileName + suffix + CsvItemList.EXTENSION)
+    if converter.success:
+        delete_tempfile(sourcePath)
+        return True
 
     else:
-        return('ERROR: Target file type not supported')
+        return False
 
-    ywFile = YwFile(sourcePath)
-    converter = YwCnvUno()
-    message = converter.yw_to_document(ywFile, targetDoc)
 
-    return message
+def delete_tempfile(filePath):
+    """If an Office file exists, delete the temporary file."""
+
+    if filePath.endswith('.html'):
+
+        if os.path.isfile(filePath.replace('.html', '.odt')):
+
+            try:
+                os.remove(filePath)
+
+            except:
+                pass
+
+    elif filePath.endswith('.csv'):
+
+        if os.path.isfile(filePath.replace('.csv', '.ods')):
+
+            try:
+                os.remove(filePath)
+
+            except:
+                pass
 
 
 def open_yw7(suffix, newExt):
@@ -161,7 +134,7 @@ def open_yw7(suffix, newExt):
     os.chdir(workdir)
     result = run(sourcePath, suffix)
 
-    if result.startswith('ERROR'):
+    if not result:
         msgbox(result, 'Import from yWriter', type_msg='errorbox')
 
     else:
@@ -259,6 +232,93 @@ def get_itemlist(*args):
     open_yw7(CsvItemList.SUFFIX, CsvItemList.EXTENSION)
 
 
+def export_yw(*args):
+    '''Export the document to a yWriter 6/7 project.
+    '''
+
+    # Get document's filename
+
+    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    # document   = ThisComponent.CurrentController.Frame
+
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    smgr = ctx.getServiceManager()
+    dispatcher = smgr.createInstanceWithContext(
+        "com.sun.star.frame.DispatchHelper", ctx)
+    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    documentPath = XSCRIPTCONTEXT.getDocument().getURL()
+    # documentPath = ThisComponent.getURL()
+
+    from com.sun.star.beans import PropertyValue
+    args1 = []
+    args1.append(PropertyValue())
+    args1.append(PropertyValue())
+    # dim args1(1) as new com.sun.star.beans.PropertyValue
+
+    if documentPath.endswith('.odt') or documentPath.endswith('.html'):
+        odtPath = documentPath.replace('.html', '.odt')
+        htmlPath = documentPath.replace('.odt', '.html')
+
+        # Save document in HTML format
+
+        args1[0].Name = 'URL'
+        # args1(0).Name = "URL"
+        args1[0].Value = htmlPath
+        # args1(0).Value = htmlPath
+        args1[1].Name = 'FilterName'
+        # args1(1).Name = "FilterName"
+        args1[1].Value = 'HTML (StarWriter)'
+        # args1(1).Value = "HTML (StarWriter)"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1[0].Value = odtPath
+        # args1(0).Value = odtPath
+        args1[1].Value = 'writer8'
+        # args1(1).Value = "writer8"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        run(htmlPath, None)
+
+    elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
+        odsPath = documentPath.replace('.csv', '.ods')
+        csvPath = documentPath.replace('.ods', '.csv')
+
+        # Save document in csv format
+
+        args1[0].Name = 'URL'
+        # args1(0).Name = "URL"
+        args1[0].Value = csvPath
+        # args1(0).Value = csvPath
+        args1[1].Name = 'FilterName'
+        # args1(1).Name = "FilterName"
+        args1[1].Value = 'Text - txt - csv (StarCalc)'
+        # args1(1).Value = "Text - txt - csv (StarCalc)"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1.append(PropertyValue())
+
+        args1[0].Value = odsPath
+        # args1(0).Value = odsPath
+        args1[1].Value = 'calc8'
+        # args1(1).Value = "calc8"
+        args1[2].Name = "FilterOptions"
+        # args1(2).Name = "FilterOptions"
+        args1[2].Value = "124,34,76,1,,0,false,true,true"
+        # args1(2).Value = "124,34,76,1,,0,false,true,true"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        run(csvPath, None)
+
+
 if __name__ == '__main__':
     try:
         sourcePath = sys.argv[1]
@@ -273,7 +333,8 @@ if __name__ == '__main__':
         except:
             suffix = ''
 
-        print(run(sourcePath, suffix))
-
     else:
-        print('ERROR: File is not an yWriter project.')
+        sourcePath = unquote(sourcePath.replace('file:///', ''))
+        suffix = None
+
+    run(sourcePath, suffix, False)

@@ -1,9 +1,6 @@
-"""Convert yWriter project to odt or csv. 
+"""Convert yWriter project to odt or csv and vice versa. 
 
-Input file format: yWriter
-Output file format: odt (with visible or invisible chapter and scene tags) or csv.
-
-Version 0.30.2
+Version @release
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1665,8 +1662,8 @@ class Novel():
     of the information included in an yWriter project file).
     """
 
-    EXTENSION = ''
-    SUFFIX = ''
+    EXTENSION = None
+    SUFFIX = None
     # To be extended by file format specific subclasses.
 
     def __init__(self, filePath):
@@ -2601,6 +2598,248 @@ class OdtPartDesc(OdtFile):
 
 
 
+class CsvFile(FileExport):
+    """csv file representation.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR character.
+    """
+
+    EXTENSION = '.csv'
+    # overwrites Novel._FILE_EXTENSION
+
+    _SEPARATOR = '|'
+    # delimits data fields within a record.
+
+    _LINEBREAK = '\t'
+    # substitutes embedded line breaks.
+
+    _LIST_SEPARATOR = ','
+    # delimits items listed within a data field
+
+    CSV_REPLACEMENTS = [
+        ['\n', _LINEBREAK],
+    ]
+
+    def convert_from_yw(self, text):
+        """Convert line breaks."""
+
+        try:
+            text = text.rstrip()
+
+            for r in self.CSV_REPLACEMENTS:
+                text = text.replace(r[0], r[1])
+
+        except AttributeError:
+            text = ''
+
+        return text
+
+    def convert_to_yw(self, text):
+        """Convert line breaks."""
+
+        try:
+
+            for r in self.CSV_REPLACEMENTS:
+                text = text.replace(r[1], r[0])
+
+        except AttributeError:
+            text = ''
+
+        return text
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+        return None
+
+
+class CsvSceneList(CsvFile):
+    """csv file representation of an yWriter project's scenes table. 
+
+    Represents a csv file with a record per scene.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR character.
+    """
+
+    SUFFIX = '_scenelist'
+
+    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
+    # '1' is assigned N/A (empty table cell).
+
+    fileHeader = '''Scene link|''' +\
+        '''Scene title|Scene description|Tags|Scene notes|''' +\
+        '''A/R|Goal|Conflict|Outcome|''' +\
+        '''Scene|Words total|$FieldTitle1|$FieldTitle2|$FieldTitle3|$FieldTitle4|''' +\
+        '''Word count|Letter count|Status|''' +\
+        '''Characters|Locations|Items
+'''
+
+    sceneTemplate = '''=HYPERLINK("file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion";"ScID:$ID")|''' +\
+        '''$Title|$Desc|$Tags|$Notes|''' +\
+        '''$ReactionScene|$Goal|$Conflict|$Outcome|''' +\
+        '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4|''' +\
+        '''$WordCount|$LetterCount|$Status|''' +\
+        '''$Characters|$Locations|$Items
+'''
+
+    def get_sceneSubst(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        sceneSubst = CsvFile.get_sceneSubst(
+            self, scId, sceneNumber, wordsTotal, lettersTotal)
+
+        if self.scenes[scId].field1 == '1':
+            sceneSubst['Field1'] = ''
+
+        if self.scenes[scId].field2 == '1':
+            sceneSubst['Field2'] = ''
+
+        if self.scenes[scId].field3 == '1':
+            sceneSubst['Field3'] = ''
+
+        if self.scenes[scId].field4 == '1':
+            sceneSubst['Field4'] = ''
+
+        return sceneSubst
+
+    def read(self):
+        """Parse the csv file located at filePath, 
+        fetching the Scene attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            i = 0
+
+            if 'ScID:' in cell[i]:
+                scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
+                self.scenes[scId] = Scene()
+                i += 1
+                self.scenes[scId].title = cell[i]
+                i += 1
+                self.scenes[scId].desc = self.convert_to_yw(cell[i])
+                i += 1
+                self.scenes[scId].tags = cell[i].split(self._LIST_SEPARATOR)
+                i += 1
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[i])
+                i += 1
+
+                if Scene.REACTION_MARKER.lower() in cell[i].lower():
+                    self.scenes[scId].isReactionScene = True
+
+                else:
+                    self.scenes[scId].isReactionScene = False
+
+                i += 1
+                self.scenes[scId].goal = cell[i]
+                i += 1
+                self.scenes[scId].conflict = cell[i]
+                i += 1
+                self.scenes[scId].outcome = cell[i]
+                i += 1
+                # Don't write back sceneCount
+                i += 1
+                # Don't write back wordCount
+                i += 1
+
+                # Transfer scene ratings; set to 1 if deleted
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field1 = cell[i]
+
+                else:
+                    self.scenes[scId].field1 = '1'
+
+                i += 1
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field2 = cell[i]
+
+                else:
+                    self.scenes[scId].field2 = '1'
+
+                i += 1
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field3 = cell[i]
+
+                else:
+                    self.scenes[scId].field3 = '1'
+
+                i += 1
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field4 = cell[i]
+
+                else:
+                    self.scenes[scId].field4 = '1'
+
+                i += 1
+                # Don't write back scene words total
+                i += 1
+                # Don't write back scene letters total
+                i += 1
+
+                try:
+                    self.scenes[scId].status = Scene.STATUS.index(cell[i])
+
+                except ValueError:
+                    pass
+                    # Scene status remains None and will be ignored when
+                    # writing back.
+
+                i += 1
+                ''' Cannot write back character IDs, because self.characters is None
+                charaNames = cell[i].split(self._LIST_SEPARATOR)
+                self.scenes[scId].characters = []
+
+                for charaName in charaNames:
+
+                    for id, name in self.characters.items():
+
+                        if name == charaName:
+                            self.scenes[scId].characters.append(id)
+                '''
+                i += 1
+                ''' Cannot write back location IDs, because self.locations is None
+                locaNames = cell[i].split(self._LIST_SEPARATOR)
+                self.scenes[scId].locations = []
+
+                for locaName in locaNames:
+
+                    for id, name in self.locations.items():
+
+                        if name == locaName:
+                            self.scenes[scId].locations.append(id)
+                '''
+                i += 1
+                ''' Cannot write back item IDs, because self.items is None
+                itemNames = cell[i].split(self._LIST_SEPARATOR)
+                self.scenes[scId].items = []
+
+                for itemName in itemNames:
+
+                    for id, name in self.items.items():
+
+                        if name == itemName:
+                            self.scenes[scId].items.append(id)
+                '''
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+
+
+
 class Chapter():
     """yWriter chapter representation.
     # xml: <CHAPTERS><CHAPTER>
@@ -2673,6 +2912,631 @@ class Chapter():
             text = text.replace('Chapter ', '')
 
         return text
+
+
+class CsvPlotList(CsvFile):
+    """csv file representation of an yWriter project's scenes table. 
+
+    Represents a csv file with a record per scene.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR character.
+    """
+
+    EXTENSION = '.csv'
+    SUFFIX = '_plotlist'
+
+    _SEPARATOR = '|'     # delimits data fields within a record.
+    _LINEBREAK = '\t'    # substitutes embedded line breaks.
+
+    _STORYLINE_MARKER = 'story'
+    # Field names containing this string (case insensitive)
+    # are associated to storylines
+
+    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
+    # '1' is assigned N/A (empty table cell).
+
+    _NOT_APPLICABLE = 'N/A'
+    # Scene field column header for fields not being assigned to a storyline
+
+    _CHAR_STATE = ['', 'N/A', 'unhappy', 'dissatisfied',
+                   'vague', 'satisfied', 'happy', '', '', '', '']
+
+    fileHeader = '''ID|''' +\
+        '''Plot section|Plot event|Plot event title|Details|''' +\
+        '''Scene|Words total|$FieldTitle1|$FieldTitle2|$FieldTitle3|$FieldTitle4
+'''
+
+    notesChapterTemplate = '''ChID:$ID|$Title|||$Desc||||||
+'''
+
+    sceneTemplate = '''=HYPERLINK("file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion";"ScID:$ID")|''' +\
+        '''|$Tags|$Title|$Notes|''' +\
+        '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4
+'''
+
+    def get_projectTemplateSubst(self):
+        projectTemplateSubst = CsvFile.get_projectTemplateSubst(self)
+
+        charList = []
+
+        for crId in self.characters:
+            charList.append(self.characters[crId].title)
+
+        if self.fieldTitle1 in charList or self._STORYLINE_MARKER in self.fieldTitle1.lower():
+            self.arc1 = True
+
+        else:
+            self.arc1 = False
+            projectTemplateSubst['FieldTitle1'] = self._NOT_APPLICABLE
+
+        if self.fieldTitle2 in charList or self._STORYLINE_MARKER in self.fieldTitle2.lower():
+            self.arc2 = True
+
+        else:
+            self.arc2 = False
+            projectTemplateSubst['FieldTitle2'] = self._NOT_APPLICABLE
+
+        if self.fieldTitle3 in charList or self._STORYLINE_MARKER in self.fieldTitle3.lower():
+            self.arc3 = True
+
+        else:
+            self.arc3 = False
+            projectTemplateSubst['FieldTitle3'] = self._NOT_APPLICABLE
+
+        if self.fieldTitle4 in charList or self._STORYLINE_MARKER in self.fieldTitle4.lower():
+            self.arc4 = True
+
+        else:
+            self.arc4 = False
+            projectTemplateSubst['FieldTitle4'] = self._NOT_APPLICABLE
+
+        return projectTemplateSubst
+
+    def get_sceneSubst(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        sceneSubst = CsvFile.get_sceneSubst(
+            self, scId, sceneNumber, wordsTotal, lettersTotal)
+
+        if self.scenes[scId].field1 == '1' or not self.arc1:
+            sceneSubst['Field1'] = ''
+
+        if self.scenes[scId].field2 == '1' or not self.arc1:
+            sceneSubst['Field2'] = ''
+
+        if self.scenes[scId].field3 == '1' or not self.arc3:
+            sceneSubst['Field3'] = ''
+
+        if self.scenes[scId].field4 == '1' or not self.arc4:
+            sceneSubst['Field4'] = ''
+
+        return sceneSubst
+
+    def read(self):
+        """Parse the csv file located at filePath, fetching 
+        the Scene attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+
+        tableHeader = lines[0].rstrip().split(self._SEPARATOR)
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            if 'ChID:' in cell[0]:
+                chId = re.search('ChID\:([0-9]+)', cell[0]).group(1)
+                self.chapters[chId] = Chapter()
+                self.chapters[chId].title = cell[1]
+                self.chapters[chId].desc = self.convert_to_yw(cell[4])
+
+            if 'ScID:' in cell[0]:
+                scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
+                self.scenes[scId] = Scene()
+                self.scenes[scId].tags = cell[2].split(self._LIST_SEPARATOR)
+                self.scenes[scId].title = cell[3]
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[4])
+
+                i = 5
+                # Don't write back sceneCount
+                i += 1
+                # Don't write back wordCount
+                i += 1
+
+                # Transfer scene ratings; set to 1 if deleted
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field1 = cell[i]
+
+                elif tableHeader[i] != self._NOT_APPLICABLE:
+                    self.scenes[scId].field1 = '1'
+
+                i += 1
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field2 = cell[i]
+
+                elif tableHeader[i] != self._NOT_APPLICABLE:
+                    self.scenes[scId].field2 = '1'
+
+                i += 1
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field3 = cell[i]
+
+                elif tableHeader[i] != self._NOT_APPLICABLE:
+                    self.scenes[scId].field3 = '1'
+
+                i += 1
+
+                if cell[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field4 = cell[i]
+
+                elif tableHeader[i] != self._NOT_APPLICABLE:
+                    self.scenes[scId].field4 = '1'
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+
+
+
+class CsvCharList(CsvFile):
+    """csv file representation of an yWriter project's characters table. 
+
+    Represents a csv file with a record per character.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR character.
+    """
+
+    SUFFIX = '_charlist'
+
+    fileHeader = '''ID|Name|Full name|Aka|Description|Bio|Goals|Importance|Tags|Notes
+'''
+
+    characterTemplate = '''CrID:$ID|$Title|$FullName|$AKA|$Desc|$Bio|$Goals|$Status|$Tags|$Notes
+'''
+
+    def read(self):
+        """Parse the csv file located at filePath, 
+        fetching the Character attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        if lines[0] != self.fileHeader:
+            return 'ERROR: Wrong lines content.'
+
+        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            if 'CrID:' in cell[0]:
+                crId = re.search('CrID\:([0-9]+)', cell[0]).group(1)
+                self.characters[crId] = Character()
+                self.characters[crId].title = cell[1]
+                self.characters[crId].fullName = cell[2]
+                self.characters[crId].aka = cell[3]
+                self.characters[crId].desc = self.convert_to_yw(cell[4])
+                self.characters[crId].bio = cell[5]
+                self.characters[crId].goals = cell[6]
+
+                if Character.MAJOR_MARKER in cell[7]:
+                    self.characters[crId].isMajor = True
+
+                else:
+                    self.characters[crId].isMajor = False
+
+                self.characters[crId].tags = cell[8].split(';')
+                self.characters[crId].notes = self.convert_to_yw(cell[9])
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+    def merge(self, novel):
+        """Copy selected novel attributes.
+        """
+        self.characters = novel.characters
+
+
+
+
+class CsvLocList(CsvFile):
+    """csv file representation of an yWriter project's locations table. 
+
+    Represents a csv file with a record per location.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR location.
+    """
+
+    SUFFIX = '_loclist'
+
+    fileHeader = '''ID|Name|Description|Aka|Tags
+'''
+
+    locationTemplate = '''LcID:$ID|$Title|$Desc|$AKA|$Tags
+'''
+
+    def read(self):
+        """Parse the csv file located at filePath, 
+        fetching the Object attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        if lines[0] != self.fileHeader:
+            return 'ERROR: Wrong lines content.'
+
+        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            if 'LcID:' in cell[0]:
+                lcId = re.search('LcID\:([0-9]+)', cell[0]).group(1)
+                self.locations[lcId] = Object()
+                self.locations[lcId].title = cell[1]
+                self.locations[lcId].desc = self.convert_to_yw(cell[2])
+                self.locations[lcId].aka = cell[3]
+                self.locations[lcId].tags = cell[4].split(';')
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+    def merge(self, novel):
+        """Copy selected novel attributes.
+        """
+        self.locations = novel.locations
+
+
+
+
+class CsvItemList(CsvFile):
+    """csv file representation of an yWriter project's items table. 
+
+    Represents a csv file with a record per item.
+    * Records are separated by line breaks.
+    * Data fields are delimited by the _SEPARATOR item.
+    """
+
+    SUFFIX = '_itemlist'
+
+    fileHeader = '''ID|Name|Description|Aka|Tags
+'''
+
+    itemTemplate = '''ItID:$ID|$Title|$Desc|$AKA|$Tags
+'''
+
+    def read(self):
+        """Parse the csv file located at filePath, 
+        fetching the Object attributes contained.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        try:
+            with open(self._filePath, 'r', encoding='utf-8') as f:
+                lines = (f.readlines())
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + self._filePath + '" not found.'
+
+        if lines[0] != self.fileHeader:
+            return 'ERROR: Wrong lines content.'
+
+        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+
+        for line in lines:
+            cell = line.rstrip().split(self._SEPARATOR)
+
+            if len(cell) != cellsInLine:
+                return 'ERROR: Wrong cell structure.'
+
+            if 'ItID:' in cell[0]:
+                itId = re.search('ItID\:([0-9]+)', cell[0]).group(1)
+                self.items[itId] = Object()
+                self.items[itId].title = cell[1]
+                self.items[itId].desc = self.convert_to_yw(cell[2])
+                self.items[itId].aka = cell[3]
+                self.items[itId].tags = cell[4].split(';')
+
+        return 'SUCCESS: Data read from "' + self._filePath + '".'
+
+    def merge(self, novel):
+        """Copy selected novel attributes.
+        """
+        self.items = novel.items
+
+
+class OdtCharacters(OdtFile):
+    """OpenDocument xml character descriptions file representation."""
+
+    SUFFIX = '_characters'
+
+    def get_characterSubst(self, crId):
+        characterSubst = OdtFile.get_characterSubst(self, crId)
+
+        if self.characters[crId].aka:
+            characterSubst['AKA'] = ' ("' + self.characters[crId].aka + '")'
+
+        if self.characters[crId].fullName:
+            characterSubst['FullName'] = '/' + self.characters[crId].fullName
+
+        return characterSubst
+
+    fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+<text:p text:style-name="Subtitle">$AuthorName</text:p>
+'''
+
+    characterTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title$FullName$AKA</text:h>
+<text:section text:style-name="Sect1" text:name="CrID:$ID">
+<text:h text:style-name="Heading_20_3" text:outline-level="3">Description</text:h>
+<text:section text:style-name="Sect1" text:name="CrID_desc:$ID">
+<text:p text:style-name="Text_20_body">$Desc</text:p>
+</text:section>
+<text:h text:style-name="Heading_20_3" text:outline-level="3">Bio</text:h>
+<text:section text:style-name="Sect1" text:name="CrID_bio:$ID">
+<text:p text:style-name="Text_20_body">$Bio</text:p>
+</text:section>
+<text:h text:style-name="Heading_20_3" text:outline-level="3">Goals</text:h>
+<text:section text:style-name="Sect1" text:name="CrID_goals:$ID">
+<text:p text:style-name="Text_20_body">$Goals</text:p>
+</text:section>
+</text:section>
+'''
+
+    fileFooter = OdtTemplate.CONTENT_XML_FOOTER
+
+
+class OdtItems(OdtFile):
+    """OpenDocument xml item descriptions file representation."""
+
+    SUFFIX = '_items'
+
+    def get_itemSubst(self, itId):
+        itemSubst = OdtFile.get_itemSubst(self, itId)
+
+        if self.items[itId].aka:
+            itemSubst['AKA'] = ' ("' + self.items[itId].aka + '")'
+
+        return itemSubst
+
+    fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+<text:p text:style-name="Subtitle">$AuthorName</text:p>
+'''
+
+    itemTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title$AKA</text:h>
+<text:section text:style-name="Sect1" text:name="ItID:$ID">
+<text:p text:style-name="Text_20_body">$Desc</text:p>
+</text:section>
+'''
+
+    fileFooter = OdtTemplate.CONTENT_XML_FOOTER
+
+
+class OdtLocations(OdtFile):
+    """OpenDocument xml location descriptions file representation."""
+
+    SUFFIX = '_locations'
+
+    def get_locationSubst(self, lcId):
+        locationSubst = OdtFile.get_locationSubst(self, lcId)
+
+        if self.locations[lcId].aka:
+            locationSubst['AKA'] = ' ("' + self.locations[lcId].aka + '")'
+
+        return locationSubst
+
+    fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+<text:p text:style-name="Subtitle">$AuthorName</text:p>
+'''
+
+    locationTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title$AKA</text:h>
+<text:section text:style-name="Sect1" text:name="ItID:$ID">
+<text:p text:style-name="Text_20_body">$Desc</text:p>
+</text:section>
+'''
+
+    fileFooter = OdtTemplate.CONTENT_XML_FOOTER
+
+import uno
+
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
+from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
+
+CTX = uno.getComponentContext()
+SM = CTX.getServiceManager()
+
+
+def create_instance(name, with_context=False):
+    if with_context:
+        instance = SM.createInstanceWithContext(name, CTX)
+    else:
+        instance = SM.createInstance(name)
+    return instance
+
+
+def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg='infobox'):
+    """ Create message box
+        type_msg: infobox, warningbox, errorbox, querybox, messbox
+
+        MSG_BUTTONS: BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, 
+        BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
+
+        MSG_RESULTS: OK, YES, NO, CANCEL
+
+        http://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1awt_1_1XMessageBoxFactory.html
+    """
+    toolkit = create_instance('com.sun.star.awt.Toolkit')
+    parent = toolkit.getDesktopWindow()
+    mb = toolkit.createMessageBox(
+        parent, type_msg, buttons, title, str(message))
+    return mb.execute()
+
+
+class Stub():
+
+    def dummy(self):
+        pass
+
+
+def FilePicker(path=None, mode=0):
+    """
+    Read file:  `mode in (0, 6, 7, 8, 9)`
+    Write file: `mode in (1, 2, 3, 4, 5, 10)`
+    see: (http://api.libreoffice.org/docs/idl/ref/
+            namespacecom_1_1sun_1_1star_1_1ui_1_1
+            dialogs_1_1TemplateDescription.html)
+
+    See: https://stackoverflow.com/questions/30840736/libreoffice-how-to-create-a-file-dialog-via-python-macro
+    """
+    # shortcut:
+    createUnoService = (
+        XSCRIPTCONTEXT
+        .getComponentContext()
+        .getServiceManager()
+        .createInstance
+    )
+
+    filepicker = createUnoService("com.sun.star.ui.dialogs.OfficeFilePicker")
+
+    if path:
+        filepicker.setDisplayDirectory(path)
+
+    filepicker.initialize((mode,))
+    filepicker.appendFilter("yWriter 7 Files (.yw7)", "*.yw7")
+    filepicker.appendFilter("yWriter 6 Files (.yw6)", "*.yw6")
+
+    if filepicker.execute():
+        return filepicker.getFiles()[0]
+
+
+from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
+
+
+
+class YwCnv():
+    """Converter for yWriter project files.
+
+    # Methods
+
+    yw_to_document : str
+        Arguments
+            ywFile : YwFile
+                an object representing the source file.
+            documentFile : Novel
+                a Novel subclass instance representing the target file.
+        Read yWriter file, parse xml and create a document file.
+        Return a message beginning with SUCCESS or ERROR.    
+
+    document_to_yw : str
+        Arguments
+            documentFile : Novel
+                a Novel subclass instance representing the source file.
+            ywFile : YwFile
+                an object representing the target file.
+        Read document file, convert its content to xml, and replace yWriter file.
+        Return a message beginning with SUCCESS or ERROR.
+
+    confirm_overwrite : bool
+        Arguments
+            fileName : str
+                Path to the file to be overwritten
+        Ask for permission to overwrite the target file.
+        Returns True by default.
+        This method is to be overwritten by subclasses with an user interface.
+    """
+
+    def yw_to_document(self, ywFile, documentFile):
+        """Read yWriter file and convert xml to a document file."""
+        if ywFile.is_locked():
+            return 'ERROR: yWriter seems to be open. Please close first.'
+
+        if ywFile.filePath is None:
+            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
+
+        message = ywFile.read()
+
+        if message.startswith('ERROR'):
+            return message
+
+        if documentFile.file_exists():
+
+            if not self.confirm_overwrite(documentFile.filePath):
+                return 'Program abort by user.'
+
+        documentFile.merge(ywFile)
+        return documentFile.write()
+
+    def document_to_yw(self, documentFile, ywFile):
+        """Read document file, convert its content to xml, and replace yWriter file."""
+        if ywFile.is_locked():
+            return 'ERROR: yWriter seems to be open. Please close first.'
+
+        if ywFile.filePath is None:
+            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
+
+        if ywFile.file_exists() and not self.confirm_overwrite(ywFile.filePath):
+            return 'Program abort by user.'
+
+        if documentFile.filePath is None:
+            return 'ERROR: Document is not of the supported type.'
+
+        if not documentFile.file_exists():
+            return 'ERROR: "' + documentFile.filePath + '" not found.'
+
+        message = documentFile.read()
+
+        if message.startswith('ERROR'):
+            return message
+
+        if ywFile.file_exists():
+            message = ywFile.read()
+            # initialize ywFile data
+
+            if message.startswith('ERROR'):
+                return message
+
+        prjStructure = documentFile.get_structure()
+
+        if prjStructure is not None:
+
+            if prjStructure == '':
+                return 'ERROR: Source file contains no yWriter project structure information.'
+
+            if prjStructure != ywFile.get_structure():
+                return 'ERROR: Structure mismatch - yWriter project not modified.'
+
+        ywFile.merge(documentFile)
+        return ywFile.write()
+
+    def confirm_overwrite(self, fileName):
+        """To be overwritten by subclasses with UI."""
+        return True
+
+
+
+
 
 import xml.etree.ElementTree as ET
 
@@ -3583,7 +4447,13 @@ class Yw5TreeBuilder(YwTreeBuilder):
         Write scene contents to RTF files.
         Return a message beginning with SUCCESS or ERROR.
         """
-        rtfDir = os.path.split(ywProject.filePath)[0] + '/RTF5'
+        rtfDir = os.path.dirname(ywProject.filePath)
+
+        if rtfDir == '':
+            rtfDir = './RTF5'
+
+        else:
+            rtfDir += '/RTF5'
 
         for chId in ywProject.chapters:
 
@@ -3608,6 +4478,7 @@ class Yw5TreeBuilder(YwTreeBuilder):
                         scn, 'RTFFile').text = ywProject.scenes[scId].rtfFile
 
                 rtfPath = rtfDir + '/' + ywProject.scenes[scId].rtfFile
+
                 rtfScene = self.convert_to_rtf(
                     ywProject.scenes[scId].sceneContent)
 
@@ -4313,421 +5184,411 @@ class YwFile(Novel):
 
 
 
-class CsvFile(FileExport):
-    """csv file representation.
-    * Records are separated by line breaks.
-    * Data fields are delimited by the _SEPARATOR character.
-    """
+class Yw7TreeCreator(YwTreeBuilder):
+    """Create a new yWriter 7 project xml tree."""
 
-    EXTENSION = '.csv'
-    # overwrites Novel._FILE_EXTENSION
-
-    _SEPARATOR = '|'
-    # delimits data fields within a record.
-
-    _LINEBREAK = '\t'
-    # substitutes embedded line breaks.
-
-    _LIST_SEPARATOR = ','
-    # delimits items listed within a data field
-
-    CSV_REPLACEMENTS = [
-        ['\n', _LINEBREAK],
-    ]
-
-    def convert_from_yw(self, text):
-        """Convert line breaks."""
-
-        try:
-            text = text.rstrip()
-
-            for r in self.CSV_REPLACEMENTS:
-                text = text.replace(r[0], r[1])
-
-        except AttributeError:
-            text = ''
-
-        return text
-
-    def convert_to_yw(self, text):
-        """Convert line breaks."""
-
-        try:
-
-            for r in self.CSV_REPLACEMENTS:
-                text = text.replace(r[1], r[0])
-
-        except AttributeError:
-            text = ''
-
-        return text
-
-    def get_structure(self):
-        """This file format has no comparable structure."""
-        return None
-
-
-class CsvSceneList(CsvFile):
-    """csv file representation of an yWriter project's scenes table. 
-
-    Represents a csv file with a record per scene.
-    * Records are separated by line breaks.
-    * Data fields are delimited by the _SEPARATOR character.
-    """
-
-    SUFFIX = '_scenelist'
-
-    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
-    # '1' is assigned N/A (empty table cell).
-
-    fileHeader = '''Scene link|''' +\
-        '''Scene title|Scene description|Tags|Scene notes|''' +\
-        '''A/R|Goal|Conflict|Outcome|''' +\
-        '''Scene|Words total|$FieldTitle1|$FieldTitle2|$FieldTitle3|$FieldTitle4|''' +\
-        '''Word count|Letter count|Status|''' +\
-        '''Characters|Locations|Items
-'''
-
-    sceneTemplate = '''=HYPERLINK("file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion";"ScID:$ID")|''' +\
-        '''$Title|$Desc|$Tags|$Notes|''' +\
-        '''$ReactionScene|$Goal|$Conflict|$Outcome|''' +\
-        '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4|''' +\
-        '''$WordCount|$LetterCount|$Status|''' +\
-        '''$Characters|$Locations|$Items
-'''
-
-    def get_sceneSubst(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        sceneSubst = CsvFile.get_sceneSubst(
-            self, scId, sceneNumber, wordsTotal, lettersTotal)
-
-        if self.scenes[scId].field1 == '1':
-            sceneSubst['Field1'] = ''
-
-        if self.scenes[scId].field2 == '1':
-            sceneSubst['Field2'] = ''
-
-        if self.scenes[scId].field3 == '1':
-            sceneSubst['Field3'] = ''
-
-        if self.scenes[scId].field4 == '1':
-            sceneSubst['Field4'] = ''
-
-        return sceneSubst
-
-    def read(self):
-        """Parse the csv file located at filePath, 
-        fetching the Scene attributes contained.
+    def build_element_tree(self, ywProject):
+        """Put the yWriter project attributes to a new xml element tree.
         Return a message beginning with SUCCESS or ERROR.
         """
-        try:
-            with open(self._filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+        root = ET.Element('YWRITER7')
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+        # Write attributes at novel level to the xml element tree.
 
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
+        prj = ET.SubElement(root, 'PROJECT')
+        ET.SubElement(prj, 'Ver').text = '7'
 
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
+        if ywProject.title is not None:
+            ET.SubElement(prj, 'Title').text = ywProject.title
 
-            i = 0
+        if ywProject.desc is not None:
+            ET.SubElement(prj, 'Desc').text = ywProject.desc
 
-            if 'ScID:' in cell[i]:
-                scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
-                self.scenes[scId] = Scene()
-                i += 1
-                self.scenes[scId].title = cell[i]
-                i += 1
-                self.scenes[scId].desc = self.convert_to_yw(cell[i])
-                i += 1
-                self.scenes[scId].tags = cell[i].split(self._LIST_SEPARATOR)
-                i += 1
-                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[i])
-                i += 1
+        if ywProject.author is not None:
+            ET.SubElement(prj, 'AuthorName').text = ywProject.author
 
-                if Scene.REACTION_MARKER.lower() in cell[i].lower():
-                    self.scenes[scId].isReactionScene = True
+        if ywProject.fieldTitle1 is not None:
+            ET.SubElement(prj, 'FieldTitle1').text = ywProject.fieldTitle1
 
-                else:
-                    self.scenes[scId].isReactionScene = False
+        if ywProject.fieldTitle2 is not None:
+            ET.SubElement(prj, 'FieldTitle2').text = ywProject.fieldTitle2
 
-                i += 1
-                self.scenes[scId].goal = cell[i]
-                i += 1
-                self.scenes[scId].conflict = cell[i]
-                i += 1
-                self.scenes[scId].outcome = cell[i]
-                i += 1
-                # Don't write back sceneCount
-                i += 1
-                # Don't write back wordCount
-                i += 1
+        if ywProject.fieldTitle3 is not None:
+            ET.SubElement(prj, 'FieldTitle3').text = ywProject.fieldTitle3
 
-                # Transfer scene ratings; set to 1 if deleted
+        if ywProject.fieldTitle4 is not None:
+            ET.SubElement(prj, 'FieldTitle4').text = ywProject.fieldTitle4
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field1 = cell[i]
+        # Write locations to the xml element tree.
 
-                else:
-                    self.scenes[scId].field1 = '1'
+        locations = ET.SubElement(root, 'LOCATIONS')
 
-                i += 1
+        for lcId in ywProject.locations:
+            loc = ET.SubElement(locations, 'LOCATION')
+            ET.SubElement(loc, 'ID').text = lcId
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field2 = cell[i]
+            if ywProject.locations[lcId].title is not None:
+                ET.SubElement(
+                    loc, 'Title').text = ywProject.locations[lcId].title
 
-                else:
-                    self.scenes[scId].field2 = '1'
+            if ywProject.locations[lcId].desc is not None:
+                ET.SubElement(
+                    loc, 'Desc').text = ywProject.locations[lcId].desc
 
-                i += 1
+            if ywProject.locations[lcId].aka is not None:
+                ET.SubElement(loc, 'AKA').text = ywProject.locations[lcId].aka
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field3 = cell[i]
+            if ywProject.locations[lcId].tags is not None:
+                ET.SubElement(loc, 'Tags').text = ';'.join(
+                    ywProject.locations[lcId].tags)
 
-                else:
-                    self.scenes[scId].field3 = '1'
+        # Write items to the xml element tree.
 
-                i += 1
+        items = ET.SubElement(root, 'ITEMS')
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field4 = cell[i]
+        for itId in ywProject.items:
+            itm = ET.SubElement(items, 'ITEM')
+            ET.SubElement(itm, 'ID').text = itId
 
-                else:
-                    self.scenes[scId].field4 = '1'
+            if ywProject.items[itId].title is not None:
+                ET.SubElement(itm, 'Title').text = ywProject.items[itId].title
 
-                i += 1
-                # Don't write back scene words total
-                i += 1
-                # Don't write back scene letters total
-                i += 1
+            if ywProject.items[itId].desc is not None:
+                ET.SubElement(itm, 'Desc').text = ywProject.items[itId].desc
 
-                try:
-                    self.scenes[scId].status = Scene.STATUS.index(cell[i])
+            if ywProject.items[itId].aka is not None:
+                ET.SubElement(itm, 'AKA').text = ywProject.items[itId].aka
 
-                except ValueError:
-                    pass
-                    # Scene status remains None and will be ignored when
-                    # writing back.
+            if ywProject.items[itId].tags is not None:
+                ET.SubElement(itm, 'Tags').text = ';'.join(
+                    ywProject.items[itId].tags)
 
-                i += 1
-                ''' Cannot write back character IDs, because self.characters is None
-                charaNames = cell[i].split(self._LIST_SEPARATOR)
-                self.scenes[scId].characters = []
+        # Write characters to the xml element tree.
 
-                for charaName in charaNames:
+        characters = ET.SubElement(root, 'CHARACTERS')
 
-                    for id, name in self.characters.items():
+        for crId in ywProject.characters:
+            crt = ET.SubElement(characters, 'CHARACTER')
+            ET.SubElement(crt, 'ID').text = crId
 
-                        if name == charaName:
-                            self.scenes[scId].characters.append(id)
-                '''
-                i += 1
-                ''' Cannot write back location IDs, because self.locations is None
-                locaNames = cell[i].split(self._LIST_SEPARATOR)
-                self.scenes[scId].locations = []
+            if ywProject.characters[crId].title is not None:
+                ET.SubElement(
+                    crt, 'Title').text = ywProject.characters[crId].title
 
-                for locaName in locaNames:
+            if ywProject.characters[crId].desc is not None:
+                ET.SubElement(
+                    crt, 'Desc').text = ywProject.characters[crId].desc
 
-                    for id, name in self.locations.items():
+            if ywProject.characters[crId].aka is not None:
+                ET.SubElement(crt, 'AKA').text = ywProject.characters[crId].aka
 
-                        if name == locaName:
-                            self.scenes[scId].locations.append(id)
-                '''
-                i += 1
-                ''' Cannot write back item IDs, because self.items is None
-                itemNames = cell[i].split(self._LIST_SEPARATOR)
-                self.scenes[scId].items = []
+            if ywProject.characters[crId].tags is not None:
+                ET.SubElement(crt, 'Tags').text = ';'.join(
+                    ywProject.characters[crId].tags)
 
-                for itemName in itemNames:
+            if ywProject.characters[crId].notes is not None:
+                ET.SubElement(
+                    crt, 'Notes').text = ywProject.characters[crId].notes
 
-                    for id, name in self.items.items():
+            if ywProject.characters[crId].bio is not None:
+                ET.SubElement(crt, 'Bio').text = ywProject.characters[crId].bio
 
-                        if name == itemName:
-                            self.scenes[scId].items.append(id)
-                '''
+            if ywProject.characters[crId].goals is not None:
+                ET.SubElement(
+                    crt, 'Goals').text = ywProject.characters[crId].goals
 
-        return 'SUCCESS: Data read from "' + self._filePath + '".'
+            if ywProject.characters[crId].fullName is not None:
+                ET.SubElement(
+                    crt, 'FullName').text = ywProject.characters[crId].fullName
 
+            if ywProject.characters[crId].isMajor:
+                ET.SubElement(crt, 'Major').text = '-1'
 
+        # Write attributes at scene level to the xml element tree.
 
+        scenes = ET.SubElement(root, 'SCENES')
 
-class CsvPlotList(CsvFile):
-    """csv file representation of an yWriter project's scenes table. 
+        for scId in ywProject.scenes:
+            scn = ET.SubElement(scenes, 'SCENE')
+            ET.SubElement(scn, 'ID').text = scId
 
-    Represents a csv file with a record per scene.
-    * Records are separated by line breaks.
-    * Data fields are delimited by the _SEPARATOR character.
-    """
+            if ywProject.scenes[scId].title is not None:
+                ET.SubElement(scn, 'Title').text = ywProject.scenes[scId].title
 
-    EXTENSION = '.csv'
-    SUFFIX = '_plotlist'
+            for chId in ywProject.chapters:
 
-    _SEPARATOR = '|'     # delimits data fields within a record.
-    _LINEBREAK = '\t'    # substitutes embedded line breaks.
+                if scId in ywProject.chapters[chId].srtScenes:
+                    ET.SubElement(scn, 'BelongsToChID').text = chId
+                    break
 
-    _STORYLINE_MARKER = 'story'
-    # Field names containing this string (case insensitive)
-    # are associated to storylines
+            if ywProject.scenes[scId].desc is not None:
+                ET.SubElement(scn, 'Desc').text = ywProject.scenes[scId].desc
 
-    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
-    # '1' is assigned N/A (empty table cell).
+            if ywProject.scenes[scId].sceneContent is not None:
+                ET.SubElement(scn,
+                              'SceneContent').text = ywProject.scenes[scId].sceneContent
+                ET.SubElement(scn, 'WordCount').text = str(
+                    ywProject.scenes[scId].wordCount)
+                ET.SubElement(scn, 'LetterCount').text = str(
+                    ywProject.scenes[scId].letterCount)
 
-    _NOT_APPLICABLE = 'N/A'
-    # Scene field column header for fields not being assigned to a storyline
+            if ywProject.scenes[scId].isUnused:
+                ET.SubElement(scn, 'Unused').text = '-1'
 
-    _CHAR_STATE = ['', 'N/A', 'unhappy', 'dissatisfied',
-                   'vague', 'satisfied', 'happy', '', '', '', '']
+            scFields = ET.SubElement(scn, 'Fields')
 
-    fileHeader = '''ID|''' +\
-        '''Plot section|Plot event|Plot event title|Details|''' +\
-        '''Scene|Words total|$FieldTitle1|$FieldTitle2|$FieldTitle3|$FieldTitle4
-'''
+            if ywProject.scenes[scId].isNotesScene:
+                ET.SubElement(scFields, 'Field_SceneType').text = '1'
 
-    notesChapterTemplate = '''ChID:$ID|$Title|||$Desc||||||
-'''
+            elif ywProject.scenes[scId].isTodoScene:
+                ET.SubElement(scFields, 'Field_SceneType').text = '2'
 
-    sceneTemplate = '''=HYPERLINK("file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion";"ScID:$ID")|''' +\
-        '''|$Tags|$Title|$Notes|''' +\
-        '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4
-'''
+            if ywProject.scenes[scId].status is not None:
+                ET.SubElement(scn, 'Status').text = str(
+                    ywProject.scenes[scId].status)
 
-    def get_projectTemplateSubst(self):
-        projectTemplateSubst = CsvFile.get_projectTemplateSubst(self)
+            if ywProject.scenes[scId].sceneNotes is not None:
+                ET.SubElement(
+                    scn, 'Notes').text = ywProject.scenes[scId].sceneNotes
 
-        charList = []
+            if ywProject.scenes[scId].tags is not None:
+                ET.SubElement(scn, 'Tags').text = ';'.join(
+                    ywProject.scenes[scId].tags)
 
-        for crId in self.characters:
-            charList.append(self.characters[crId].title)
+            if ywProject.scenes[scId].field1 is not None:
+                ET.SubElement(
+                    scn, 'Field1').text = ywProject.scenes[scId].field1
 
-        if self.fieldTitle1 in charList or self._STORYLINE_MARKER in self.fieldTitle1.lower():
-            self.arc1 = True
+            if ywProject.scenes[scId].field2 is not None:
+                ET.SubElement(
+                    scn, 'Field2').text = ywProject.scenes[scId].field2
 
-        else:
-            self.arc1 = False
-            projectTemplateSubst['FieldTitle1'] = self._NOT_APPLICABLE
+            if ywProject.scenes[scId].field3 is not None:
+                ET.SubElement(
+                    scn, 'Field3').text = ywProject.scenes[scId].field3
 
-        if self.fieldTitle2 in charList or self._STORYLINE_MARKER in self.fieldTitle2.lower():
-            self.arc2 = True
+            if ywProject.scenes[scId].field4 is not None:
+                ET.SubElement(
+                    scn, 'Field4').text = ywProject.scenes[scId].field4
 
-        else:
-            self.arc2 = False
-            projectTemplateSubst['FieldTitle2'] = self._NOT_APPLICABLE
+            if ywProject.scenes[scId].appendToPrev:
+                ET.SubElement(scn, 'AppendToPrev').text = '-1'
 
-        if self.fieldTitle3 in charList or self._STORYLINE_MARKER in self.fieldTitle3.lower():
-            self.arc3 = True
+            # Date/time information
 
-        else:
-            self.arc3 = False
-            projectTemplateSubst['FieldTitle3'] = self._NOT_APPLICABLE
+            if (ywProject.scenes[scId].date is not None) and (ywProject.scenes[scId].time is not None):
+                dateTime = ' '.join(
+                    ywProject.scenes[scId].date, ywProject.scenes[scId].time)
+                ET.SubElement(scn, 'SpecificDateTime').text = dateTime
+                ET.SubElement(scn, 'SpecificDateMode').text = '-1'
 
-        if self.fieldTitle4 in charList or self._STORYLINE_MARKER in self.fieldTitle4.lower():
-            self.arc4 = True
+            elif (ywProject.scenes[scId].day is not None) or (ywProject.scenes[scId].hour is not None) or (ywProject.scenes[scId].minute is not None):
 
-        else:
-            self.arc4 = False
-            projectTemplateSubst['FieldTitle4'] = self._NOT_APPLICABLE
+                if ywProject.scenes[scId].day is not None:
+                    ET.SubElement(scn, 'Day').text = ywProject.scenes[scId].day
 
-        return projectTemplateSubst
+                if ywProject.scenes[scId].hour is not None:
+                    ET.SubElement(
+                        scn, 'Hour').text = ywProject.scenes[scId].hour
 
-    def get_sceneSubst(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        sceneSubst = CsvFile.get_sceneSubst(
-            self, scId, sceneNumber, wordsTotal, lettersTotal)
+                if ywProject.scenes[scId].minute is not None:
+                    ET.SubElement(
+                        scn, 'Minute').text = ywProject.scenes[scId].minute
 
-        if self.scenes[scId].field1 == '1' or not self.arc1:
-            sceneSubst['Field1'] = ''
+            if ywProject.scenes[scId].lastsDays is not None:
+                ET.SubElement(
+                    scn, 'LastsDays').text = ywProject.scenes[scId].lastsDays
 
-        if self.scenes[scId].field2 == '1' or not self.arc1:
-            sceneSubst['Field2'] = ''
+            if ywProject.scenes[scId].lastsHours is not None:
+                ET.SubElement(
+                    scn, 'LastsHours').text = ywProject.scenes[scId].lastsHours
 
-        if self.scenes[scId].field3 == '1' or not self.arc3:
-            sceneSubst['Field3'] = ''
+            if ywProject.scenes[scId].lastsMinutes is not None:
+                ET.SubElement(
+                    scn, 'LastsMinutes').text = ywProject.scenes[scId].lastsMinutes
 
-        if self.scenes[scId].field4 == '1' or not self.arc4:
-            sceneSubst['Field4'] = ''
+            # Plot related information
 
-        return sceneSubst
+            if ywProject.scenes[scId].isReactionScene:
+                ET.SubElement(scn, 'ReactionScene').text = '-1'
 
-    def read(self):
-        """Parse the csv file located at filePath, fetching 
-        the Scene attributes contained.
+            if ywProject.scenes[scId].isSubPlot:
+                ET.SubElement(scn, 'SubPlot').text = '-1'
+
+            if ywProject.scenes[scId].goal is not None:
+                ET.SubElement(scn, 'Goal').text = ywProject.scenes[scId].goal
+
+            if ywProject.scenes[scId].conflict is not None:
+                ET.SubElement(
+                    scn, 'Conflict').text = ywProject.scenes[scId].conflict
+
+            if ywProject.scenes[scId].outcome is not None:
+                ET.SubElement(
+                    scn, 'Outcome').text = ywProject.scenes[scId].outcome
+
+            if ywProject.scenes[scId].characters is not None:
+                scCharacters = ET.SubElement(scn, 'Characters')
+
+                for crId in ywProject.scenes[scId].characters:
+                    ET.SubElement(scCharacters, 'CharID').text = crId
+
+            if ywProject.scenes[scId].locations is not None:
+                scLocations = ET.SubElement(scn, 'Locations')
+
+                for lcId in ywProject.scenes[scId].locations:
+                    ET.SubElement(scLocations, 'LocID').text = lcId
+
+            if ywProject.scenes[scId].items is not None:
+                scItems = ET.SubElement(scn, 'Items')
+
+                for itId in ywProject.scenes[scId].items:
+                    ET.SubElement(scItems, 'ItemID').text = itId
+
+        # Write attributes at chapter level to the xml element tree.
+
+        chapters = ET.SubElement(root, 'CHAPTERS')
+
+        sortOrder = 0
+
+        for chId in ywProject.srtChapters:
+            sortOrder += 1
+            chp = ET.SubElement(chapters, 'CHAPTER')
+            ET.SubElement(chp, 'ID').text = chId
+            ET.SubElement(chp, 'SortOrder').text = str(sortOrder)
+
+            if ywProject.chapters[chId].title is not None:
+                ET.SubElement(
+                    chp, 'Title').text = ywProject.chapters[chId].title
+
+            if ywProject.chapters[chId].desc is not None:
+                ET.SubElement(chp, 'Desc').text = ywProject.chapters[chId].desc
+
+            if ywProject.chapters[chId].chLevel == 1:
+                ET.SubElement(chp, 'SectionStart').text = '-1'
+
+            if ywProject.chapters[chId].oldType is not None:
+                ET.SubElement(chp, 'Type').text = str(
+                    ywProject.chapters[chId].oldType)
+
+            if ywProject.chapters[chId].chType is not None:
+                ET.SubElement(chp, 'ChapterType').text = str(
+                    ywProject.chapters[chId].chType)
+
+            if ywProject.chapters[chId].isUnused:
+                ET.SubElement(chp, 'Unused').text = '-1'
+
+            sortSc = ET.SubElement(chp, 'Scenes')
+
+            for scId in ywProject.chapters[chId].srtScenes:
+                ET.SubElement(sortSc, 'ScID').text = scId
+
+            chFields = ET.SubElement(chp, 'Fields')
+
+            if ywProject.chapters[chId].title.startswith('@'):
+                ywProject.chapters[chId].suppressChapterTitle = True
+
+            if ywProject.chapters[chId].suppressChapterTitle:
+                ET.SubElement(
+                    chFields, 'Field_SuppressChapterTitle').text = '1'
+
+        self.indent_xml(root)
+        ywProject._tree = ET.ElementTree(root)
+
+        return 'SUCCESS'
+
+
+class Yw7NewFile(YwFile):
+    """yWriter 7 xml project file representation."""
+
+    EXTENSION = '.yw7'
+
+    def write(self):
+        self.ywTreeBuilder = Yw7TreeCreator()
+        return YwFile.write(self)
+
+
+
+
+
+class Yw5TreeCreator(Yw5TreeBuilder):
+    """Create a new yWriter 7 project xml tree."""
+
+    def build_element_tree(self, ywProject):
+        """Put the yWriter project attributes to a new xml element tree.
         Return a message beginning with SUCCESS or ERROR.
         """
+
+        # Copy yw7 file.
+
+        yw7File = os.path.splitext(ywProject.filePath)[0] + '.yw7'
+
         try:
-            with open(self._filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+            with open(yw7File, 'rb') as f:
+                project = f.read()
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            with open(ywProject.filePath, 'wb') as f:
+                f.write(project)
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+        except:
+            return 'ERROR: Can not copy "' + yw7File + ' to ' + ywProject.filePath + '".'
 
-        tableHeader = lines[0].rstrip().split(self._SEPARATOR)
+        # Create RTF5 directory.
 
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
+        rtfDir = os.path.dirname(ywProject.filePath)
 
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
+        if rtfDir == '':
+            rtfDir = './RTF5'
 
-            if 'ChID:' in cell[0]:
-                chId = re.search('ChID\:([0-9]+)', cell[0]).group(1)
-                self.chapters[chId] = Chapter()
-                self.chapters[chId].title = cell[1]
-                self.chapters[chId].desc = self.convert_to_yw(cell[4])
+        else:
+            rtfDir += '/RTF5'
 
-            if 'ScID:' in cell[0]:
-                scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
-                self.scenes[scId] = Scene()
-                self.scenes[scId].tags = cell[2].split(self._LIST_SEPARATOR)
-                self.scenes[scId].title = cell[3]
-                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[4])
+        try:
+            rmtree(rtfDir)
 
-                i = 5
-                # Don't write back sceneCount
-                i += 1
-                # Don't write back wordCount
-                i += 1
+        except:
+            pass
 
-                # Transfer scene ratings; set to 1 if deleted
+        try:
+            os.mkdir(rtfDir)
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field1 = cell[i]
+        except:
+            return 'ERROR: cannot create scene dir "' + rtfDir + '".'
 
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field1 = '1'
+        # Create RTF file entries.
 
-                i += 1
+        sceneCount = 0
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field2 = cell[i]
+        for scId in ywProject.scenes:
+            sceneCount += 1
+            ywProject.scenes[scId].rtfFile = 'RTF_' + \
+                str(sceneCount).zfill(5) + '.rtf'
 
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field2 = '1'
+        # Modify xml tree.
 
-                i += 1
+        try:
+            ywProject._tree = ET.parse(ywProject._filePath)
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field3 = cell[i]
+        except:
+            return 'ERROR: Can not read xml file "' + ywProject._filePath + '".'
 
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field3 = '1'
+        return Yw5TreeBuilder.build_element_tree(self, ywProject)
 
-                i += 1
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field4 = cell[i]
+class Yw5NewFile(YwFile):
+    """yWriter 5 xml project file representation."""
 
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field4 = '1'
+    EXTENSION = '.yw5'
 
-        return 'SUCCESS: Data read from "' + self._filePath + '".'
+    def write(self):
+        self.ywTreeBuilder = Yw5TreeCreator()
+        return YwFile.write(self)
+
 
 
 class OdtExport(OdtFile):
+
+    SUFFIX = ''
 
     """OpenDocument xml project file representation."""
 
@@ -4768,452 +5629,860 @@ class OdtExport(OdtFile):
 
 
 
+from html.parser import HTMLParser
 
-class CsvCharList(CsvFile):
-    """csv file representation of an yWriter project's characters table. 
 
-    Represents a csv file with a record per character.
-    * Records are separated by line breaks.
-    * Data fields are delimited by the _SEPARATOR character.
+
+def read_html_file(filePath):
+    """Open a html file being encoded utf-8 or ANSI.
+    Return a tuple:
+    [0] = Message beginning with SUCCESS or ERROR.
+    [1] = The file content in a single string. 
     """
-
-    SUFFIX = '_charlist'
-
-    fileHeader = '''ID|Name|Full name|Aka|Description|Bio|Goals|Importance|Tags|Notes
-'''
-
-    characterTemplate = '''CrID:$ID|$Title|$FullName|$AKA|$Desc|$Bio|$Goals|$Status|$Tags|$Notes
-'''
-
-    def read(self):
-        """Parse the csv file located at filePath, 
-        fetching the Character attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
-        """
+    try:
+        with open(filePath, 'r', encoding='utf-8') as f:
+            text = (f.read())
+    except:
+        # HTML files exported by a word processor may be ANSI encoded.
         try:
-            with open(self._filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+            with open(filePath, 'r') as f:
+                text = (f.read())
 
         except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            return ('ERROR: "' + filePath + '" not found.', None)
 
-        if lines[0] != self.fileHeader:
-            return 'ERROR: Wrong lines content.'
-
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
-
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
-            if 'CrID:' in cell[0]:
-                crId = re.search('CrID\:([0-9]+)', cell[0]).group(1)
-                self.characters[crId] = Character()
-                self.characters[crId].title = cell[1]
-                self.characters[crId].fullName = cell[2]
-                self.characters[crId].aka = cell[3]
-                self.characters[crId].desc = self.convert_to_yw(cell[4])
-                self.characters[crId].bio = cell[5]
-                self.characters[crId].goals = cell[6]
-
-                if Character.MAJOR_MARKER in cell[7]:
-                    self.characters[crId].isMajor = True
-
-                else:
-                    self.characters[crId].isMajor = False
-
-                self.characters[crId].tags = cell[8].split(';')
-                self.characters[crId].notes = self.convert_to_yw(cell[9])
-
-        return 'SUCCESS: Data read from "' + self._filePath + '".'
-
-    def merge(self, novel):
-        """Copy selected novel attributes.
-        """
-        self.characters = novel.characters
+    return ('SUCCESS', text)
 
 
 
 
-class CsvLocList(CsvFile):
-    """csv file representation of an yWriter project's locations table. 
-
-    Represents a csv file with a record per location.
-    * Records are separated by line breaks.
-    * Data fields are delimited by the _SEPARATOR location.
+class HtmlFile(Novel, HTMLParser):
+    """HTML file representation of an yWriter project's part.
     """
 
-    SUFFIX = '_loclist'
+    EXTENSION = '.html'
 
-    fileHeader = '''ID|Name|Description|Aka|Tags
-'''
+    def __init__(self, filePath):
+        Novel.__init__(self, filePath)
+        HTMLParser.__init__(self)
+        self._lines = []
+        self._scId = None
+        self._chId = None
 
-    locationTemplate = '''LcID:$ID|$Title|$Desc|$AKA|$Tags
-'''
+    def convert_to_yw(self, text):
+        """Convert html tags to yWriter 6/7 raw markup. 
+        Return a yw6/7 markup string.
+        """
+
+        # Clean up polluted HTML code.
+
+        text = re.sub('</*font.*?>', '', text)
+        text = re.sub('</*span.*?>', '', text)
+        text = re.sub('</*FONT.*?>', '', text)
+        text = re.sub('</*SPAN.*?>', '', text)
+
+        # Put everything in one line.
+
+        text = text.replace('\n', ' ')
+        text = text.replace('\r', ' ')
+        text = text.replace('\t', ' ')
+
+        while '  ' in text:
+            text = text.replace('  ', ' ').rstrip().lstrip()
+
+        # Replace HTML tags by yWriter markup.
+
+        text = text.replace('<i>', '[i]')
+        text = text.replace('<I>', '[i]')
+        text = text.replace('</i>', '[/i]')
+        text = text.replace('</I>', '[/i]')
+        text = text.replace('</em>', '[/i]')
+        text = text.replace('</EM>', '[/i]')
+        text = text.replace('<b>', '[b]')
+        text = text.replace('<B>', '[b]')
+        text = text.replace('</b>', '[/b]')
+        text = text.replace('</B>', '[/b]')
+        text = text.replace('</strong>', '[/b]')
+        text = text.replace('</STRONG>', '[/b]')
+        text = re.sub('<em.*?>', '[i]', text)
+        text = re.sub('<EM.*?>', '[i]', text)
+        text = re.sub('<strong.*?>', '[b]', text)
+        text = re.sub('<STRONG.*?>', '[b]', text)
+
+        # Remove orphaned tags.
+
+        text = text.replace('[/b][b]', '')
+        text = text.replace('[/i][i]', '')
+        text = text.replace('[/b][b]', '')
+
+        # Remove scene title annotations.
+
+        text = re.sub('\<\!-- - .*? - -->', '', text)
+
+        # Convert author's comments
+
+        text = text.replace('<!--', '/*')
+        text = text.replace('-->', '*/')
+
+        return text
+
+    def preprocess(self, text):
+        """Strip yWriter 6/7 raw markup. Return a plain text string."""
+
+        text = self.convert_to_yw(text)
+        text = text.replace('[i]', '')
+        text = text.replace('[/i]', '')
+        text = text.replace('[b]', '')
+        text = text.replace('[/b]', '')
+        return text
+
+    def postprocess(self):
+        """Process the plain text after parsing.
+        """
+
+    def handle_starttag(self, tag, attrs):
+        """Identify scenes and chapters.
+        Overwrites HTMLparser.handle_starttag()
+        """
+        if tag == 'div':
+
+            if attrs[0][0] == 'id':
+
+                if attrs[0][1].startswith('ScID'):
+                    self._scId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.scenes[self._scId] = Scene()
+                    self.chapters[self._chId].srtScenes.append(self._scId)
+
+                elif attrs[0][1].startswith('ChID'):
+                    self._chId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.chapters[self._chId] = Chapter()
+                    self.chapters[self._chId].srtScenes = []
+                    self.srtChapters.append(self._chId)
 
     def read(self):
-        """Parse the csv file located at filePath, 
-        fetching the Object attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
+        """Read scene content from a html file 
+        with chapter and scene sections.
+        Return a message beginning with SUCCESS or ERROR. 
         """
-        try:
-            with open(self._filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+        result = read_html_file(self._filePath)
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+        if result[0].startswith('ERROR'):
+            return (result[0])
 
-        if lines[0] != self.fileHeader:
-            return 'ERROR: Wrong lines content.'
+        text = self.preprocess(result[1])
+        self.feed(text)
+        self.postprocess()
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
-
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
-            if 'LcID:' in cell[0]:
-                lcId = re.search('LcID\:([0-9]+)', cell[0]).group(1)
-                self.locations[lcId] = Object()
-                self.locations[lcId].title = cell[1]
-                self.locations[lcId].desc = self.convert_to_yw(cell[2])
-                self.locations[lcId].aka = cell[3]
-                self.locations[lcId].tags = cell[4].split(';')
-
-        return 'SUCCESS: Data read from "' + self._filePath + '".'
-
-    def merge(self, novel):
-        """Copy selected novel attributes.
-        """
-        self.locations = novel.locations
+        return 'SUCCESS: ' + str(len(self.scenes)) + ' Scenes read from "' + self._filePath + '".'
 
 
 
+class HtmlProof(HtmlFile):
+    """HTML file representation of an yWriter project's OfficeFile part.
 
-class CsvItemList(CsvFile):
-    """csv file representation of an yWriter project's items table. 
-
-    Represents a csv file with a record per item.
-    * Records are separated by line breaks.
-    * Data fields are delimited by the _SEPARATOR item.
+    Represents a html file with visible chapter and scene tags 
+    to be read and written by Open/LibreOffice Writer.
     """
 
-    SUFFIX = '_itemlist'
+    SUFFIX = '_proof'
 
-    fileHeader = '''ID|Name|Description|Aka|Tags
-'''
+    def __init__(self, filePath):
+        HtmlFile.__init__(self, filePath)
+        self._collectText = False
 
-    itemTemplate = '''ItID:$ID|$Title|$Desc|$AKA|$Tags
-'''
-
-    def read(self):
-        """Parse the csv file located at filePath, 
-        fetching the Object attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
+    def preprocess(self, text):
+        """Process the html text before parsing.
         """
-        try:
-            with open(self._filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+        return self.convert_to_yw(text)
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
-
-        if lines[0] != self.fileHeader:
-            return 'ERROR: Wrong lines content.'
-
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
-
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
-            if 'ItID:' in cell[0]:
-                itId = re.search('ItID\:([0-9]+)', cell[0]).group(1)
-                self.items[itId] = Object()
-                self.items[itId].title = cell[1]
-                self.items[itId].desc = self.convert_to_yw(cell[2])
-                self.items[itId].aka = cell[3]
-                self.items[itId].tags = cell[4].split(';')
-
-        return 'SUCCESS: Data read from "' + self._filePath + '".'
-
-    def merge(self, novel):
-        """Copy selected novel attributes.
+    def postprocess(self):
+        """Parse the converted text to identify chapters and scenes.
         """
-        self.items = novel.items
+        sceneText = []
+        scId = ''
+        chId = ''
+        inScene = False
+
+        for line in self._lines:
+
+            if '[ScID' in line:
+                scId = re.search('[0-9]+', line).group()
+                self.scenes[scId] = Scene()
+                self.chapters[chId].srtScenes.append(scId)
+                inScene = True
+
+            elif '[/ScID' in line:
+                self.scenes[scId].sceneContent = '\n'.join(sceneText)
+                sceneText = []
+                inScene = False
+
+            elif '[ChID' in line:
+                chId = re.search('[0-9]+', line).group()
+                self.chapters[chId] = Chapter()
+                self.srtChapters.append(chId)
+
+            elif '[/ChID' in line:
+                pass
+
+            elif inScene:
+                sceneText.append(line)
+
+    def handle_starttag(self, tag, attrs):
+        """Recognize the paragraph's beginning.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if tag == 'p':
+            self._collectText = True
+
+    def handle_endtag(self, tag):
+        """Recognize the paragraph's end.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if tag == 'p':
+            self._collectText = False
+
+    def handle_data(self, data):
+        """Copy the scene paragraphs.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._collectText:
+            self._lines.append(data)
 
 
-class OdtCharacters(OdtFile):
-    """OpenDocument xml character descriptions file representation."""
+
+class HtmlManuscript(HtmlFile):
+    """HTML file representation of an yWriter project's manuscript part.
+
+    Represents a html file with chapter and scene sections 
+    containing scene contents to be read and written by 
+    OpenOffice/LibreOffice Writer.
+    """
+
+    SUFFIX = '_manuscript'
+
+    def preprocess(self, text):
+        """Process the html text before parsing.
+        """
+        return self.convert_to_yw(text)
+
+    def handle_endtag(self, tag):
+        """Recognize the end of the scene section and save data.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if self._scId is not None:
+
+            if tag == 'div':
+                self.scenes[self._scId].sceneContent = ''.join(self._lines)
+                self._lines = []
+                self._scId = None
+
+            elif tag == 'p':
+                self._lines.append('\n')
+
+        elif self._chId is not None:
+
+            if tag == 'div':
+                self._chId = None
+
+    def handle_data(self, data):
+        """Collect data within scene sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._scId is not None:
+            self._lines.append(data.rstrip().lstrip())
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+
+
+
+class HtmlSceneDesc(HtmlFile):
+    """HTML file representation of an yWriter project's scene summaries.
+    """
+
+    SUFFIX = '_scenes'
+
+    def handle_endtag(self, tag):
+        """Recognize the end of the scene section and save data.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if self._scId is not None:
+
+            if tag == 'div':
+                self.scenes[self._scId].desc = ''.join(self._lines)
+                self._lines = []
+                self._scId = None
+
+            elif tag == 'p':
+                self._lines.append('\n')
+
+        elif self._chId is not None:
+
+            if tag == 'div':
+                self._chId = None
+
+    def handle_data(self, data):
+        """Collect data within scene sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._scId is not None:
+            self._lines.append(data.rstrip().lstrip())
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+
+
+
+class HtmlChapterDesc(HtmlFile):
+    """HTML file representation of an yWriter project's chapters summaries."""
+
+    SUFFIX = '_chapters'
+
+    def handle_endtag(self, tag):
+        """Recognize the end of the chapter section and save data.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if self._chId is not None:
+
+            if tag == 'div':
+                self.chapters[self._chId].desc = ''.join(self._lines)
+                self._lines = []
+                self._chId = None
+
+            elif tag == 'p':
+                self._lines.append('\n')
+
+    def handle_data(self, data):
+        """collect data within chapter sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._chId is not None:
+            self._lines.append(data.rstrip().lstrip())
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+
+
+
+class HtmlPartDesc(HtmlChapterDesc):
+    """HTML file representation of an yWriter project's parts summaries."""
+
+    SUFFIX = '_parts'
+
+
+
+
+class HtmlCharacters(HtmlFile):
+    """HTML file representation of an yWriter project's character descriptions."""
 
     SUFFIX = '_characters'
 
-    def get_characterSubst(self, crId):
-        characterSubst = OdtFile.get_characterSubst(self, crId)
+    def __init__(self, filePath):
+        HtmlFile.__init__(self, filePath)
+        self._crId = None
+        self._section = None
 
-        if self.characters[crId].aka:
-            characterSubst['AKA'] = ' ("' + self.characters[crId].aka + '")'
+    def handle_starttag(self, tag, attrs):
+        """Identify characters with subsections.
+        Overwrites HTMLparser.handle_starttag()
+        """
+        if tag == 'div':
 
-        if self.characters[crId].fullName:
-            characterSubst['FullName'] = '/' + self.characters[crId].fullName
+            if attrs[0][0] == 'id':
 
-        return characterSubst
+                if attrs[0][1].startswith('CrID_desc'):
+                    self._crId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.characters[self._crId] = Character()
+                    self._section = 'desc'
 
-    fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
-<text:p text:style-name="Subtitle">$AuthorName</text:p>
-'''
+                elif attrs[0][1].startswith('CrID_bio'):
+                    self._section = 'bio'
 
-    characterTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title$FullName$AKA</text:h>
-<text:section text:style-name="Sect1" text:name="CrID:$ID">
-<text:h text:style-name="Heading_20_3" text:outline-level="3">Description</text:h>
-<text:section text:style-name="Sect1" text:name="CrID_desc:$ID">
-<text:p text:style-name="Text_20_body">$Desc</text:p>
-</text:section>
-<text:h text:style-name="Heading_20_3" text:outline-level="3">Bio</text:h>
-<text:section text:style-name="Sect1" text:name="CrID_bio:$ID">
-<text:p text:style-name="Text_20_body">$Bio</text:p>
-</text:section>
-<text:h text:style-name="Heading_20_3" text:outline-level="3">Goals</text:h>
-<text:section text:style-name="Sect1" text:name="CrID_goals:$ID">
-<text:p text:style-name="Text_20_body">$Goals</text:p>
-</text:section>
-</text:section>
-'''
+                elif attrs[0][1].startswith('CrID_goals'):
+                    self._section = 'goals'
 
-    fileFooter = OdtTemplate.CONTENT_XML_FOOTER
+    def handle_endtag(self, tag):
+        """Recognize the end of the character section and save data.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if self._crId is not None:
 
+            if tag == 'div':
 
-class OdtItems(OdtFile):
-    """OpenDocument xml item descriptions file representation."""
+                if self._section == 'desc':
+                    self.characters[self._crId].desc = ''.join(self._lines)
+                    self._lines = []
+                    self._section = None
 
-    SUFFIX = '_items'
+                elif self._section == 'bio':
+                    self.characters[self._crId].bio = ''.join(self._lines)
+                    self._lines = []
+                    self._section = None
 
-    def get_itemSubst(self, itId):
-        itemSubst = OdtFile.get_itemSubst(self, itId)
+                elif self._section == 'goals':
+                    self.characters[self._crId].goals = ''.join(self._lines)
+                    self._lines = []
+                    self._section = None
 
-        if self.items[itId].aka:
-            itemSubst['AKA'] = ' ("' + self.items[itId].aka + '")'
+            elif tag == 'p':
+                self._lines.append('\n')
 
-        return itemSubst
+    def handle_data(self, data):
+        """collect data within character sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._section is not None:
+            self._lines.append(data.rstrip().lstrip())
 
-    fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
-<text:p text:style-name="Subtitle">$AuthorName</text:p>
-'''
-
-    itemTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title$AKA</text:h>
-<text:section text:style-name="Sect1" text:name="ItID:$ID">
-<text:p text:style-name="Text_20_body">$Desc</text:p>
-</text:section>
-'''
-
-    fileFooter = OdtTemplate.CONTENT_XML_FOOTER
+    def get_structure(self):
+        """This file format has no comparable structure."""
 
 
-class OdtLocations(OdtFile):
-    """OpenDocument xml location descriptions file representation."""
+
+
+class HtmlLocations(HtmlFile):
+    """HTML file representation of an yWriter project's location descriptions."""
 
     SUFFIX = '_locations'
 
-    def get_locationSubst(self, lcId):
-        locationSubst = OdtFile.get_locationSubst(self, lcId)
+    def __init__(self, filePath):
+        HtmlFile.__init__(self, filePath)
+        self._lcId = None
 
-        if self.locations[lcId].aka:
-            locationSubst['AKA'] = ' ("' + self.locations[lcId].aka + '")'
+    def handle_starttag(self, tag, attrs):
+        """Identify locations.
+        Overwrites HTMLparser.handle_starttag()
+        """
+        if tag == 'div':
 
-        return locationSubst
+            if attrs[0][0] == 'id':
 
-    fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
-<text:p text:style-name="Subtitle">$AuthorName</text:p>
-'''
+                if attrs[0][1].startswith('LcID'):
+                    self._lcId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.locations[self._lcId] = Object()
 
-    locationTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title$AKA</text:h>
-<text:section text:style-name="Sect1" text:name="ItID:$ID">
-<text:p text:style-name="Text_20_body">$Desc</text:p>
-</text:section>
-'''
+    def handle_endtag(self, tag):
+        """Recognize the end of the location section and save data.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if self._lcId is not None:
 
-    fileFooter = OdtTemplate.CONTENT_XML_FOOTER
+            if tag == 'div':
+                self.locations[self._lcId].desc = ''.join(self._lines)
+                self._lines = []
+                self._lcId = None
 
-import uno
+            elif tag == 'p':
+                self._lines.append('\n')
 
-from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
-from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
+    def handle_data(self, data):
+        """collect data within location sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._lcId is not None:
+            self._lines.append(data.rstrip().lstrip())
 
-CTX = uno.getComponentContext()
-SM = CTX.getServiceManager()
-
-
-def create_instance(name, with_context=False):
-    if with_context:
-        instance = SM.createInstanceWithContext(name, CTX)
-    else:
-        instance = SM.createInstance(name)
-    return instance
-
-
-def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg='infobox'):
-    """ Create message box
-        type_msg: infobox, warningbox, errorbox, querybox, messbox
-
-        MSG_BUTTONS: BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, 
-        BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
-
-        MSG_RESULTS: OK, YES, NO, CANCEL
-
-        http://api.libreoffice.org/docs/idl/ref/interfacecom_1_1sun_1_1star_1_1awt_1_1XMessageBoxFactory.html
-    """
-    toolkit = create_instance('com.sun.star.awt.Toolkit')
-    parent = toolkit.getDesktopWindow()
-    mb = toolkit.createMessageBox(
-        parent, type_msg, buttons, title, str(message))
-    return mb.execute()
-
-
-class Stub():
-
-    def dummy(self):
-        pass
-
-
-def FilePicker(path=None, mode=0):
-    """
-    Read file:  `mode in (0, 6, 7, 8, 9)`
-    Write file: `mode in (1, 2, 3, 4, 5, 10)`
-    see: (http://api.libreoffice.org/docs/idl/ref/
-            namespacecom_1_1sun_1_1star_1_1ui_1_1
-            dialogs_1_1TemplateDescription.html)
-
-    See: https://stackoverflow.com/questions/30840736/libreoffice-how-to-create-a-file-dialog-via-python-macro
-    """
-    # shortcut:
-    createUnoService = (
-        XSCRIPTCONTEXT
-        .getComponentContext()
-        .getServiceManager()
-        .createInstance
-    )
-
-    filepicker = createUnoService("com.sun.star.ui.dialogs.OfficeFilePicker")
-
-    if path:
-        filepicker.setDisplayDirectory(path)
-
-    filepicker.initialize((mode,))
-    filepicker.appendFilter("yWriter 7 Files (.yw7)", "*.yw7")
-    filepicker.appendFilter("yWriter 6 Files (.yw6)", "*.yw6")
-
-    if filepicker.execute():
-        return filepicker.getFiles()[0]
-
-
-from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
+    def get_structure(self):
+        """This file format has no comparable structure."""
 
 
 
-class YwCnv():
-    """Converter for yWriter project files.
+class HtmlItems(HtmlFile):
+    """HTML file representation of an yWriter project's item descriptions."""
 
-    # Methods
+    SUFFIX = '_items'
 
-    yw_to_document : str
-        Arguments
-            ywFile : YwFile
-                an object representing the source file.
-            documentFile : Novel
-                a Novel subclass instance representing the target file.
-        Read yWriter file, parse xml and create a document file.
-        Return a message beginning with SUCCESS or ERROR.    
+    def __init__(self, filePath):
+        HtmlFile.__init__(self, filePath)
+        self._itId = None
 
-    document_to_yw : str
-        Arguments
-            documentFile : Novel
-                a Novel subclass instance representing the source file.
-            ywFile : YwFile
-                an object representing the target file.
-        Read document file, convert its content to xml, and replace yWriter file.
-        Return a message beginning with SUCCESS or ERROR.
+    def handle_starttag(self, tag, attrs):
+        """Identify items.
+        Overwrites HTMLparser.handle_starttag()
+        """
+        if tag == 'div':
 
-    confirm_overwrite : bool
-        Arguments
-            fileName : str
-                Path to the file to be overwritten
-        Ask for permission to overwrite the target file.
-        Returns True by default.
-        This method is to be overwritten by subclasses with an user interface.
+            if attrs[0][0] == 'id':
+
+                if attrs[0][1].startswith('ItID'):
+                    self._itId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.items[self._itId] = Object()
+
+    def handle_endtag(self, tag):
+        """Recognize the end of the item section and save data.
+        Overwrites HTMLparser.handle_endtag().
+        """
+        if self._itId is not None:
+
+            if tag == 'div':
+                self.items[self._itId].desc = ''.join(self._lines)
+                self._lines = []
+                self._itId = None
+
+            elif tag == 'p':
+                self._lines.append('\n')
+
+    def handle_data(self, data):
+        """collect data within item sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._itId is not None:
+            self._lines.append(data.rstrip().lstrip())
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+
+
+
+class HtmlImport(HtmlFile):
+    """HTML file representation of an yWriter project's OfficeFile part.
+
+    Represents a html file without chapter and scene tags 
+    to be written by Open/LibreOffice Writer.
     """
 
-    def yw_to_document(self, ywFile, documentFile):
-        """Read yWriter file and convert xml to a document file."""
-        if ywFile.is_locked():
-            return 'ERROR: yWriter seems to be open. Please close first.'
+    SUFFIX = ''
 
-        if ywFile.filePath is None:
-            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
+    _SCENE_DIVIDER = '* * *'
+    _LOW_WORDCOUNT = 10
 
-        message = ywFile.read()
+    def __init__(self, filePath):
+        HtmlFile.__init__(self, filePath)
+        self._chCount = 0
+        self._scCount = 0
 
-        if message.startswith('ERROR'):
-            return message
+    def preprocess(self, text):
+        """Process the html text before parsing.
+        """
+        return self.convert_to_yw(text)
 
-        if documentFile.file_exists():
+    def handle_starttag(self, tag, attrs):
 
-            if not self.confirm_overwrite(documentFile.filePath):
-                return 'Program abort by user.'
+        if tag in ('h1', 'h2'):
+            self._scId = None
+            self._lines = []
+            self._chCount += 1
+            self._chId = str(self._chCount)
+            self.chapters[self._chId] = Chapter()
+            self.chapters[self._chId].srtScenes = []
+            self.srtChapters.append(self._chId)
+            self.chapters[self._chId].oldType = '0'
 
-        documentFile.merge(ywFile)
-        return documentFile.write()
+            if tag == 'h1':
+                self.chapters[self._chId].chLevel = 1
 
-    def document_to_yw(self, documentFile, ywFile):
-        """Read document file, convert its content to xml, and replace yWriter file."""
-        if ywFile.is_locked():
-            return 'ERROR: yWriter seems to be open. Please close first.'
+            else:
+                self.chapters[self._chId].chLevel = 0
 
-        if ywFile.filePath is None:
-            return 'ERROR: "' + ywFile.filePath + '" is not an yWriter project.'
+        elif tag == 'p':
 
-        if ywFile.file_exists() and not self.confirm_overwrite(ywFile.filePath):
-            return 'Program abort by user.'
+            if self._scId is None and self._chId is not None:
+                self._lines = []
+                self._scCount += 1
+                self._scId = str(self._scCount)
+                self.scenes[self._scId] = Scene()
+                self.chapters[self._chId].srtScenes.append(self._scId)
+                self.scenes[self._scId].status = '1'
+                self.scenes[self._scId].title = 'Scene ' + str(self._scCount)
 
-        if documentFile.filePath is None:
-            return 'ERROR: Document is not of the supported type.'
+        elif tag == 'div':
+            self._scId = None
+            self._chId = None
 
-        if not documentFile.file_exists():
-            return 'ERROR: "' + documentFile.filePath + '" not found.'
+        elif tag == 'meta':
 
-        message = documentFile.read()
+            if attrs[0][1].lower() == 'author':
+                self.author = attrs[1][1]
 
-        if message.startswith('ERROR'):
-            return message
+            if attrs[0][1].lower() == 'description':
+                self.desc = attrs[1][1]
 
-        if ywFile.file_exists():
-            message = ywFile.read()
-            # initialize ywFile data
+        elif tag == 'title':
+            self._lines = []
 
-            if message.startswith('ERROR'):
-                return message
+    def handle_endtag(self, tag):
 
-        prjStructure = documentFile.get_structure()
+        if tag == 'p':
+            self._lines.append('\n')
 
-        if prjStructure is not None:
+            if self._scId is not None:
+                self.scenes[self._scId].sceneContent = ''.join(self._lines)
 
-            if prjStructure == '':
-                return 'ERROR: Source file contains no yWriter project structure information.'
+                if self.scenes[self._scId].wordCount < self._LOW_WORDCOUNT:
+                    self.scenes[self._scId].status = 1
 
-            if prjStructure != ywFile.get_structure():
-                return 'ERROR: Structure mismatch - yWriter project not modified.'
+                else:
+                    self.scenes[self._scId].status = 2
 
-        ywFile.merge(documentFile)
-        return ywFile.write()
+        elif tag in ('h1', 'h2'):
+            self.chapters[self._chId].title = ''.join(self._lines)
+            self._lines = []
 
-    def confirm_overwrite(self, fileName):
-        """To be overwritten by subclasses with UI."""
-        return True
+        elif tag == 'title':
+            self.title = ''.join(self._lines)
+
+    def handle_data(self, data):
+        """Collect data within scene sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        if self._scId is not None and self._SCENE_DIVIDER in data:
+            self._scId = None
+
+        else:
+            self._lines.append(data.rstrip().lstrip())
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+
+
+
+class HtmlOutline(HtmlFile):
+    """HTML file representation of an yWriter project's OfficeFile part.
+
+    Represents a html file without chapter and scene tags 
+    to be written by Open/LibreOffice Writer.
+    """
+
+    SUFFIX = ''
+
+    def __init__(self, filePath):
+        HtmlFile.__init__(self, filePath)
+        self._chCount = 0
+        self._scCount = 0
+
+    def handle_starttag(self, tag, attrs):
+
+        if tag in ('h1', 'h2'):
+            self._scId = None
+            self._lines = []
+            self._chCount += 1
+            self._chId = str(self._chCount)
+            self.chapters[self._chId] = Chapter()
+            self.chapters[self._chId].srtScenes = []
+            self.srtChapters.append(self._chId)
+            self.chapters[self._chId].oldType = '0'
+
+            if tag == 'h1':
+                self.chapters[self._chId].chLevel = 1
+
+            else:
+                self.chapters[self._chId].chLevel = 0
+
+        elif tag == 'h3':
+            self._lines = []
+            self._scCount += 1
+            self._scId = str(self._scCount)
+            self.scenes[self._scId] = Scene()
+            self.chapters[self._chId].srtScenes.append(self._scId)
+            self.scenes[self._scId].sceneContent = ''
+            self.scenes[self._scId].status = '1'
+
+        elif tag == 'div':
+            self._scId = None
+            self._chId = None
+
+        elif tag == 'meta':
+
+            if attrs[0][1].lower() == 'author':
+                self.author = attrs[1][1]
+
+            if attrs[0][1].lower() == 'description':
+                self.desc = attrs[1][1]
+
+        elif tag == 'title':
+            self._lines = []
+
+    def handle_endtag(self, tag):
+
+        if tag == 'p':
+            self._lines.append('\n')
+
+            if self._scId is not None:
+                self.scenes[self._scId].desc = ''.join(self._lines)
+
+            elif self._chId is not None:
+                self.chapters[self._chId].desc = ''.join(self._lines)
+
+        elif tag in ('h1', 'h2'):
+            self.chapters[self._chId].title = ''.join(self._lines)
+            self._lines = []
+
+        elif tag == 'h3':
+            self.scenes[self._scId].title = ''.join(self._lines)
+            self._lines = []
+
+        elif tag == 'title':
+            self.title = ''.join(self._lines)
+
+    def handle_data(self, data):
+        """Collect data within scene sections.
+        Overwrites HTMLparser.handle_data().
+        """
+        self._lines.append(data.rstrip().lstrip())
+
+    def get_structure(self):
+        """This file format has no comparable structure."""
+
+
+
+
+class FileFactory():
+    """A simple factory class that instantiates a source file object
+    and a target file object for conversion.
+    """
+
+    YW_EXTENSIONS = ['.yw7', '.yw6', '.yw5']
+
+    def get_file_objects(self, sourcePath, suffix=None):
+        fileName, FileExtension = os.path.splitext(sourcePath)
+
+        if FileExtension in self.YW_EXTENSIONS:
+            # The source file is a yWriter project.
+
+            sourceFile = YwFile(sourcePath)
+
+            # Determine which sort of target is required.
+
+            if suffix is None:
+                targetFile = Yw5NewFile(fileName + Yw5NewFile.EXTENSION)
+
+            elif suffix == '':
+                targetFile = OdtExport(fileName + OdtExport.EXTENSION)
+
+            elif suffix == OdtManuscript.SUFFIX:
+                targetFile = OdtManuscript(
+                    fileName + suffix + OdtManuscript.EXTENSION)
+
+            elif suffix == OdtProof.SUFFIX:
+                targetFile = OdtProof(fileName + suffix + OdtProof.EXTENSION)
+
+            elif suffix == OdtSceneDesc.SUFFIX:
+                targetFile = OdtSceneDesc(
+                    fileName + suffix + OdtSceneDesc.EXTENSION)
+
+            elif suffix == OdtChapterDesc.SUFFIX:
+                targetFile = OdtChapterDesc(
+                    fileName + suffix + OdtChapterDesc.EXTENSION)
+
+            elif suffix == OdtPartDesc.SUFFIX:
+                targetFile = OdtPartDesc(
+                    fileName + suffix + OdtPartDesc.EXTENSION)
+
+            elif suffix == OdtCharacters.SUFFIX:
+                targetFile = OdtCharacters(
+                    fileName + suffix + OdtCharacters.EXTENSION)
+
+            elif suffix == OdtLocations.SUFFIX:
+                targetFile = OdtLocations(
+                    fileName + suffix + OdtLocations.EXTENSION)
+
+            elif suffix == OdtItems.SUFFIX:
+                targetFile = OdtItems(fileName + suffix + OdtItems.EXTENSION)
+
+            elif suffix == CsvSceneList.SUFFIX:
+                targetFile = CsvSceneList(
+                    fileName + suffix + CsvSceneList.EXTENSION)
+
+            elif suffix == CsvPlotList.SUFFIX:
+                targetFile = CsvPlotList(
+                    fileName + suffix + CsvPlotList.EXTENSION)
+
+            elif suffix == CsvCharList.SUFFIX:
+                targetFile = CsvCharList(
+                    fileName + suffix + CsvCharList.EXTENSION)
+
+            elif suffix == CsvLocList.SUFFIX:
+                targetFile = CsvLocList(
+                    fileName + suffix + CsvLocList.EXTENSION)
+
+            elif suffix == CsvItemList.SUFFIX:
+                targetFile = CsvItemList(
+                    fileName + suffix + CsvItemList.EXTENSION)
+
+            else:
+                return ['ERROR: File type not supported.', None, None]
+
+        else:
+            # The source file is not a yWriter project.
+
+            targetFile = None
+
+            if sourcePath.endswith(HtmlProof.SUFFIX + HtmlProof.EXTENSION):
+                sourceFile = HtmlProof(sourcePath)
+
+            elif sourcePath.endswith(HtmlManuscript.SUFFIX + HtmlManuscript.EXTENSION):
+                sourceFile = HtmlManuscript(sourcePath)
+
+            elif sourcePath.endswith(HtmlSceneDesc.SUFFIX + HtmlSceneDesc.EXTENSION):
+                sourceFile = HtmlSceneDesc(sourcePath)
+
+            elif sourcePath.endswith(HtmlChapterDesc.SUFFIX + HtmlChapterDesc.EXTENSION):
+                sourceFile = HtmlChapterDesc(sourcePath)
+
+            elif sourcePath.endswith(HtmlPartDesc.SUFFIX + HtmlPartDesc.EXTENSION):
+                sourceFile = HtmlPartDesc(sourcePath)
+
+            elif sourcePath.endswith(HtmlCharacters.SUFFIX + HtmlCharacters.EXTENSION):
+                sourceFile = HtmlCharacters(sourcePath)
+
+            elif sourcePath.endswith(HtmlLocations.SUFFIX + HtmlLocations.EXTENSION):
+                sourceFile = HtmlLocations(sourcePath)
+
+            elif sourcePath.endswith(HtmlItems.SUFFIX + HtmlItems.EXTENSION):
+                sourceFile = HtmlItems(sourcePath)
+
+            elif sourcePath.endswith('.html'):
+
+                # Is the source file an outline or a "work in progress"?
+
+                result = read_html_file(sourcePath)
+
+                if 'SUCCESS' in result[0]:
+
+                    if "<h3" in result[1].lower():
+                        sourceFile = HtmlOutline(sourcePath)
+
+                    else:
+                        sourceFile = HtmlImport(sourcePath)
+                        targetFile = Yw7NewFile(fileName + '.yw7')
+
+                else:
+                    return ['ERROR: Cannot read "' + sourcePath + '".', None, None]
+
+            elif sourcePath.endswith(CsvSceneList.SUFFIX + CsvSceneList.EXTENSION):
+                sourceFile = CsvSceneList(sourcePath)
+
+            elif sourcePath.endswith(CsvPlotList.SUFFIX + CsvPlotList.EXTENSION):
+                sourceFile = CsvPlotList(sourcePath)
+
+            elif sourcePath.endswith(CsvCharList.SUFFIX + CsvCharList.EXTENSION):
+                sourceFile = CsvCharList(sourcePath)
+
+            elif sourcePath.endswith(CsvLocList.SUFFIX + CsvLocList.EXTENSION):
+                sourceFile = CsvLocList(sourcePath)
+
+            elif sourcePath.endswith(CsvItemList.SUFFIX + CsvItemList.EXTENSION):
+                sourceFile = CsvItemList(sourcePath)
+
+            else:
+                return ['ERROR: File type not supported.', None, None]
+
+            if targetFile is None:
+
+                ywPathBasis = fileName.split(sourceFile.SUFFIX)[0]
+
+                for ywExt in self.YW_EXTENSIONS:
+
+                    # Look for an existing yWriter project to rewrite.
+
+                    if os.path.isfile(ywPathBasis + ywExt):
+                        targetFile = YwFile(ywPathBasis + ywExt)
+                        break
+
+            if targetFile is None:
+                return ['ERROR: No yWriter project to write.', None, None]
+
+        return ('SUCCESS', sourceFile, targetFile)
 
 
 class YwCnvUno(YwCnv):
@@ -5221,9 +6490,56 @@ class YwCnvUno(YwCnv):
     Variant with UNO UI.
     """
 
+    def __init__(self, sourcePath, suffix=None):
+        """Run the converter with a GUI. """
+
+        self.success = False
+        fileFactory = FileFactory()
+
+        message, sourceFile, TargetFile = fileFactory.get_file_objects(
+            sourcePath, suffix)
+
+        if message.startswith('SUCCESS'):
+            self.convert(sourceFile, TargetFile)
+
+        else:
+            msgbox(message)
+
+    def convert(self, sourceFile, targetFile):
+        """Determine the direction and invoke the converter. """
+
+        # The conversion's direction depends on the sourcePath argument.
+
+        if not sourceFile.file_exists():
+            message = 'ERROR: File not found.'
+
+        else:
+            if sourceFile.EXTENSION in ['.yw5', '.yw6', '.yw7']:
+
+                message = self.yw_to_document(sourceFile, targetFile)
+
+            elif isinstance(targetFile, Yw7NewFile):
+
+                if targetFile.file_exists():
+                    message = 'ERROR: "' + targetFile._filePath + '" already exists.'
+
+                else:
+                    message = self.document_to_yw(sourceFile, targetFile)
+
+            else:
+                message = self.document_to_yw(sourceFile, targetFile)
+
+            # Visualize the outcome.
+
+            if message.startswith('SUCCESS'):
+                self.success = True
+
+            else:
+                msgbox(message, type_msg=ERRORBOX)
+
     def confirm_overwrite(self, filePath):
         result = msgbox('Overwrite existing file "' + filePath + '"?',
-                        'WARNING', BUTTONS_YES_NO, 'warningbox')
+                        'WARNING', buttons=BUTTONS_YES_NO, type_msg=WARNINGBOX)
 
         if result == YES:
             return True
@@ -5235,60 +6551,38 @@ INI_FILE = 'openyw.ini'
 
 
 def run(sourcePath, suffix):
+    converter = YwCnvUno(sourcePath, suffix)
 
-    fileName, FileExtension = os.path.splitext(sourcePath)
-
-    if suffix == '':
-        targetDoc = OdtExport(fileName + OdtExport.EXTENSION)
-
-    elif suffix == OdtProof.SUFFIX:
-        targetDoc = OdtProof(fileName + suffix + OdtProof.EXTENSION)
-
-    elif suffix == OdtManuscript.SUFFIX:
-        targetDoc = OdtManuscript(fileName + suffix + OdtManuscript.EXTENSION)
-
-    elif suffix == OdtSceneDesc.SUFFIX:
-        targetDoc = OdtSceneDesc(fileName + suffix + OdtSceneDesc.EXTENSION)
-
-    elif suffix == OdtChapterDesc.SUFFIX:
-        targetDoc = OdtChapterDesc(
-            fileName + suffix + OdtChapterDesc.EXTENSION)
-
-    elif suffix == OdtPartDesc.SUFFIX:
-        targetDoc = OdtPartDesc(fileName + suffix + OdtPartDesc.EXTENSION)
-
-    elif suffix == OdtCharacters.SUFFIX:
-        targetDoc = OdtCharacters(fileName + suffix + OdtCharacters.EXTENSION)
-
-    elif suffix == OdtLocations.SUFFIX:
-        targetDoc = OdtLocations(fileName + suffix + OdtLocations.EXTENSION)
-
-    elif suffix == OdtItems.SUFFIX:
-        targetDoc = OdtItems(fileName + suffix + OdtItems.EXTENSION)
-
-    elif suffix == CsvSceneList.SUFFIX:
-        targetDoc = CsvSceneList(fileName + suffix + CsvSceneList.EXTENSION)
-
-    elif suffix == CsvPlotList.SUFFIX:
-        targetDoc = CsvPlotList(fileName + suffix + CsvPlotList.EXTENSION)
-
-    elif suffix == CsvCharList.SUFFIX:
-        targetDoc = CsvCharList(fileName + suffix + CsvCharList.EXTENSION)
-
-    elif suffix == CsvLocList.SUFFIX:
-        targetDoc = CsvLocList(fileName + suffix + CsvLocList.EXTENSION)
-
-    elif suffix == CsvItemList.SUFFIX:
-        targetDoc = CsvItemList(fileName + suffix + CsvItemList.EXTENSION)
+    if converter.success:
+        delete_tempfile(sourcePath)
+        return True
 
     else:
-        return('ERROR: Target file type not supported')
+        return False
 
-    ywFile = YwFile(sourcePath)
-    converter = YwCnvUno()
-    message = converter.yw_to_document(ywFile, targetDoc)
 
-    return message
+def delete_tempfile(filePath):
+    """If an Office file exists, delete the temporary file."""
+
+    if filePath.endswith('.html'):
+
+        if os.path.isfile(filePath.replace('.html', '.odt')):
+
+            try:
+                os.remove(filePath)
+
+            except:
+                pass
+
+    elif filePath.endswith('.csv'):
+
+        if os.path.isfile(filePath.replace('.csv', '.ods')):
+
+            try:
+                os.remove(filePath)
+
+            except:
+                pass
 
 
 def open_yw7(suffix, newExt):
@@ -5355,7 +6649,7 @@ def open_yw7(suffix, newExt):
     os.chdir(workdir)
     result = run(sourcePath, suffix)
 
-    if result.startswith('ERROR'):
+    if not result:
         msgbox(result, 'Import from yWriter', type_msg='errorbox')
 
     else:
@@ -5453,6 +6747,93 @@ def get_itemlist(*args):
     open_yw7(CsvItemList.SUFFIX, CsvItemList.EXTENSION)
 
 
+def export_yw(*args):
+    '''Export the document to a yWriter 6/7 project.
+    '''
+
+    # Get document's filename
+
+    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    # document   = ThisComponent.CurrentController.Frame
+
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    smgr = ctx.getServiceManager()
+    dispatcher = smgr.createInstanceWithContext(
+        "com.sun.star.frame.DispatchHelper", ctx)
+    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    documentPath = XSCRIPTCONTEXT.getDocument().getURL()
+    # documentPath = ThisComponent.getURL()
+
+    from com.sun.star.beans import PropertyValue
+    args1 = []
+    args1.append(PropertyValue())
+    args1.append(PropertyValue())
+    # dim args1(1) as new com.sun.star.beans.PropertyValue
+
+    if documentPath.endswith('.odt') or documentPath.endswith('.html'):
+        odtPath = documentPath.replace('.html', '.odt')
+        htmlPath = documentPath.replace('.odt', '.html')
+
+        # Save document in HTML format
+
+        args1[0].Name = 'URL'
+        # args1(0).Name = "URL"
+        args1[0].Value = htmlPath
+        # args1(0).Value = htmlPath
+        args1[1].Name = 'FilterName'
+        # args1(1).Name = "FilterName"
+        args1[1].Value = 'HTML (StarWriter)'
+        # args1(1).Value = "HTML (StarWriter)"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1[0].Value = odtPath
+        # args1(0).Value = odtPath
+        args1[1].Value = 'writer8'
+        # args1(1).Value = "writer8"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        run(htmlPath, None)
+
+    elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
+        odsPath = documentPath.replace('.csv', '.ods')
+        csvPath = documentPath.replace('.ods', '.csv')
+
+        # Save document in csv format
+
+        args1[0].Name = 'URL'
+        # args1(0).Name = "URL"
+        args1[0].Value = csvPath
+        # args1(0).Value = csvPath
+        args1[1].Name = 'FilterName'
+        # args1(1).Name = "FilterName"
+        args1[1].Value = 'Text - txt - csv (StarCalc)'
+        # args1(1).Value = "Text - txt - csv (StarCalc)"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        # Save document in OpenDocument format
+
+        args1.append(PropertyValue())
+
+        args1[0].Value = odsPath
+        # args1(0).Value = odsPath
+        args1[1].Value = 'calc8'
+        # args1(1).Value = "calc8"
+        args1[2].Name = "FilterOptions"
+        # args1(2).Name = "FilterOptions"
+        args1[2].Value = "124,34,76,1,,0,false,true,true"
+        # args1(2).Value = "124,34,76,1,,0,false,true,true"
+        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
+        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
+
+        run(csvPath, None)
+
+
 if __name__ == '__main__':
     try:
         sourcePath = sys.argv[1]
@@ -5467,7 +6848,8 @@ if __name__ == '__main__':
         except:
             suffix = ''
 
-        print(run(sourcePath, suffix))
-
     else:
-        print('ERROR: File is not an yWriter project.')
+        sourcePath = unquote(sourcePath.replace('file:///', ''))
+        suffix = None
+
+    run(sourcePath, suffix, False)
