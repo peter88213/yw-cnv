@@ -23,9 +23,9 @@ def create_instance(name, with_context=False):
     return instance
 
 
-def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg='infobox'):
+def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg=INFOBOX):
     """ Create message box
-        type_msg: infobox, warningbox, errorbox, querybox, messbox
+        type_msg: MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 
         MSG_BUTTONS: BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, 
         BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY

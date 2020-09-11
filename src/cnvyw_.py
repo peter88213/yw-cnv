@@ -28,6 +28,7 @@ from pywriter.odt.odt_items import OdtItems
 from pywriter.odt.odt_locations import OdtLocations
 
 import uno
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 
 from uno_wrapper.uno_tools import *
 from uno_wrapper.yw_cnv_uno import YwCnvUno
@@ -102,7 +103,7 @@ def open_yw7(suffix, newExt):
 
     if not ywExt in ['.yw6', '.yw7']:
         msgbox('Please choose a yWriter 6/7 project.',
-               'Import from yWriter', type_msg='errorbox')
+               'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
@@ -125,7 +126,7 @@ def open_yw7(suffix, newExt):
 
     if os.path.isfile(lockFile):
         msgbox('Please close "' + filename + '" first.',
-               'Import from yWriter', type_msg='errorbox')
+               'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
@@ -135,7 +136,7 @@ def open_yw7(suffix, newExt):
     result = run(sourcePath, suffix)
 
     if not result:
-        msgbox(result, 'Import from yWriter', type_msg='errorbox')
+        msgbox(result, 'Import from yWriter', type_msg=ERRORBOX)
 
     else:
         desktop = XSCRIPTCONTEXT.getDesktop()
@@ -282,7 +283,7 @@ def export_yw(*args):
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        run(htmlPath, None)
+        targetPath = unquote(htmlPath.replace('file:///', ''))
 
     elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
         odsPath = documentPath.replace('.csv', '.ods')
@@ -316,7 +317,13 @@ def export_yw(*args):
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        run(csvPath, None)
+        targetPath = unquote(csvPath.replace('file:///', ''))
+
+    else:
+        msgbox('ERROR: File type of "' + documentPath +
+               '" not supported', type_msg=ERRORBOX)
+
+    run(targetPath, None)
 
 
 if __name__ == '__main__':

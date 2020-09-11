@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.31.beta1
+Version 0.31.beta8
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3360,8 +3360,8 @@ class OdtLocations(OdtFile):
     fileFooter = OdtTemplate.CONTENT_XML_FOOTER
 
 import uno
-
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
+
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
 
 CTX = uno.getComponentContext()
@@ -3376,9 +3376,9 @@ def create_instance(name, with_context=False):
     return instance
 
 
-def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg='infobox'):
+def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg=INFOBOX):
     """ Create message box
-        type_msg: infobox, warningbox, errorbox, querybox, messbox
+        type_msg: MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 
         MSG_BUTTONS: BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, 
         BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
@@ -6503,7 +6503,7 @@ class YwCnvUno(YwCnv):
             self.convert(sourceFile, TargetFile)
 
         else:
-            msgbox(message)
+            msgbox(message, type_msg=ERRORBOX)
 
     def convert(self, sourceFile, targetFile):
         """Determine the direction and invoke the converter. """
@@ -6533,9 +6533,12 @@ class YwCnvUno(YwCnv):
 
             if message.startswith('SUCCESS'):
                 self.success = True
+                msgType = INFOBOX
 
             else:
-                msgbox(message, type_msg=ERRORBOX)
+                msgType = ERRORBOX
+
+            msgbox(message, type_msg=msgType)
 
     def confirm_overwrite(self, filePath):
         result = msgbox('Overwrite existing file "' + filePath + '"?',
@@ -6617,7 +6620,7 @@ def open_yw7(suffix, newExt):
 
     if not ywExt in ['.yw6', '.yw7']:
         msgbox('Please choose a yWriter 6/7 project.',
-               'Import from yWriter', type_msg='errorbox')
+               'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
@@ -6640,7 +6643,7 @@ def open_yw7(suffix, newExt):
 
     if os.path.isfile(lockFile):
         msgbox('Please close "' + filename + '" first.',
-               'Import from yWriter', type_msg='errorbox')
+               'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
@@ -6650,7 +6653,7 @@ def open_yw7(suffix, newExt):
     result = run(sourcePath, suffix)
 
     if not result:
-        msgbox(result, 'Import from yWriter', type_msg='errorbox')
+        msgbox(result, 'Import from yWriter', type_msg=ERRORBOX)
 
     else:
         desktop = XSCRIPTCONTEXT.getDesktop()
@@ -6797,7 +6800,7 @@ def export_yw(*args):
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        run(htmlPath, None)
+        targetPath = unquote(htmlPath.replace('file:///', ''))
 
     elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
         odsPath = documentPath.replace('.csv', '.ods')
@@ -6831,7 +6834,13 @@ def export_yw(*args):
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        run(csvPath, None)
+        targetPath = unquote(csvPath.replace('file:///', ''))
+
+    else:
+        msgbox('ERROR: File type of "' + documentPath +
+               '" not supported', type_msg=ERRORBOX)
+
+    run(targetPath, None)
 
 
 if __name__ == '__main__':

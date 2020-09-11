@@ -34,7 +34,7 @@ class YwCnvUno(YwCnv):
             self.convert(sourceFile, TargetFile)
 
         else:
-            msgbox(message)
+            msgbox(message, type_msg=ERRORBOX)
 
     def convert(self, sourceFile, targetFile):
         """Determine the direction and invoke the converter. """
@@ -64,9 +64,12 @@ class YwCnvUno(YwCnv):
 
             if message.startswith('SUCCESS'):
                 self.success = True
+                msgType = INFOBOX
 
             else:
-                msgbox(message, type_msg=ERRORBOX)
+                msgType = ERRORBOX
+
+            msgbox(message, type_msg=msgType)
 
     def confirm_overwrite(self, filePath):
         result = msgbox('Overwrite existing file "' + filePath + '"?',
