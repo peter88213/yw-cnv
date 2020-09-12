@@ -48,7 +48,7 @@ class YwCnvUno(YwCnv):
         else:
             if sourceFile.EXTENSION in ['.yw5', '.yw6', '.yw7']:
 
-                message = self.yw_to_document(sourceFile, targetFile)
+                message = YwCnv.convert(self, sourceFile, targetFile)
 
             elif isinstance(targetFile, Yw7NewFile):
 
@@ -56,11 +56,11 @@ class YwCnvUno(YwCnv):
                     message = 'ERROR: "' + targetFile._filePath + '" already exists.'
 
                 else:
-                    message = self.document_to_yw(sourceFile, targetFile)
+                    message = YwCnv.convert(self, sourceFile, targetFile)
                     showBox = True
 
             else:
-                message = self.document_to_yw(sourceFile, targetFile)
+                message = YwCnv.convert(self, sourceFile, targetFile)
                 showBox = True
 
             # Visualize the outcome.
