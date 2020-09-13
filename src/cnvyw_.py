@@ -320,23 +320,27 @@ def export_yw(*args):
         targetPath = unquote(csvPath.replace('file:///', ''))
 
     else:
-        msgbox('ERROR: File type of "' + documentPath +
-               '" not supported', type_msg=ERRORBOX)
+        msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
+               '" not supported.', type_msg=ERRORBOX)
 
     run(targetPath, None)
 
 
 if __name__ == '__main__':
+
     try:
         sourcePath = sys.argv[1]
+
     except:
         sourcePath = ''
 
     fileName, FileExtension = os.path.splitext(sourcePath)
 
     if FileExtension in ['.yw5', '.yw6', '.yw7']:
+
         try:
             suffix = sys.argv[2]
+
         except:
             suffix = ''
 

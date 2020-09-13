@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.31.beta14
+Version 0.31.beta15
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1662,6 +1662,7 @@ class Novel():
     of the information included in an yWriter project file).
     """
 
+    DESCRIPTION = 'Novel'
     EXTENSION = None
     SUFFIX = None
     # To be extended by file format specific subclasses.
@@ -2276,9 +2277,9 @@ class FileExport(Novel):
                 f.write(text)
 
         except:
-            return 'ERROR: Cannot write "' + self.filePath + '".'
+            return 'ERROR: Cannot write "' + os.path.normpath(self.filePath) + '".'
 
-        return 'SUCCESS: Content written to "' + self.filePath + '".'
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
 
 
 class OdtFile(FileExport, OdtTemplate):
@@ -2390,18 +2391,19 @@ class OdtFile(FileExport, OdtTemplate):
                     odtTarget.write(file)
         except:
             os.chdir(workdir)
-            return 'ERROR: Cannot generate "' + self._filePath + '".'
+            return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
 
         # Remove temporary data.
 
         os.chdir(workdir)
         self.tear_down()
-        return 'SUCCESS: "' + self._filePath + '" saved.'
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
 
 
 class OdtProof(OdtFile):
     """OpenDocument xml proof reading file representation."""
 
+    DESCRIPTION = 'Tagged manuscript for proofing'
     SUFFIX = '_proof'
 
     fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
@@ -2469,6 +2471,7 @@ class OdtProof(OdtFile):
 class OdtManuscript(OdtFile):
     """OpenDocument xml manuscript file representation."""
 
+    DESCRIPTION = 'Editable manuscript'
     SUFFIX = '_manuscript'
 
     fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
@@ -2523,6 +2526,7 @@ class OdtManuscript(OdtFile):
 class OdtSceneDesc(OdtFile):
     """OpenDocument xml scene summaries file representation."""
 
+    DESCRIPTION = 'Scene descriptions'
     SUFFIX = '_scenes'
 
     fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
@@ -2569,6 +2573,7 @@ class OdtSceneDesc(OdtFile):
 class OdtChapterDesc(OdtFile):
     """OpenDocument xml chapter summaries file representation."""
 
+    DESCRIPTION = 'Chapter descriptions'
     SUFFIX = '_chapters'
 
     fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
@@ -2590,6 +2595,7 @@ class OdtChapterDesc(OdtFile):
 class OdtPartDesc(OdtFile):
     """OpenDocument xml part summaries file representation."""
 
+    DESCRIPTION = 'Part descriptions'
     SUFFIX = '_parts'
 
     fileHeader = OdtTemplate.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
@@ -2669,6 +2675,7 @@ class CsvSceneList(CsvFile):
     * Data fields are delimited by the _SEPARATOR character.
     """
 
+    DESCRIPTION = 'Scene list'
     SUFFIX = '_scenelist'
 
     _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
@@ -2718,7 +2725,7 @@ class CsvSceneList(CsvFile):
                 lines = (f.readlines())
 
         except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            return 'ERROR: "' + os.path.normpath(self._filePath) + '" not found.'
 
         cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
 
@@ -2931,7 +2938,7 @@ class CsvPlotList(CsvFile):
     * Data fields are delimited by the _SEPARATOR character.
     """
 
-    EXTENSION = '.csv'
+    DESCRIPTION = 'Plot list'
     SUFFIX = '_plotlist'
 
     _SEPARATOR = '|'     # delimits data fields within a record.
@@ -3029,7 +3036,7 @@ class CsvPlotList(CsvFile):
                 lines = (f.readlines())
 
         except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            return 'ERROR: "' + os.path.normpath(self._filePath) + '" not found.'
 
         cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
 
@@ -3105,6 +3112,7 @@ class CsvCharList(CsvFile):
     * Data fields are delimited by the _SEPARATOR character.
     """
 
+    DESCRIPTION = 'Character list'
     SUFFIX = '_charlist'
 
     fileHeader = '''ID|Name|Full name|Aka|Description|Bio|Goals|Importance|Tags|Notes
@@ -3123,7 +3131,7 @@ class CsvCharList(CsvFile):
                 lines = (f.readlines())
 
         except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            return 'ERROR: "' + os.path.normpath(self._filePath) + '" not found.'
 
         if lines[0] != self.fileHeader:
             return 'ERROR: Wrong lines content.'
@@ -3173,6 +3181,7 @@ class CsvLocList(CsvFile):
     * Data fields are delimited by the _SEPARATOR location.
     """
 
+    DESCRIPTION = 'Location list'
     SUFFIX = '_loclist'
 
     fileHeader = '''ID|Name|Description|Aka|Tags
@@ -3191,7 +3200,7 @@ class CsvLocList(CsvFile):
                 lines = (f.readlines())
 
         except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            return 'ERROR: "' + os.path.normpath(self._filePath) + '" not found.'
 
         if lines[0] != self.fileHeader:
             return 'ERROR: Wrong lines content.'
@@ -3230,6 +3239,7 @@ class CsvItemList(CsvFile):
     * Data fields are delimited by the _SEPARATOR item.
     """
 
+    DESCRIPTION = 'Item list'
     SUFFIX = '_itemlist'
 
     fileHeader = '''ID|Name|Description|Aka|Tags
@@ -3248,7 +3258,7 @@ class CsvItemList(CsvFile):
                 lines = (f.readlines())
 
         except(FileNotFoundError):
-            return 'ERROR: "' + self._filePath + '" not found.'
+            return 'ERROR: "' + os.path.normpath(self._filePath) + '" not found.'
 
         if lines[0] != self.fileHeader:
             return 'ERROR: Wrong lines content.'
@@ -3280,6 +3290,7 @@ class CsvItemList(CsvFile):
 class OdtCharacters(OdtFile):
     """OpenDocument xml character descriptions file representation."""
 
+    DESCRIPTION = 'Character descriptions'
     SUFFIX = '_characters'
 
     def get_characterSubst(self, crId):
@@ -3320,6 +3331,7 @@ class OdtCharacters(OdtFile):
 class OdtItems(OdtFile):
     """OpenDocument xml item descriptions file representation."""
 
+    DESCRIPTION = 'Item descriptions'
     SUFFIX = '_items'
 
     def get_itemSubst(self, itId):
@@ -3346,6 +3358,7 @@ class OdtItems(OdtFile):
 class OdtLocations(OdtFile):
     """OpenDocument xml location descriptions file representation."""
 
+    DESCRIPTION = 'Location descriptions'
     SUFFIX = '_locations'
 
     def get_locationSubst(self, lcId):
@@ -3440,6 +3453,7 @@ def FilePicker(path=None, mode=0):
         return filepicker.getFiles()[0]
 
 
+
 from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
 
 
@@ -3472,13 +3486,13 @@ class YwCnv():
         """Read document file, convert its content to xml, and replace yWriter file."""
 
         if sourceFile.filePath is None:
-            return 'ERROR: "' + sourceFile.filePath + '" is not of the supported type.'
+            return 'ERROR: "' + os.path.normpath(sourceFile.filePath) + '" is not of the supported type.'
 
         if not sourceFile.file_exists():
-            return 'ERROR: "' + sourceFile.filePath + '" not found.'
+            return 'ERROR: "' + os.path.normpath(sourceFile.filePath) + '" not found.'
 
         if targetFile.filePath is None:
-            return 'ERROR: "' + targetFile.filePath + '" is not of the supported type.'
+            return 'ERROR: "' + os.path.normpath(targetFile.filePath) + '" is not of the supported type.'
 
         if targetFile.file_exists() and not self.confirm_overwrite(targetFile.filePath):
             return 'Program abort by user.'
@@ -4171,12 +4185,12 @@ class YwFile(Novel):
         if message.startswith('ERROR'):
             return message
 
-        return 'SUCCESS: project data written to "' + self._filePath + '".'
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
 
     def is_locked(self):
         """Test whether a .lock file placed by yWriter exists.
         """
-        if os.path.isfile(self._filePath + '.lock'):
+        if os.path.isfile(self.filePath + '.lock'):
             return True
 
         else:
@@ -5014,8 +5028,9 @@ class AnsiPostprocessor(YwPostprocessor):
 
 
 class Yw5File(YwFile):
-    """yWriter 5 xml project file representation."""
+    """yWriter 5 project file representation."""
 
+    DESCRIPTION = 'yWriter 5 project'
     EXTENSION = '.yw5'
 
     def __init__(self, filePath):
@@ -5122,8 +5137,9 @@ class Utf8Postprocessor(YwPostprocessor):
 
 
 class Yw6File(YwFile):
-    """yWriter 6 xml project file representation."""
+    """yWriter 6 project file representation."""
 
+    DESCRIPTION = 'yWriter 6 project'
     EXTENSION = '.yw6'
 
     def __init__(self, filePath):
@@ -5171,8 +5187,9 @@ class Yw7TreeBuilder(YwTreeBuilder):
 
 
 class Yw7File(YwFile):
-    """yWriter 7 xml project file representation."""
+    """yWriter 7 project file representation."""
 
+    DESCRIPTION = 'yWriter 7 project'
     EXTENSION = '.yw7'
 
     def __init__(self, filePath):
@@ -5612,6 +5629,7 @@ from html.parser import HTMLParser
 
 
 
+
 def read_html_file(filePath):
     """Open a html file being encoded utf-8 or ANSI.
     Return a tuple:
@@ -5628,7 +5646,7 @@ def read_html_file(filePath):
                 text = (f.read())
 
         except(FileNotFoundError):
-            return ('ERROR: "' + filePath + '" not found.', None)
+            return ('ERROR: "' + os.path.normpath(filePath) + '" not found.', None)
 
     return ('SUCCESS', text)
 
@@ -5763,6 +5781,7 @@ class HtmlProof(HtmlFile):
     to be read and written by Open/LibreOffice Writer.
     """
 
+    DESCRIPTION = 'Tagged manuscript for proofing'
     SUFFIX = '_proof'
 
     def __init__(self, filePath):
@@ -5837,6 +5856,7 @@ class HtmlManuscript(HtmlFile):
     OpenOffice/LibreOffice Writer.
     """
 
+    DESCRIPTION = 'Editable manuscript'
     SUFFIX = '_manuscript'
 
     def preprocess(self, text):
@@ -5879,6 +5899,7 @@ class HtmlSceneDesc(HtmlFile):
     """HTML file representation of an yWriter project's scene summaries.
     """
 
+    DESCRIPTION = 'Scene descriptions'
     SUFFIX = '_scenes'
 
     def handle_endtag(self, tag):
@@ -5915,6 +5936,7 @@ class HtmlSceneDesc(HtmlFile):
 class HtmlChapterDesc(HtmlFile):
     """HTML file representation of an yWriter project's chapters summaries."""
 
+    DESCRIPTION = 'Chapter descriptions'
     SUFFIX = '_chapters'
 
     def handle_endtag(self, tag):
@@ -5946,6 +5968,7 @@ class HtmlChapterDesc(HtmlFile):
 class HtmlPartDesc(HtmlChapterDesc):
     """HTML file representation of an yWriter project's parts summaries."""
 
+    DESCRIPTION = 'Part descriptions'
     SUFFIX = '_parts'
 
 
@@ -5954,6 +5977,7 @@ class HtmlPartDesc(HtmlChapterDesc):
 class HtmlCharacters(HtmlFile):
     """HTML file representation of an yWriter project's character descriptions."""
 
+    DESCRIPTION = 'Character descriptions'
     SUFFIX = '_characters'
 
     def __init__(self, filePath):
@@ -6022,6 +6046,7 @@ class HtmlCharacters(HtmlFile):
 class HtmlLocations(HtmlFile):
     """HTML file representation of an yWriter project's location descriptions."""
 
+    DESCRIPTION = 'Location descriptions'
     SUFFIX = '_locations'
 
     def __init__(self, filePath):
@@ -6069,6 +6094,7 @@ class HtmlLocations(HtmlFile):
 class HtmlItems(HtmlFile):
     """HTML file representation of an yWriter project's item descriptions."""
 
+    DESCRIPTION = 'Item descriptions'
     SUFFIX = '_items'
 
     def __init__(self, filePath):
@@ -6114,12 +6140,11 @@ class HtmlItems(HtmlFile):
 
 
 class HtmlImport(HtmlFile):
-    """HTML file representation of an yWriter project's OfficeFile part.
-
-    Represents a html file without chapter and scene tags 
-    to be written by Open/LibreOffice Writer.
+    """HTML file representation of a work in progress to be 
+    converted to a new yWriter project yWriter project.
     """
 
+    DESCRIPTION = 'Work in progress'
     SUFFIX = ''
 
     _SCENE_DIVIDER = '* * *'
@@ -6222,6 +6247,7 @@ class HtmlOutline(HtmlFile):
     to be written by Open/LibreOffice Writer.
     """
 
+    DESCRIPTION = 'Novel outline'
     SUFFIX = ''
 
     def __init__(self, filePath):
@@ -6388,7 +6414,7 @@ class FileFactory():
                     fileName + suffix + CsvItemList.EXTENSION)
 
             else:
-                return ['ERROR: File type not supported.', None, None]
+                return ['ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None]
 
         else:
             # The source file is not a yWriter project.
@@ -6436,7 +6462,7 @@ class FileFactory():
                         targetFile.ywTreeBuilder = Yw7TreeCreator()
 
                 else:
-                    return ['ERROR: Cannot read "' + sourcePath + '".', None, None]
+                    return ['ERROR: Cannot read "' + os.path.normpath(sourcePath) + '".', None, None]
 
             elif sourcePath.endswith(CsvSceneList.SUFFIX + CsvSceneList.EXTENSION):
                 sourceFile = CsvSceneList(sourcePath)
@@ -6454,7 +6480,7 @@ class FileFactory():
                 sourceFile = CsvItemList(sourcePath)
 
             else:
-                return ['ERROR: File type not supported.', None, None]
+                return ['ERROR: File type of  "' + os.path.normpath(sourcePath) + '" not supported.', None, None]
 
             if targetFile is None:
 
@@ -6504,7 +6530,8 @@ class YwCnvUno(YwCnv):
         # The conversion's direction depends on the sourcePath argument.
 
         if not sourceFile.file_exists():
-            message = 'ERROR: File not found.'
+            message = 'ERROR: "' + \
+                os.path.normpath(sourceFile.filePath) + '" File not found.'
 
         else:
             if sourceFile.EXTENSION in ['.yw5', '.yw6', '.yw7']:
@@ -6514,7 +6541,9 @@ class YwCnvUno(YwCnv):
             elif isinstance(targetFile.ywTreeBuilder, Yw7TreeCreator):
 
                 if targetFile.file_exists():
-                    message = 'ERROR: "' + targetFile._filePath + '" already exists.'
+                    message = 'ERROR: "' + \
+                        os.path.normpath(targetFile.filePath) + \
+                        '" already exists.'
 
                 else:
                     message = YwCnv.convert(self, sourceFile, targetFile)
@@ -6834,23 +6863,27 @@ def export_yw(*args):
         targetPath = unquote(csvPath.replace('file:///', ''))
 
     else:
-        msgbox('ERROR: File type of "' + documentPath +
-               '" not supported', type_msg=ERRORBOX)
+        msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
+               '" not supported.', type_msg=ERRORBOX)
 
     run(targetPath, None)
 
 
 if __name__ == '__main__':
+
     try:
         sourcePath = sys.argv[1]
+
     except:
         sourcePath = ''
 
     fileName, FileExtension = os.path.splitext(sourcePath)
 
     if FileExtension in ['.yw5', '.yw6', '.yw7']:
+
         try:
             suffix = sys.argv[2]
+
         except:
             suffix = ''
 

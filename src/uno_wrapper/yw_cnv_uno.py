@@ -6,6 +6,8 @@ Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
+import os
+
 from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
@@ -43,7 +45,8 @@ class YwCnvUno(YwCnv):
         # The conversion's direction depends on the sourcePath argument.
 
         if not sourceFile.file_exists():
-            message = 'ERROR: File not found.'
+            message = 'ERROR: "' + \
+                os.path.normpath(sourceFile.filePath) + '" File not found.'
 
         else:
             if sourceFile.EXTENSION in ['.yw5', '.yw6', '.yw7']:
@@ -53,7 +56,9 @@ class YwCnvUno(YwCnv):
             elif isinstance(targetFile.ywTreeBuilder, Yw7TreeCreator):
 
                 if targetFile.file_exists():
-                    message = 'ERROR: "' + targetFile._filePath + '" already exists.'
+                    message = 'ERROR: "' + \
+                        os.path.normpath(targetFile.filePath) + \
+                        '" already exists.'
 
                 else:
                     message = YwCnv.convert(self, sourceFile, targetFile)

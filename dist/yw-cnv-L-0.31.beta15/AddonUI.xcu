@@ -14,7 +14,7 @@
                <value xml:lang="de">yWriter Import/Export Hilfe</value>
             </prop>
             <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+               <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
             </prop>
             <prop oor:name="Target" oor:type="xs:string">
                <value>_self</value>
@@ -60,7 +60,7 @@
                               <value xml:lang="de">Von yWriter importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -75,7 +75,7 @@
                               <value xml:lang="de">Von yWriter zum Korrekturlesen importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -95,7 +95,7 @@
                               <value xml:lang="de">Zu yWriter exportieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -115,7 +115,7 @@
                               <value xml:lang="de">Hilfe</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -151,7 +151,7 @@
                      <value xml:lang="de">von yWriter importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -166,7 +166,7 @@
                      <value xml:lang="de">von yWriter zum Korrekturlesen importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -186,7 +186,7 @@
                      <value xml:lang="de">Zu yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -206,7 +206,7 @@
                      <value xml:lang="de">Hilfe</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -233,7 +233,7 @@
                            <value xml:lang="en">Manuscript with chapter and scene sections</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -247,7 +247,7 @@
                            <value xml:lang="en">Scene descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -261,7 +261,7 @@
                            <value xml:lang="en">Chapter descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_chapterdesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_chapterdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -275,7 +275,7 @@
                            <value xml:lang="en">Part descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_partdesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_partdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -294,7 +294,7 @@
                            <value xml:lang="en">Character descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_chardesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_chardesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -308,7 +308,7 @@
                            <value xml:lang="en">Location descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_locdesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_locdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -322,7 +322,7 @@
                            <value xml:lang="en">Item descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_itemdesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_itemdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -341,7 +341,7 @@
                            <value xml:lang="en">Scene list</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -355,7 +355,7 @@
                            <value xml:lang="en">Character list</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_charlist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_charlist?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -369,7 +369,7 @@
                            <value xml:lang="en">Location list</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_loclist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_loclist?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -383,7 +383,7 @@
                            <value xml:lang="en">Item list</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_itemlist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_itemlist?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -397,7 +397,7 @@
                            <value xml:lang="en">Plot list</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|yw-cnv|cnvyw.py$get_plotlist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|yw-cnv|cnvyw.py$get_plotlist?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -416,7 +416,7 @@
                            <value xml:lang="en">Help</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta14.oxt|help|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.31.beta15.oxt|help|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
