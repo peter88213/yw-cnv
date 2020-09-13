@@ -12,7 +12,7 @@ from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERR
 
 from pywriter.converter.yw_cnv import YwCnv
 from pywriter.converter.file_factory import FileFactory
-from pywriter.yw.yw7_new_file import Yw7NewFile
+from pywriter.yw.yw7_tree_creator import Yw7TreeCreator
 from uno_wrapper.uno_tools import *
 
 
@@ -50,7 +50,7 @@ class YwCnvUno(YwCnv):
 
                 message = YwCnv.convert(self, sourceFile, targetFile)
 
-            elif isinstance(targetFile, Yw7NewFile):
+            elif isinstance(targetFile.ywTreeBuilder, Yw7TreeCreator):
 
                 if targetFile.file_exists():
                     message = 'ERROR: "' + targetFile._filePath + '" already exists.'
