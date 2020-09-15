@@ -15,7 +15,7 @@ from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERR
 from pywriter.converter.yw_cnv import YwCnv
 from pywriter.converter.file_factory import FileFactory
 from pywriter.yw.yw7_tree_creator import Yw7TreeCreator
-from uno_wrapper.uno_tools import *
+from libreoffice.uno_tools import *
 
 
 class YwCnvUno(YwCnv):
@@ -49,7 +49,7 @@ class YwCnvUno(YwCnv):
                 os.path.normpath(sourceFile.filePath) + '" File not found.'
 
         else:
-            if sourceFile.EXTENSION in ['.yw5', '.yw6', '.yw7']:
+            if sourceFile.EXTENSION in FileFactory.YW_EXTENSIONS:
 
                 message = YwCnv.convert(self, sourceFile, targetFile)
 

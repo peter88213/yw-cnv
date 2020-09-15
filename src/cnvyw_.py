@@ -30,8 +30,8 @@ from pywriter.odt.odt_locations import OdtLocations
 import uno
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 
-from uno_wrapper.uno_tools import *
-from uno_wrapper.yw_cnv_uno import YwCnvUno
+from libreoffice.uno_tools import *
+from libreoffice.yw_cnv_uno import YwCnvUno
 
 INI_FILE = 'openyw.ini'
 
@@ -135,10 +135,7 @@ def open_yw7(suffix, newExt):
     os.chdir(workdir)
     result = run(sourcePath, suffix)
 
-    if not result:
-        msgbox(result, 'Import from yWriter', type_msg=ERRORBOX)
-
-    else:
+    if result:
         desktop = XSCRIPTCONTEXT.getDesktop()
         doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 

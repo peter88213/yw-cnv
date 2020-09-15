@@ -1,4 +1,4 @@
-""" Build python script for the LibreOffice "open yWriter" script.
+""" Build python script for the LibreOffice "convert yWriter" script.
         
 In order to distribute single scripts without dependencies, 
 this script "inlines" all modules imported from the pywriter package.
@@ -25,7 +25,7 @@ def main():
         pass
 
     inliner.run(SOURCE_FILE,
-                TARGET_FILE, 'uno_wrapper', '../src/')
+                TARGET_FILE, 'libreoffice', '../src/')
     inliner.run(TARGET_FILE,
                 TARGET_FILE, 'pywriter', '../../PyWriter/src/')
     print('Done.')
