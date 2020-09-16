@@ -1,6 +1,4 @@
-"""Import and export yWriter data. 
-
-Standalone yWriter file converter with basic error handling 
+"""User interface for the converter: UNO facade
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
@@ -16,6 +14,7 @@ from pywriter.converter.yw_cnv import YwCnv
 from pywriter.converter.file_factory import FileFactory
 from pywriter.yw.yw7_tree_creator import Yw7TreeCreator
 from libreoffice.uno_tools import *
+from libreoffice.cnv_ui_uno import CnvUiUno
 
 
 class YwCnvUno(YwCnv):
@@ -23,12 +22,19 @@ class YwCnvUno(YwCnv):
     Variant with UNO UI.
     """
 
-    def __init__(self, sourcePath, suffix=None):
+    def __init__(self, sourcePath, suffix=None, silentMode=False):
         """Run the converter with a GUI. """
 
-        self.success = False
+        self.silentMode = silentMode
         fileFactory = FileFactory()
 
+        # Initialize the GUI
+
+        self.cnvUi = CnvUiUno()
+
+        # Run the converter.
+
+        self.success = False
         message, sourceFile, TargetFile = fileFactory.get_file_objects(
             sourcePath, suffix)
 
@@ -36,7 +42,7 @@ class YwCnvUno(YwCnv):
             self.convert(sourceFile, TargetFile)
 
         else:
-            msgbox(message, type_msg=ERRORBOX)
+            self.cnvUi.set_process_info(message)
 
     def convert(self, sourceFile, targetFile):
         """Determine the direction and invoke the converter. """
@@ -82,11 +88,13 @@ class YwCnvUno(YwCnv):
                 msgbox(message, type_msg=msgType)
 
     def confirm_overwrite(self, filePath):
-        result = msgbox('Overwrite existing file "' + filePath + '"?',
-                        'WARNING', buttons=BUTTONS_YES_NO, type_msg=WARNINGBOX)
+        """ Invoked by the parent if a file already exists. """
 
-        if result == YES:
+        if self.silentMode:
             return True
 
         else:
-            return False
+            return self.cnvUi.ask_yes_no('Overwrite existing file "' + os.path.normpath(filePath) + '"?')
+
+    def edit(self):
+        pass
