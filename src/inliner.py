@@ -62,12 +62,15 @@ def inline_module(file, package, packagePath, text, processedModules):
                             processedModules.append(moduleName)
                             text = inline_module(
                                 moduleName + '.py', package, packagePath, text, processedModules)
-                    else:
+                    elif line.lstrip().startswith('import'):
                         moduleName = line.replace('import ', '').rstrip()
 
                         if not (moduleName in processedModules):
                             processedModules.append(moduleName)
                             text = text + line
+
+                    else:
+                        text = text + line
                 else:
                     text = text + line
 
