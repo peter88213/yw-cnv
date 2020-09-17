@@ -42,7 +42,7 @@ class YwCnvUno(YwCnv):
             self.convert(sourceFile, TargetFile)
 
         else:
-            self.cnvUi.set_process_info(message)
+            self.cnvUi.set_info_how(message)
 
     def convert(self, sourceFile, targetFile):
         """Determine the direction and invoke the converter. """

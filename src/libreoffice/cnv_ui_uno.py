@@ -1,6 +1,4 @@
-"""User interface for the converter: Tk facade
-
-Standalone yWriter file converter with basic error handling 
+"""User interface for the converter: UNO facade
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
@@ -19,9 +17,7 @@ from libreoffice.uno_tools import *
 
 
 class CnvUiUno():
-    """Converter for yWriter project files.
-    Variant with UNO UI.
-    """
+    """UI subclass implementing a LibreOffice UNO facade."""
 
     def ask_yes_no(self, text):
         result = msgbox(text, 'WARNING', buttons=BUTTONS_YES_NO,
@@ -33,15 +29,12 @@ class CnvUiUno():
         else:
             return False
 
-    def set_app_info(self, message):
-        pass
+    def set_info_how(self, message):
+        """How's the converter doing?"""
+        self.infoHowText = message
 
-    def set_process_info(self, message):
-        self.processInfoText = message
-        msgbox(message, type_msg=ERRORBOX)
+        if message.startswith('SUCCESS'):
+            msgbox(message, type_msg=INFOBOX)
 
-    def get_process_info(self):
-        return self.processInfoText
-
-    def show_success(self, success):
-        pass
+        else:
+            msgbox(message, type_msg=ERRORBOX)
