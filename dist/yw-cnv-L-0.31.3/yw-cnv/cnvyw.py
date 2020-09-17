@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.31.2
+Version 0.31.3
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1652,6 +1652,7 @@ class Scene():
         text = text.replace('\r', '')
         self.letterCount = len(text)
 from abc import abstractmethod
+from urllib.parse import quote
 
 
 class Novel():
@@ -3462,6 +3463,7 @@ class OdtLocations(OdtFile):
 import uno
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
 
 CTX = uno.getComponentContext()
@@ -3998,6 +4000,7 @@ class YwFile(Novel):
 
 import xml.etree.ElementTree as ET
 
+from abc import abstractmethod
 
 
 class YwTreeBuilder():
@@ -4673,6 +4676,7 @@ class Yw5TreeBuilder(YwTreeBuilder):
         return YwTreeBuilder.build_element_tree(self, ywProject)
 
 
+from abc import abstractmethod
 
 
 class YwTreeReader():
@@ -5007,6 +5011,7 @@ class YwProjectMerger():
             return 'SUCCESS'
 
 
+from abc import abstractmethod
 
 
 class YwTreeWriter():
@@ -5039,6 +5044,7 @@ class AnsiTreeWriter(YwTreeWriter):
 
 
 from html import unescape
+from abc import abstractmethod
 
 
 class YwPostprocessor():
@@ -5608,6 +5614,7 @@ class Yw7TreeCreator(YwTreeBuilder):
 
         return 'SUCCESS'
 
+from shutil import rmtree
 
 
 
@@ -6697,6 +6704,8 @@ class YwCnvUi(YwCnv):
         """
         return self.UserInterface.ask_yes_no('Overwrite existing file "' + os.path.normpath(filePath) + '"?')
 from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
+from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 
 
 
@@ -6733,7 +6742,7 @@ class YwCnvUno(YwCnvUi):
         """Run the converter with a GUI. """
 
         if silentMode:
-            self.UserInterface = Ui()
+            self.UserInterface = Ui('')
 
         else:
             self.UserInterface = UiUno('yWriter import/export')
