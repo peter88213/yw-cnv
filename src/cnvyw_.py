@@ -6,7 +6,6 @@ Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
-import sys
 import os
 
 from configparser import ConfigParser
@@ -34,41 +33,6 @@ from libreoffice.uno_tools import *
 from libreoffice.yw_cnv_uno import YwCnvUno
 
 INI_FILE = 'openyw.ini'
-
-
-def run(sourcePath, suffix):
-    converter = YwCnvUno(sourcePath, suffix)
-
-    if converter.success:
-        delete_tempfile(sourcePath)
-        return True
-
-    else:
-        return False
-
-
-def delete_tempfile(filePath):
-    """If an Office file exists, delete the temporary file."""
-
-    if filePath.endswith('.html'):
-
-        if os.path.isfile(filePath.replace('.html', '.odt')):
-
-            try:
-                os.remove(filePath)
-
-            except:
-                pass
-
-    elif filePath.endswith('.csv'):
-
-        if os.path.isfile(filePath.replace('.csv', '.ods')):
-
-            try:
-                os.remove(filePath)
-
-            except:
-                pass
 
 
 def open_yw7(suffix, newExt):
@@ -133,9 +97,9 @@ def open_yw7(suffix, newExt):
 
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
-    result = run(sourcePath, suffix)
+    converter = YwCnvUno(sourcePath, suffix)
 
-    if result:
+    if converter.success:
         desktop = XSCRIPTCONTEXT.getDesktop()
         doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
@@ -320,29 +284,4 @@ def export_yw(*args):
         msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
                '" not supported.', type_msg=ERRORBOX)
 
-    run(targetPath, None)
-
-
-if __name__ == '__main__':
-
-    try:
-        sourcePath = sys.argv[1]
-
-    except:
-        sourcePath = ''
-
-    fileName, FileExtension = os.path.splitext(sourcePath)
-
-    if FileExtension in ['.yw5', '.yw6', '.yw7']:
-
-        try:
-            suffix = sys.argv[2]
-
-        except:
-            suffix = ''
-
-    else:
-        sourcePath = unquote(sourcePath.replace('file:///', ''))
-        suffix = None
-
-    run(sourcePath, suffix, False)
+    converter = YwCnvUno(targetPath, None)

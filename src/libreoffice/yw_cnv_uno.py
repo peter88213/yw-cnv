@@ -4,8 +4,6 @@ Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
-import os
-
 from pywriter.converter.yw_cnv_ui import YwCnvUi
 from pywriter.converter.file_factory import FileFactory
 from pywriter.converter.ui import Ui
@@ -21,10 +19,10 @@ class YwCnvUno(YwCnvUi):
         """Run the converter with a GUI. """
 
         if silentMode:
-            self.UserInterface = Ui('')
+            self.userInterface = Ui('')
 
         else:
-            self.UserInterface = UiUno('yWriter import/export')
+            self.userInterface = UiUno('yWriter import/export')
 
         self.fileFactory = FileFactory()
 
@@ -32,6 +30,9 @@ class YwCnvUno(YwCnvUi):
 
         self.success = False
         self.run_conversion(sourcePath, suffix)
+
+        if self.success:
+            self.delete_tempfile(sourcePath)
 
     def export_from_yw(self, sourceFile, targetFile):
         """Method for conversion from yw to other.
@@ -43,4 +44,4 @@ class YwCnvUno(YwCnvUi):
             self.success = True
 
         else:
-            self.UserInterface.set_info_how(message)
+            self.userInterface.set_info_how(message)
