@@ -25,11 +25,12 @@ class YwCnvUno(YwCnvUi):
         self.success = False
         self.fileFactory = None
 
-    def run(self, sourcePath, suffix=None):
-        YwCnvUi.run(self, sourcePath, suffix)
+    def finish(self, sourcePath):
 
         if self.success:
             self.delete_tempfile(sourcePath)
+
+        self.userInterface.finish()
 
     def export_from_yw(self, sourceFile, targetFile):
         """Method for conversion from yw to other.
