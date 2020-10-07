@@ -12,6 +12,7 @@ from configparser import ConfigParser
 from urllib.parse import unquote
 from urllib.parse import quote
 
+from pywriter.converter.universal_file_factory import UniversalFileFactory
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
@@ -33,6 +34,16 @@ from libreoffice.uno_tools import *
 from libreoffice.yw_cnv_uno import YwCnvUno
 
 INI_FILE = 'openyw.ini'
+
+
+class Converter(YwCnvUno):
+    """Converter for yWriter project files.
+    Variant with UNO UI.
+    """
+
+    def __init__(self, silentMode=False):
+        YwCnvUno.__init__(self, silentMode)
+        self.fileFactory = UniversalFileFactory()
 
 
 def open_yw7(suffix, newExt):
@@ -97,7 +108,8 @@ def open_yw7(suffix, newExt):
 
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
-    converter = YwCnvUno(sourcePath, suffix)
+    converter = Converter()
+    converter.run(sourcePath, suffix)
 
     if converter.success:
         desktop = XSCRIPTCONTEXT.getDesktop()
@@ -284,4 +296,4 @@ def export_yw(*args):
         msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
                '" not supported.', type_msg=ERRORBOX)
 
-    converter = YwCnvUno(targetPath, None)
+    Converter().run(targetPath, None)

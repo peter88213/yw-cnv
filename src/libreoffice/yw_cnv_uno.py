@@ -5,7 +5,7 @@ For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 from pywriter.converter.yw_cnv_ui import YwCnvUi
-from pywriter.converter.file_factory import FileFactory
+from pywriter.converter.universal_file_factory import UniversalFileFactory
 from pywriter.converter.ui import Ui
 from libreoffice.ui_uno import UiUno
 
@@ -15,21 +15,18 @@ class YwCnvUno(YwCnvUi):
     Variant with UNO UI.
     """
 
-    def __init__(self, sourcePath, suffix=None, silentMode=False):
-        """Run the converter with a GUI. """
-
+    def __init__(self, silentMode=False):
         if silentMode:
             self.userInterface = Ui('')
 
         else:
             self.userInterface = UiUno('yWriter import/export')
 
-        self.fileFactory = FileFactory()
-
-        # Run the converter.
-
         self.success = False
-        self.run_conversion(sourcePath, suffix)
+        self.fileFactory = None
+
+    def run(self, sourcePath, suffix=None):
+        YwCnvUi.run(self, sourcePath, suffix)
 
         if self.success:
             self.delete_tempfile(sourcePath)
