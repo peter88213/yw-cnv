@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.32.2
+Version 0.32.3
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -4146,7 +4146,9 @@ class FileExport(Novel):
         else:
             tags = ''
 
-        if self.scenes[scId].characters is not None:
+        try:
+            # Note: Due to a bug, yWriter scenes might hold invalid
+            # viepoint characters
             sChList = []
 
             for chId in self.scenes[scId].characters:
@@ -4155,7 +4157,7 @@ class FileExport(Novel):
             sceneChars = ', '.join(sChList)
             viewpointChar = sChList[0]
 
-        else:
+        except:
             sceneChars = ''
             viewpointChar = ''
 
