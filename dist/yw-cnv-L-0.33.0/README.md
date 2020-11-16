@@ -4,7 +4,7 @@
 
 ## Features
 
-### yWriter5 style proof reading
+### Proof reading
 
 #### Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers. 
 
@@ -24,7 +24,7 @@
 
 ### Import from yw6/7 project 
 
-Generate a "standard manuscript" formatted OpenDocument textfile from an yWriter 6/7 project.
+Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 6/7 project.
 
 * The document is placed in the same folder as the yWriter project.
 * Document's filename: `<yW project name>.odt`.
@@ -64,7 +64,7 @@ An outline has at least one third level heading.
 
 * Download the `OXT` file.
 
-* Install it using the OpenOffice/Libreoffice extension manager.
+* Install it using the Libreoffice extension manager.
 
 * After installation (and Office restart) you find a new "yWriter Import/Export" submenu in the "Files" menu.
 
@@ -73,7 +73,7 @@ An outline has at least one third level heading.
 ## Requirements
 
 * LibreOffice 5.4 or more recent.
-* Java Runtime Environment (LibreOffice needs it for macro execution).
+* Java Runtime Environment (LibreOffice might need it for macro execution).
 * yWriter 7. 
 
 ## Credits

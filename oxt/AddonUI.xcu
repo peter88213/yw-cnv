@@ -26,7 +26,7 @@
          <node oor:name="org.peter88213.yw-cnv" oor:op="replace">
             <node oor:name="N001" oor:op="replace">
                <prop oor:name="MergeContext" oor:type="xs:string">
-                  <value>com.sun.star.text.TextDocument</value>
+                  <value>com.sun.star.frame.StartModule,com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                </prop>
                <prop oor:name="MergePoint" oor:type="xs:string">
                   <value>.uno:PickList\.uno:Save</value>
@@ -144,7 +144,7 @@
             <node oor:name="Submenu">
                <node oor:name="N002" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
-                     <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                     <value/>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
                      <value xml:lang="en">Import from yWriter</value>
@@ -159,7 +159,7 @@
                </node>
                <node oor:name="N003" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
-                     <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                     <value/>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
                      <value xml:lang="en">Import from yWriter for proof reading</value>
@@ -219,7 +219,7 @@
                </node>
                <node oor:name="N009" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
-                     <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                     <value/>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
                      <value xml:lang="en">Advanced features</value>
@@ -227,7 +227,7 @@
                   <node oor:name="Submenu">
                      <node oor:name="N010" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Manuscript with chapter and scene sections</value>
@@ -241,7 +241,7 @@
                      </node>
                      <node oor:name="N011" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Scene descriptions</value>
@@ -255,7 +255,7 @@
                      </node>
                      <node oor:name="N012" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Chapter descriptions</value>
@@ -269,7 +269,7 @@
                      </node>
                      <node oor:name="N013" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Part descriptions</value>
@@ -288,7 +288,7 @@
                      </node>
                      <node oor:name="N015" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Character descriptions</value>
@@ -302,7 +302,7 @@
                      </node>
                      <node oor:name="N016" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Location descriptions</value>
@@ -316,7 +316,7 @@
                      </node>
                      <node oor:name="N017" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Item descriptions</value>
@@ -335,7 +335,7 @@
                      </node>
                      <node oor:name="N019" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Scene list</value>
@@ -349,7 +349,7 @@
                      </node>
                      <node oor:name="N020" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Character list</value>
@@ -363,7 +363,7 @@
                      </node>
                      <node oor:name="N021" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Location list</value>
@@ -377,7 +377,7 @@
                      </node>
                      <node oor:name="N022" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Item list</value>
@@ -391,7 +391,7 @@
                      </node>
                      <node oor:name="N023" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
-                           <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+                           <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Plot list</value>
