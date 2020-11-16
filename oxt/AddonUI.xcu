@@ -87,9 +87,9 @@
                            </prop>
                         </node>
                         <node oor:name="N007" oor:op="replace">
-                           <prop oor:name="Context" oor:type="xs:string">
-                              <value/>
-                           </prop>
+						   <prop oor:name="Context" oor:type="xs:string">
+							  <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
+						   </prop>
                            <prop oor:name="Title" oor:type="xs:string">
                               <value xml:lang="en">Export to yWriter</value>
                               <value xml:lang="de">Zu yWriter exportieren</value>
