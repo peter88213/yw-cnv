@@ -17,7 +17,7 @@ Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 
 * Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.
 * yWriter's project variables and global variables are not supported.
 * Scene titles are converted to navigable comments. 
-* Text passages embraced in slashes and asterisks like `/* this is a comment */` are converted to comments.
+* Text passages embraced in slashes and asterisks like `/* this is a comment */` are converted to author's comments.
 
 
 ### Proof reading
