@@ -4,6 +4,22 @@
 
 ## Features
 
+### Import from yw6/7 project 
+
+Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 6/7 project.
+
+* The document is placed in the same folder as the yWriter project.
+* Document's filename: `<yW project name>.odt`.
+* Only "used" chapters and scenes will be imported.
+* Regular chapter headings are assigned the paragraph style _Heading 2_ .
+* Headings of chapters beginning a new section are assigned the paragraph style _Heading 1_ .
+* The first paragraph of each scene is formatted as _Text body_ , all further paragraphs as _First line indent_ . 
+* Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.
+* yWriter's project variables and global variables are not supported.
+* Scene titles are converted to navigable comments. 
+* Text passages embraced in slashes and asterisks like `/* this is a comment */` are converted to comments.
+
+
 ### Proof reading
 
 #### Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers. 
@@ -21,14 +37,6 @@
 
 * The yWriter 6/7 project to rewrite must exist in the same folder as the document.
 * If both yw6 and yw7 project files exist, yw7 is rewritten. 
-
-### Import from yw6/7 project 
-
-Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 6/7 project.
-
-* The document is placed in the same folder as the yWriter project.
-* Document's filename: `<yW project name>.odt`.
-
 
 ### Create a new yw7 project 
 
