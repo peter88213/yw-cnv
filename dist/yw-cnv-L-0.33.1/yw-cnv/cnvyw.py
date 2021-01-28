@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.33.0
+Version 0.33.1
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -26,7 +26,7 @@ class FileFactory():
     @abstractmethod
     def get_file_objects(self, sourcePath, suffix=None):
         """Abstract method to be overwritten by subclasses.
-        Returns:
+        Return a tuple with three elements:
         * A message string starting with 'SUCCESS' or 'ERROR'
         * sourceFile: a Novel subclass instance
         * targetFile: a Novel subclass instance
@@ -122,7 +122,7 @@ class Novel():
         self._filePath = None
         # str
         # Path to the file. The setter only accepts files of a
-        # supported type as specified by _FILE_EXTENSION.
+        # supported type as specified by EXTENSION.
 
         self._projectName = None
         # str
@@ -163,7 +163,7 @@ class Novel():
 
     @abstractmethod
     def merge(self, novel):
-        """Merge selected novel properties.
+        """Copy required attributes of the novel object.
         To be overwritten by file format specific subclasses.
         """
 
@@ -501,7 +501,9 @@ class Character(Object):
 
 
 class YwFile(Novel):
-    """yWriter xml project file representation."""
+    """Abstract yWriter xml project file representation.
+    To be overwritten by version-specific subclasses. 
+    """
 
     def read(self):
         """Parse the yWriter xml file located at filePath, fetching the Novel attributes.
@@ -855,7 +857,8 @@ class YwFile(Novel):
         return 'SUCCESS: ' + str(len(self.scenes)) + ' Scenes read from "' + self._filePath + '".'
 
     def merge(self, novel):
-        """Merge attributes.
+        """Copy required attributes of the novel object.
+        Return a message beginning with SUCCESS or ERROR.
         """
 
         if self.file_exists():
@@ -1623,7 +1626,8 @@ class AnsiTreeReader(YwTreeReader):
 
 
 class YwProjectMerger():
-    """Merge two yWriter projects."""
+    """Merge two yWriter projects.
+    """
 
     def merge_projects(self, target, source):
         """Overwrite existing target attributes with source attributes.
@@ -2185,7 +2189,8 @@ class Yw7TreeBuilder(YwTreeBuilder):
 
 
 class Yw7File(YwFile):
-    """yWriter 7 project file representation."""
+    """yWriter 7 project file representation.
+    """
 
     DESCRIPTION = 'yWriter 7 project'
     EXTENSION = '.yw7'
@@ -2585,7 +2590,8 @@ class Yw5TreeCreator(Yw5TreeBuilder):
 
 
 class YwProjectCreator(YwProjectMerger):
-    """Create a new project."""
+    """Create a new project.
+    """
 
     def merge_projects(self, target, source):
         """Create target attributes with source attributes.
@@ -2597,9 +2603,12 @@ class YwProjectCreator(YwProjectMerger):
 import locale
 from shutil import rmtree
 from datetime import datetime
+from string import Template
 
 
 class OdtBuilder():
+    """Build an ODT zipfile.
+    """
 
     TEMPDIR = 'temp_odt'
 
@@ -2635,13 +2644,13 @@ class OdtBuilder():
 <office:document-meta xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:grddl="http://www.w3.org/2003/g/data-view#" office:version="1.2">
   <office:meta>
     <meta:generator>PyWriter</meta:generator>
-    <dc:title>%title%</dc:title>
-    <dc:description>%summary%</dc:description>
+    <dc:title>$Title</dc:title>
+    <dc:description>$Summary</dc:description>
     <dc:subject></dc:subject>
     <meta:keyword></meta:keyword>
-    <meta:initial-creator>%author%</meta:initial-creator>
+    <meta:initial-creator>$Author</meta:initial-creator>
     <dc:creator></dc:creator>
-    <meta:creation-date>%date%T%time%Z</meta:creation-date>
+    <meta:creation-date>${Date}T${Time}Z</meta:creation-date>
     <dc:date></dc:date>
   </office:meta>
 </office:document-meta>
@@ -2785,11 +2794,11 @@ class OdtBuilder():
    <style:paragraph-properties style:text-autospace="ideograph-alpha" style:line-break="strict" style:writing-mode="lr-tb" style:font-independent-line-spacing="false">
     <style:tab-stops/>
    </style:paragraph-properties>
-   <style:text-properties fo:color="#000000" fo:font-size="10pt" fo:language="en" fo:country="US" style:letter-kerning="true" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none"/>
+   <style:text-properties fo:color="#000000" fo:font-size="10pt" fo:language="$Language" fo:country="$Country" style:letter-kerning="true" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none"/>
   </style:default-style>
   <style:default-style style:family="paragraph">
    <style:paragraph-properties fo:hyphenation-ladder-count="no-limit" style:text-autospace="ideograph-alpha" style:punctuation-wrap="hanging" style:line-break="strict" style:tab-stop-distance="1.251cm" style:writing-mode="lr-tb"/>
-   <style:text-properties fo:color="#000000" style:font-name="Segoe UI" fo:font-size="10pt" fo:language="en" fo:country="US" style:letter-kerning="true" style:font-name-asian="Segoe UI" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-name-complex="Segoe UI" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2"/>
+   <style:text-properties fo:color="#000000" style:font-name="Segoe UI" fo:font-size="10pt" fo:language="$Language" fo:country="$Country" style:letter-kerning="true" style:font-name-asian="Segoe UI" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-name-complex="Segoe UI" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2"/>
   </style:default-style>
   <style:default-style style:family="table">
    <style:table-properties table:border-model="separating"/>
@@ -3965,13 +3974,14 @@ class OdtBuilder():
         # Generate styles.xml with system language set as document language
 
         localeCodes = locale.getdefaultlocale()[0].split('_')
-        languageCode = localeCodes[0]
-        countryCode = localeCodes[1]
-        text = self._STYLES_XML
-        text = re.sub('fo\:language\=\"..',
-                      'fo:language="' + languageCode, text)
-        text = re.sub('fo\:country\=\"..',
-                      'fo:country="' + countryCode, text)
+
+        localeMapping = dict(
+            Language=localeCodes[0],
+            Country=localeCodes[1],
+        )
+        template = Template(self._STYLES_XML)
+        text = template.safe_substitute(localeMapping)
+
         try:
             with open(self.TEMPDIR + '/styles.xml', 'w', encoding='utf-8') as f:
                 f.write(text)
@@ -3981,13 +3991,19 @@ class OdtBuilder():
         # Generate meta.xml with actual document metadata
 
         dt = datetime.today()
-        date = str(dt.year) + '-' + str(dt.month).rjust(2, '0') + '-' + \
-            str(dt.day).rjust(2, '0')
-        time = str(dt.hour).rjust(2, '0') + ':' + \
-            str(dt.minute).rjust(2, '0') + ':' + \
-            str(dt.second).rjust(2, '0')
-        text = self._META_XML.replace('%author%', self.author).replace('%title%', self.title).replace(
-            '%summary%', '<![CDATA[' + self.desc + ']]>').replace('%date%', date).replace('%time%', time)
+
+        metaMapping = dict(
+            Author=self.author,
+            Title=self.title,
+            Summary='<![CDATA[' + self.desc + ']]>',
+            Date=str(dt.year) + '-' + str(dt.month).rjust(2, '0') +
+            '-' + str(dt.day).rjust(2, '0'),
+            Time=str(dt.hour).rjust(2, '0') +
+            ':' + str(dt.minute).rjust(2, '0') +
+            ':' + str(dt.second).rjust(2, '0'),
+        )
+        template = Template(self._META_XML)
+        text = template.safe_substitute(metaMapping)
 
         try:
             with open(self.TEMPDIR + '/meta.xml', 'w', encoding='utf-8') as f:
@@ -4004,6 +4020,8 @@ from string import Template
 
 class FileExport(Novel):
     """Abstract yWriter project file exporter representation.
+    To be overwritten by subclasses providing file type specific 
+    markup converters and templates.
     """
 
     fileHeader = ''
@@ -4040,7 +4058,8 @@ class FileExport(Novel):
         return(text)
 
     def merge(self, novel):
-        """Copy selected novel attributes.
+        """Copy required attributes of the novel object.
+        Return a message beginning with SUCCESS or ERROR.
         """
 
         if novel.title is not None:
@@ -4105,8 +4124,10 @@ class FileExport(Novel):
 
         return 'SUCCESS'
 
-    def get_projectTemplateSubst(self):
-        projectTemplateSubst = dict(
+    def get_projectTemplateMapping(self):
+        """Return a mapping dictionary for the project section. 
+        """
+        projectTemplateMapping = dict(
             Title=self.title,
             Desc=self.convert_from_yw(self.desc),
             AuthorName=self.author,
@@ -4116,14 +4137,16 @@ class FileExport(Novel):
             FieldTitle4=self.fieldTitle4,
         )
 
-        for key in projectTemplateSubst:
-            if projectTemplateSubst[key] is None:
-                projectTemplateSubst[key] = ''
+        for key in projectTemplateMapping:
+            if projectTemplateMapping[key] is None:
+                projectTemplateMapping[key] = ''
 
-        return projectTemplateSubst
+        return projectTemplateMapping
 
-    def get_chapterSubst(self, chId, chapterNumber):
-        chapterSubst = dict(
+    def get_chapterMapping(self, chId, chapterNumber):
+        """Return a mapping dictionary for a chapter section. 
+        """
+        chapterMapping = dict(
             ID=chId,
             ChapterNumber=chapterNumber,
             Title=self.chapters[chId].get_title(),
@@ -4132,13 +4155,15 @@ class FileExport(Novel):
             ProjectPath=self.projectPath,
         )
 
-        for key in chapterSubst:
-            if chapterSubst[key] is None:
-                chapterSubst[key] = ''
+        for key in chapterMapping:
+            if chapterMapping[key] is None:
+                chapterMapping[key] = ''
 
-        return chapterSubst
+        return chapterMapping
 
-    def get_sceneSubst(self, scId, sceneNumber, wordsTotal, lettersTotal):
+    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section. 
+        """
 
         if self.scenes[scId].tags is not None:
             tags = ', '.join(self.scenes[scId].tags)
@@ -4189,7 +4214,7 @@ class FileExport(Novel):
         else:
             reactionScene = Scene.ACTION_MARKER
 
-        sceneSubst = dict(
+        sceneMapping = dict(
             ID=scId,
             SceneNumber=sceneNumber,
             Title=self.scenes[scId].title,
@@ -4231,13 +4256,15 @@ class FileExport(Novel):
             ProjectPath=self.projectPath,
         )
 
-        for key in sceneSubst:
-            if sceneSubst[key] is None:
-                sceneSubst[key] = ''
+        for key in sceneMapping:
+            if sceneMapping[key] is None:
+                sceneMapping[key] = ''
 
-        return sceneSubst
+        return sceneMapping
 
-    def get_characterSubst(self, crId):
+    def get_characterMapping(self, crId):
+        """Return a mapping dictionary for a character section. 
+        """
 
         if self.characters[crId].tags is not None:
             tags = ', '.join(self.characters[crId].tags)
@@ -4251,7 +4278,7 @@ class FileExport(Novel):
         else:
             characterStatus = Character.MINOR_MARKER
 
-        characterSubst = dict(
+        characterMapping = dict(
             ID=crId,
             Title=self.characters[crId].title,
             Desc=self.convert_from_yw(self.characters[crId].desc),
@@ -4265,13 +4292,15 @@ class FileExport(Novel):
             Status=characterStatus,
         )
 
-        for key in characterSubst:
-            if characterSubst[key] is None:
-                characterSubst[key] = ''
+        for key in characterMapping:
+            if characterMapping[key] is None:
+                characterMapping[key] = ''
 
-        return characterSubst
+        return characterMapping
 
-    def get_locationSubst(self, lcId):
+    def get_locationMapping(self, lcId):
+        """Return a mapping dictionary for a location section. 
+        """
 
         if self.locations[lcId].tags is not None:
             tags = ', '.join(self.locations[lcId].tags)
@@ -4279,7 +4308,7 @@ class FileExport(Novel):
         else:
             tags = ''
 
-        locationSubst = dict(
+        locationMapping = dict(
             ID=lcId,
             Title=self.locations[lcId].title,
             Desc=self.convert_from_yw(self.locations[lcId].desc),
@@ -4287,13 +4316,15 @@ class FileExport(Novel):
             AKA=FileExport.convert_from_yw(self, self.locations[lcId].aka),
         )
 
-        for key in locationSubst:
-            if locationSubst[key] is None:
-                locationSubst[key] = ''
+        for key in locationMapping:
+            if locationMapping[key] is None:
+                locationMapping[key] = ''
 
-        return locationSubst
+        return locationMapping
 
-    def get_itemSubst(self, itId):
+    def get_itemMapping(self, itId):
+        """Return a mapping dictionary for an item section. 
+        """
 
         if self.items[itId].tags is not None:
             tags = ', '.join(self.items[itId].tags)
@@ -4301,7 +4332,7 @@ class FileExport(Novel):
         else:
             tags = ''
 
-        itemSubst = dict(
+        itemMapping = dict(
             ID=itId,
             Title=self.items[itId].title,
             Desc=self.convert_from_yw(self.items[itId].desc),
@@ -4309,13 +4340,16 @@ class FileExport(Novel):
             AKA=FileExport.convert_from_yw(self, self.items[itId].aka),
         )
 
-        for key in itemSubst:
-            if itemSubst[key] is None:
-                itemSubst[key] = ''
+        for key in itemMapping:
+            if itemMapping[key] is None:
+                itemMapping[key] = ''
 
-        return itemSubst
+        return itemMapping
 
     def write(self):
+        """Create a template-based output file. 
+        Return a message string starting with 'SUCCESS' or 'ERROR'.
+        """
         lines = []
         wordsTotal = 0
         lettersTotal = 0
@@ -4323,7 +4357,8 @@ class FileExport(Novel):
         sceneNumber = 0
 
         template = Template(self.fileHeader)
-        lines.append(template.safe_substitute(self.get_projectTemplateSubst()))
+        lines.append(template.safe_substitute(
+            self.get_projectTemplateMapping()))
 
         for chId in self.srtChapters:
 
@@ -4387,7 +4422,7 @@ class FileExport(Novel):
                 chapterNumber += 1
 
             lines.append(template.safe_substitute(
-                self.get_chapterSubst(chId, chapterNumber)))
+                self.get_chapterMapping(chId, chapterNumber)))
             firstSceneInChapter = True
 
             for scId in self.chapters[chId].srtScenes:
@@ -4442,7 +4477,7 @@ class FileExport(Novel):
                 if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
                     lines.append(self.sceneDivider)
 
-                lines.append(template.safe_substitute(self.get_sceneSubst(
+                lines.append(template.safe_substitute(self.get_sceneMapping(
                     scId, sceneNumber, wordsTotal, lettersTotal)))
 
                 firstSceneInChapter = False
@@ -4467,16 +4502,16 @@ class FileExport(Novel):
         for crId in self.characters:
             template = Template(self.characterTemplate)
             lines.append(template.safe_substitute(
-                self.get_characterSubst(crId)))
+                self.get_characterMapping(crId)))
 
         for lcId in self.locations:
             template = Template(self.locationTemplate)
             lines.append(template.safe_substitute(
-                self.get_locationSubst(lcId)))
+                self.get_locationMapping(lcId)))
 
         for itId in self.items:
             template = Template(self.itemTemplate)
-            lines.append(template.safe_substitute(self.get_itemSubst(itId)))
+            lines.append(template.safe_substitute(self.get_itemMapping(itId)))
 
         lines.append(self.fileFooter)
         text = ''.join(lines)
@@ -4492,13 +4527,15 @@ class FileExport(Novel):
 
 
 class OdtFile(FileExport, OdtBuilder):
-    """OpenDocument xml project file representation."""
+    """OpenDocument xml project file representation.
+    """
 
     EXTENSION = '.odt'
-    # overwrites Novel._FILE_EXTENSION
+    # overwrites Novel.EXTENSION
 
     def convert_from_yw(self, text):
-        """Convert yw7 raw markup to odt. Return an xml string."""
+        """Convert yw7 raw markup to odt. Return an xml string.
+        """
 
         ODT_REPLACEMENTS = [
             ['&', '&amp;'],
@@ -4610,7 +4647,8 @@ class OdtFile(FileExport, OdtBuilder):
 
 
 class OdtProof(OdtFile):
-    """OpenDocument xml proof reading file representation."""
+    """OpenDocument xml proof reading file representation.
+    """
 
     DESCRIPTION = 'Tagged manuscript for proofing'
     SUFFIX = '_proof'
@@ -4678,7 +4716,8 @@ class OdtProof(OdtFile):
 
 
 class OdtManuscript(OdtFile):
-    """OpenDocument xml manuscript file representation."""
+    """OpenDocument xml manuscript file representation.
+    """
 
     DESCRIPTION = 'Editable manuscript'
     SUFFIX = '_manuscript'
@@ -4723,17 +4762,20 @@ class OdtManuscript(OdtFile):
 
     fileFooter = OdtBuilder.CONTENT_XML_FOOTER
 
-    def get_chapterSubst(self, chId, chapterNumber):
-        chapterSubst = OdtFile.get_chapterSubst(self, chId, chapterNumber)
+    def get_chapterMapping(self, chId, chapterNumber):
+        """Return a mapping dictionary for a chapter section. 
+        """
+        chapterMapping = OdtFile.get_chapterMapping(self, chId, chapterNumber)
 
         if self.chapters[chId].suppressChapterTitle:
-            chapterSubst['Title'] = ''
+            chapterMapping['Title'] = ''
 
-        return chapterSubst
+        return chapterMapping
 
 
 class OdtSceneDesc(OdtFile):
-    """OpenDocument xml scene summaries file representation."""
+    """OpenDocument xml scene summaries file representation.
+    """
 
     DESCRIPTION = 'Scene descriptions'
     SUFFIX = '_scenes'
@@ -4780,7 +4822,8 @@ class OdtSceneDesc(OdtFile):
 
 
 class OdtChapterDesc(OdtFile):
-    """OpenDocument xml chapter summaries file representation."""
+    """OpenDocument xml chapter summaries file representation.
+    """
 
     DESCRIPTION = 'Chapter descriptions'
     SUFFIX = '_chapters'
@@ -4802,7 +4845,8 @@ class OdtChapterDesc(OdtFile):
 
 
 class OdtPartDesc(OdtFile):
-    """OpenDocument xml part summaries file representation."""
+    """OpenDocument xml part summaries file representation.
+    """
 
     DESCRIPTION = 'Part descriptions'
     SUFFIX = '_parts'
@@ -4821,10 +4865,10 @@ class OdtPartDesc(OdtFile):
 
 
 class OdtExport(OdtFile):
+    """OpenDocument xml project file representation.
+    """
 
     SUFFIX = ''
-
-    """OpenDocument xml project file representation."""
 
     fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
@@ -4853,31 +4897,23 @@ class OdtExport(OdtFile):
 
     fileFooter = OdtBuilder.CONTENT_XML_FOOTER
 
-    def get_chapterSubst(self, chId, chapterNumber):
-        chapterSubst = OdtFile.get_chapterSubst(self, chId, chapterNumber)
+    def get_chapterMapping(self, chId, chapterNumber):
+        """Return a mapping dictionary for a chapter section. 
+        """
+        chapterMapping = OdtFile.get_chapterMapping(self, chId, chapterNumber)
 
         if self.chapters[chId].suppressChapterTitle:
-            chapterSubst['Title'] = ''
+            chapterMapping['Title'] = ''
 
-        return chapterSubst
+        return chapterMapping
 
 
 class OdtCharacters(OdtFile):
-    """OpenDocument xml character descriptions file representation."""
+    """OpenDocument xml character descriptions file representation.
+    """
 
     DESCRIPTION = 'Character descriptions'
     SUFFIX = '_characters'
-
-    def get_characterSubst(self, crId):
-        characterSubst = OdtFile.get_characterSubst(self, crId)
-
-        if self.characters[crId].aka:
-            characterSubst['AKA'] = ' ("' + self.characters[crId].aka + '")'
-
-        if self.characters[crId].fullName:
-            characterSubst['FullName'] = '/' + self.characters[crId].fullName
-
-        return characterSubst
 
     fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
@@ -4902,20 +4938,26 @@ class OdtCharacters(OdtFile):
 
     fileFooter = OdtBuilder.CONTENT_XML_FOOTER
 
+    def get_characterMapping(self, crId):
+        """Return a mapping dictionary for a character section. 
+        """
+        characterMapping = OdtFile.get_characterMapping(self, crId)
+
+        if self.characters[crId].aka:
+            characterMapping['AKA'] = ' ("' + self.characters[crId].aka + '")'
+
+        if self.characters[crId].fullName:
+            characterMapping['FullName'] = '/' + self.characters[crId].fullName
+
+        return characterMapping
+
 
 class OdtItems(OdtFile):
-    """OpenDocument xml item descriptions file representation."""
+    """OpenDocument xml item descriptions file representation.
+    """
 
     DESCRIPTION = 'Item descriptions'
     SUFFIX = '_items'
-
-    def get_itemSubst(self, itId):
-        itemSubst = OdtFile.get_itemSubst(self, itId)
-
-        if self.items[itId].aka:
-            itemSubst['AKA'] = ' ("' + self.items[itId].aka + '")'
-
-        return itemSubst
 
     fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
@@ -4929,20 +4971,23 @@ class OdtItems(OdtFile):
 
     fileFooter = OdtBuilder.CONTENT_XML_FOOTER
 
+    def get_itemMapping(self, itId):
+        """Return a mapping dictionary for an item section. 
+        """
+        itemMapping = OdtFile.get_itemMapping(self, itId)
+
+        if self.items[itId].aka:
+            itemMapping['AKA'] = ' ("' + self.items[itId].aka + '")'
+
+        return itemMapping
+
 
 class OdtLocations(OdtFile):
-    """OpenDocument xml location descriptions file representation."""
+    """OpenDocument xml location descriptions file representation.
+    """
 
     DESCRIPTION = 'Location descriptions'
     SUFFIX = '_locations'
-
-    def get_locationSubst(self, lcId):
-        locationSubst = OdtFile.get_locationSubst(self, lcId)
-
-        if self.locations[lcId].aka:
-            locationSubst['AKA'] = ' ("' + self.locations[lcId].aka + '")'
-
-        return locationSubst
 
     fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
@@ -4955,6 +5000,16 @@ class OdtLocations(OdtFile):
 '''
 
     fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+
+    def get_locationMapping(self, lcId):
+        """Return a mapping dictionary for a location section. 
+        """
+        locationMapping = OdtFile.get_locationMapping(self, lcId)
+
+        if self.locations[lcId].aka:
+            locationMapping['AKA'] = ' ("' + self.locations[lcId].aka + '")'
+
+        return locationMapping
 
 
 
@@ -5648,7 +5703,7 @@ class CsvFile(FileExport):
     """
 
     EXTENSION = '.csv'
-    # overwrites Novel._FILE_EXTENSION
+    # overwrites Novel.EXTENSION
 
     _SEPARATOR = '|'
     # delimits data fields within a record.
@@ -5721,23 +5776,25 @@ class CsvSceneList(CsvFile):
         '''$Characters|$Locations|$Items
 '''
 
-    def get_sceneSubst(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        sceneSubst = CsvFile.get_sceneSubst(
+    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section. 
+        """
+        sceneMapping = CsvFile.get_sceneMapping(
             self, scId, sceneNumber, wordsTotal, lettersTotal)
 
         if self.scenes[scId].field1 == '1':
-            sceneSubst['Field1'] = ''
+            sceneMapping['Field1'] = ''
 
         if self.scenes[scId].field2 == '1':
-            sceneSubst['Field2'] = ''
+            sceneMapping['Field2'] = ''
 
         if self.scenes[scId].field3 == '1':
-            sceneSubst['Field3'] = ''
+            sceneMapping['Field3'] = ''
 
         if self.scenes[scId].field4 == '1':
-            sceneSubst['Field4'] = ''
+            sceneMapping['Field4'] = ''
 
-        return sceneSubst
+        return sceneMapping
 
     def read(self):
         """Parse the csv file located at filePath, 
@@ -5920,8 +5977,10 @@ class CsvPlotList(CsvFile):
         '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4
 '''
 
-    def get_projectTemplateSubst(self):
-        projectTemplateSubst = CsvFile.get_projectTemplateSubst(self)
+    def get_projectTemplateMapping(self):
+        """Return a mapping dictionary for the project section. 
+        """
+        projectTemplateMapping = CsvFile.get_projectTemplateMapping(self)
 
         charList = []
 
@@ -5933,48 +5992,50 @@ class CsvPlotList(CsvFile):
 
         else:
             self.arc1 = False
-            projectTemplateSubst['FieldTitle1'] = self._NOT_APPLICABLE
+            projectTemplateMapping['FieldTitle1'] = self._NOT_APPLICABLE
 
         if self.fieldTitle2 in charList or self._STORYLINE_MARKER in self.fieldTitle2.lower():
             self.arc2 = True
 
         else:
             self.arc2 = False
-            projectTemplateSubst['FieldTitle2'] = self._NOT_APPLICABLE
+            projectTemplateMapping['FieldTitle2'] = self._NOT_APPLICABLE
 
         if self.fieldTitle3 in charList or self._STORYLINE_MARKER in self.fieldTitle3.lower():
             self.arc3 = True
 
         else:
             self.arc3 = False
-            projectTemplateSubst['FieldTitle3'] = self._NOT_APPLICABLE
+            projectTemplateMapping['FieldTitle3'] = self._NOT_APPLICABLE
 
         if self.fieldTitle4 in charList or self._STORYLINE_MARKER in self.fieldTitle4.lower():
             self.arc4 = True
 
         else:
             self.arc4 = False
-            projectTemplateSubst['FieldTitle4'] = self._NOT_APPLICABLE
+            projectTemplateMapping['FieldTitle4'] = self._NOT_APPLICABLE
 
-        return projectTemplateSubst
+        return projectTemplateMapping
 
-    def get_sceneSubst(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        sceneSubst = CsvFile.get_sceneSubst(
+    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section. 
+        """
+        sceneMapping = CsvFile.get_sceneMapping(
             self, scId, sceneNumber, wordsTotal, lettersTotal)
 
         if self.scenes[scId].field1 == '1' or not self.arc1:
-            sceneSubst['Field1'] = ''
+            sceneMapping['Field1'] = ''
 
-        if self.scenes[scId].field2 == '1' or not self.arc1:
-            sceneSubst['Field2'] = ''
+        if self.scenes[scId].field2 == '1' or not self.arc2:
+            sceneMapping['Field2'] = ''
 
         if self.scenes[scId].field3 == '1' or not self.arc3:
-            sceneSubst['Field3'] = ''
+            sceneMapping['Field3'] = ''
 
         if self.scenes[scId].field4 == '1' or not self.arc4:
-            sceneSubst['Field4'] = ''
+            sceneMapping['Field4'] = ''
 
-        return sceneSubst
+        return sceneMapping
 
     def read(self):
         """Parse the csv file located at filePath, fetching 
@@ -6116,7 +6177,8 @@ class CsvCharList(CsvFile):
         return 'SUCCESS: Data read from "' + self._filePath + '".'
 
     def merge(self, novel):
-        """Copy selected novel attributes.
+        """Copy required attributes of the novel object.
+        Return a message beginning with SUCCESS or ERROR.
         """
         self.characters = novel.characters
         return 'SUCCESS'
@@ -6175,7 +6237,8 @@ class CsvLocList(CsvFile):
         return 'SUCCESS: Data read from "' + self._filePath + '".'
 
     def merge(self, novel):
-        """Copy selected novel attributes.
+        """Copy required attributes of the novel object.
+        Return a message beginning with SUCCESS or ERROR.
         """
         self.locations = novel.locations
         return 'SUCCESS'
@@ -6234,7 +6297,8 @@ class CsvItemList(CsvFile):
         return 'SUCCESS: Data read from "' + self._filePath + '".'
 
     def merge(self, novel):
-        """Copy selected novel attributes.
+        """Copy required attributes of the novel object.
+        Return a message beginning with SUCCESS or ERROR.
         """
         self.items = novel.items
         return 'SUCCESS'
@@ -6248,8 +6312,8 @@ class UniversalFileFactory(FileFactory):
     """
 
     def get_file_objects(self, sourcePath, suffix=None):
-        """Returns:
-        * A message starting with 'SUCCESS' or 'ERROR'
+        """Return a tuple with three elements:
+        * A message string starting with 'SUCCESS' or 'ERROR'
         * sourceFile: a Novel subclass instance
         * targetFile: a Novel subclass instance
         """
@@ -6331,7 +6395,7 @@ class UniversalFileFactory(FileFactory):
                     fileName + suffix + CsvItemList.EXTENSION)
 
             else:
-                return ['ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None]
+                return 'ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None
 
         else:
             # The source file is not a yWriter project.
@@ -6380,7 +6444,7 @@ class UniversalFileFactory(FileFactory):
                         sourceFile = HtmlImport(sourcePath)
 
                 else:
-                    return ['ERROR: Cannot read "' + os.path.normpath(sourcePath) + '".', None, None]
+                    return 'ERROR: Cannot read "' + os.path.normpath(sourcePath) + '".', None, None
 
             elif sourcePath.endswith(CsvSceneList.SUFFIX + CsvSceneList.EXTENSION):
                 sourceFile = CsvSceneList(sourcePath)
@@ -6398,7 +6462,7 @@ class UniversalFileFactory(FileFactory):
                 sourceFile = CsvItemList(sourcePath)
 
             else:
-                return ['ERROR: File type of  "' + os.path.normpath(sourcePath) + '" not supported.', None, None]
+                return 'ERROR: File type of  "' + os.path.normpath(sourcePath) + '" not supported.', None, None
 
             if targetFile is None:
 
@@ -6416,9 +6480,9 @@ class UniversalFileFactory(FileFactory):
                     targetFile = Yw6File(ywPathBasis + Yw6File.EXTENSION)
 
             if targetFile is None:
-                return ['ERROR: No yWriter project to write.', None, None]
+                return 'ERROR: No yWriter project to write.', None, None
 
-        return ('SUCCESS', sourceFile, targetFile)
+        return 'SUCCESS', sourceFile, targetFile
 
 import uno
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
