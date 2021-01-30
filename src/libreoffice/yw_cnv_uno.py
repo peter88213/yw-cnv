@@ -26,10 +26,7 @@ class YwCnvUno(YwCnvUi):
         self.fileFactory = None
 
     def finish(self, sourcePath):
-
-        if self.success:
-            self.delete_tempfile(sourcePath)
-
+        self.delete_tempfile(sourcePath)
         self.userInterface.finish()
 
     def export_from_yw(self, sourceFile, targetFile):
