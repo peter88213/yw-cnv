@@ -14,7 +14,7 @@ Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 
 * Regular chapter headings are assigned the paragraph style _Heading 2_ .
 * Headings of chapters beginning a new section are assigned the paragraph style _Heading 1_ .
 * The first paragraph of each scene is formatted as _Text body_ , all further paragraphs as _First line indent_ . 
-* Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.
+* Text markup: Bold, italics, underline, and strikethrough are supported. Other formatting such as alignment or colored highlighting are lost.
 * yWriter's project variables and global variables are not supported.
 * Scene titles are converted to navigable comments. 
 * Text passages embraced in slashes and asterisks like `/* this is a comment */` are converted to author's comments.
