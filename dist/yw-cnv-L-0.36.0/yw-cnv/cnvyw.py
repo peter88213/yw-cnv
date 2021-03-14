@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.35.0
+Version 0.36.0
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -445,8 +445,8 @@ class Scene():
 
 
 
-class Object():
-    """yWriter object representation.
+class WorldElement():
+    """Story world element representation.
     # xml: <LOCATIONS><LOCATION> or # xml: <ITEMS><ITEM>
     """
 
@@ -454,6 +454,10 @@ class Object():
         self.title = None
         # str
         # xml: <Title>
+
+        self.image = None
+        # str
+        # xml: <ImageFile>
 
         self.desc = None
         # str
@@ -468,7 +472,7 @@ class Object():
         # xml: <AKA>
 
 
-class Character(Object):
+class Character(WorldElement):
     """yWriter character representation.
     # xml: <CHARACTERS><CHARACTER>
     """
@@ -477,7 +481,7 @@ class Character(Object):
     MINOR_MARKER = 'Minor'
 
     def __init__(self):
-        Object.__init__(self)
+        WorldElement.__init__(self)
 
         self.notes = None
         # str
@@ -525,8 +529,11 @@ class YwFile(Novel):
         for loc in root.iter('LOCATION'):
             lcId = loc.find('ID').text
 
-            self.locations[lcId] = Object()
+            self.locations[lcId] = WorldElement()
             self.locations[lcId].title = loc.find('Title').text
+
+            if loc.find('ImageFile') is not None:
+                self.locations[lcId].image = loc.find('ImageFile').text
 
             if loc.find('Desc') is not None:
                 self.locations[lcId].desc = loc.find('Desc').text
@@ -545,8 +552,11 @@ class YwFile(Novel):
         for itm in root.iter('ITEM'):
             itId = itm.find('ID').text
 
-            self.items[itId] = Object()
+            self.items[itId] = WorldElement()
             self.items[itId].title = itm.find('Title').text
+
+            if itm.find('ImageFile') is not None:
+                self.items[itId].image = itm.find('ImageFile').text
 
             if itm.find('Desc') is not None:
                 self.items[itId].desc = itm.find('Desc').text
@@ -567,6 +577,9 @@ class YwFile(Novel):
 
             self.characters[crId] = Character()
             self.characters[crId].title = crt.find('Title').text
+
+            if crt.find('ImageFile') is not None:
+                self.characters[crId].image = crt.find('ImageFile').text
 
             if crt.find('Desc') is not None:
                 self.characters[crId].desc = crt.find('Desc').text
@@ -920,167 +933,130 @@ class YwTreeBuilder():
 
         # Write locations to the xml element tree.
 
-        for loc in root.iter('LOCATION'):
-            lcId = loc.find('ID').text
+        locations = root.find('LOCATIONS')
+        sortOrder = 0
 
-            if lcId in ywProject.locations:
+        # Remove LOCATION entries in order to rewrite
+        # the LOCATIONS section in a modified sort order.
 
-                if ywProject.locations[lcId].title is not None:
-                    loc.find('Title').text = ywProject.locations[lcId].title
+        for loc in locations.findall('LOCATION'):
+            locations.remove(loc)
 
-                if ywProject.locations[lcId].desc is not None:
+        for lcId in ywProject.locations:
+            loc = ET.SubElement(locations, 'LOCATION')
+            ET.SubElement(loc, 'ID').text = lcId
 
-                    if loc.find('Desc') is None:
-                        ET.SubElement(
-                            loc, 'Desc').text = ywProject.locations[lcId].desc
+            if ywProject.locations[lcId].title is not None:
+                ET.SubElement(
+                    loc, 'Title').text = ywProject.locations[lcId].title
 
-                    else:
-                        loc.find('Desc').text = ywProject.locations[lcId].desc
+            if ywProject.locations[lcId].image is not None:
+                ET.SubElement(
+                    loc, 'ImageFile').text = ywProject.locations[lcId].image
 
-                if ywProject.locations[lcId].aka is not None:
+            if ywProject.locations[lcId].desc is not None:
+                ET.SubElement(
+                    loc, 'Desc').text = ywProject.locations[lcId].desc
 
-                    if loc.find('AKA') is None:
-                        ET.SubElement(
-                            loc, 'AKA').text = ywProject.locations[lcId].aka
+            if ywProject.locations[lcId].aka is not None:
+                ET.SubElement(loc, 'AKA').text = ywProject.locations[lcId].aka
 
-                    else:
-                        loc.find('AKA').text = ywProject.locations[lcId].aka
+            if ywProject.locations[lcId].tags is not None:
+                ET.SubElement(loc, 'Tags').text = ';'.join(
+                    ywProject.locations[lcId].tags)
 
-                if ywProject.locations[lcId].tags is not None:
-
-                    if loc.find('Tags') is None:
-                        ET.SubElement(loc, 'Tags').text = ';'.join(
-                            ywProject.locations[lcId].tags)
-
-                    else:
-                        loc.find('Tags').text = ';'.join(
-                            ywProject.locations[lcId].tags)
+            sortOrder += 1
+            ET.SubElement(loc, 'SortOrder').text = str(sortOrder)
 
         # Write items to the xml element tree.
 
-        for itm in root.iter('ITEM'):
-            itId = itm.find('ID').text
+        items = root.find('ITEMS')
+        sortOrder = 0
 
-            if itId in ywProject.items:
+        # Remove ITEM entries in order to rewrite
+        # the ITEMS section in a modified sort order.
 
-                if ywProject.items[itId].title is not None:
-                    itm.find('Title').text = ywProject.items[itId].title
+        for itm in items.findall('ITEM'):
+            items.remove(itm)
 
-                if ywProject.items[itId].desc is not None:
+        for itId in ywProject.items:
+            itm = ET.SubElement(items, 'ITEM')
+            ET.SubElement(itm, 'ID').text = itId
 
-                    if itm.find('Desc') is None:
-                        ET.SubElement(
-                            itm, 'Desc').text = ywProject.items[itId].desc
+            if ywProject.items[itId].title is not None:
+                ET.SubElement(itm, 'Title').text = ywProject.items[itId].title
 
-                    else:
-                        itm.find('Desc').text = ywProject.items[itId].desc
+            if ywProject.items[itId].image is not None:
+                ET.SubElement(
+                    itm, 'ImageFile').text = ywProject.items[itId].image
 
-                if ywProject.items[itId].aka is not None:
+            if ywProject.items[itId].desc is not None:
+                ET.SubElement(itm, 'Desc').text = ywProject.items[itId].desc
 
-                    if itm.find('AKA') is None:
-                        ET.SubElement(
-                            itm, 'AKA').text = ywProject.items[itId].aka
+            if ywProject.items[itId].aka is not None:
+                ET.SubElement(itm, 'AKA').text = ywProject.items[itId].aka
 
-                    else:
-                        itm.find('AKA').text = ywProject.items[itId].aka
+            if ywProject.items[itId].tags is not None:
+                ET.SubElement(itm, 'Tags').text = ';'.join(
+                    ywProject.items[itId].tags)
 
-                if ywProject.items[itId].tags is not None:
-
-                    if itm.find('Tags') is None:
-                        ET.SubElement(itm, 'Tags').text = ';'.join(
-                            ywProject.items[itId].tags)
-
-                    else:
-                        itm.find('Tags').text = ';'.join(
-                            ywProject.items[itId].tags)
+            sortOrder += 1
+            ET.SubElement(itm, 'SortOrder').text = str(sortOrder)
 
         # Write characters to the xml element tree.
 
-        for crt in root.iter('CHARACTER'):
-            crId = crt.find('ID').text
+        characters = root.find('CHARACTERS')
+        sortOrder = 0
 
-            if crId in ywProject.characters:
+        # Remove CHARACTER entries in order to rewrite
+        # the CHARACTERS section in a modified sort order.
 
-                if ywProject.characters[crId].title is not None:
-                    crt.find('Title').text = ywProject.characters[crId].title
+        for crt in characters.findall('CHARACTER'):
+            characters.remove(crt)
 
-                if ywProject.characters[crId].desc is not None:
+        for crId in ywProject.characters:
+            crt = ET.SubElement(characters, 'CHARACTER')
+            ET.SubElement(crt, 'ID').text = crId
 
-                    if crt.find('Desc') is None:
-                        ET.SubElement(
-                            crt, 'Desc').text = ywProject.characters[crId].desc
+            if ywProject.characters[crId].title is not None:
+                ET.SubElement(
+                    crt, 'Title').text = ywProject.characters[crId].title
 
-                    else:
-                        crt.find('Desc').text = ywProject.characters[crId].desc
+            if ywProject.characters[crId].desc is not None:
+                ET.SubElement(
+                    crt, 'Desc').text = ywProject.characters[crId].desc
 
-                if ywProject.characters[crId].aka is not None:
+            if ywProject.characters[crId].image is not None:
+                ET.SubElement(
+                    crt, 'ImageFile').text = ywProject.characters[crId].image
 
-                    if crt.find('AKA') is None:
-                        ET.SubElement(
-                            crt, 'AKA').text = ywProject.characters[crId].aka
+            sortOrder += 1
+            ET.SubElement(crt, 'SortOrder').text = str(sortOrder)
 
-                    else:
-                        crt.find('AKA').text = ywProject.characters[crId].aka
+            if ywProject.characters[crId].notes is not None:
+                ET.SubElement(
+                    crt, 'Notes').text = ywProject.characters[crId].notes
 
-                if ywProject.characters[crId].tags is not None:
+            if ywProject.characters[crId].aka is not None:
+                ET.SubElement(crt, 'AKA').text = ywProject.characters[crId].aka
 
-                    if crt.find('Tags') is None:
-                        ET.SubElement(crt, 'Tags').text = ';'.join(
-                            ywProject.characters[crId].tags)
+            if ywProject.characters[crId].tags is not None:
+                ET.SubElement(crt, 'Tags').text = ';'.join(
+                    ywProject.characters[crId].tags)
 
-                    else:
-                        crt.find('Tags').text = ';'.join(
-                            ywProject.characters[crId].tags)
+            if ywProject.characters[crId].bio is not None:
+                ET.SubElement(crt, 'Bio').text = ywProject.characters[crId].bio
 
-                if ywProject.characters[crId].notes is not None:
+            if ywProject.characters[crId].goals is not None:
+                ET.SubElement(
+                    crt, 'Goals').text = ywProject.characters[crId].goals
 
-                    if crt.find('Notes') is None:
-                        ET.SubElement(
-                            crt, 'Notes').text = ywProject.characters[crId].notes
+            if ywProject.characters[crId].fullName is not None:
+                ET.SubElement(
+                    crt, 'FullName').text = ywProject.characters[crId].fullName
 
-                    else:
-                        crt.find(
-                            'Notes').text = ywProject.characters[crId].notes
-
-                if ywProject.characters[crId].bio is not None:
-
-                    if crt.find('Bio') is None:
-                        ET.SubElement(
-                            crt, 'Bio').text = ywProject.characters[crId].bio
-
-                    else:
-                        crt.find('Bio').text = ywProject.characters[crId].bio
-
-                if ywProject.characters[crId].goals is not None:
-
-                    if crt.find('Goals') is None:
-                        ET.SubElement(
-                            crt, 'Goals').text = ywProject.characters[crId].goals
-
-                    else:
-                        crt.find(
-                            'Goals').text = ywProject.characters[crId].goals
-
-                if ywProject.characters[crId].fullName is not None:
-
-                    if crt.find('FullName') is None:
-                        ET.SubElement(
-                            crt, 'FullName').text = ywProject.characters[crId].fullName
-
-                    else:
-                        crt.find(
-                            'FullName').text = ywProject.characters[crId].fullName
-
-                majorMarker = crt.find('Major')
-
-                if majorMarker is not None:
-
-                    if not ywProject.characters[crId].isMajor:
-                        crt.remove(majorMarker)
-
-                else:
-                    if ywProject.characters[crId].isMajor:
-                        ET.SubElement(crt, 'Major').text = '-1'
+            if ywProject.characters[crId].isMajor:
+                ET.SubElement(crt, 'Major').text = '-1'
 
         # Write attributes at novel level to the xml element tree.
 
@@ -1635,87 +1611,183 @@ class YwProjectMerger():
         Return a message beginning with SUCCESS or ERROR.
         """
 
-        mismatchCount = 0
+        # Merge and re-order locations.
 
-        # Merge locations.
+        if source.locations != {}:
+            temploc = target.locations
+            target.locations = {}
 
-        for lcId in source.locations:
+            for lcId in source.locations:
 
-            if not lcId in target.locations:
-                target.locations[lcId] = Object()
-                mismatchCount += 1
+                # Build a new target.locations dictionary sorted like the
+                # source
 
-            if source.locations[lcId].title:
-                # avoids deleting the title, if it is empty by accident
-                target.locations[lcId].title = source.locations[lcId].title
+                target.locations[lcId] = WorldElement()
 
-            if source.locations[lcId].desc is not None:
-                target.locations[lcId].desc = source.locations[lcId].desc
+                if not lcId in temploc:
+                    # A new location has been added
+                    temploc[lcId] = WorldElement()
 
-            if source.locations[lcId].aka is not None:
-                target.locations[lcId].aka = source.locations[lcId].aka
+                if source.locations[lcId].title:
+                    # avoids deleting the title, if it is empty by accident
+                    target.locations[lcId].title = source.locations[lcId].title
 
-            if source.locations[lcId].tags is not None:
-                target.locations[lcId].tags = source.locations[lcId].tags
+                else:
+                    target.locations[lcId].title = temploc[lcId].title
 
-        # Merge items.
+                if source.locations[lcId].image is not None:
+                    target.locations[lcId].image = source.locations[lcId].image
 
-        for itId in source.items:
+                else:
+                    target.locations[lcId].desc = temploc[lcId].desc
 
-            if not itId in target.items:
-                target.items[itId] = Object()
-                mismatchCount += 1
+                if source.locations[lcId].desc is not None:
+                    target.locations[lcId].desc = source.locations[lcId].desc
 
-            if source.items[itId].title:
-                # avoids deleting the title, if it is empty by accident
-                target.items[itId].title = source.items[itId].title
+                else:
+                    target.locations[lcId].desc = temploc[lcId].desc
 
-            if source.items[itId].desc is not None:
-                target.items[itId].desc = source.items[itId].desc
+                if source.locations[lcId].aka is not None:
+                    target.locations[lcId].aka = source.locations[lcId].aka
 
-            if source.items[itId].aka is not None:
-                target.items[itId].aka = source.items[itId].aka
+                else:
+                    target.locations[lcId].aka = temploc[lcId].aka
 
-            if source.items[itId].tags is not None:
-                target.items[itId].tags = source.items[itId].tags
+                if source.locations[lcId].tags is not None:
+                    target.locations[lcId].tags = source.locations[lcId].tags
 
-        # Merge characters.
+                else:
+                    target.locations[lcId].tags = temploc[lcId].tags
 
-        for crId in source.characters:
+        # Merge and re-order items.
 
-            if not crId in target.characters:
+        if source.items != {}:
+            tempitm = target.items
+            target.items = {}
+
+            for itId in source.items:
+
+                # Build a new target.items dictionary sorted like the
+                # source
+
+                target.items[itId] = WorldElement()
+
+                if not itId in tempitm:
+                    # A new item has been added
+                    tempitm[itId] = WorldElement()
+
+                if source.items[itId].title:
+                    # avoids deleting the title, if it is empty by accident
+                    target.items[itId].title = source.items[itId].title
+
+                else:
+                    target.items[itId].title = tempitm[itId].title
+
+                if source.items[itId].image is not None:
+                    target.items[itId].image = source.items[itId].image
+
+                else:
+                    target.items[itId].image = tempitm[itId].image
+
+                if source.items[itId].desc is not None:
+                    target.items[itId].desc = source.items[itId].desc
+
+                else:
+                    target.items[itId].desc = tempitm[itId].desc
+
+                if source.items[itId].aka is not None:
+                    target.items[itId].aka = source.items[itId].aka
+
+                else:
+                    target.items[itId].aka = tempitm[itId].aka
+
+                if source.items[itId].tags is not None:
+                    target.items[itId].tags = source.items[itId].tags
+
+                else:
+                    target.items[itId].tags = tempitm[itId].tags
+
+        # Merge and re-order characters.
+
+        if source.characters != {}:
+            tempchr = target.characters
+            target.characters = {}
+
+            for crId in source.characters:
+
+                # Build a new target.characters dictionary sorted like the
+                # source
+
                 target.characters[crId] = Character()
-                mismatchCount += 1
 
-            if source.characters[crId].title:
-                # avoids deleting the title, if it is empty by accident
-                target.characters[crId].title = source.characters[crId].title
+                if not crId in tempchr:
+                    # A new character has been added
+                    tempchr[crId] = Character()
 
-            if source.characters[crId].desc is not None:
-                target.characters[crId].desc = source.characters[crId].desc
+                if source.characters[crId].title:
+                    # avoids deleting the title, if it is empty by accident
+                    target.characters[crId].title = source.characters[crId].title
 
-            if source.characters[crId].aka is not None:
-                target.characters[crId].aka = source.characters[crId].aka
+                else:
+                    target.characters[crId].title = tempchr[crId].title
 
-            if source.characters[crId].tags is not None:
-                target.characters[crId].tags = source.characters[crId].tags
+                if source.characters[crId].image is not None:
+                    target.characters[crId].image = source.characters[crId].image
 
-            if source.characters[crId].notes is not None:
-                target.characters[crId].notes = source.characters[crId].notes
+                else:
+                    target.characters[crId].image = tempchr[crId].image
 
-            if source.characters[crId].bio is not None:
-                target.characters[crId].bio = source.characters[crId].bio
+                if source.characters[crId].desc is not None:
+                    target.characters[crId].desc = source.characters[crId].desc
 
-            if source.characters[crId].goals is not None:
-                target.characters[crId].goals = source.characters[crId].goals
+                else:
+                    target.characters[crId].desc = tempchr[crId].desc
 
-            if source.characters[crId].fullName is not None:
-                target.characters[crId].fullName = source.characters[crId].fullName
+                if source.characters[crId].aka is not None:
+                    target.characters[crId].aka = source.characters[crId].aka
 
-            if source.characters[crId].isMajor is not None:
-                target.characters[crId].isMajor = source.characters[crId].isMajor
+                else:
+                    target.characters[crId].aka = tempchr[crId].aka
+
+                if source.characters[crId].tags is not None:
+                    target.characters[crId].tags = source.characters[crId].tags
+
+                else:
+                    target.characters[crId].tags = tempchr[crId].tags
+
+                if source.characters[crId].notes is not None:
+                    target.characters[crId].notes = source.characters[crId].notes
+
+                else:
+                    target.characters[crId].notes = tempchr[crId].notes
+
+                if source.characters[crId].bio is not None:
+                    target.characters[crId].bio = source.characters[crId].bio
+
+                else:
+                    target.characters[crId].bio = tempchr[crId].bio
+
+                if source.characters[crId].goals is not None:
+                    target.characters[crId].goals = source.characters[crId].goals
+
+                else:
+                    target.characters[crId].goals = tempchr[crId].goals
+
+                if source.characters[crId].fullName is not None:
+                    target.characters[crId].fullName = source.characters[crId].fullName
+
+                else:
+                    target.characters[crId].fullName = tempchr[crId].fullName
+
+                if source.characters[crId].isMajor is not None:
+                    target.characters[crId].isMajor = source.characters[crId].isMajor
+
+                else:
+                    target.characters[crId].isMajor = tempchr[crId].isMajor
 
         # Merge scenes.
+
+        mismatchCount = 0
 
         for scId in source.scenes:
 
@@ -5453,7 +5525,7 @@ class HtmlLocations(HtmlFile):
 
                 if attrs[0][1].startswith('LcID'):
                     self._lcId = re.search('[0-9]+', attrs[0][1]).group()
-                    self.locations[self._lcId] = Object()
+                    self.locations[self._lcId] = WorldElement()
 
     def handle_endtag(self, tag):
         """Recognize the end of the location section and save data.
@@ -5498,7 +5570,7 @@ class HtmlItems(HtmlFile):
 
                 if attrs[0][1].startswith('ItID'):
                     self._itId = re.search('[0-9]+', attrs[0][1]).group()
-                    self.items[self._itId] = Object()
+                    self.items[self._itId] = WorldElement()
 
     def handle_endtag(self, tag):
         """Recognize the end of the item section and save data.
@@ -5709,6 +5781,7 @@ class HtmlOutline(HtmlFile):
         self._lines.append(data.rstrip().lstrip())
 
 
+import csv
 
 
 
@@ -5760,6 +5833,35 @@ class CsvFile(FileExport):
             text = ''
 
         return text
+
+    def read(self):
+        """Parse the csv file located at filePath, fetching the rows.
+        Check the number of fields in each row.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+        self.rows = []
+        cellsPerRow = len(self.fileHeader.split(self._SEPARATOR))
+
+        try:
+            with open(self.filePath, newline='', encoding='utf-8') as f:
+                reader = csv.reader(f, delimiter=self._SEPARATOR)
+
+                for row in reader:
+                    # Each row read from the csv file is returned
+                    # as a list of strings
+
+                    if len(row) != cellsPerRow:
+                        return 'ERROR: Wrong csv structure.'
+
+                    self.rows.append(row)
+
+        except(FileNotFoundError):
+            return 'ERROR: "' + os.path.normpath(self.filePath) + '" not found.'
+
+        except:
+            return 'ERROR: Can not parse "' + os.path.normpath(self.filePath) + '".'
+
+        return 'SUCCESS'
 
 
 class CsvSceneList(CsvFile):
@@ -5817,48 +5919,39 @@ class CsvSceneList(CsvFile):
         fetching the Scene attributes contained.
         Return a message beginning with SUCCESS or ERROR.
         """
-        try:
-            with open(self.filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+        message = CsvFile.read(self)
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + os.path.normpath(self.filePath) + '" not found.'
+        if message.startswith('ERROR'):
+            return message
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
-
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
+        for cells in self.rows:
             i = 0
 
-            if 'ScID:' in cell[i]:
-                scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
+            if 'ScID:' in cells[i]:
+                scId = re.search('ScID\:([0-9]+)', cells[0]).group(1)
                 self.scenes[scId] = Scene()
                 i += 1
-                self.scenes[scId].title = cell[i]
+                self.scenes[scId].title = cells[i]
                 i += 1
-                self.scenes[scId].desc = self.convert_to_yw(cell[i])
+                self.scenes[scId].desc = self.convert_to_yw(cells[i])
                 i += 1
-                self.scenes[scId].tags = cell[i].split(self._LIST_SEPARATOR)
+                self.scenes[scId].tags = cells[i].split(self._LIST_SEPARATOR)
                 i += 1
-                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[i])
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cells[i])
                 i += 1
 
-                if Scene.REACTION_MARKER.lower() in cell[i].lower():
+                if Scene.REACTION_MARKER.lower() in cells[i].lower():
                     self.scenes[scId].isReactionScene = True
 
                 else:
                     self.scenes[scId].isReactionScene = False
 
                 i += 1
-                self.scenes[scId].goal = cell[i]
+                self.scenes[scId].goal = cells[i]
                 i += 1
-                self.scenes[scId].conflict = cell[i]
+                self.scenes[scId].conflict = cells[i]
                 i += 1
-                self.scenes[scId].outcome = cell[i]
+                self.scenes[scId].outcome = cells[i]
                 i += 1
                 # Don't write back sceneCount
                 i += 1
@@ -5867,32 +5960,32 @@ class CsvSceneList(CsvFile):
 
                 # Transfer scene ratings; set to 1 if deleted
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field1 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field1 = cells[i]
 
                 else:
                     self.scenes[scId].field1 = '1'
 
                 i += 1
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field2 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field2 = cells[i]
 
                 else:
                     self.scenes[scId].field2 = '1'
 
                 i += 1
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field3 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field3 = cells[i]
 
                 else:
                     self.scenes[scId].field3 = '1'
 
                 i += 1
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field4 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field4 = cells[i]
 
                 else:
                     self.scenes[scId].field4 = '1'
@@ -5904,7 +5997,7 @@ class CsvSceneList(CsvFile):
                 i += 1
 
                 try:
-                    self.scenes[scId].status = Scene.STATUS.index(cell[i])
+                    self.scenes[scId].status = Scene.STATUS.index(cells[i])
 
                 except ValueError:
                     pass
@@ -5913,7 +6006,7 @@ class CsvSceneList(CsvFile):
 
                 i += 1
                 ''' Cannot write back character IDs, because self.characters is None
-                charaNames = cell[i].split(self._LIST_SEPARATOR)
+                charaNames = cells[i].split(self._LIST_SEPARATOR)
                 self.scenes[scId].characters = []
 
                 for charaName in charaNames:
@@ -5925,7 +6018,7 @@ class CsvSceneList(CsvFile):
                 '''
                 i += 1
                 ''' Cannot write back location IDs, because self.locations is None
-                locaNames = cell[i].split(self._LIST_SEPARATOR)
+                locaNames = cells[i].split(self._LIST_SEPARATOR)
                 self.scenes[scId].locations = []
 
                 for locaName in locaNames:
@@ -5937,7 +6030,7 @@ class CsvSceneList(CsvFile):
                 '''
                 i += 1
                 ''' Cannot write back item IDs, because self.items is None
-                itemNames = cell[i].split(self._LIST_SEPARATOR)
+                itemNames = cells[i].split(self._LIST_SEPARATOR)
                 self.scenes[scId].items = []
 
                 for itemName in itemNames:
@@ -6058,35 +6151,27 @@ class CsvPlotList(CsvFile):
         the Scene attributes contained.
         Return a message beginning with SUCCESS or ERROR.
         """
-        try:
-            with open(self.filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+        message = CsvFile.read(self)
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + os.path.normpath(self.filePath) + '" not found.'
+        if message.startswith('ERROR'):
+            return message
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
+        tableHeader = self.rows[0]
 
-        tableHeader = lines[0].rstrip().split(self._SEPARATOR)
+        for cells in self.rows:
 
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
-            if 'ChID:' in cell[0]:
-                chId = re.search('ChID\:([0-9]+)', cell[0]).group(1)
+            if 'ChID:' in cells[0]:
+                chId = re.search('ChID\:([0-9]+)', cells[0]).group(1)
                 self.chapters[chId] = Chapter()
-                self.chapters[chId].title = cell[1]
-                self.chapters[chId].desc = self.convert_to_yw(cell[4])
+                self.chapters[chId].title = cells[1]
+                self.chapters[chId].desc = self.convert_to_yw(cells[4])
 
-            if 'ScID:' in cell[0]:
-                scId = re.search('ScID\:([0-9]+)', cell[0]).group(1)
+            if 'ScID:' in cells[0]:
+                scId = re.search('ScID\:([0-9]+)', cells[0]).group(1)
                 self.scenes[scId] = Scene()
-                self.scenes[scId].tags = cell[2].split(self._LIST_SEPARATOR)
-                self.scenes[scId].title = cell[3]
-                self.scenes[scId].sceneNotes = self.convert_to_yw(cell[4])
+                self.scenes[scId].tags = cells[2].split(self._LIST_SEPARATOR)
+                self.scenes[scId].title = cells[3]
+                self.scenes[scId].sceneNotes = self.convert_to_yw(cells[4])
 
                 i = 5
                 # Don't write back sceneCount
@@ -6096,32 +6181,32 @@ class CsvPlotList(CsvFile):
 
                 # Transfer scene ratings; set to 1 if deleted
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field1 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field1 = cells[i]
 
                 elif tableHeader[i] != self._NOT_APPLICABLE:
                     self.scenes[scId].field1 = '1'
 
                 i += 1
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field2 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field2 = cells[i]
 
                 elif tableHeader[i] != self._NOT_APPLICABLE:
                     self.scenes[scId].field2 = '1'
 
                 i += 1
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field3 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field3 = cells[i]
 
                 elif tableHeader[i] != self._NOT_APPLICABLE:
                     self.scenes[scId].field3 = '1'
 
                 i += 1
 
-                if cell[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field4 = cell[i]
+                if cells[i] in self._SCENE_RATINGS:
+                    self.scenes[scId].field4 = cells[i]
 
                 elif tableHeader[i] != self._NOT_APPLICABLE:
                     self.scenes[scId].field4 = '1'
@@ -6153,42 +6238,31 @@ class CsvCharList(CsvFile):
         fetching the Character attributes contained.
         Return a message beginning with SUCCESS or ERROR.
         """
-        try:
-            with open(self.filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+        message = CsvFile.read(self)
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + os.path.normpath(self.filePath) + '" not found.'
+        if message.startswith('ERROR'):
+            return message
 
-        if lines[0] != self.fileHeader:
-            return 'ERROR: Wrong lines content.'
+        for cells in self.rows:
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
-
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
-            if 'CrID:' in cell[0]:
-                crId = re.search('CrID\:([0-9]+)', cell[0]).group(1)
+            if 'CrID:' in cells[0]:
+                crId = re.search('CrID\:([0-9]+)', cells[0]).group(1)
                 self.characters[crId] = Character()
-                self.characters[crId].title = cell[1]
-                self.characters[crId].fullName = cell[2]
-                self.characters[crId].aka = cell[3]
-                self.characters[crId].desc = self.convert_to_yw(cell[4])
-                self.characters[crId].bio = cell[5]
-                self.characters[crId].goals = cell[6]
+                self.characters[crId].title = cells[1]
+                self.characters[crId].fullName = cells[2]
+                self.characters[crId].aka = cells[3]
+                self.characters[crId].desc = self.convert_to_yw(cells[4])
+                self.characters[crId].bio = cells[5]
+                self.characters[crId].goals = cells[6]
 
-                if Character.MAJOR_MARKER in cell[7]:
+                if Character.MAJOR_MARKER in cells[7]:
                     self.characters[crId].isMajor = True
 
                 else:
                     self.characters[crId].isMajor = False
 
-                self.characters[crId].tags = cell[8].split(';')
-                self.characters[crId].notes = self.convert_to_yw(cell[9])
+                self.characters[crId].tags = cells[8].split(';')
+                self.characters[crId].notes = self.convert_to_yw(cells[9])
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
@@ -6221,34 +6295,23 @@ class CsvLocList(CsvFile):
 
     def read(self):
         """Parse the csv file located at filePath, 
-        fetching the Object attributes contained.
+        fetching the WorldElement attributes contained.
         Return a message beginning with SUCCESS or ERROR.
         """
-        try:
-            with open(self.filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+        message = CsvFile.read(self)
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + os.path.normpath(self.filePath) + '" not found.'
+        if message.startswith('ERROR'):
+            return message
 
-        if lines[0] != self.fileHeader:
-            return 'ERROR: Wrong lines content.'
+        for cells in self.rows:
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
-
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
-            if 'LcID:' in cell[0]:
-                lcId = re.search('LcID\:([0-9]+)', cell[0]).group(1)
-                self.locations[lcId] = Object()
-                self.locations[lcId].title = cell[1]
-                self.locations[lcId].desc = self.convert_to_yw(cell[2])
-                self.locations[lcId].aka = cell[3]
-                self.locations[lcId].tags = cell[4].split(';')
+            if 'LcID:' in cells[0]:
+                lcId = re.search('LcID\:([0-9]+)', cells[0]).group(1)
+                self.locations[lcId] = WorldElement()
+                self.locations[lcId].title = cells[1]
+                self.locations[lcId].desc = self.convert_to_yw(cells[2])
+                self.locations[lcId].aka = cells[3]
+                self.locations[lcId].tags = cells[4].split(';')
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
@@ -6258,7 +6321,6 @@ class CsvLocList(CsvFile):
         """
         self.locations = novel.locations
         return 'SUCCESS'
-
 
 
 
@@ -6281,34 +6343,23 @@ class CsvItemList(CsvFile):
 
     def read(self):
         """Parse the csv file located at filePath, 
-        fetching the Object attributes contained.
+        fetching the WorldElement attributes contained.
         Return a message beginning with SUCCESS or ERROR.
         """
-        try:
-            with open(self.filePath, 'r', encoding='utf-8') as f:
-                lines = (f.readlines())
+        message = CsvFile.read(self)
 
-        except(FileNotFoundError):
-            return 'ERROR: "' + os.path.normpath(self.filePath) + '" not found.'
+        if message.startswith('ERROR'):
+            return message
 
-        if lines[0] != self.fileHeader:
-            return 'ERROR: Wrong lines content.'
+        for cells in self.rows:
 
-        cellsInLine = len(self.fileHeader.split(self._SEPARATOR))
-
-        for line in lines:
-            cell = line.rstrip().split(self._SEPARATOR)
-
-            if len(cell) != cellsInLine:
-                return 'ERROR: Wrong cell structure.'
-
-            if 'ItID:' in cell[0]:
-                itId = re.search('ItID\:([0-9]+)', cell[0]).group(1)
-                self.items[itId] = Object()
-                self.items[itId].title = cell[1]
-                self.items[itId].desc = self.convert_to_yw(cell[2])
-                self.items[itId].aka = cell[3]
-                self.items[itId].tags = cell[4].split(';')
+            if 'ItID:' in cells[0]:
+                itId = re.search('ItID\:([0-9]+)', cells[0]).group(1)
+                self.items[itId] = WorldElement()
+                self.items[itId].title = cells[1]
+                self.items[itId].desc = self.convert_to_yw(cells[2])
+                self.items[itId].aka = cells[3]
+                self.items[itId].tags = cells[4].split(';')
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 

@@ -14,7 +14,7 @@
                <value xml:lang="de">yWriter Import/Export Hilfe</value>
             </prop>
             <prop oor:name="URL" oor:type="xs:string">
-               <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+               <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
             </prop>
             <prop oor:name="Target" oor:type="xs:string">
                <value>_self</value>
@@ -60,7 +60,7 @@
                               <value xml:lang="de">Von yWriter importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -75,38 +75,83 @@
                               <value xml:lang="de">Von yWriter zum Korrekturlesen importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
                            </prop>
                         </node>
                         <node oor:name="N006" oor:op="replace">
+                           <prop oor:name="Context" oor:type="xs:string">
+                              <value/>
+                           </prop>
+                           <prop oor:name="Title" oor:type="xs:string">
+                              <value xml:lang="en">Character list</value>
+                              <value xml:lang="de">Figurenliste</value>
+                           </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>private:separator</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_charlist?language=Python&amp;location=user:uno_packages</value>
+                           </prop>
+                           <prop oor:name="Target" oor:type="xs:string">
+                              <value>_self</value>
                            </prop>
                         </node>
                         <node oor:name="N007" oor:op="replace">
-						   <prop oor:name="Context" oor:type="xs:string">
-							  <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
-						   </prop>
+                           <prop oor:name="Context" oor:type="xs:string">
+                              <value/>
+                           </prop>
                            <prop oor:name="Title" oor:type="xs:string">
-                              <value xml:lang="en">Export to yWriter</value>
-                              <value xml:lang="de">Zu yWriter exportieren</value>
+                              <value xml:lang="en">Location list</value>
+                              <value xml:lang="de">Schauplatzliste</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_loclist?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
                            </prop>
                         </node>
                         <node oor:name="N008" oor:op="replace">
+                           <prop oor:name="Context" oor:type="xs:string">
+                              <value/>
+                           </prop>
+                           <prop oor:name="Title" oor:type="xs:string">
+                              <value xml:lang="en">Item list</value>
+                              <value xml:lang="de">Gegenständeliste</value>
+                           </prop>
+                           <prop oor:name="URL" oor:type="xs:string">
+                              <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_itemlist?language=Python&amp;location=user:uno_packages</value>
+                           </prop>
+                           <prop oor:name="Target" oor:type="xs:string">
+                              <value>_self</value>
+                           </prop>
+                        </node>
+                        <node oor:name="N009" oor:op="replace">
                            <prop oor:name="URL" oor:type="xs:string">
                               <value>private:separator</value>
                            </prop>
                         </node>
-                        <node oor:name="N009" oor:op="replace">
+                        <node oor:name="N010" oor:op="replace">
+                           <prop oor:name="Context" oor:type="xs:string">
+                              <value/>
+                           </prop>
+                           <prop oor:name="Title" oor:type="xs:string">
+                              <value xml:lang="en">Export to yWriter</value>
+                              <value xml:lang="de">Zu yWriter exportieren</value>
+                           </prop>
+                           <prop oor:name="URL" oor:type="xs:string">
+                              <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                           </prop>
+                           <prop oor:name="Target" oor:type="xs:string">
+                              <value>_self</value>
+                           </prop>
+                        </node>
+                        <node oor:name="N011" oor:op="replace">
+                           <prop oor:name="URL" oor:type="xs:string">
+                              <value>private:separator</value>
+                           </prop>
+                        </node>
+                        <node oor:name="N012" oor:op="replace">
                            <prop oor:name="Context" oor:type="xs:string">
                               <value/>
                            </prop>
@@ -115,7 +160,7 @@
                               <value xml:lang="de">Hilfe</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
-                              <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                              <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
                            </prop>
                            <prop oor:name="Target" oor:type="xs:string">
                               <value>_self</value>
@@ -123,7 +168,7 @@
                         </node>
                      </node>
                   </node>
-                  <node oor:name="N010" oor:op="replace">
+                  <node oor:name="N013" oor:op="replace">
                      <prop oor:name="URL" oor:type="xs:string">
                         <value>private:separator</value>
                      </prop>
@@ -151,7 +196,7 @@
                      <value xml:lang="de">von yWriter importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
@@ -166,18 +211,63 @@
                      <value xml:lang="de">von yWriter zum Korrekturlesen importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
                   </prop>
                </node>
                <node oor:name="N004" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value/>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Character list</value>
+                     <value xml:lang="de">Figurenliste</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_charlist?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N005" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value/>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Location list</value>
+                     <value xml:lang="de">Schauplatzliste</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_loclist?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N006" oor:op="replace">
+                  <prop oor:name="Context" oor:type="xs:string">
+                     <value/>
+                  </prop>
+                  <prop oor:name="Title" oor:type="xs:string">
+                     <value xml:lang="en">Item list</value>
+                     <value xml:lang="de">Gegenständeliste</value>
+                  </prop>
+                  <prop oor:name="URL" oor:type="xs:string">
+                     <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_itemlist?language=Python&amp;location=user:uno_packages</value>
+                  </prop>
+                  <prop oor:name="Target" oor:type="xs:string">
+                     <value>_self</value>
+                  </prop>
+               </node>
+               <node oor:name="N007" oor:op="replace">
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>private:separator</value>
                   </prop>
                </node>
-               <node oor:name="N005" oor:op="replace">
+               <node oor:name="N008" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
                      <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                   </prop>
@@ -186,18 +276,18 @@
                      <value xml:lang="de">Zu yWriter exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
                   </prop>
                </node>
-               <node oor:name="N006" oor:op="replace">
+               <node oor:name="N009" oor:op="replace">
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>private:separator</value>
                   </prop>
                </node>
-               <node oor:name="N007" oor:op="replace">
+               <node oor:name="N010" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
                      <value/>
                   </prop>
@@ -206,18 +296,18 @@
                      <value xml:lang="de">Hilfe</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>
                   </prop>
                </node>
-               <node oor:name="N008" oor:op="replace">
+               <node oor:name="N011" oor:op="replace">
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>private:separator</value>
                   </prop>
                </node>
-               <node oor:name="N009" oor:op="replace">
+               <node oor:name="N012" oor:op="replace">
                   <prop oor:name="Context" oor:type="xs:string">
                      <value/>
                   </prop>
@@ -225,7 +315,7 @@
                      <value xml:lang="en">Advanced features</value>
                   </prop>
                   <node oor:name="Submenu">
-                     <node oor:name="N010" oor:op="replace">
+                     <node oor:name="N013" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value/>
                         </prop>
@@ -233,13 +323,13 @@
                            <value xml:lang="en">Manuscript with chapter and scene sections</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
                         </prop>
                      </node>
-                     <node oor:name="N011" oor:op="replace">
+                     <node oor:name="N014" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value/>
                         </prop>
@@ -247,43 +337,10 @@
                            <value xml:lang="en">Scene descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
-                        </prop>
-                     </node>
-                     <node oor:name="N012" oor:op="replace">
-                        <prop oor:name="Context" oor:type="xs:string">
-                           <value/>
-                        </prop>
-                        <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Chapter descriptions</value>
-                        </prop>
-                        <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_chapterdesc?language=Python&amp;location=user:uno_packages</value>
-                        </prop>
-                        <prop oor:name="Target" oor:type="xs:string">
-                           <value>_self</value>
-                        </prop>
-                     </node>
-                     <node oor:name="N013" oor:op="replace">
-                        <prop oor:name="Context" oor:type="xs:string">
-                           <value/>
-                        </prop>
-                        <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Part descriptions</value>
-                        </prop>
-                        <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_partdesc?language=Python&amp;location=user:uno_packages</value>
-                        </prop>
-                        <prop oor:name="Target" oor:type="xs:string">
-                           <value>_self</value>
-                        </prop>
-                     </node>
-                     <node oor:name="N014" oor:op="replace">
-                        <prop oor:name="URL" oor:type="xs:string">
-                           <value>private:separator</value>
                         </prop>
                      </node>
                      <node oor:name="N015" oor:op="replace">
@@ -291,10 +348,10 @@
                            <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Character descriptions</value>
+                           <value xml:lang="en">Chapter descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_chardesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_chapterdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -305,32 +362,32 @@
                            <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Location descriptions</value>
+                           <value xml:lang="en">Part descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_locdesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_partdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
                         </prop>
                      </node>
                      <node oor:name="N017" oor:op="replace">
+                        <prop oor:name="URL" oor:type="xs:string">
+                           <value>private:separator</value>
+                        </prop>
+                     </node>
+                     <node oor:name="N018" oor:op="replace">
                         <prop oor:name="Context" oor:type="xs:string">
                            <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Item descriptions</value>
+                           <value xml:lang="en">Character descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_itemdesc?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_chardesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
-                        </prop>
-                     </node>
-                     <node oor:name="N018" oor:op="replace">
-                        <prop oor:name="URL" oor:type="xs:string">
-                           <value>private:separator</value>
                         </prop>
                      </node>
                      <node oor:name="N019" oor:op="replace">
@@ -338,10 +395,10 @@
                            <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Scene list</value>
+                           <value xml:lang="en">Location descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_locdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -352,27 +409,18 @@
                            <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Character list</value>
+                           <value xml:lang="en">Item descriptions</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_charlist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_itemdesc?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
                         </prop>
                      </node>
                      <node oor:name="N021" oor:op="replace">
-                        <prop oor:name="Context" oor:type="xs:string">
-                           <value/>
-                        </prop>
-                        <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Location list</value>
-                        </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_loclist?language=Python&amp;location=user:uno_packages</value>
-                        </prop>
-                        <prop oor:name="Target" oor:type="xs:string">
-                           <value>_self</value>
+                           <value>private:separator</value>
                         </prop>
                      </node>
                      <node oor:name="N022" oor:op="replace">
@@ -380,10 +428,10 @@
                            <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Item list</value>
+                           <value xml:lang="en">Scene list</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_itemlist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -397,7 +445,7 @@
                            <value xml:lang="en">Plot list</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|yw-cnv|cnvyw.py$get_plotlist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|yw-cnv|cnvyw.py$get_plotlist?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
@@ -416,7 +464,7 @@
                            <value xml:lang="en">Help</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.35.0.oxt|help|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.36.0.oxt|help|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>
