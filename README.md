@@ -38,6 +38,15 @@ Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 
 * The yWriter 6/7 project to rewrite must exist in the same folder as the document.
 * If both yw6 and yw7 project files exist, yw7 is rewritten. 
 
+### World building lists
+
+* Character lists that can be edited in Office Calc and written back to yWriter format.
+* Location lists that can be edited in Office Calc and written back to yWriter format.
+* Item lists that can be edited in Office Calc and written back to yWriter format.
+
+You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.
+
+
 ### Create a new yw7 project 
 
 Generate a new yWriter 7 project from a work in progress or an outline.
