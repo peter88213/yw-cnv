@@ -14,9 +14,9 @@
 
 ## Changelog
 
-### v0.37.0 Import ods spreadsheets
+### v0.37.0 Import to ods spreadsheets
 
-Change character/location/item list export from csv to ods file format.
+Change character/location/item list import from csv to ods file format.
 
 Based on PyWriter v2.11.0
 
