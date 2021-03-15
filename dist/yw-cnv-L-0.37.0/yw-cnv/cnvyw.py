@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.36.0
+Version 0.37.0
 
 Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -107,17 +107,32 @@ class Novel():
         # key = location ID, value = Object.
         # The order of the elements does not matter.
 
+        self.srtLocations = []
+        # list of str
+        # The novel's location IDs. The order of its elements
+        # corresponds to the XML project file.
+
         self.items = {}
         # dict
         # xml: <ITEMS>
         # key = item ID, value = Object.
         # The order of the elements does not matter.
 
+        self.srtItems = []
+        # list of str
+        # The novel's item IDs. The order of its elements
+        # corresponds to the XML project file.
+
         self.characters = {}
         # dict
         # xml: <CHARACTERS>
         # key = character ID, value = Character object.
         # The order of the elements does not matter.
+
+        self.srtCharacters = []
+        # list of str
+        # The novel's character IDs. The order of its elements
+        # corresponds to the XML project file.
 
         self._filePath = None
         # str
@@ -528,7 +543,7 @@ class YwFile(Novel):
 
         for loc in root.iter('LOCATION'):
             lcId = loc.find('ID').text
-
+            self.srtLocations.append(lcId)
             self.locations[lcId] = WorldElement()
             self.locations[lcId].title = loc.find('Title').text
 
@@ -551,7 +566,7 @@ class YwFile(Novel):
 
         for itm in root.iter('ITEM'):
             itId = itm.find('ID').text
-
+            self.srtItems.append(itId)
             self.items[itId] = WorldElement()
             self.items[itId].title = itm.find('Title').text
 
@@ -574,7 +589,7 @@ class YwFile(Novel):
 
         for crt in root.iter('CHARACTER'):
             crId = crt.find('ID').text
-
+            self.srtCharacters.append(crId)
             self.characters[crId] = Character()
             self.characters[crId].title = crt.find('Title').text
 
@@ -942,7 +957,7 @@ class YwTreeBuilder():
         for loc in locations.findall('LOCATION'):
             locations.remove(loc)
 
-        for lcId in ywProject.locations:
+        for lcId in ywProject.srtLocations:
             loc = ET.SubElement(locations, 'LOCATION')
             ET.SubElement(loc, 'ID').text = lcId
 
@@ -979,7 +994,7 @@ class YwTreeBuilder():
         for itm in items.findall('ITEM'):
             items.remove(itm)
 
-        for itId in ywProject.items:
+        for itId in ywProject.srtItems:
             itm = ET.SubElement(items, 'ITEM')
             ET.SubElement(itm, 'ID').text = itId
 
@@ -1014,7 +1029,7 @@ class YwTreeBuilder():
         for crt in characters.findall('CHARACTER'):
             characters.remove(crt)
 
-        for crId in ywProject.characters:
+        for crId in ywProject.srtCharacters:
             crt = ET.SubElement(characters, 'CHARACTER')
             ET.SubElement(crt, 'ID').text = crId
 
@@ -1613,11 +1628,12 @@ class YwProjectMerger():
 
         # Merge and re-order locations.
 
-        if source.locations != {}:
+        if source.srtLocations != []:
+            target.srtLocations = source.srtLocations
             temploc = target.locations
             target.locations = {}
 
-            for lcId in source.locations:
+            for lcId in source.srtLocations:
 
                 # Build a new target.locations dictionary sorted like the
                 # source
@@ -1661,11 +1677,12 @@ class YwProjectMerger():
 
         # Merge and re-order items.
 
-        if source.items != {}:
+        if source.srtItems != []:
+            target.srtItems = source.srtItems
             tempitm = target.items
             target.items = {}
 
-            for itId in source.items:
+            for itId in source.srtItems:
 
                 # Build a new target.items dictionary sorted like the
                 # source
@@ -1709,11 +1726,12 @@ class YwProjectMerger():
 
         # Merge and re-order characters.
 
-        if source.characters != {}:
+        if source.srtCharacters != []:
+            target.srtCharacters = source.srtCharacters
             tempchr = target.characters
             target.characters = {}
 
-            for crId in source.characters:
+            for crId in source.srtCharacters:
 
                 # Build a new target.characters dictionary sorted like the
                 # source
@@ -2317,7 +2335,7 @@ class Yw7TreeCreator(YwTreeBuilder):
 
         locations = ET.SubElement(root, 'LOCATIONS')
 
-        for lcId in ywProject.locations:
+        for lcId in ywProject.srtLocations:
             loc = ET.SubElement(locations, 'LOCATION')
             ET.SubElement(loc, 'ID').text = lcId
 
@@ -2340,7 +2358,7 @@ class Yw7TreeCreator(YwTreeBuilder):
 
         items = ET.SubElement(root, 'ITEMS')
 
-        for itId in ywProject.items:
+        for itId in ywProject.srtItems:
             itm = ET.SubElement(items, 'ITEM')
             ET.SubElement(itm, 'ID').text = itId
 
@@ -2361,7 +2379,7 @@ class Yw7TreeCreator(YwTreeBuilder):
 
         characters = ET.SubElement(root, 'CHARACTERS')
 
-        for crId in ywProject.characters:
+        for crId in ywProject.srtCharacters:
             crt = ET.SubElement(characters, 'CHARACTER')
             ET.SubElement(crt, 'ID').text = crId
 
@@ -4185,13 +4203,16 @@ class FileExport(Novel):
         if novel.chapters is not None:
             self.chapters = novel.chapters
 
-        if novel.characters is not None:
+        if novel.srtCharacters != []:
+            self.srtCharacters = novel.srtCharacters
             self.characters = novel.characters
 
-        if novel.locations is not None:
+        if novel.srtLocations != []:
+            self.srtLocations = novel.srtLocations
             self.locations = novel.locations
 
-        if novel.items is not None:
+        if novel.srtItems != []:
+            self.srtItems = novel.srtItems
             self.items = novel.items
 
         return 'SUCCESS'
@@ -4571,17 +4592,17 @@ class FileExport(Novel):
             elif self.chapterEndTemplate != '':
                 lines.append(self.chapterEndTemplate)
 
-        for crId in self.characters:
+        for crId in self.srtCharacters:
             template = Template(self.characterTemplate)
             lines.append(template.safe_substitute(
                 self.get_characterMapping(crId)))
 
-        for lcId in self.locations:
+        for lcId in self.srtLocations:
             template = Template(self.locationTemplate)
             lines.append(template.safe_substitute(
                 self.get_locationMapping(lcId)))
 
-        for itId in self.items:
+        for itId in self.srtItems:
             template = Template(self.itemTemplate)
             lines.append(template.safe_substitute(self.get_itemMapping(itId)))
 
@@ -5460,6 +5481,7 @@ class HtmlCharacters(HtmlFile):
 
                 if attrs[0][1].startswith('CrID_desc'):
                     self._crId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.srtCharacters.append(self._crId)
                     self.characters[self._crId] = Character()
                     self._section = 'desc'
 
@@ -5525,6 +5547,7 @@ class HtmlLocations(HtmlFile):
 
                 if attrs[0][1].startswith('LcID'):
                     self._lcId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.srtLocations.append(self._lcId)
                     self.locations[self._lcId] = WorldElement()
 
     def handle_endtag(self, tag):
@@ -5570,6 +5593,7 @@ class HtmlItems(HtmlFile):
 
                 if attrs[0][1].startswith('ItID'):
                     self._itId = re.search('[0-9]+', attrs[0][1]).group()
+                    self.srtItems.append(self._itId)
                     self.items[self._itId] = WorldElement()
 
     def handle_endtag(self, tag):
@@ -6093,8 +6117,9 @@ class CsvPlotList(CsvFile):
 
         charList = []
 
-        for crId in self.characters:
+        for crId in self.srtCharacters:
             charList.append(self.characters[crId].title)
+            # Collect character names to identify storylines
 
         if self.fieldTitle1 in charList or self._STORYLINE_MARKER in self.fieldTitle1.lower():
             self.arc1 = True
@@ -6247,6 +6272,7 @@ class CsvCharList(CsvFile):
 
             if 'CrID:' in cells[0]:
                 crId = re.search('CrID\:([0-9]+)', cells[0]).group(1)
+                self.srtCharacters.append(crId)
                 self.characters[crId] = Character()
                 self.characters[crId].title = cells[1]
                 self.characters[crId].fullName = cells[2]
@@ -6270,6 +6296,7 @@ class CsvCharList(CsvFile):
         """Copy required attributes of the novel object.
         Return a message beginning with SUCCESS or ERROR.
         """
+        self.srtCharacters = novel.srtCharacters
         self.characters = novel.characters
         return 'SUCCESS'
 
@@ -6307,6 +6334,7 @@ class CsvLocList(CsvFile):
 
             if 'LcID:' in cells[0]:
                 lcId = re.search('LcID\:([0-9]+)', cells[0]).group(1)
+                self.srtLocations.append(lcId)
                 self.locations[lcId] = WorldElement()
                 self.locations[lcId].title = cells[1]
                 self.locations[lcId].desc = self.convert_to_yw(cells[2])
@@ -6319,6 +6347,7 @@ class CsvLocList(CsvFile):
         """Copy required attributes of the novel object.
         Return a message beginning with SUCCESS or ERROR.
         """
+        self.srtLocations = novel.srtLocations
         self.locations = novel.locations
         return 'SUCCESS'
 
@@ -6355,6 +6384,7 @@ class CsvItemList(CsvFile):
 
             if 'ItID:' in cells[0]:
                 itId = re.search('ItID\:([0-9]+)', cells[0]).group(1)
+                self.srtItems.append(itId)
                 self.items[itId] = WorldElement()
                 self.items[itId].title = cells[1]
                 self.items[itId].desc = self.convert_to_yw(cells[2])
@@ -6367,8 +6397,648 @@ class CsvItemList(CsvFile):
         """Copy required attributes of the novel object.
         Return a message beginning with SUCCESS or ERROR.
         """
+        self.srtItems = novel.srtItems
         self.items = novel.items
         return 'SUCCESS'
+
+from shutil import rmtree
+from datetime import datetime
+from string import Template
+
+
+class OdsBuilder():
+    """Build an ODS zipfile.
+    """
+
+    TEMPDIR = 'temp_ods'
+
+    ODS_COMPONENTS = ['META-INF', 'content.xml', 'meta.xml', 'mimetype',
+                      'settings.xml', 'styles.xml', 'META-INF/manifest.xml']
+
+    CONTENT_XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>
+
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" office:version="1.2">
+ <office:scripts/>
+ <office:font-face-decls>
+  <style:font-face style:name="Arial" svg:font-family="Arial" style:font-family-generic="swiss" style:font-pitch="variable"/>
+  <style:font-face style:name="Segoe UI" svg:font-family="&apos;Segoe UI&apos;" style:font-adornments="Standard" style:font-family-generic="swiss" style:font-pitch="variable"/>
+  <style:font-face style:name="Arial Unicode MS" svg:font-family="&apos;Arial Unicode MS&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
+  <style:font-face style:name="Microsoft YaHei" svg:font-family="&apos;Microsoft YaHei&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
+  <style:font-face style:name="Tahoma" svg:font-family="Tahoma" style:font-family-generic="system" style:font-pitch="variable"/>
+ </office:font-face-decls>
+ <office:automatic-styles>
+  <style:style style:name="co1" style:family="table-column">
+   <style:table-column-properties fo:break-before="auto" style:column-width="2.000cm"/>
+  </style:style>
+  <style:style style:name="co2" style:family="table-column">
+   <style:table-column-properties fo:break-before="auto" style:column-width="3.000cm"/>
+  </style:style>
+  <style:style style:name="co3" style:family="table-column">
+   <style:table-column-properties fo:break-before="auto" style:column-width="4.000cm"/>
+  </style:style>
+  <style:style style:name="co4" style:family="table-column">
+   <style:table-column-properties fo:break-before="auto" style:column-width="8.000cm"/>
+  </style:style>
+  <style:style style:name="ro1" style:family="table-row">
+   <style:table-row-properties style:row-height="1.157cm" fo:break-before="auto" style:use-optimal-row-height="true"/>
+  </style:style>
+  <style:style style:name="ro2" style:family="table-row">
+   <style:table-row-properties style:row-height="2.053cm" fo:break-before="auto" style:use-optimal-row-height="true"/>
+  </style:style>
+  <style:style style:name="ta1" style:family="table" style:master-page-name="Default">
+   <style:table-properties table:display="true" style:writing-mode="lr-tb"/>
+  </style:style>
+ </office:automatic-styles>
+ <office:body>
+  <office:spreadsheet>
+   <table:table table:name="'''
+
+    CONTENT_XML_FOOTER = '''   </table:table>
+  </office:spreadsheet>
+ </office:body>
+</office:document-content>
+'''
+
+    _META_XML = '''<?xml version="1.0" encoding="utf-8"?>
+<office:document-meta xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:grddl="http://www.w3.org/2003/g/data-view#" office:version="1.2">
+  <office:meta>
+    <meta:generator>PyWriter</meta:generator>
+    <dc:title>$Title</dc:title>
+    <dc:description>$Summary</dc:description>
+    <dc:subject></dc:subject>
+    <meta:keyword></meta:keyword>
+    <meta:initial-creator>$Author</meta:initial-creator>
+    <dc:creator></dc:creator>
+    <meta:creation-date>${Date}T${Time}Z</meta:creation-date>
+    <dc:date></dc:date>
+  </office:meta>
+</office:document-meta>
+'''
+    _MANIFEST_XML = '''<?xml version="1.0" encoding="UTF-8"?>
+<manifest:manifest xmlns:manifest="urn:oasis:names:tc:opendocument:xmlns:manifest:1.0" manifest:version="1.2">
+ <manifest:file-entry manifest:media-type="application/vnd.oasis.opendocument.spreadsheet" manifest:version="1.2" manifest:full-path="/"/>
+ <manifest:file-entry manifest:media-type="text/xml" manifest:full-path="content.xml"/>
+ <manifest:file-entry manifest:media-type="text/xml" manifest:full-path="styles.xml"/>
+ <manifest:file-entry manifest:media-type="text/xml" manifest:full-path="meta.xml"/>
+ <manifest:file-entry manifest:media-type="text/xml" manifest:full-path="settings.xml"/>
+</manifest:manifest>    
+'''
+    _SETTINGS_XML = '''<?xml version="1.0" encoding="UTF-8"?>
+
+<office:document-settings xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:config="urn:oasis:names:tc:opendocument:xmlns:config:1.0" xmlns:ooo="http://openoffice.org/2004/office" office:version="1.2">
+ <office:settings>
+  <config:config-item-set config:name="ooo:view-settings">
+   <config:config-item config:name="VisibleAreaTop" config:type="int">0</config:config-item>
+   <config:config-item config:name="VisibleAreaLeft" config:type="int">0</config:config-item>
+   <config:config-item config:name="VisibleAreaWidth" config:type="int">44972</config:config-item>
+   <config:config-item config:name="VisibleAreaHeight" config:type="int">18999</config:config-item>
+   <config:config-item-map-indexed config:name="Views">
+    <config:config-item-map-entry>
+     <config:config-item config:name="ViewId" config:type="string">view1</config:config-item>
+     <config:config-item-map-named config:name="Tables">
+      <config:config-item-map-entry config:name="Tabelle1">
+       <config:config-item config:name="CursorPositionX" config:type="int">5</config:config-item>
+       <config:config-item config:name="CursorPositionY" config:type="int">1</config:config-item>
+       <config:config-item config:name="HorizontalSplitMode" config:type="short">0</config:config-item>
+       <config:config-item config:name="VerticalSplitMode" config:type="short">0</config:config-item>
+       <config:config-item config:name="HorizontalSplitPosition" config:type="int">0</config:config-item>
+       <config:config-item config:name="VerticalSplitPosition" config:type="int">0</config:config-item>
+       <config:config-item config:name="ActiveSplitRange" config:type="short">2</config:config-item>
+       <config:config-item config:name="PositionLeft" config:type="int">0</config:config-item>
+       <config:config-item config:name="PositionRight" config:type="int">0</config:config-item>
+       <config:config-item config:name="PositionTop" config:type="int">0</config:config-item>
+       <config:config-item config:name="PositionBottom" config:type="int">0</config:config-item>
+       <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
+       <config:config-item config:name="ZoomValue" config:type="int">100</config:config-item>
+       <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
+      </config:config-item-map-entry>
+     </config:config-item-map-named>
+     <config:config-item config:name="ActiveTable" config:type="string">Tabelle1</config:config-item>
+     <config:config-item config:name="HorizontalScrollbarWidth" config:type="int">270</config:config-item>
+     <config:config-item config:name="ZoomType" config:type="short">0</config:config-item>
+     <config:config-item config:name="ZoomValue" config:type="int">100</config:config-item>
+     <config:config-item config:name="PageViewZoomValue" config:type="int">60</config:config-item>
+     <config:config-item config:name="ShowPageBreakPreview" config:type="boolean">false</config:config-item>
+     <config:config-item config:name="ShowZeroValues" config:type="boolean">true</config:config-item>
+     <config:config-item config:name="ShowNotes" config:type="boolean">true</config:config-item>
+     <config:config-item config:name="ShowGrid" config:type="boolean">true</config:config-item>
+     <config:config-item config:name="GridColor" config:type="long">12632256</config:config-item>
+     <config:config-item config:name="ShowPageBreaks" config:type="boolean">true</config:config-item>
+     <config:config-item config:name="HasColumnRowHeaders" config:type="boolean">true</config:config-item>
+     <config:config-item config:name="HasSheetTabs" config:type="boolean">true</config:config-item>
+     <config:config-item config:name="IsOutlineSymbolsSet" config:type="boolean">true</config:config-item>
+     <config:config-item config:name="IsSnapToRaster" config:type="boolean">false</config:config-item>
+     <config:config-item config:name="RasterIsVisible" config:type="boolean">false</config:config-item>
+     <config:config-item config:name="RasterResolutionX" config:type="int">1000</config:config-item>
+     <config:config-item config:name="RasterResolutionY" config:type="int">1000</config:config-item>
+     <config:config-item config:name="RasterSubdivisionX" config:type="int">1</config:config-item>
+     <config:config-item config:name="RasterSubdivisionY" config:type="int">1</config:config-item>
+     <config:config-item config:name="IsRasterAxisSynchronized" config:type="boolean">true</config:config-item>
+    </config:config-item-map-entry>
+   </config:config-item-map-indexed>
+  </config:config-item-set>
+  <config:config-item-set config:name="ooo:configuration-settings">
+   <config:config-item config:name="IsKernAsianPunctuation" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="IsRasterAxisSynchronized" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="LinkUpdateMode" config:type="short">3</config:config-item>
+   <config:config-item config:name="SaveVersionOnClose" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="AllowPrintJobCancel" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="HasSheetTabs" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="ShowPageBreaks" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="RasterResolutionX" config:type="int">1000</config:config-item>
+   <config:config-item config:name="PrinterSetup" config:type="base64Binary"/>
+   <config:config-item config:name="RasterResolutionY" config:type="int">1000</config:config-item>
+   <config:config-item config:name="LoadReadonly" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="RasterSubdivisionX" config:type="int">1</config:config-item>
+   <config:config-item config:name="ShowNotes" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="ShowZeroValues" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="RasterSubdivisionY" config:type="int">1</config:config-item>
+   <config:config-item config:name="ApplyUserData" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="GridColor" config:type="long">12632256</config:config-item>
+   <config:config-item config:name="RasterIsVisible" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="IsSnapToRaster" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="PrinterName" config:type="string"/>
+   <config:config-item config:name="ShowGrid" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="CharacterCompressionType" config:type="short">0</config:config-item>
+   <config:config-item-map-indexed config:name="ForbiddenCharacters">
+    <config:config-item-map-entry>
+     <config:config-item config:name="Language" config:type="string">$Language</config:config-item>
+     <config:config-item config:name="Country" config:type="string">$Country</config:config-item>
+     <config:config-item config:name="Variant" config:type="string"/>
+     <config:config-item config:name="BeginLine" config:type="string"/>
+     <config:config-item config:name="EndLine" config:type="string"/>
+    </config:config-item-map-entry>
+   </config:config-item-map-indexed>
+   <config:config-item config:name="IsOutlineSymbolsSet" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="AutoCalculate" config:type="boolean">true</config:config-item>
+   <config:config-item config:name="IsDocumentShared" config:type="boolean">false</config:config-item>
+   <config:config-item config:name="UpdateFromTemplate" config:type="boolean">true</config:config-item>
+  </config:config-item-set>
+ </office:settings>
+</office:document-settings>
+'''
+    _STYLES_XML = '''<?xml version="1.0" encoding="UTF-8"?>
+
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:presentation="urn:oasis:names:tc:opendocument:xmlns:presentation:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" office:version="1.2">
+ <office:font-face-decls>
+  <style:font-face style:name="Arial" svg:font-family="Arial" style:font-family-generic="swiss" style:font-pitch="variable"/>
+  <style:font-face style:name="Segoe UI" svg:font-family="&apos;Segoe UI&apos;" style:font-adornments="Standard" style:font-family-generic="swiss" style:font-pitch="variable"/>
+  <style:font-face style:name="Arial Unicode MS" svg:font-family="&apos;Arial Unicode MS&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
+  <style:font-face style:name="Microsoft YaHei" svg:font-family="&apos;Microsoft YaHei&apos;" style:font-family-generic="system" style:font-pitch="variable"/>
+  <style:font-face style:name="Tahoma" svg:font-family="Tahoma" style:font-family-generic="system" style:font-pitch="variable"/>
+ </office:font-face-decls>
+ <office:styles>
+  <style:default-style style:family="table-cell">
+   <style:paragraph-properties style:tab-stop-distance="1.25cm"/>
+   <style:text-properties style:font-name="Arial" fo:language="de" fo:country="DE" style:font-name-asian="Arial Unicode MS" style:language-asian="zh" style:country-asian="CN" style:font-name-complex="Tahoma" style:language-complex="hi" style:country-complex="IN"/>
+  </style:default-style>
+  <number:number-style style:name="N0">
+   <number:number number:min-integer-digits="1"/>
+  </number:number-style>
+  <style:style style:name="Default" style:family="table-cell">
+   <style:table-cell-properties style:text-align-source="fix" style:repeat-content="false" fo:background-color="transparent" fo:wrap-option="wrap" fo:padding="0.136cm" style:vertical-align="top"/>
+   <style:paragraph-properties fo:text-align="start"/>
+   <style:text-properties style:font-name="Segoe UI" style:font-name-asian="Microsoft YaHei" style:font-name-complex="Arial Unicode MS"/>
+  </style:style>
+  <style:style style:name="Result" style:family="table-cell" style:parent-style-name="Default">
+   <style:text-properties fo:font-style="italic" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color" fo:font-weight="bold"/>
+  </style:style>
+  <style:style style:name="Result2" style:family="table-cell" style:parent-style-name="Result"/>
+  <style:style style:name="Heading" style:family="table-cell" style:parent-style-name="Default">
+   <style:table-cell-properties fo:background-color="#ffff99" style:text-align-source="fix" style:repeat-content="false"/>
+   <style:paragraph-properties fo:text-align="start"/>
+   <style:text-properties fo:font-weight="bold"/>
+  </style:style>
+  <style:style style:name="Heading1" style:family="table-cell" style:parent-style-name="Heading">
+   <style:table-cell-properties style:rotation-angle="90"/>
+  </style:style>
+ </office:styles>
+ <office:automatic-styles>
+  <style:page-layout style:name="Mpm1">
+   <style:page-layout-properties style:writing-mode="lr-tb"/>
+   <style:header-style>
+    <style:header-footer-properties fo:min-height="0.751cm" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-bottom="0.25cm"/>
+   </style:header-style>
+   <style:footer-style>
+    <style:header-footer-properties fo:min-height="0.751cm" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0.25cm"/>
+   </style:footer-style>
+  </style:page-layout>
+  <style:page-layout style:name="Mpm2">
+   <style:page-layout-properties style:writing-mode="lr-tb"/>
+   <style:header-style>
+    <style:header-footer-properties fo:min-height="0.751cm" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-bottom="0.25cm" fo:border="0.088cm solid #000000" fo:padding="0.018cm" fo:background-color="#c0c0c0">
+     <style:background-image/>
+    </style:header-footer-properties>
+   </style:header-style>
+   <style:footer-style>
+    <style:header-footer-properties fo:min-height="0.751cm" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0.25cm" fo:border="0.088cm solid #000000" fo:padding="0.018cm" fo:background-color="#c0c0c0">
+     <style:background-image/>
+    </style:header-footer-properties>
+   </style:footer-style>
+  </style:page-layout>
+ </office:automatic-styles>
+ <office:master-styles>
+  <style:master-page style:name="Default" style:page-layout-name="Mpm1">
+   <style:header>
+    <text:p><text:sheet-name>???</text:sheet-name></text:p>
+   </style:header>
+   <style:header-left style:display="false"/>
+   <style:footer>
+    <text:p>Seite <text:page-number>1</text:page-number></text:p>
+   </style:footer>
+   <style:footer-left style:display="false"/>
+  </style:master-page>
+  <style:master-page style:name="Report" style:page-layout-name="Mpm2">
+   <style:header>
+    <style:region-left>
+     <text:p><text:sheet-name>???</text:sheet-name> (<text:title>???</text:title>)</text:p>
+    </style:region-left>
+    <style:region-right>
+     <text:p><text:date style:data-style-name="N2" text:date-value="2021-03-15">15.03.2021</text:date>, <text:time>15:34:40</text:time></text:p>
+    </style:region-right>
+   </style:header>
+   <style:header-left style:display="false"/>
+   <style:footer>
+    <text:p>Seite <text:page-number>1</text:page-number> / <text:page-count>99</text:page-count></text:p>
+   </style:footer>
+   <style:footer-left style:display="false"/>
+  </style:master-page>
+ </office:master-styles>
+</office:document-styles>
+'''
+    _MIMETYPE = 'application/vnd.oasis.opendocument.spreadsheet'
+
+    def tear_down(self):
+        """Delete the temporary directory 
+        containing the unpacked ODS directory structure.
+        """
+        try:
+            rmtree(self.TEMPDIR)
+        except:
+            pass
+
+    def set_up(self):
+        """Create a temporary directory containing the internal 
+        structure of an ODS file except 'content.xml'.
+        """
+        self.tear_down()
+        os.mkdir(self.TEMPDIR)
+        os.mkdir(self.TEMPDIR + '/META-INF')
+
+        # Generate mimetype
+
+        try:
+            with open(self.TEMPDIR + '/mimetype', 'w', encoding='utf-8') as f:
+                f.write(self._MIMETYPE)
+        except:
+            return 'ERROR: Cannot write "mimetype"'
+
+        # Generate settings.xml
+
+        try:
+            with open(self.TEMPDIR + '/settings.xml', 'w', encoding='utf-8') as f:
+                f.write(self._SETTINGS_XML)
+        except:
+            return 'ERROR: Cannot write "settings.xml"'
+
+        # Generate META-INF\manifest.xml
+
+        try:
+            with open(self.TEMPDIR + '/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
+                f.write(self._MANIFEST_XML)
+        except:
+            return 'ERROR: Cannot write "manifest.xml"'
+
+        # Generate styles.xml with system language set as document language
+
+        localeCodes = locale.getdefaultlocale()[0].split('_')
+
+        localeMapping = dict(
+            Language=localeCodes[0],
+            Country=localeCodes[1],
+        )
+        template = Template(self._STYLES_XML)
+        text = template.safe_substitute(localeMapping)
+
+        try:
+            with open(self.TEMPDIR + '/styles.xml', 'w', encoding='utf-8') as f:
+                f.write(text)
+        except:
+            return 'ERROR: Cannot write "styles.xml"'
+
+        # Generate meta.xml with actual document metadata
+
+        dt = datetime.today()
+
+        metaMapping = dict(
+            Author=self.author,
+            Title=self.title,
+            Summary='<![CDATA[' + self.desc + ']]>',
+            Date=str(dt.year) + '-' + str(dt.month).rjust(2, '0') +
+            '-' + str(dt.day).rjust(2, '0'),
+            Time=str(dt.hour).rjust(2, '0') +
+            ':' + str(dt.minute).rjust(2, '0') +
+            ':' + str(dt.second).rjust(2, '0'),
+        )
+        template = Template(self._META_XML)
+        text = template.safe_substitute(metaMapping)
+
+        try:
+            with open(self.TEMPDIR + '/meta.xml', 'w', encoding='utf-8') as f:
+                f.write(text)
+        except:
+            return 'ERROR: Cannot write "meta.xml".'
+
+        return 'SUCCESS: ODS structure generated.'
+
+
+
+class OdsFile(FileExport, OdsBuilder):
+    """OpenDocument xml project file representation.
+    """
+
+    EXTENSION = '.ods'
+    # overwrites Novel.EXTENSION
+
+    def convert_from_yw(self, text):
+        """Convert yw7 raw markup to ods. Return an xml string.
+        """
+
+        ODS_REPLACEMENTS = [
+            ['&', '&amp;'],  # must be first!
+            ['"', '&quot;'],
+            ["'", '&apos;'],
+            ['>', '&gt;'],
+            ['<', '&lt;'],
+            ['\n', '</text:p>\n<text:p>'],
+        ]
+
+        try:
+            text = text.rstrip()
+
+            for r in ODS_REPLACEMENTS:
+                text = text.replace(r[0], r[1])
+
+        except AttributeError:
+            text = ''
+
+        return text
+
+    def write(self):
+        """Generate an ods file from a template.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        # Create a temporary directory containing the internal
+        # structure of an ODS file except "content.xml".
+
+        message = self.set_up()
+
+        if message.startswith('ERROR'):
+            return message
+
+        # Add "content.xml" to the temporary directory.
+
+        filePath = self._filePath
+
+        self._filePath = self.TEMPDIR + '/content.xml'
+
+        message = FileExport.write(self)
+
+        self._filePath = filePath
+
+        if message.startswith('ERROR'):
+            return message
+
+        # Pack the contents of the temporary directory
+        # into the ODS file.
+
+        workdir = os.getcwd()
+
+        try:
+            with zipfile.ZipFile(self.filePath, 'w') as odsTarget:
+                os.chdir(self.TEMPDIR)
+
+                for file in self.ODS_COMPONENTS:
+                    odsTarget.write(file)
+        except:
+            os.chdir(workdir)
+            return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
+
+        # Remove temporary data.
+
+        os.chdir(workdir)
+        self.tear_down()
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
+
+
+class OdsCharList(OdsFile):
+    """OpenDocument xml characters spreadsheet representation.
+    """
+
+    DESCRIPTION = 'Character list'
+    SUFFIX = '_charlist'
+
+    fileHeader = OdsBuilder.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:number-columns-repeated="3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:number-columns-repeated="1014" table:default-cell-style-name="Default"/>
+     <table:table-row table:style-name="ro1">
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>ID</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Name</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Full name</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Aka</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Description</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Bio</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Goals</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Importance</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Tags</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Notes</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" table:number-columns-repeated="1014"/>
+    </table:table-row>
+
+'''
+
+    characterTemplate = '''   <table:table-row table:style-name="ro2">
+     <table:table-cell office:value-type="string">
+      <text:p>CrID:$ID</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Title</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$FullName</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$AKA</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Desc</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Bio</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Goals</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Status</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Tags</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Notes</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1014"/>
+    </table:table-row>
+
+'''
+
+    fileFooter = OdsBuilder.CONTENT_XML_FOOTER
+
+
+class OdsLocList(OdsFile):
+    """OpenDocument xml locations spreadsheet representation.
+    """
+
+    DESCRIPTION = 'Location list'
+    SUFFIX = '_loclist'
+
+    fileHeader = OdsBuilder.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:number-columns-repeated="1014" table:default-cell-style-name="Default"/>
+     <table:table-row table:style-name="ro1">
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>ID</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Name</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Description</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Aka</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Tags</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" table:number-columns-repeated="1014"/>
+    </table:table-row>
+
+'''
+
+    locationTemplate = '''   <table:table-row table:style-name="ro2">
+     <table:table-cell office:value-type="string">
+      <text:p>LcID:$ID</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Title</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Desc</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$AKA</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Tags</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1014"/>
+    </table:table-row>
+
+'''
+    fileFooter = OdsBuilder.CONTENT_XML_FOOTER
+
+
+class OdsItemList(OdsFile):
+    """OpenDocument xml items spreadsheet representation.
+    """
+
+    DESCRIPTION = 'Item list'
+    SUFFIX = '_itemlist'
+
+    fileHeader = OdsBuilder.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:number-columns-repeated="1014" table:default-cell-style-name="Default"/>
+     <table:table-row table:style-name="ro1">
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>ID</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Name</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Description</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Aka</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Tags</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" table:number-columns-repeated="1014"/>
+    </table:table-row>
+
+'''
+
+    itemTemplate = '''   <table:table-row table:style-name="ro2">
+     <table:table-cell office:value-type="string">
+      <text:p>ItID:$ID</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Title</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Desc</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$AKA</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Tags</text:p>
+     </table:table-cell>
+     <table:table-cell table:number-columns-repeated="1014"/>
+    </table:table-row>
+
+'''
+
+    fileFooter = OdsBuilder.CONTENT_XML_FOOTER
 
 
 
@@ -6449,17 +7119,17 @@ class UniversalFileFactory(FileFactory):
                 targetFile = CsvPlotList(
                     fileName + suffix + CsvPlotList.EXTENSION)
 
-            elif suffix == CsvCharList.SUFFIX:
-                targetFile = CsvCharList(
-                    fileName + suffix + CsvCharList.EXTENSION)
+            elif suffix == OdsCharList.SUFFIX:
+                targetFile = OdsCharList(
+                    fileName + suffix + OdsCharList.EXTENSION)
 
-            elif suffix == CsvLocList.SUFFIX:
-                targetFile = CsvLocList(
-                    fileName + suffix + CsvLocList.EXTENSION)
+            elif suffix == OdsLocList.SUFFIX:
+                targetFile = OdsLocList(
+                    fileName + suffix + OdsLocList.EXTENSION)
 
-            elif suffix == CsvItemList.SUFFIX:
-                targetFile = CsvItemList(
-                    fileName + suffix + CsvItemList.EXTENSION)
+            elif suffix == OdsItemList.SUFFIX:
+                targetFile = OdsItemList(
+                    fileName + suffix + OdsItemList.EXTENSION)
 
             else:
                 return 'ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None
@@ -7013,19 +7683,19 @@ def get_plotlist(*args):
 def get_charlist(*args):
     '''Import a character list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvCharList.SUFFIX, CsvCharList.EXTENSION)
+    open_yw7(OdsCharList.SUFFIX, OdsCharList.EXTENSION)
 
 
 def get_loclist(*args):
     '''Import a location list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvLocList.SUFFIX, CsvLocList.EXTENSION)
+    open_yw7(OdsLocList.SUFFIX, OdsLocList.EXTENSION)
 
 
 def get_itemlist(*args):
     '''Import an item list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvItemList.SUFFIX, CsvItemList.EXTENSION)
+    open_yw7(OdsItemList.SUFFIX, OdsItemList.EXTENSION)
 
 
 def export_yw(*args):
@@ -7086,6 +7756,8 @@ def export_yw(*args):
 
         # Save document in csv format
 
+        args1.append(PropertyValue())
+
         args1[0].Name = 'URL'
         # args1(0).Name = "URL"
         args1[0].Value = csvPath
@@ -7094,21 +7766,19 @@ def export_yw(*args):
         # args1(1).Name = "FilterName"
         args1[1].Value = 'Text - txt - csv (StarCalc)'
         # args1(1).Value = "Text - txt - csv (StarCalc)"
+        args1[2].Name = "FilterOptions"
+        # args1(2).Name = "FilterOptions"
+        args1[2].Value = "124,34,76,1,,0,false,true,true"
+        # args1(2).Value = "124,34,76,1,,0,false,true,true"
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         # Save document in OpenDocument format
 
-        args1.append(PropertyValue())
-
         args1[0].Value = odsPath
         # args1(0).Value = odsPath
         args1[1].Value = 'calc8'
         # args1(1).Value = "calc8"
-        args1[2].Name = "FilterOptions"
-        # args1(2).Name = "FilterOptions"
-        args1[2].Value = "124,34,76,1,,0,false,true,true"
-        # args1(2).Value = "124,34,76,1,,0,false,true,true"
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 

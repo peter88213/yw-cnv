@@ -20,9 +20,9 @@ from pywriter.odt.odt_chapterdesc import OdtChapterDesc
 from pywriter.odt.odt_partdesc import OdtPartDesc
 from pywriter.csv.csv_scenelist import CsvSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
-from pywriter.csv.csv_charlist import CsvCharList
-from pywriter.csv.csv_loclist import CsvLocList
-from pywriter.csv.csv_itemlist import CsvItemList
+from pywriter.ods.ods_charlist import OdsCharList
+from pywriter.ods.ods_loclist import OdsLocList
+from pywriter.ods.ods_itemlist import OdsItemList
 from pywriter.odt.odt_characters import OdtCharacters
 from pywriter.odt.odt_items import OdtItems
 from pywriter.odt.odt_locations import OdtLocations
@@ -191,19 +191,19 @@ def get_plotlist(*args):
 def get_charlist(*args):
     '''Import a character list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvCharList.SUFFIX, CsvCharList.EXTENSION)
+    open_yw7(OdsCharList.SUFFIX, OdsCharList.EXTENSION)
 
 
 def get_loclist(*args):
     '''Import a location list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvLocList.SUFFIX, CsvLocList.EXTENSION)
+    open_yw7(OdsLocList.SUFFIX, OdsLocList.EXTENSION)
 
 
 def get_itemlist(*args):
     '''Import an item list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvItemList.SUFFIX, CsvItemList.EXTENSION)
+    open_yw7(OdsItemList.SUFFIX, OdsItemList.EXTENSION)
 
 
 def export_yw(*args):
@@ -264,6 +264,8 @@ def export_yw(*args):
 
         # Save document in csv format
 
+        args1.append(PropertyValue())
+
         args1[0].Name = 'URL'
         # args1(0).Name = "URL"
         args1[0].Value = csvPath
@@ -272,21 +274,19 @@ def export_yw(*args):
         # args1(1).Name = "FilterName"
         args1[1].Value = 'Text - txt - csv (StarCalc)'
         # args1(1).Value = "Text - txt - csv (StarCalc)"
+        args1[2].Name = "FilterOptions"
+        # args1(2).Name = "FilterOptions"
+        args1[2].Value = "124,34,76,1,,0,false,true,true"
+        # args1(2).Value = "124,34,76,1,,0,false,true,true"
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         # Save document in OpenDocument format
 
-        args1.append(PropertyValue())
-
         args1[0].Value = odsPath
         # args1(0).Value = odsPath
         args1[1].Value = 'calc8'
         # args1(1).Value = "calc8"
-        args1[2].Name = "FilterOptions"
-        # args1(2).Name = "FilterOptions"
-        args1[2].Value = "124,34,76,1,,0,false,true,true"
-        # args1(2).Value = "124,34,76,1,,0,false,true,true"
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
