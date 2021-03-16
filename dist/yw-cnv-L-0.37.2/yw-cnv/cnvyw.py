@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.37.1
+Version 0.37.2
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -6956,10 +6956,10 @@ class OdsSceneList(OdsFile):
     # Outcome
     # Scene
     # Words total
-    # Relevance
-    # Tension
-    # Humour
-    # Quality
+    # $FieldTitle1
+    # $FieldTitle2
+    # $FieldTitle3
+    # $FieldTitle4
     # Word count
     # Letter count
     # Status
@@ -7025,16 +7025,16 @@ class OdsSceneList(OdsFile):
       <text:p>Words total</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Relevance</text:p>
+      <text:p>$FieldTitle1</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Tension</text:p>
+      <text:p>$FieldTitle2</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Humour</text:p>
+      <text:p>$FieldTitle3</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Quality</text:p>
+      <text:p>$FieldTitle4</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Heading" office:value-type="string">
       <text:p>Word count</text:p>
