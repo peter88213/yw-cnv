@@ -1,4 +1,4 @@
-"""Convert yWriter project to odt or csv and vice versa. 
+"""Convert yWriter project to odt or ods and vice versa. 
 
 Version @release
 
@@ -19,7 +19,7 @@ from pywriter.odt.odt_scenedesc import OdtSceneDesc
 from pywriter.odt.odt_chapterdesc import OdtChapterDesc
 from pywriter.odt.odt_partdesc import OdtPartDesc
 from pywriter.ods.ods_scenelist import OdsSceneList
-from pywriter.csv.csv_plotlist import CsvPlotList
+from pywriter.ods.ods_plotlist import OdsPlotList
 from pywriter.ods.ods_charlist import OdsCharList
 from pywriter.ods.ods_loclist import OdsLocList
 from pywriter.ods.ods_itemlist import OdsItemList
@@ -185,7 +185,7 @@ def get_scenelist(*args):
 def get_plotlist(*args):
     '''Import a plot list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvPlotList.SUFFIX, CsvPlotList.EXTENSION)
+    open_yw7(OdsPlotList.SUFFIX, OdsPlotList.EXTENSION)
 
 
 def get_charlist(*args):
