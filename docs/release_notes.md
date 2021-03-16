@@ -14,6 +14,12 @@
 
 ## Changelog
 
+### v0.37.4 Support ods spreadsheets
+
+Change scene/plot list import (advanced features) from csv to ods file format.
+
+Based on PyWriter v2.12.3
+
 ### v0.37.0 Import to ods spreadsheets
 
 Change character/location/item list import from csv to ods file format.
