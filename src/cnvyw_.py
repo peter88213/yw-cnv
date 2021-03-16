@@ -2,7 +2,7 @@
 
 Version @release
 
-Copyright (c) 2020 Peter Triesberger
+Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
@@ -18,7 +18,7 @@ from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
 from pywriter.odt.odt_chapterdesc import OdtChapterDesc
 from pywriter.odt.odt_partdesc import OdtPartDesc
-from pywriter.csv.csv_scenelist import CsvSceneList
+from pywriter.ods.ods_scenelist import OdsSceneList
 from pywriter.csv.csv_plotlist import CsvPlotList
 from pywriter.ods.ods_charlist import OdsCharList
 from pywriter.ods.ods_loclist import OdsLocList
@@ -179,7 +179,7 @@ def get_itemdesc(*args):
 def get_scenelist(*args):
     '''Import a scene list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvSceneList.SUFFIX, CsvSceneList.EXTENSION)
+    open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
 
 
 def get_plotlist(*args):

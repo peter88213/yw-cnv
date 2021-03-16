@@ -1,8 +1,8 @@
 """Convert yWriter project to odt or csv and vice versa. 
 
-Version 0.37.0
+Version 0.37.1
 
-Copyright (c) 2020 Peter Triesberger
+Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
@@ -2690,19 +2690,680 @@ class YwProjectCreator(YwProjectMerger):
         YwProjectMerger.merge_projects(self, target, source)
         return 'SUCCESS'
 
+
+import zipfile
 import locale
 from shutil import rmtree
 from datetime import datetime
 from string import Template
 
+from string import Template
 
-class OdtBuilder():
-    """Build an ODT zipfile.
+
+
+class FileExport(Novel):
+    """Abstract yWriter project file exporter representation.
+    To be overwritten by subclasses providing file type specific 
+    markup converters and templates.
     """
 
-    TEMPDIR = 'temp_odt'
+    fileHeader = ''
+    partTemplate = ''
+    chapterTemplate = ''
+    notesChapterTemplate = ''
+    todoChapterTemplate = ''
+    unusedChapterTemplate = ''
+    notExportedChapterTemplate = ''
+    sceneTemplate = ''
+    appendedSceneTemplate = ''
+    notesSceneTemplate = ''
+    todoSceneTemplate = ''
+    unusedSceneTemplate = ''
+    notExportedSceneTemplate = ''
+    sceneDivider = ''
+    chapterEndTemplate = ''
+    unusedChapterEndTemplate = ''
+    notExportedChapterEndTemplate = ''
+    notesChapterEndTemplate = ''
+    characterTemplate = ''
+    locationTemplate = ''
+    itemTemplate = ''
+    fileFooter = ''
 
-    ODT_COMPONENTS = ['manifest.rdf', 'META-INF', 'content.xml', 'meta.xml', 'mimetype',
+    def convert_from_yw(self, text):
+        """Convert yw7 markup to target format.
+        To be overwritten by file format specific subclasses.
+        """
+
+        if text is None:
+            text = ''
+
+        return(text)
+
+    def merge(self, novel):
+        """Copy required attributes of the novel object.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        if novel.title is not None:
+            self.title = novel.title
+
+        else:
+            self.title = ''
+
+        if novel.desc is not None:
+            self.desc = novel.desc
+
+        else:
+            self.desc = ''
+
+        if novel.author is not None:
+            self.author = novel.author
+
+        else:
+            self.author = ''
+
+        if novel.fieldTitle1 is not None:
+            self.fieldTitle1 = novel.fieldTitle1
+
+        else:
+            self.fieldTitle1 = 'Field 1'
+
+        if novel.fieldTitle2 is not None:
+            self.fieldTitle2 = novel.fieldTitle2
+
+        else:
+            self.fieldTitle2 = 'Field 2'
+
+        if novel.fieldTitle3 is not None:
+            self.fieldTitle3 = novel.fieldTitle3
+
+        else:
+            self.fieldTitle3 = 'Field 3'
+
+        if novel.fieldTitle4 is not None:
+            self.fieldTitle4 = novel.fieldTitle4
+
+        else:
+            self.fieldTitle4 = 'Field 4'
+
+        if novel.srtChapters != []:
+            self.srtChapters = novel.srtChapters
+
+        if novel.scenes is not None:
+            self.scenes = novel.scenes
+
+        if novel.chapters is not None:
+            self.chapters = novel.chapters
+
+        if novel.srtCharacters != []:
+            self.srtCharacters = novel.srtCharacters
+            self.characters = novel.characters
+
+        if novel.srtLocations != []:
+            self.srtLocations = novel.srtLocations
+            self.locations = novel.locations
+
+        if novel.srtItems != []:
+            self.srtItems = novel.srtItems
+            self.items = novel.items
+
+        return 'SUCCESS'
+
+    def get_projectTemplateMapping(self):
+        """Return a mapping dictionary for the project section. 
+        """
+        projectTemplateMapping = dict(
+            Title=self.title,
+            Desc=self.convert_from_yw(self.desc),
+            AuthorName=self.author,
+            FieldTitle1=self.fieldTitle1,
+            FieldTitle2=self.fieldTitle2,
+            FieldTitle3=self.fieldTitle3,
+            FieldTitle4=self.fieldTitle4,
+        )
+
+        for key in projectTemplateMapping:
+            if projectTemplateMapping[key] is None:
+                projectTemplateMapping[key] = ''
+
+        return projectTemplateMapping
+
+    def get_chapterMapping(self, chId, chapterNumber):
+        """Return a mapping dictionary for a chapter section. 
+        """
+        chapterMapping = dict(
+            ID=chId,
+            ChapterNumber=chapterNumber,
+            Title=self.chapters[chId].get_title(),
+            Desc=self.convert_from_yw(self.chapters[chId].desc),
+            ProjectName=self.projectName,
+            ProjectPath=self.projectPath,
+        )
+
+        for key in chapterMapping:
+            if chapterMapping[key] is None:
+                chapterMapping[key] = ''
+
+        return chapterMapping
+
+    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section. 
+        """
+
+        if self.scenes[scId].tags is not None:
+            tags = ', '.join(self.scenes[scId].tags)
+
+        else:
+            tags = ''
+
+        try:
+            # Note: Due to a bug, yWriter scenes might hold invalid
+            # viepoint characters
+            sChList = []
+
+            for chId in self.scenes[scId].characters:
+                sChList.append(self.characters[chId].title)
+
+            sceneChars = ', '.join(sChList)
+            viewpointChar = sChList[0]
+
+        except:
+            sceneChars = ''
+            viewpointChar = ''
+
+        if self.scenes[scId].locations is not None:
+            sLcList = []
+
+            for lcId in self.scenes[scId].locations:
+                sLcList.append(self.locations[lcId].title)
+
+            sceneLocs = ', '.join(sLcList)
+
+        else:
+            sceneLocs = ''
+
+        if self.scenes[scId].items is not None:
+            sItList = []
+
+            for itId in self.scenes[scId].items:
+                sItList.append(self.items[itId].title)
+
+            sceneItems = ', '.join(sItList)
+
+        else:
+            sceneItems = ''
+
+        if self.scenes[scId].isReactionScene:
+            reactionScene = Scene.REACTION_MARKER
+
+        else:
+            reactionScene = Scene.ACTION_MARKER
+
+        sceneMapping = dict(
+            ID=scId,
+            SceneNumber=sceneNumber,
+            Title=self.scenes[scId].title,
+            Desc=self.convert_from_yw(self.scenes[scId].desc),
+            WordCount=str(self.scenes[scId].wordCount),
+            WordsTotal=wordsTotal,
+            LetterCount=str(self.scenes[scId].letterCount),
+            LettersTotal=lettersTotal,
+            Status=Scene.STATUS[self.scenes[scId].status],
+            SceneContent=self.convert_from_yw(
+                self.scenes[scId].sceneContent),
+            FieldTitle1=self.fieldTitle1,
+            FieldTitle2=self.fieldTitle2,
+            FieldTitle3=self.fieldTitle3,
+            FieldTitle4=self.fieldTitle4,
+            Field1=self.scenes[scId].field1,
+            Field2=self.scenes[scId].field2,
+            Field3=self.scenes[scId].field3,
+            Field4=self.scenes[scId].field4,
+            Date=self.scenes[scId].date,
+            Time=self.scenes[scId].time,
+            Day=self.scenes[scId].day,
+            Hour=self.scenes[scId].hour,
+            Minute=self.scenes[scId].minute,
+            LastsDays=self.scenes[scId].lastsDays,
+            LastsHours=self.scenes[scId].lastsHours,
+            LastsMinutes=self.scenes[scId].lastsMinutes,
+            ReactionScene=reactionScene,
+            Goal=self.convert_from_yw(self.scenes[scId].goal),
+            Conflict=self.convert_from_yw(self.scenes[scId].conflict),
+            Outcome=self.convert_from_yw(self.scenes[scId].outcome),
+            Tags=tags,
+            Characters=sceneChars,
+            Viewpoint=viewpointChar,
+            Locations=sceneLocs,
+            Items=sceneItems,
+            Notes=self.convert_from_yw(self.scenes[scId].sceneNotes),
+            ProjectName=self.projectName,
+            ProjectPath=self.projectPath,
+        )
+
+        for key in sceneMapping:
+            if sceneMapping[key] is None:
+                sceneMapping[key] = ''
+
+        return sceneMapping
+
+    def get_characterMapping(self, crId):
+        """Return a mapping dictionary for a character section. 
+        """
+
+        if self.characters[crId].tags is not None:
+            tags = ', '.join(self.characters[crId].tags)
+
+        else:
+            tags = ''
+
+        if self.characters[crId].isMajor:
+            characterStatus = Character.MAJOR_MARKER
+
+        else:
+            characterStatus = Character.MINOR_MARKER
+
+        characterMapping = dict(
+            ID=crId,
+            Title=self.characters[crId].title,
+            Desc=self.convert_from_yw(self.characters[crId].desc),
+            Tags=tags,
+            AKA=FileExport.convert_from_yw(self, self.characters[crId].aka),
+            Notes=self.convert_from_yw(self.characters[crId].notes),
+            Bio=self.convert_from_yw(self.characters[crId].bio),
+            Goals=self.convert_from_yw(self.characters[crId].goals),
+            FullName=FileExport.convert_from_yw(
+                self, self.characters[crId].fullName),
+            Status=characterStatus,
+        )
+
+        for key in characterMapping:
+            if characterMapping[key] is None:
+                characterMapping[key] = ''
+
+        return characterMapping
+
+    def get_locationMapping(self, lcId):
+        """Return a mapping dictionary for a location section. 
+        """
+
+        if self.locations[lcId].tags is not None:
+            tags = ', '.join(self.locations[lcId].tags)
+
+        else:
+            tags = ''
+
+        locationMapping = dict(
+            ID=lcId,
+            Title=self.locations[lcId].title,
+            Desc=self.convert_from_yw(self.locations[lcId].desc),
+            Tags=tags,
+            AKA=FileExport.convert_from_yw(self, self.locations[lcId].aka),
+        )
+
+        for key in locationMapping:
+            if locationMapping[key] is None:
+                locationMapping[key] = ''
+
+        return locationMapping
+
+    def get_itemMapping(self, itId):
+        """Return a mapping dictionary for an item section. 
+        """
+
+        if self.items[itId].tags is not None:
+            tags = ', '.join(self.items[itId].tags)
+
+        else:
+            tags = ''
+
+        itemMapping = dict(
+            ID=itId,
+            Title=self.items[itId].title,
+            Desc=self.convert_from_yw(self.items[itId].desc),
+            Tags=tags,
+            AKA=FileExport.convert_from_yw(self, self.items[itId].aka),
+        )
+
+        for key in itemMapping:
+            if itemMapping[key] is None:
+                itemMapping[key] = ''
+
+        return itemMapping
+
+    def write(self):
+        """Create a template-based output file. 
+        Return a message string starting with 'SUCCESS' or 'ERROR'.
+        """
+        lines = []
+        wordsTotal = 0
+        lettersTotal = 0
+        chapterNumber = 0
+        sceneNumber = 0
+
+        template = Template(self.fileHeader)
+        lines.append(template.safe_substitute(
+            self.get_projectTemplateMapping()))
+
+        for chId in self.srtChapters:
+
+            # The order counts; be aware that "Todo" and "Notes" chapters are
+            # always unused.
+
+            # Has the chapter only scenes not to be exported?
+
+            sceneCount = 0
+            notExportCount = 0
+            doNotExportChapter = False
+
+            for scId in self.chapters[chId].srtScenes:
+                sceneCount += 1
+
+                if self.scenes[scId].doNotExport:
+                    notExportCount += 1
+
+            if sceneCount > 0 and notExportCount == sceneCount:
+                doNotExportChapter = True
+
+            if self.chapters[chId].chType == 2:
+
+                if self.todoChapterTemplate != '':
+                    template = Template(self.todoChapterTemplate)
+
+                else:
+                    continue
+
+            elif self.chapters[chId].chType == 1 or self.chapters[chId].oldType == 1:
+                # Chapter is "Notes" (new file format) or "Info" (old file
+                # format) chapter.
+
+                if self.notesChapterTemplate != '':
+                    template = Template(self.notesChapterTemplate)
+
+                else:
+                    continue
+
+            elif self.chapters[chId].isUnused:
+
+                if self.unusedChapterTemplate != '':
+                    template = Template(self.unusedChapterTemplate)
+
+                else:
+                    continue
+
+            elif doNotExportChapter:
+
+                if self.notExportedChapterTemplate != '':
+                    template = Template(self.notExportedChapterTemplate)
+
+                else:
+                    continue
+
+            elif self.chapters[chId].chLevel == 1 and self.partTemplate != '':
+                template = Template(self.partTemplate)
+
+            else:
+                template = Template(self.chapterTemplate)
+                chapterNumber += 1
+
+            lines.append(template.safe_substitute(
+                self.get_chapterMapping(chId, chapterNumber)))
+            firstSceneInChapter = True
+
+            for scId in self.chapters[chId].srtScenes:
+                wordsTotal += self.scenes[scId].wordCount
+                lettersTotal += self.scenes[scId].letterCount
+
+                # The order counts; be aware that "Todo" and "Notes" scenes are
+                # always unused.
+
+                if self.scenes[scId].isTodoScene:
+
+                    if self.todoSceneTemplate != '':
+                        template = Template(self.todoSceneTemplate)
+
+                    else:
+                        continue
+
+                elif self.scenes[scId].isNotesScene or self.chapters[chId].oldType == 1:
+                    # Scene is "Notes" (new file format) or "Info" (old file
+                    # format) scene.
+
+                    if self.notesSceneTemplate != '':
+                        template = Template(self.notesSceneTemplate)
+
+                    else:
+                        continue
+
+                elif self.scenes[scId].isUnused or self.chapters[chId].isUnused:
+
+                    if self.unusedSceneTemplate != '':
+                        template = Template(self.unusedSceneTemplate)
+
+                    else:
+                        continue
+
+                elif self.scenes[scId].doNotExport or doNotExportChapter:
+
+                    if self.notExportedSceneTemplate != '':
+                        template = Template(self.notExportedSceneTemplate)
+
+                    else:
+                        continue
+
+                else:
+                    sceneNumber += 1
+
+                    template = Template(self.sceneTemplate)
+
+                    if not firstSceneInChapter and self.scenes[scId].appendToPrev and self.appendedSceneTemplate != '':
+                        template = Template(self.appendedSceneTemplate)
+
+                if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
+                    lines.append(self.sceneDivider)
+
+                lines.append(template.safe_substitute(self.get_sceneMapping(
+                    scId, sceneNumber, wordsTotal, lettersTotal)))
+
+                firstSceneInChapter = False
+
+            if self.chapters[chId].chType == 2 and self.todoChapterEndTemplate != '':
+                lines.append(self.todoChapterEndTemplate)
+
+            elif self.chapters[chId].chType == 1 or self.chapters[chId].oldType == 1:
+
+                if self.notesChapterEndTemplate != '':
+                    lines.append(self.notesChapterEndTemplate)
+
+            elif self.chapters[chId].isUnused and self.unusedChapterEndTemplate != '':
+                lines.append(self.unusedChapterEndTemplate)
+
+            elif doNotExportChapter and self.notExportedChapterEndTemplate != '':
+                lines.append(self.notExportedChapterEndTemplate)
+
+            elif self.chapterEndTemplate != '':
+                lines.append(self.chapterEndTemplate)
+
+        for crId in self.srtCharacters:
+            template = Template(self.characterTemplate)
+            lines.append(template.safe_substitute(
+                self.get_characterMapping(crId)))
+
+        for lcId in self.srtLocations:
+            template = Template(self.locationTemplate)
+            lines.append(template.safe_substitute(
+                self.get_locationMapping(lcId)))
+
+        for itId in self.srtItems:
+            template = Template(self.itemTemplate)
+            lines.append(template.safe_substitute(self.get_itemMapping(itId)))
+
+        lines.append(self.fileFooter)
+        text = ''.join(lines)
+
+        try:
+            with open(self.filePath, 'w', encoding='utf-8') as f:
+                f.write(text)
+
+        except:
+            return 'ERROR: Cannot write "' + os.path.normpath(self.filePath) + '".'
+
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
+
+
+class OdfFile(FileExport):
+    """OpenDocument xml project file representation.
+    """
+
+    TEMPDIR = 'temp_odf'
+
+    ODF_COMPONENTS = []
+    _MIMETYPE = ''
+    _SETTINGS_XML = ''
+    _MANIFEST_XML = ''
+    _STYLES_XML = ''
+    _META_XML = ''
+
+    def tear_down(self):
+        """Delete the temporary directory 
+        containing the unpacked ODF directory structure.
+        """
+        try:
+            rmtree(self.TEMPDIR)
+        except:
+            pass
+
+    def set_up(self):
+        """Create a temporary directory containing the internal 
+        structure of an ODF file except 'content.xml'.
+        """
+        self.tear_down()
+        os.mkdir(self.TEMPDIR)
+        os.mkdir(self.TEMPDIR + '/META-INF')
+
+        # Generate mimetype
+
+        try:
+            with open(self.TEMPDIR + '/mimetype', 'w', encoding='utf-8') as f:
+                f.write(self._MIMETYPE)
+        except:
+            return 'ERROR: Cannot write "mimetype"'
+
+        # Generate settings.xml
+
+        try:
+            with open(self.TEMPDIR + '/settings.xml', 'w', encoding='utf-8') as f:
+                f.write(self._SETTINGS_XML)
+        except:
+            return 'ERROR: Cannot write "settings.xml"'
+
+        # Generate META-INF\manifest.xml
+
+        try:
+            with open(self.TEMPDIR + '/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
+                f.write(self._MANIFEST_XML)
+        except:
+            return 'ERROR: Cannot write "manifest.xml"'
+
+        # Generate styles.xml with system language set as document language
+
+        localeCodes = locale.getdefaultlocale()[0].split('_')
+
+        localeMapping = dict(
+            Language=localeCodes[0],
+            Country=localeCodes[1],
+        )
+        template = Template(self._STYLES_XML)
+        text = template.safe_substitute(localeMapping)
+
+        try:
+            with open(self.TEMPDIR + '/styles.xml', 'w', encoding='utf-8') as f:
+                f.write(text)
+        except:
+            return 'ERROR: Cannot write "styles.xml"'
+
+        # Generate meta.xml with actual document metadata
+
+        dt = datetime.today()
+
+        metaMapping = dict(
+            Author=self.author,
+            Title=self.title,
+            Summary='<![CDATA[' + self.desc + ']]>',
+            Date=str(dt.year) + '-' + str(dt.month).rjust(2, '0') +
+            '-' + str(dt.day).rjust(2, '0'),
+            Time=str(dt.hour).rjust(2, '0') +
+            ':' + str(dt.minute).rjust(2, '0') +
+            ':' + str(dt.second).rjust(2, '0'),
+        )
+        template = Template(self._META_XML)
+        text = template.safe_substitute(metaMapping)
+
+        try:
+            with open(self.TEMPDIR + '/meta.xml', 'w', encoding='utf-8') as f:
+                f.write(text)
+        except:
+            return 'ERROR: Cannot write "meta.xml".'
+
+        return 'SUCCESS: ODF structure generated.'
+
+    def write(self):
+        """Generate an odf file from a template.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        # Create a temporary directory containing the internal
+        # structure of an ODS file except "content.xml".
+
+        message = self.set_up()
+
+        if message.startswith('ERROR'):
+            return message
+
+        # Add "content.xml" to the temporary directory.
+
+        filePath = self._filePath
+
+        self._filePath = self.TEMPDIR + '/content.xml'
+
+        message = FileExport.write(self)
+
+        self._filePath = filePath
+
+        if message.startswith('ERROR'):
+            return message
+
+        # Pack the contents of the temporary directory
+        # into the ODS file.
+
+        workdir = os.getcwd()
+
+        try:
+            with zipfile.ZipFile(self.filePath, 'w') as odfTarget:
+                os.chdir(self.TEMPDIR)
+
+                for file in self.ODF_COMPONENTS:
+                    odfTarget.write(file)
+        except:
+            os.chdir(workdir)
+            return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
+
+        # Remove temporary data.
+
+        os.chdir(workdir)
+        self.tear_down()
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
+
+
+class OdtFile(OdfFile):
+    """OpenDocument xml project file representation.
+    """
+
+    EXTENSION = '.odt'
+    # overwrites Novel.EXTENSION
+
+    ODF_COMPONENTS = ['manifest.rdf', 'META-INF', 'content.xml', 'meta.xml', 'mimetype',
                       'settings.xml', 'styles.xml', 'META-INF/manifest.xml']
 
     CONTENT_XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -4012,30 +4673,17 @@ class OdtBuilder():
 '''
     _MIMETYPE = 'application/vnd.oasis.opendocument.text'
 
-    def tear_down(self):
-        """Delete the temporary directory 
-        containing the unpacked ODT directory structure.
-        """
-        try:
-            rmtree(self.TEMPDIR)
-        except:
-            pass
-
     def set_up(self):
         """Create a temporary directory containing the internal 
         structure of an ODT file except 'content.xml'.
         """
-        self.tear_down()
-        os.mkdir(self.TEMPDIR)
-        os.mkdir(self.TEMPDIR + '/META-INF')
 
-        # Generate mimetype
+        # Generate the common ODF components.
 
-        try:
-            with open(self.TEMPDIR + '/mimetype', 'w', encoding='utf-8') as f:
-                f.write(self._MIMETYPE)
-        except:
-            return 'ERROR: Cannot write "mimetype"'
+        message = OdfFile.set_up(self)
+
+        if message.startswith('ERROR'):
+            return message
 
         # Generate manifest.rdf
 
@@ -4045,586 +4693,7 @@ class OdtBuilder():
         except:
             return 'ERROR: Cannot write "manifest.rdf"'
 
-        # Generate settings.xml
-
-        try:
-            with open(self.TEMPDIR + '/settings.xml', 'w', encoding='utf-8') as f:
-                f.write(self._SETTINGS_XML)
-        except:
-            return 'ERROR: Cannot write "settings.xml"'
-
-        # Generate META-INF\manifest.xml
-
-        try:
-            with open(self.TEMPDIR + '/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
-                f.write(self._MANIFEST_XML)
-        except:
-            return 'ERROR: Cannot write "manifest.xml"'
-
-        # Generate styles.xml with system language set as document language
-
-        localeCodes = locale.getdefaultlocale()[0].split('_')
-
-        localeMapping = dict(
-            Language=localeCodes[0],
-            Country=localeCodes[1],
-        )
-        template = Template(self._STYLES_XML)
-        text = template.safe_substitute(localeMapping)
-
-        try:
-            with open(self.TEMPDIR + '/styles.xml', 'w', encoding='utf-8') as f:
-                f.write(text)
-        except:
-            return 'ERROR: Cannot write "styles.xml"'
-
-        # Generate meta.xml with actual document metadata
-
-        dt = datetime.today()
-
-        metaMapping = dict(
-            Author=self.author,
-            Title=self.title,
-            Summary='<![CDATA[' + self.desc + ']]>',
-            Date=str(dt.year) + '-' + str(dt.month).rjust(2, '0') +
-            '-' + str(dt.day).rjust(2, '0'),
-            Time=str(dt.hour).rjust(2, '0') +
-            ':' + str(dt.minute).rjust(2, '0') +
-            ':' + str(dt.second).rjust(2, '0'),
-        )
-        template = Template(self._META_XML)
-        text = template.safe_substitute(metaMapping)
-
-        try:
-            with open(self.TEMPDIR + '/meta.xml', 'w', encoding='utf-8') as f:
-                f.write(text)
-        except:
-            return 'ERROR: Cannot write "meta.xml".'
-
         return 'SUCCESS: ODT structure generated.'
-import zipfile
-
-from string import Template
-
-
-
-class FileExport(Novel):
-    """Abstract yWriter project file exporter representation.
-    To be overwritten by subclasses providing file type specific 
-    markup converters and templates.
-    """
-
-    fileHeader = ''
-    partTemplate = ''
-    chapterTemplate = ''
-    notesChapterTemplate = ''
-    todoChapterTemplate = ''
-    unusedChapterTemplate = ''
-    notExportedChapterTemplate = ''
-    sceneTemplate = ''
-    appendedSceneTemplate = ''
-    notesSceneTemplate = ''
-    todoSceneTemplate = ''
-    unusedSceneTemplate = ''
-    notExportedSceneTemplate = ''
-    sceneDivider = ''
-    chapterEndTemplate = ''
-    unusedChapterEndTemplate = ''
-    notExportedChapterEndTemplate = ''
-    notesChapterEndTemplate = ''
-    characterTemplate = ''
-    locationTemplate = ''
-    itemTemplate = ''
-    fileFooter = ''
-
-    def convert_from_yw(self, text):
-        """Convert yw7 markup to target format.
-        To be overwritten by file format specific subclasses.
-        """
-
-        if text is None:
-            text = ''
-
-        return(text)
-
-    def merge(self, novel):
-        """Copy required attributes of the novel object.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        if novel.title is not None:
-            self.title = novel.title
-
-        else:
-            self.title = ''
-
-        if novel.desc is not None:
-            self.desc = novel.desc
-
-        else:
-            self.desc = ''
-
-        if novel.author is not None:
-            self.author = novel.author
-
-        else:
-            self.author = ''
-
-        if novel.fieldTitle1 is not None:
-            self.fieldTitle1 = novel.fieldTitle1
-
-        else:
-            self.fieldTitle1 = 'Field 1'
-
-        if novel.fieldTitle2 is not None:
-            self.fieldTitle2 = novel.fieldTitle2
-
-        else:
-            self.fieldTitle2 = 'Field 2'
-
-        if novel.fieldTitle3 is not None:
-            self.fieldTitle3 = novel.fieldTitle3
-
-        else:
-            self.fieldTitle3 = 'Field 3'
-
-        if novel.fieldTitle4 is not None:
-            self.fieldTitle4 = novel.fieldTitle4
-
-        else:
-            self.fieldTitle4 = 'Field 4'
-
-        if novel.srtChapters != []:
-            self.srtChapters = novel.srtChapters
-
-        if novel.scenes is not None:
-            self.scenes = novel.scenes
-
-        if novel.chapters is not None:
-            self.chapters = novel.chapters
-
-        if novel.srtCharacters != []:
-            self.srtCharacters = novel.srtCharacters
-            self.characters = novel.characters
-
-        if novel.srtLocations != []:
-            self.srtLocations = novel.srtLocations
-            self.locations = novel.locations
-
-        if novel.srtItems != []:
-            self.srtItems = novel.srtItems
-            self.items = novel.items
-
-        return 'SUCCESS'
-
-    def get_projectTemplateMapping(self):
-        """Return a mapping dictionary for the project section. 
-        """
-        projectTemplateMapping = dict(
-            Title=self.title,
-            Desc=self.convert_from_yw(self.desc),
-            AuthorName=self.author,
-            FieldTitle1=self.fieldTitle1,
-            FieldTitle2=self.fieldTitle2,
-            FieldTitle3=self.fieldTitle3,
-            FieldTitle4=self.fieldTitle4,
-        )
-
-        for key in projectTemplateMapping:
-            if projectTemplateMapping[key] is None:
-                projectTemplateMapping[key] = ''
-
-        return projectTemplateMapping
-
-    def get_chapterMapping(self, chId, chapterNumber):
-        """Return a mapping dictionary for a chapter section. 
-        """
-        chapterMapping = dict(
-            ID=chId,
-            ChapterNumber=chapterNumber,
-            Title=self.chapters[chId].get_title(),
-            Desc=self.convert_from_yw(self.chapters[chId].desc),
-            ProjectName=self.projectName,
-            ProjectPath=self.projectPath,
-        )
-
-        for key in chapterMapping:
-            if chapterMapping[key] is None:
-                chapterMapping[key] = ''
-
-        return chapterMapping
-
-    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        """Return a mapping dictionary for a scene section. 
-        """
-
-        if self.scenes[scId].tags is not None:
-            tags = ', '.join(self.scenes[scId].tags)
-
-        else:
-            tags = ''
-
-        try:
-            # Note: Due to a bug, yWriter scenes might hold invalid
-            # viepoint characters
-            sChList = []
-
-            for chId in self.scenes[scId].characters:
-                sChList.append(self.characters[chId].title)
-
-            sceneChars = ', '.join(sChList)
-            viewpointChar = sChList[0]
-
-        except:
-            sceneChars = ''
-            viewpointChar = ''
-
-        if self.scenes[scId].locations is not None:
-            sLcList = []
-
-            for lcId in self.scenes[scId].locations:
-                sLcList.append(self.locations[lcId].title)
-
-            sceneLocs = ', '.join(sLcList)
-
-        else:
-            sceneLocs = ''
-
-        if self.scenes[scId].items is not None:
-            sItList = []
-
-            for itId in self.scenes[scId].items:
-                sItList.append(self.items[itId].title)
-
-            sceneItems = ', '.join(sItList)
-
-        else:
-            sceneItems = ''
-
-        if self.scenes[scId].isReactionScene:
-            reactionScene = Scene.REACTION_MARKER
-
-        else:
-            reactionScene = Scene.ACTION_MARKER
-
-        sceneMapping = dict(
-            ID=scId,
-            SceneNumber=sceneNumber,
-            Title=self.scenes[scId].title,
-            Desc=self.convert_from_yw(self.scenes[scId].desc),
-            WordCount=str(self.scenes[scId].wordCount),
-            WordsTotal=wordsTotal,
-            LetterCount=str(self.scenes[scId].letterCount),
-            LettersTotal=lettersTotal,
-            Status=Scene.STATUS[self.scenes[scId].status],
-            SceneContent=self.convert_from_yw(
-                self.scenes[scId].sceneContent),
-            FieldTitle1=self.fieldTitle1,
-            FieldTitle2=self.fieldTitle2,
-            FieldTitle3=self.fieldTitle3,
-            FieldTitle4=self.fieldTitle4,
-            Field1=self.scenes[scId].field1,
-            Field2=self.scenes[scId].field2,
-            Field3=self.scenes[scId].field3,
-            Field4=self.scenes[scId].field4,
-            Date=self.scenes[scId].date,
-            Time=self.scenes[scId].time,
-            Day=self.scenes[scId].day,
-            Hour=self.scenes[scId].hour,
-            Minute=self.scenes[scId].minute,
-            LastsDays=self.scenes[scId].lastsDays,
-            LastsHours=self.scenes[scId].lastsHours,
-            LastsMinutes=self.scenes[scId].lastsMinutes,
-            ReactionScene=reactionScene,
-            Goal=self.convert_from_yw(self.scenes[scId].goal),
-            Conflict=self.convert_from_yw(self.scenes[scId].conflict),
-            Outcome=self.convert_from_yw(self.scenes[scId].outcome),
-            Tags=tags,
-            Characters=sceneChars,
-            Viewpoint=viewpointChar,
-            Locations=sceneLocs,
-            Items=sceneItems,
-            Notes=self.convert_from_yw(self.scenes[scId].sceneNotes),
-            ProjectName=self.projectName,
-            ProjectPath=self.projectPath,
-        )
-
-        for key in sceneMapping:
-            if sceneMapping[key] is None:
-                sceneMapping[key] = ''
-
-        return sceneMapping
-
-    def get_characterMapping(self, crId):
-        """Return a mapping dictionary for a character section. 
-        """
-
-        if self.characters[crId].tags is not None:
-            tags = ', '.join(self.characters[crId].tags)
-
-        else:
-            tags = ''
-
-        if self.characters[crId].isMajor:
-            characterStatus = Character.MAJOR_MARKER
-
-        else:
-            characterStatus = Character.MINOR_MARKER
-
-        characterMapping = dict(
-            ID=crId,
-            Title=self.characters[crId].title,
-            Desc=self.convert_from_yw(self.characters[crId].desc),
-            Tags=tags,
-            AKA=FileExport.convert_from_yw(self, self.characters[crId].aka),
-            Notes=self.convert_from_yw(self.characters[crId].notes),
-            Bio=self.convert_from_yw(self.characters[crId].bio),
-            Goals=self.convert_from_yw(self.characters[crId].goals),
-            FullName=FileExport.convert_from_yw(
-                self, self.characters[crId].fullName),
-            Status=characterStatus,
-        )
-
-        for key in characterMapping:
-            if characterMapping[key] is None:
-                characterMapping[key] = ''
-
-        return characterMapping
-
-    def get_locationMapping(self, lcId):
-        """Return a mapping dictionary for a location section. 
-        """
-
-        if self.locations[lcId].tags is not None:
-            tags = ', '.join(self.locations[lcId].tags)
-
-        else:
-            tags = ''
-
-        locationMapping = dict(
-            ID=lcId,
-            Title=self.locations[lcId].title,
-            Desc=self.convert_from_yw(self.locations[lcId].desc),
-            Tags=tags,
-            AKA=FileExport.convert_from_yw(self, self.locations[lcId].aka),
-        )
-
-        for key in locationMapping:
-            if locationMapping[key] is None:
-                locationMapping[key] = ''
-
-        return locationMapping
-
-    def get_itemMapping(self, itId):
-        """Return a mapping dictionary for an item section. 
-        """
-
-        if self.items[itId].tags is not None:
-            tags = ', '.join(self.items[itId].tags)
-
-        else:
-            tags = ''
-
-        itemMapping = dict(
-            ID=itId,
-            Title=self.items[itId].title,
-            Desc=self.convert_from_yw(self.items[itId].desc),
-            Tags=tags,
-            AKA=FileExport.convert_from_yw(self, self.items[itId].aka),
-        )
-
-        for key in itemMapping:
-            if itemMapping[key] is None:
-                itemMapping[key] = ''
-
-        return itemMapping
-
-    def write(self):
-        """Create a template-based output file. 
-        Return a message string starting with 'SUCCESS' or 'ERROR'.
-        """
-        lines = []
-        wordsTotal = 0
-        lettersTotal = 0
-        chapterNumber = 0
-        sceneNumber = 0
-
-        template = Template(self.fileHeader)
-        lines.append(template.safe_substitute(
-            self.get_projectTemplateMapping()))
-
-        for chId in self.srtChapters:
-
-            # The order counts; be aware that "Todo" and "Notes" chapters are
-            # always unused.
-
-            # Has the chapter only scenes not to be exported?
-
-            sceneCount = 0
-            notExportCount = 0
-            doNotExportChapter = False
-
-            for scId in self.chapters[chId].srtScenes:
-                sceneCount += 1
-
-                if self.scenes[scId].doNotExport:
-                    notExportCount += 1
-
-            if sceneCount > 0 and notExportCount == sceneCount:
-                doNotExportChapter = True
-
-            if self.chapters[chId].chType == 2:
-
-                if self.todoChapterTemplate != '':
-                    template = Template(self.todoChapterTemplate)
-
-                else:
-                    continue
-
-            elif self.chapters[chId].chType == 1 or self.chapters[chId].oldType == 1:
-                # Chapter is "Notes" (new file format) or "Info" (old file
-                # format) chapter.
-
-                if self.notesChapterTemplate != '':
-                    template = Template(self.notesChapterTemplate)
-
-                else:
-                    continue
-
-            elif self.chapters[chId].isUnused:
-
-                if self.unusedChapterTemplate != '':
-                    template = Template(self.unusedChapterTemplate)
-
-                else:
-                    continue
-
-            elif doNotExportChapter:
-
-                if self.notExportedChapterTemplate != '':
-                    template = Template(self.notExportedChapterTemplate)
-
-                else:
-                    continue
-
-            elif self.chapters[chId].chLevel == 1 and self.partTemplate != '':
-                template = Template(self.partTemplate)
-
-            else:
-                template = Template(self.chapterTemplate)
-                chapterNumber += 1
-
-            lines.append(template.safe_substitute(
-                self.get_chapterMapping(chId, chapterNumber)))
-            firstSceneInChapter = True
-
-            for scId in self.chapters[chId].srtScenes:
-                wordsTotal += self.scenes[scId].wordCount
-                lettersTotal += self.scenes[scId].letterCount
-
-                # The order counts; be aware that "Todo" and "Notes" scenes are
-                # always unused.
-
-                if self.scenes[scId].isTodoScene:
-
-                    if self.todoSceneTemplate != '':
-                        template = Template(self.todoSceneTemplate)
-
-                    else:
-                        continue
-
-                elif self.scenes[scId].isNotesScene or self.chapters[chId].oldType == 1:
-                    # Scene is "Notes" (new file format) or "Info" (old file
-                    # format) scene.
-
-                    if self.notesSceneTemplate != '':
-                        template = Template(self.notesSceneTemplate)
-
-                    else:
-                        continue
-
-                elif self.scenes[scId].isUnused or self.chapters[chId].isUnused:
-
-                    if self.unusedSceneTemplate != '':
-                        template = Template(self.unusedSceneTemplate)
-
-                    else:
-                        continue
-
-                elif self.scenes[scId].doNotExport or doNotExportChapter:
-
-                    if self.notExportedSceneTemplate != '':
-                        template = Template(self.notExportedSceneTemplate)
-
-                    else:
-                        continue
-
-                else:
-                    sceneNumber += 1
-
-                    template = Template(self.sceneTemplate)
-
-                    if not firstSceneInChapter and self.scenes[scId].appendToPrev and self.appendedSceneTemplate != '':
-                        template = Template(self.appendedSceneTemplate)
-
-                if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
-                    lines.append(self.sceneDivider)
-
-                lines.append(template.safe_substitute(self.get_sceneMapping(
-                    scId, sceneNumber, wordsTotal, lettersTotal)))
-
-                firstSceneInChapter = False
-
-            if self.chapters[chId].chType == 2 and self.todoChapterEndTemplate != '':
-                lines.append(self.todoChapterEndTemplate)
-
-            elif self.chapters[chId].chType == 1 or self.chapters[chId].oldType == 1:
-
-                if self.notesChapterEndTemplate != '':
-                    lines.append(self.notesChapterEndTemplate)
-
-            elif self.chapters[chId].isUnused and self.unusedChapterEndTemplate != '':
-                lines.append(self.unusedChapterEndTemplate)
-
-            elif doNotExportChapter and self.notExportedChapterEndTemplate != '':
-                lines.append(self.notExportedChapterEndTemplate)
-
-            elif self.chapterEndTemplate != '':
-                lines.append(self.chapterEndTemplate)
-
-        for crId in self.srtCharacters:
-            template = Template(self.characterTemplate)
-            lines.append(template.safe_substitute(
-                self.get_characterMapping(crId)))
-
-        for lcId in self.srtLocations:
-            template = Template(self.locationTemplate)
-            lines.append(template.safe_substitute(
-                self.get_locationMapping(lcId)))
-
-        for itId in self.srtItems:
-            template = Template(self.itemTemplate)
-            lines.append(template.safe_substitute(self.get_itemMapping(itId)))
-
-        lines.append(self.fileFooter)
-        text = ''.join(lines)
-
-        try:
-            with open(self.filePath, 'w', encoding='utf-8') as f:
-                f.write(text)
-
-        except:
-            return 'ERROR: Cannot write "' + os.path.normpath(self.filePath) + '".'
-
-        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
-
-
-class OdtFile(FileExport, OdtBuilder):
-    """OpenDocument xml project file representation.
-    """
-
-    EXTENSION = '.odt'
-    # overwrites Novel.EXTENSION
 
     def convert_from_yw(self, text):
         """Convert yw7 raw markup to odt. Return an xml string.
@@ -4696,53 +4765,6 @@ class OdtFile(FileExport, OdtBuilder):
 
         return text
 
-    def write(self):
-        """Generate an odt file from a template.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        # Create a temporary directory containing the internal
-        # structure of an ODT file except "content.xml".
-
-        message = self.set_up()
-
-        if message.startswith('ERROR'):
-            return message
-
-        # Add "content.xml" to the temporary directory.
-
-        filePath = self._filePath
-
-        self._filePath = self.TEMPDIR + '/content.xml'
-
-        message = FileExport.write(self)
-
-        self._filePath = filePath
-
-        if message.startswith('ERROR'):
-            return message
-
-        # Pack the contents of the temporary directory
-        # into the ODT file.
-
-        workdir = os.getcwd()
-
-        try:
-            with zipfile.ZipFile(self.filePath, 'w') as odtTarget:
-                os.chdir(self.TEMPDIR)
-
-                for file in self.ODT_COMPONENTS:
-                    odtTarget.write(file)
-        except:
-            os.chdir(workdir)
-            return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
-
-        # Remove temporary data.
-
-        os.chdir(workdir)
-        self.tear_down()
-        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
-
 
 class OdtProof(OdtFile):
     """OpenDocument xml proof reading file representation.
@@ -4751,7 +4773,7 @@ class OdtProof(OdtFile):
     DESCRIPTION = 'Tagged manuscript for proofing'
     SUFFIX = '_proof'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4810,7 +4832,7 @@ class OdtProof(OdtFile):
     todoChapterEndTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">[/ChID (ToDo)]</text:p>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
 
 class OdtManuscript(OdtFile):
@@ -4820,7 +4842,7 @@ class OdtManuscript(OdtFile):
     DESCRIPTION = 'Editable manuscript'
     SUFFIX = '_manuscript'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4858,7 +4880,7 @@ class OdtManuscript(OdtFile):
     chapterEndTemplate = '''</text:section>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
     def get_chapterMapping(self, chId, chapterNumber):
         """Return a mapping dictionary for a chapter section. 
@@ -4878,7 +4900,7 @@ class OdtSceneDesc(OdtFile):
     DESCRIPTION = 'Scene descriptions'
     SUFFIX = '_scenes'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4916,7 +4938,7 @@ class OdtSceneDesc(OdtFile):
     chapterEndTemplate = '''</text:section>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
 
 class OdtChapterDesc(OdtFile):
@@ -4926,7 +4948,7 @@ class OdtChapterDesc(OdtFile):
     DESCRIPTION = 'Chapter descriptions'
     SUFFIX = '_chapters'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4939,7 +4961,7 @@ class OdtChapterDesc(OdtFile):
 </text:section>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
 
 class OdtPartDesc(OdtFile):
@@ -4949,7 +4971,7 @@ class OdtPartDesc(OdtFile):
     DESCRIPTION = 'Part descriptions'
     SUFFIX = '_parts'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4959,7 +4981,7 @@ class OdtPartDesc(OdtFile):
 </text:section>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
 
 class OdtExport(OdtFile):
@@ -4968,7 +4990,7 @@ class OdtExport(OdtFile):
 
     SUFFIX = ''
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4993,7 +5015,7 @@ class OdtExport(OdtFile):
     sceneDivider = '<text:p ></text:p>'
     #sceneDivider = '<text:p text:style-name="Heading_20_4">* * *</text:p>'
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
     def get_chapterMapping(self, chId, chapterNumber):
         """Return a mapping dictionary for a chapter section. 
@@ -5013,7 +5035,7 @@ class OdtCharacters(OdtFile):
     DESCRIPTION = 'Character descriptions'
     SUFFIX = '_characters'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5034,7 +5056,7 @@ class OdtCharacters(OdtFile):
 </text:section>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
     def get_characterMapping(self, crId):
         """Return a mapping dictionary for a character section. 
@@ -5057,7 +5079,7 @@ class OdtItems(OdtFile):
     DESCRIPTION = 'Item descriptions'
     SUFFIX = '_items'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5067,7 +5089,7 @@ class OdtItems(OdtFile):
 </text:section>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
     def get_itemMapping(self, itId):
         """Return a mapping dictionary for an item section. 
@@ -5087,7 +5109,7 @@ class OdtLocations(OdtFile):
     DESCRIPTION = 'Location descriptions'
     SUFFIX = '_locations'
 
-    fileHeader = OdtBuilder.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5097,7 +5119,7 @@ class OdtLocations(OdtFile):
 </text:section>
 '''
 
-    fileFooter = OdtBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
 
     def get_locationMapping(self, lcId):
         """Return a mapping dictionary for a location section. 
@@ -6401,19 +6423,23 @@ class CsvItemList(CsvFile):
         self.items = novel.items
         return 'SUCCESS'
 
-from shutil import rmtree
-from datetime import datetime
-from string import Template
 
 
-class OdsBuilder():
-    """Build an ODS zipfile.
+class OdsFile(OdfFile):
+    """OpenDocument xml project file representation.
     """
 
-    TEMPDIR = 'temp_ods'
+    EXTENSION = '.ods'
+    # overwrites Novel.EXTENSION
 
-    ODS_COMPONENTS = ['META-INF', 'content.xml', 'meta.xml', 'mimetype',
+    ODF_COMPONENTS = ['META-INF', 'content.xml', 'meta.xml', 'mimetype',
                       'settings.xml', 'styles.xml', 'META-INF/manifest.xml']
+
+    # Column width:
+    # co1 2.000cm
+    # co2 3.000cm
+    # co3 4.000cm
+    # co4 8.000cm
 
     CONTENT_XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>
 
@@ -6605,7 +6631,7 @@ class OdsBuilder():
   </style:style>
   <style:style style:name="Result2" style:family="table-cell" style:parent-style-name="Result"/>
   <style:style style:name="Heading" style:family="table-cell" style:parent-style-name="Default">
-   <style:table-cell-properties fo:background-color="#ffff99" style:text-align-source="fix" style:repeat-content="false"/>
+   <style:table-cell-properties fo:background-color="#cfe7f5" style:text-align-source="fix" style:repeat-content="false"/>
    <style:paragraph-properties fo:text-align="start"/>
    <style:text-properties fo:font-weight="bold"/>
   </style:style>
@@ -6668,98 +6694,6 @@ class OdsBuilder():
 '''
     _MIMETYPE = 'application/vnd.oasis.opendocument.spreadsheet'
 
-    def tear_down(self):
-        """Delete the temporary directory 
-        containing the unpacked ODS directory structure.
-        """
-        try:
-            rmtree(self.TEMPDIR)
-        except:
-            pass
-
-    def set_up(self):
-        """Create a temporary directory containing the internal 
-        structure of an ODS file except 'content.xml'.
-        """
-        self.tear_down()
-        os.mkdir(self.TEMPDIR)
-        os.mkdir(self.TEMPDIR + '/META-INF')
-
-        # Generate mimetype
-
-        try:
-            with open(self.TEMPDIR + '/mimetype', 'w', encoding='utf-8') as f:
-                f.write(self._MIMETYPE)
-        except:
-            return 'ERROR: Cannot write "mimetype"'
-
-        # Generate settings.xml
-
-        try:
-            with open(self.TEMPDIR + '/settings.xml', 'w', encoding='utf-8') as f:
-                f.write(self._SETTINGS_XML)
-        except:
-            return 'ERROR: Cannot write "settings.xml"'
-
-        # Generate META-INF\manifest.xml
-
-        try:
-            with open(self.TEMPDIR + '/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
-                f.write(self._MANIFEST_XML)
-        except:
-            return 'ERROR: Cannot write "manifest.xml"'
-
-        # Generate styles.xml with system language set as document language
-
-        localeCodes = locale.getdefaultlocale()[0].split('_')
-
-        localeMapping = dict(
-            Language=localeCodes[0],
-            Country=localeCodes[1],
-        )
-        template = Template(self._STYLES_XML)
-        text = template.safe_substitute(localeMapping)
-
-        try:
-            with open(self.TEMPDIR + '/styles.xml', 'w', encoding='utf-8') as f:
-                f.write(text)
-        except:
-            return 'ERROR: Cannot write "styles.xml"'
-
-        # Generate meta.xml with actual document metadata
-
-        dt = datetime.today()
-
-        metaMapping = dict(
-            Author=self.author,
-            Title=self.title,
-            Summary='<![CDATA[' + self.desc + ']]>',
-            Date=str(dt.year) + '-' + str(dt.month).rjust(2, '0') +
-            '-' + str(dt.day).rjust(2, '0'),
-            Time=str(dt.hour).rjust(2, '0') +
-            ':' + str(dt.minute).rjust(2, '0') +
-            ':' + str(dt.second).rjust(2, '0'),
-        )
-        template = Template(self._META_XML)
-        text = template.safe_substitute(metaMapping)
-
-        try:
-            with open(self.TEMPDIR + '/meta.xml', 'w', encoding='utf-8') as f:
-                f.write(text)
-        except:
-            return 'ERROR: Cannot write "meta.xml".'
-
-        return 'SUCCESS: ODS structure generated.'
-
-
-
-class OdsFile(FileExport, OdsBuilder):
-    """OpenDocument xml project file representation.
-    """
-
-    EXTENSION = '.ods'
-    # overwrites Novel.EXTENSION
-
     def convert_from_yw(self, text):
         """Convert yw7 raw markup to ods. Return an xml string.
         """
@@ -6784,53 +6718,6 @@ class OdsFile(FileExport, OdsBuilder):
 
         return text
 
-    def write(self):
-        """Generate an ods file from a template.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        # Create a temporary directory containing the internal
-        # structure of an ODS file except "content.xml".
-
-        message = self.set_up()
-
-        if message.startswith('ERROR'):
-            return message
-
-        # Add "content.xml" to the temporary directory.
-
-        filePath = self._filePath
-
-        self._filePath = self.TEMPDIR + '/content.xml'
-
-        message = FileExport.write(self)
-
-        self._filePath = filePath
-
-        if message.startswith('ERROR'):
-            return message
-
-        # Pack the contents of the temporary directory
-        # into the ODS file.
-
-        workdir = os.getcwd()
-
-        try:
-            with zipfile.ZipFile(self.filePath, 'w') as odsTarget:
-                os.chdir(self.TEMPDIR)
-
-                for file in self.ODS_COMPONENTS:
-                    odsTarget.write(file)
-        except:
-            os.chdir(workdir)
-            return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
-
-        # Remove temporary data.
-
-        os.chdir(workdir)
-        self.tear_down()
-        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
-
 
 class OdsCharList(OdsFile):
     """OpenDocument xml characters spreadsheet representation.
@@ -6839,7 +6726,7 @@ class OdsCharList(OdsFile):
     DESCRIPTION = 'Character list'
     SUFFIX = '_charlist'
 
-    fileHeader = OdsBuilder.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
@@ -6921,7 +6808,7 @@ class OdsCharList(OdsFile):
 
 '''
 
-    fileFooter = OdsBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdsFile.CONTENT_XML_FOOTER
 
 
 class OdsLocList(OdsFile):
@@ -6931,7 +6818,7 @@ class OdsLocList(OdsFile):
     DESCRIPTION = 'Location list'
     SUFFIX = '_loclist'
 
-    fileHeader = OdsBuilder.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
@@ -6979,7 +6866,7 @@ class OdsLocList(OdsFile):
     </table:table-row>
 
 '''
-    fileFooter = OdsBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdsFile.CONTENT_XML_FOOTER
 
 
 class OdsItemList(OdsFile):
@@ -6989,7 +6876,7 @@ class OdsItemList(OdsFile):
     DESCRIPTION = 'Item list'
     SUFFIX = '_itemlist'
 
-    fileHeader = OdsBuilder.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
@@ -7038,7 +6925,229 @@ class OdsItemList(OdsFile):
 
 '''
 
-    fileFooter = OdsBuilder.CONTENT_XML_FOOTER
+    fileFooter = OdsFile.CONTENT_XML_FOOTER
+
+
+class OdsSceneList(OdsFile):
+    """OpenDocument xml scenes spreadsheet representation.
+    """
+
+    DESCRIPTION = 'Scene list'
+    SUFFIX = '_scenelist'
+
+    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
+    # '1' is assigned N/A (empty table cell).
+
+    # Column width:
+    # co1 2.000cm
+    # co2 3.000cm
+    # co3 4.000cm
+    # co4 8.000cm
+
+    # Header structure:
+    # Scene link
+    # Scene title
+    # Scene description
+    # Tags
+    # Scene notes
+    # A/R
+    # Goal
+    # Conflict
+    # Outcome
+    # Scene
+    # Words total
+    # Relevance
+    # Tension
+    # Humour
+    # Quality
+    # Word count
+    # Letter count
+    # Status
+    # Characters
+    # Locations
+    # Items
+
+    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
+    <table:table-row table:style-name="ro1">
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Scene link</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Scene title</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Scene description</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Tags</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Scene notes</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>A/R</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Goal</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Conflict</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Outcome</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Scene</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Words total</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Relevance</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Tension</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Humour</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Quality</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Word count</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Letter count</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Status</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Characters</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Locations</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" office:value-type="string">
+      <text:p>Items</text:p>
+     </table:table-cell>
+     <table:table-cell table:style-name="Heading" table:number-columns-repeated="1003"/>
+    </table:table-row>
+
+'''
+
+    sceneTemplate = '''   <table:table-row table:style-name="ro2">
+     <table:table-cell table:formula="of:=HYPERLINK(&quot;file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion&quot;;&quot;ScID:$ID&quot;)" office:value-type="string" office:string-value="ScID:$ID">
+      <text:p>ScID:$ID</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Title</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Desc</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Tags</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Notes</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$ReactionScene</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Goal</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Conflict</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Outcome</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$SceneNumber">
+      <text:p>$SceneNumber</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$WordsTotal">
+      <text:p>$WordsTotal</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$Field1">
+      <text:p>$Field1</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$Field2">
+      <text:p>$Field2</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$Field3">
+      <text:p>$Field3</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$Field4">
+      <text:p>$Field4</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$WordCount">
+      <text:p>$WordCount</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="float" office:value="$LetterCount">
+      <text:p>$LetterCount</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Status</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Characters</text:p>
+     </table:table-cell>
+     <table:table-cell office:value-type="string">
+      <text:p>$Locations</text:p>
+     </table:table-cell>
+     <table:table-cell>
+      <text:p>$Items</text:p>
+     </table:table-cell>
+    </table:table-row>
+
+'''
+
+    fileFooter = OdsFile.CONTENT_XML_FOOTER
+
+    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section. 
+        """
+        sceneMapping = OdsFile.get_sceneMapping(
+            self, scId, sceneNumber, wordsTotal, lettersTotal)
+
+        if self.scenes[scId].field1 == '1':
+            sceneMapping['Field1'] = ''
+
+        if self.scenes[scId].field2 == '1':
+            sceneMapping['Field2'] = ''
+
+        if self.scenes[scId].field3 == '1':
+            sceneMapping['Field3'] = ''
+
+        if self.scenes[scId].field4 == '1':
+            sceneMapping['Field4'] = ''
+
+        return sceneMapping
 
 
 
@@ -7111,9 +7220,9 @@ class UniversalFileFactory(FileFactory):
             elif suffix == OdtItems.SUFFIX:
                 targetFile = OdtItems(fileName + suffix + OdtItems.EXTENSION)
 
-            elif suffix == CsvSceneList.SUFFIX:
-                targetFile = CsvSceneList(
-                    fileName + suffix + CsvSceneList.EXTENSION)
+            elif suffix == OdsSceneList.SUFFIX:
+                targetFile = OdsSceneList(
+                    fileName + suffix + OdsSceneList.EXTENSION)
 
             elif suffix == CsvPlotList.SUFFIX:
                 targetFile = CsvPlotList(
@@ -7671,7 +7780,7 @@ def get_itemdesc(*args):
 def get_scenelist(*args):
     '''Import a scene list from yWriter 6/7 to a Calc document.
     '''
-    open_yw7(CsvSceneList.SUFFIX, CsvSceneList.EXTENSION)
+    open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
 
 
 def get_plotlist(*args):
