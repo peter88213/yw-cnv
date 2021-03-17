@@ -1,16 +1,11 @@
-* Download the `.oxt` file.
-
-* Install it using the LibreOffice extension manager.
-
+* Download the `.oxt` file (Scroll down this page to _Assets_).
+* Install it either by double-clicking or using the LibreOffice extension manager. Instructions can be found here: https://wiki.documentfoundation.org/Documentation/HowTo/install_extension
 * After installation (and Office restart) you find a new "yWriter Import/Export" submenu in the "Files" menu.
-
 * If no additional "yWriter Import/Export" submenu shows up in the "Files" menu, please look at the "Tools" > "Extensions" menu.
 
 ## Requirements
 
 * LibreOffice 5.4 or more recent.  __Please note:__  _This extension can not be installed on OpenOffice. An OpenOffice variant can be found here: https://github.com/peter88213/pywoo_
-* Java Runtime Environment (LibreOffice needs it for macro execution).
-* yWriter 7. 
 
 ## Changelog
 
