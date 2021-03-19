@@ -9,6 +9,24 @@
 
 ## Changelog
 
+### v0.38.0 Add advanced features to the "Files" menu
+
+The "advanced features" are meant to be used by experienced LibreOffice users only. If you aren't familiar with Calc and the concept of sections in Writer, please do not use the advanced features. There is a risk of damaging the project when writing back if you don't respect the section boundaries in the odt text documents, or if you mess up the IDs in the ods tables.
+
+Export files with invisible markers (to be written back after editing):
+
+* Manuscript with invisible chapter and scene sections.
+* Very brief synopsis (Part descriptions): Titles and descriptions of chapters "beginning a new section".
+* Brief synopsis (Chapter descriptions): Chapter titles and chapter descriptions.
+* Full synopsis (Scene descriptions): Chapter titles and scene descriptions.
+* Character sheet: Character descriptions, bio and goals.
+* Location sheet: Location descriptions.
+* Item sheet: Item descriptions.
+* Scene list: Spreadsheet with all scene metadata.
+* Plot list: Spreadsheet with scene metadata following conventions described in the help text.
+
+Based on PyWriter v2.12.3
+
 ### v0.37.4 Support ods spreadsheets
 
 Change scene/plot list import (advanced features) from csv to ods file format.
