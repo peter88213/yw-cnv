@@ -18,6 +18,7 @@ from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
 from pywriter.odt.odt_chapterdesc import OdtChapterDesc
 from pywriter.odt.odt_partdesc import OdtPartDesc
+from pywriter.odt.odt_xref import OdtXref
 from pywriter.ods.ods_scenelist import OdsSceneList
 from pywriter.ods.ods_plotlist import OdsPlotList
 from pywriter.ods.ods_charlist import OdsCharList
@@ -174,6 +175,12 @@ def get_itemdesc(*args):
     '''Import item descriptions from yWriter 6/7 to a Writer document.
     '''
     open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
+
+
+def get_crossreference(*args):
+    '''Import cross references from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(OdtXref.SUFFIX, OdtXref.EXTENSION)
 
 
 def get_scenelist(*args):
