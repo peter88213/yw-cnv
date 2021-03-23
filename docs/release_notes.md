@@ -9,6 +9,19 @@
 
 ## Changelog
 
+### v0.40.0 Export cross references
+
+Generate an OpenDocument text file containing navigable cross references:
+
+* Scenes per character,
+* scenes per location,
+* scenes per item,
+* scenes per tag, 
+* characters per tag, 
+* locations per tag, 
+* items per tag.
+
+
 ### v0.38.0 Add advanced features to the "Files" menu
 
 The "advanced features" are meant to be used by experienced LibreOffice users only. If you aren't familiar with Calc and the concept of sections in Writer, please do not use the advanced features. There is a risk of damaging the project when writing back if you don't respect the section boundaries in the odt text documents, or if you mess up the IDs in the ods tables.
