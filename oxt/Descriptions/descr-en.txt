@@ -3,13 +3,16 @@ yWriter project import and export.
 Import from yw6/7 project:
 - Generate a "standard manuscript" formatted OpenDocument textfile from an yWriter 6/7 project.
 
+Proof reading:
+- Import an yWriter 6/7 project into an OpenDocument file with chapter and scene markers.
+- Write back the proofread scenes to the yWriter 6/7 project file.
+
 World building lists:
 - Generate character, location and item lists as OpenDocument spreadsheets.
 - Write back modified lists.
 
-Proof reading:
-- Import an yWriter 6/7 project into an OpenDocument file with chapter and scene markers.
-- Write back the proofread scenes to the yWriter 6/7 project file.
+Cross references:
+- Generate an OpenDocument textfile with cross references such as scenes per character, scenes per tag etc.
 
 Export to a yw7 project:
 - Generate a new yWriter 6/7 project from a work in progress or an outline.

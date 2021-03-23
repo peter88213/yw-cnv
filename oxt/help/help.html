@@ -15,7 +15,17 @@ em, code {color: maroon;}
 
 <h1>The yw-cnv extension for LibreOffice: Import and export yWriter 6/7 projects</h1>
 
-<h2>yWriter5 style proof reading</h2>
+<h2>Import from yw6/7 project</h2>
+
+<p>Generate a "standard manuscript pages" formatted OpenDocument textfile from an yWriter 6/7 project:</p>
+
+<ul>
+<li>The document is placed in the same folder as the yWriter project.</li>
+<li>Document's filename: <code>&#139;yW project name&#155;.odt</code>.</li>
+<li>The document contains chapter <code>[ChID:x]</code> and scene <code>[ScID:y]</code> markers according to yWriter 5 standard. <strong>Do not touch lines containing the markers</strong> if you want to be able to reimport the document into yWriter.</li>
+</ul>
+
+<h2>Proof reading</h2>
 
 <h3>Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers.</h3>
 
@@ -46,6 +56,34 @@ em, code {color: maroon;}
 <li>Document's filename: <code>&#139;yW project name&#155;.odt</code>.</li>
 <li>The document contains chapter <code>[ChID:x]</code> and scene <code>[ScID:y]</code> markers according to yWriter 5 standard. <strong>Do not touch lines containing the markers</strong> if you want to be able to reimport the document into yWriter.</li>
 </ul>
+
+<h2>Generate World building lists</h2>
+
+<ul>
+<li>Character lists that can be edited in Office Calc and written back to yWriter format.</li>
+
+<li>Location lists that can be edited in Office Calc and written back to yWriter format.</li>
+
+<li>Item lists that can be edited in Office Calc and written back to yWriter format.</li>
+</ul>
+
+<p>You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.</p>
+
+
+<h2>Generate cross references</h2>
+
+An OpenDocument text file containing navigable cross references:
+
+<ul>
+<li>Scenes per character,</li>
+<li>scenes per location,</li>
+<li>scenes per item,</li>
+<li>scenes per tag,</li>
+<li>characters per tag,</li>
+<li>locations per tag,</li>
+<li>items per tag.</li>
+</ul>
+
 
 <h2>Create a new yw7 project</h2>
 
@@ -79,16 +117,5 @@ em, code {color: maroon;}
 <li>All other text is considered to be chapter/scene description.</li>
 </ul>
 
-<h2>World building lists</h2>
-
-<ul>
-<li>Character lists that can be edited in Office Calc and written back to yWriter format.</li>
-
-<li>Location lists that can be edited in Office Calc and written back to yWriter format.</li>
-
-<li>Item lists that can be edited in Office Calc and written back to yWriter format.</li>
-</ul>
-
-<p>You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.</p>
 
 </body>
