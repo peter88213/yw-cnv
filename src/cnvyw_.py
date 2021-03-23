@@ -177,8 +177,8 @@ def get_itemdesc(*args):
     open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
 
 
-def get_crossreference(*args):
-    '''Import cross references from yWriter 6/7 to a Writer document.
+def get_xref(*args):
+    '''Generate cross references from yWriter 6/7 to a Writer document.
     '''
     open_yw7(OdtXref.SUFFIX, OdtXref.EXTENSION)
 

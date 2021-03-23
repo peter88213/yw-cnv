@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.38.0
+Version 0.39.1
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -2806,7 +2806,7 @@ class FileExport(Novel):
 
         return 'SUCCESS'
 
-    def get_projectTemplateMapping(self):
+    def get_fileHeaderMapping(self):
         """Return a mapping dictionary for the project section. 
         """
         projectTemplateMapping = dict(
@@ -2818,11 +2818,6 @@ class FileExport(Novel):
             FieldTitle3=self.fieldTitle3,
             FieldTitle4=self.fieldTitle4,
         )
-
-        for key in projectTemplateMapping:
-            if projectTemplateMapping[key] is None:
-                projectTemplateMapping[key] = ''
-
         return projectTemplateMapping
 
     def get_chapterMapping(self, chId, chapterNumber):
@@ -2836,11 +2831,6 @@ class FileExport(Novel):
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
         )
-
-        for key in chapterMapping:
-            if chapterMapping[key] is None:
-                chapterMapping[key] = ''
-
         return chapterMapping
 
     def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
@@ -2937,11 +2927,6 @@ class FileExport(Novel):
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
         )
-
-        for key in sceneMapping:
-            if sceneMapping[key] is None:
-                sceneMapping[key] = ''
-
         return sceneMapping
 
     def get_characterMapping(self, crId):
@@ -2972,12 +2957,9 @@ class FileExport(Novel):
             FullName=FileExport.convert_from_yw(
                 self, self.characters[crId].fullName),
             Status=characterStatus,
+            ProjectName=self.projectName,
+            ProjectPath=self.projectPath,
         )
-
-        for key in characterMapping:
-            if characterMapping[key] is None:
-                characterMapping[key] = ''
-
         return characterMapping
 
     def get_locationMapping(self, lcId):
@@ -2996,12 +2978,9 @@ class FileExport(Novel):
             Desc=self.convert_from_yw(self.locations[lcId].desc),
             Tags=tags,
             AKA=FileExport.convert_from_yw(self, self.locations[lcId].aka),
+            ProjectName=self.projectName,
+            ProjectPath=self.projectPath,
         )
-
-        for key in locationMapping:
-            if locationMapping[key] is None:
-                locationMapping[key] = ''
-
         return locationMapping
 
     def get_itemMapping(self, itId):
@@ -3020,27 +2999,96 @@ class FileExport(Novel):
             Desc=self.convert_from_yw(self.items[itId].desc),
             Tags=tags,
             AKA=FileExport.convert_from_yw(self, self.items[itId].aka),
+            ProjectName=self.projectName,
+            ProjectPath=self.projectPath,
         )
-
-        for key in itemMapping:
-            if itemMapping[key] is None:
-                itemMapping[key] = ''
-
         return itemMapping
 
-    def write(self):
-        """Create a template-based output file. 
-        Return a message string starting with 'SUCCESS' or 'ERROR'.
+    def get_fileHeader(self):
+        """Process the file header.
+        Return a list of strings.
         """
         lines = []
-        wordsTotal = 0
-        lettersTotal = 0
-        chapterNumber = 0
-        sceneNumber = 0
-
         template = Template(self.fileHeader)
         lines.append(template.safe_substitute(
-            self.get_projectTemplateMapping()))
+            self.get_fileHeaderMapping()))
+        return lines
+
+    def get_scenes(self, chId, sceneNumber, wordsTotal, lettersTotal, doNotExport):
+        """Process the scenes.
+        Return a list of strings.
+        """
+        lines = []
+        firstSceneInChapter = True
+
+        for scId in self.chapters[chId].srtScenes:
+            wordsTotal += self.scenes[scId].wordCount
+            lettersTotal += self.scenes[scId].letterCount
+
+            # The order counts; be aware that "Todo" and "Notes" scenes are
+            # always unused.
+
+            if self.scenes[scId].isTodoScene:
+
+                if self.todoSceneTemplate != '':
+                    template = Template(self.todoSceneTemplate)
+
+                else:
+                    continue
+
+            elif self.scenes[scId].isNotesScene or self.chapters[chId].oldType == 1:
+                # Scene is "Notes" (new file format) or "Info" (old file
+                # format) scene.
+
+                if self.notesSceneTemplate != '':
+                    template = Template(self.notesSceneTemplate)
+
+                else:
+                    continue
+
+            elif self.scenes[scId].isUnused or self.chapters[chId].isUnused:
+
+                if self.unusedSceneTemplate != '':
+                    template = Template(self.unusedSceneTemplate)
+
+                else:
+                    continue
+
+            elif self.scenes[scId].doNotExport or doNotExport:
+
+                if self.notExportedSceneTemplate != '':
+                    template = Template(self.notExportedSceneTemplate)
+
+                else:
+                    continue
+
+            else:
+                sceneNumber += 1
+
+                template = Template(self.sceneTemplate)
+
+                if not firstSceneInChapter and self.scenes[scId].appendToPrev and self.appendedSceneTemplate != '':
+                    template = Template(self.appendedSceneTemplate)
+
+            if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
+                lines.append(self.sceneDivider)
+
+            lines.append(template.safe_substitute(self.get_sceneMapping(
+                scId, sceneNumber, wordsTotal, lettersTotal)))
+
+            firstSceneInChapter = False
+
+        return lines, sceneNumber, wordsTotal, lettersTotal
+
+    def get_chapters(self):
+        """Process the chapters and nested scenes.
+        Return a list of strings.
+        """
+        lines = []
+        chapterNumber = 0
+        sceneNumber = 0
+        wordsTotal = 0
+        lettersTotal = 0
 
         for chId in self.srtChapters:
 
@@ -3051,7 +3099,7 @@ class FileExport(Novel):
 
             sceneCount = 0
             notExportCount = 0
-            doNotExportChapter = False
+            doNotExport = False
 
             for scId in self.chapters[chId].srtScenes:
                 sceneCount += 1
@@ -3060,7 +3108,7 @@ class FileExport(Novel):
                     notExportCount += 1
 
             if sceneCount > 0 and notExportCount == sceneCount:
-                doNotExportChapter = True
+                doNotExport = True
 
             if self.chapters[chId].chType == 2:
 
@@ -3088,7 +3136,7 @@ class FileExport(Novel):
                 else:
                     continue
 
-            elif doNotExportChapter:
+            elif doNotExport:
 
                 if self.notExportedChapterTemplate != '':
                     template = Template(self.notExportedChapterTemplate)
@@ -3105,64 +3153,14 @@ class FileExport(Novel):
 
             lines.append(template.safe_substitute(
                 self.get_chapterMapping(chId, chapterNumber)))
-            firstSceneInChapter = True
 
-            for scId in self.chapters[chId].srtScenes:
-                wordsTotal += self.scenes[scId].wordCount
-                lettersTotal += self.scenes[scId].letterCount
+            # Process scenes.
 
-                # The order counts; be aware that "Todo" and "Notes" scenes are
-                # always unused.
+            sceneLines, sceneNumber, wordsTotal, lettersTotal = self.get_scenes(
+                chId, sceneNumber, wordsTotal, lettersTotal, doNotExport)
+            lines.extend(sceneLines)
 
-                if self.scenes[scId].isTodoScene:
-
-                    if self.todoSceneTemplate != '':
-                        template = Template(self.todoSceneTemplate)
-
-                    else:
-                        continue
-
-                elif self.scenes[scId].isNotesScene or self.chapters[chId].oldType == 1:
-                    # Scene is "Notes" (new file format) or "Info" (old file
-                    # format) scene.
-
-                    if self.notesSceneTemplate != '':
-                        template = Template(self.notesSceneTemplate)
-
-                    else:
-                        continue
-
-                elif self.scenes[scId].isUnused or self.chapters[chId].isUnused:
-
-                    if self.unusedSceneTemplate != '':
-                        template = Template(self.unusedSceneTemplate)
-
-                    else:
-                        continue
-
-                elif self.scenes[scId].doNotExport or doNotExportChapter:
-
-                    if self.notExportedSceneTemplate != '':
-                        template = Template(self.notExportedSceneTemplate)
-
-                    else:
-                        continue
-
-                else:
-                    sceneNumber += 1
-
-                    template = Template(self.sceneTemplate)
-
-                    if not firstSceneInChapter and self.scenes[scId].appendToPrev and self.appendedSceneTemplate != '':
-                        template = Template(self.appendedSceneTemplate)
-
-                if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
-                    lines.append(self.sceneDivider)
-
-                lines.append(template.safe_substitute(self.get_sceneMapping(
-                    scId, sceneNumber, wordsTotal, lettersTotal)))
-
-                firstSceneInChapter = False
+            # Process chapter ending.
 
             if self.chapters[chId].chType == 2 and self.todoChapterEndTemplate != '':
                 lines.append(self.todoChapterEndTemplate)
@@ -3175,28 +3173,69 @@ class FileExport(Novel):
             elif self.chapters[chId].isUnused and self.unusedChapterEndTemplate != '':
                 lines.append(self.unusedChapterEndTemplate)
 
-            elif doNotExportChapter and self.notExportedChapterEndTemplate != '':
+            elif doNotExport and self.notExportedChapterEndTemplate != '':
                 lines.append(self.notExportedChapterEndTemplate)
 
             elif self.chapterEndTemplate != '':
                 lines.append(self.chapterEndTemplate)
 
+        return lines
+
+    def get_characters(self):
+        """Process the characters.
+        Return a list of strings.
+        """
+        lines = []
+        template = Template(self.characterTemplate)
+
         for crId in self.srtCharacters:
-            template = Template(self.characterTemplate)
             lines.append(template.safe_substitute(
                 self.get_characterMapping(crId)))
 
+        return lines
+
+    def get_locations(self):
+        """Process the locations.
+        Return a list of strings.
+        """
+        lines = []
+        template = Template(self.locationTemplate)
+
         for lcId in self.srtLocations:
-            template = Template(self.locationTemplate)
             lines.append(template.safe_substitute(
                 self.get_locationMapping(lcId)))
 
+        return lines
+
+    def get_items(self):
+        """Process the items.
+        Return a list of strings.
+        """
+        lines = []
+        template = Template(self.itemTemplate)
+
         for itId in self.srtItems:
-            template = Template(self.itemTemplate)
             lines.append(template.safe_substitute(self.get_itemMapping(itId)))
 
+        return lines
+
+    def get_text(self):
+        """Assemple the whole text applying the templates.
+        Return a string to be written to the output file.
+        """
+        lines = self.get_fileHeader()
+        lines.extend(self.get_chapters())
+        lines.extend(self.get_characters())
+        lines.extend(self.get_locations())
+        lines.extend(self.get_items())
         lines.append(self.fileFooter)
-        text = ''.join(lines)
+        return ''.join(lines)
+
+    def write(self):
+        """Create a template-based output file. 
+        Return a message string starting with 'SUCCESS' or 'ERROR'.
+        """
+        text = self.get_text()
 
         try:
             with open(self.filePath, 'w', encoding='utf-8') as f:
@@ -5126,6 +5165,397 @@ class OdtLocations(OdtFile):
             locationMapping['AKA'] = ' ("' + self.locations[lcId].aka + '")'
 
         return locationMapping
+from string import Template
+
+
+
+class CrossReferences():
+
+    def __init__(self):
+        # Cross reference dictionaries:
+
+        self.scnPerChr = {}
+        # dict
+        # key = character ID, value: list of scene IDs
+        # Scenes per character
+
+        self.scnPerLoc = {}
+        # dict
+        # key = location ID, value: list of scene IDs
+        # Scenes per location
+
+        self.scnPerItm = {}
+        # dict
+        # key = item ID, value: list of scene IDs
+        # Scenes per item
+
+        self.scnPerTag = {}
+        # dict
+        # key = tag, value: list of scene IDs
+        # Scenes per tag
+
+        self.chrPerTag = {}
+        # dict
+        # key = tag, value: list of character IDs
+        # Characters per tag
+
+        self.locPerTag = {}
+        # dict
+        # key = tag, value: list of location IDs
+        # Locations per tag
+
+        self.itmPerTag = {}
+        # dict
+        # key = tag, value: list of item IDs
+        # Items per tag
+
+        self.chpPerScn = {}
+        # dict
+        # key = scene ID, value: chapter ID
+        # Chapter to which the scene belongs
+
+        self.srtScenes = None
+        # list of str
+        # scene IDs in the overall order
+
+    def generate_xref(self, novel):
+        """Generate cross references
+        """
+        self.scnPerChr = {}
+        self.scnPerLoc = {}
+        self.scnPerItm = {}
+        self.scnPerTag = {}
+        self.chrPerTag = {}
+        self.locPerTag = {}
+        self.itmPerTag = {}
+        self.chpPerScn = {}
+        self.srtScenes = []
+
+        # Characters per tag:
+
+        for crId in novel.srtCharacters:
+            self.scnPerChr[crId] = []
+
+            if novel.characters[crId].tags:
+
+                for tag in novel.characters[crId].tags:
+
+                    if not tag in self.chrPerTag:
+                        self.chrPerTag[tag] = []
+
+                    self.chrPerTag[tag].append(crId)
+
+        # Locations per tag:
+
+        for lcId in novel.srtLocations:
+            self.scnPerLoc[lcId] = []
+
+            if novel.locations[lcId].tags:
+
+                for tag in novel.locations[lcId].tags:
+
+                    if not tag in self.locPerTag:
+                        self.locPerTag[tag] = []
+
+                    self.locPerTag[tag].append(lcId)
+
+        # Items per tag:
+
+        for itId in novel.srtItems:
+            self.scnPerItm[itId] = []
+
+            if novel.items[itId].tags:
+
+                for tag in novel.items[itId].tags:
+
+                    if not tag in self.itmPerTag:
+                        self.itmPerTag[tag] = []
+
+                    self.itmPerTag[tag].append(itId)
+
+        for chId in novel.srtChapters:
+
+            for scId in novel.chapters[chId].srtScenes:
+                self.srtScenes.append(scId)
+                self.chpPerScn[scId] = chId
+
+                # Scenes per character:
+
+                if novel.scenes[scId].characters:
+
+                    for crId in novel.scenes[scId].characters:
+                        self.scnPerChr[crId].append(scId)
+
+                # Scenes per location:
+
+                if novel.scenes[scId].locations:
+
+                    for lcId in novel.scenes[scId].locations:
+                        self.scnPerLoc[lcId].append(scId)
+
+                # Scenes per item:
+
+                if novel.scenes[scId].items:
+
+                    for itId in novel.scenes[scId].items:
+                        self.scnPerItm[itId].append(scId)
+
+                # Scenes per tag:
+
+                if novel.scenes[scId].tags:
+
+                    for tag in novel.scenes[scId].tags:
+
+                        if not tag in self.scnPerTag:
+                            self.scnPerTag[tag] = []
+
+                        self.scnPerTag[tag].append(scId)
+
+
+class OdtXref(OdtFile):
+    """OpenDocument xml cross reference file representation.
+    """
+
+    DESCRIPTION = 'Cross reference'
+    SUFFIX = '_xref'
+
+    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+<text:p text:style-name="Subtitle">$AuthorName</text:p>
+'''
+    sceneTemplate = '''<text:p text:style-name="yWriter_20_mark">
+<text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">$SceneNumber</text:a> (Ch $Chapter) $Title
+</text:p>
+'''
+    unusedSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_unused">
+$SceneNumber (Ch $Chapter) $Title (Unused)
+</text:p>
+'''
+    notesSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_notes">
+$SceneNumber (Ch $Chapter) $Title (Notes)
+</text:p>
+'''
+    todoSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">
+$SceneNumber (Ch $Chapter) $Title (ToDo)
+</text:p>
+'''
+    characterTemplate = '''<text:p text:style-name="Text_20_body">
+<text:a xlink:href="../${ProjectName}_characters.odt#CrID:$ID%7Cregion">$Title</text:a> $FullName
+</text:p>
+'''
+    locationTemplate = '''<text:p text:style-name="Text_20_body">
+<text:a xlink:href="../${ProjectName}_locations.odt#LcID:$ID%7Cregion">$Title</text:a>
+</text:p>
+'''
+    itemTemplate = '''<text:p text:style-name="Text_20_body">
+<text:a xlink:href="../${ProjectName}_items.odt#ItrID:$ID%7Cregion">$Title</text:a>
+</text:p>
+'''
+    scnPerChrTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Scenes with Character $Title:</text:h>
+'''
+    scnPerLocTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Scenes with Location $Title:</text:h>
+'''
+    scnPerItmTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Scenes with Item $Title:</text:h>
+'''
+    chrPerTagTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Characters tagged $Tag:</text:h>
+'''
+    locPerTagTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Locations tagged $Tag:</text:h>
+'''
+    itmPerTagTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Items tagged $Tag:</text:h>
+'''
+    scnPerTagtemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Scenes tagged $Tag:</text:h>
+'''
+    fileFooter = OdtFile.CONTENT_XML_FOOTER
+
+    def __init__(self, filePath):
+        """Apply the strategy pattern 
+        by delegating the cross reference to an external object.
+        """
+        OdtFile.__init__(self, filePath)
+        self.xr = CrossReferences()
+
+    def get_sceneMapping(self, scId):
+        """Add the chapter number to the original mapping dictionary.
+        """
+        sceneNumber = self.xr.srtScenes.index(scId) + 1
+        sceneMapping = OdtFile.get_sceneMapping(self, scId, sceneNumber, 0, 0)
+        chapterNumber = self.srtChapters.index(self.xr.chpPerScn[scId]) + 1
+        sceneMapping['Chapter'] = str(chapterNumber)
+        return sceneMapping
+
+    def get_tagMapping(self, tag):
+        """Return a mapping dictionary for a tags section. 
+        """
+        tagMapping = dict(
+            Tag=tag,
+        )
+        return tagMapping
+
+    def get_scenes(self, scenes):
+        """Process the scenes.
+        Return a list of strings.
+        """
+        lines = []
+
+        for scId in scenes:
+
+            if self.scenes[scId].isNotesScene:
+                template = Template(self.notesSceneTemplate)
+
+            elif self.scenes[scId].isTodoScene:
+                template = Template(self.todoSceneTemplate)
+
+            elif self.scenes[scId].isUnused:
+                template = Template(self.unusedSceneTemplate)
+
+            else:
+                template = Template(self.sceneTemplate)
+
+            lines.append(template.safe_substitute(
+                self.get_sceneMapping(scId)))
+
+        return lines
+
+    def get_sceneTags(self):
+        """Process the scene related tags.
+        Return a list of strings.
+        """
+        lines = []
+        headerTemplate = Template(self.scnPerTagtemplate)
+        template = Template(self.sceneTemplate)
+
+        for tag in self.xr.scnPerTag:
+
+            if self.xr.scnPerTag[tag] != []:
+                lines.append(headerTemplate.safe_substitute(
+                    self.get_tagMapping(tag)))
+                lines.extend(self.get_scenes(self.xr.scnPerTag[tag]))
+
+        return lines
+
+    def get_characters(self):
+        """Process the scenes per character.
+        Return a list of strings.
+        """
+        lines = []
+        headerTemplate = Template(self.scnPerChrTemplate)
+
+        for crId in self.xr.scnPerChr:
+
+            if self.xr.scnPerChr[crId] != []:
+                lines.append(headerTemplate.safe_substitute(
+                    self.get_characterMapping(crId)))
+                lines.extend(self.get_scenes(self.xr.scnPerChr[crId]))
+
+        return lines
+
+    def get_locations(self):
+        """Process the locations.
+        Return a list of strings.
+        """
+        lines = []
+        headerTemplate = Template(self.scnPerLocTemplate)
+
+        for lcId in self.xr.scnPerLoc:
+
+            if self.xr.scnPerLoc[lcId] != []:
+                lines.append(headerTemplate.safe_substitute(
+                    self.get_locationMapping(lcId)))
+                lines.extend(self.get_scenes(self.xr.scnPerLoc[lcId]))
+
+        return lines
+
+    def get_items(self):
+        """Process the items.
+        Return a list of strings.
+        """
+        lines = []
+        headerTemplate = Template(self.scnPerItmTemplate)
+
+        for itId in self.xr.scnPerItm:
+
+            if self.xr.scnPerItm[itId] != []:
+                lines.append(headerTemplate.safe_substitute(
+                    self.get_itemMapping(itId)))
+                lines.extend(self.get_scenes(self.xr.scnPerItm[itId]))
+
+        return lines
+
+    def get_characterTags(self):
+        """Process the character related tags.
+        Return a list of strings.
+        """
+        lines = []
+        headerTemplate = Template(self.chrPerTagTemplate)
+        template = Template(self.characterTemplate)
+
+        for tag in self.xr.chrPerTag:
+
+            if self.xr.chrPerTag[tag] != []:
+                lines.append(headerTemplate.safe_substitute(
+                    self.get_tagMapping(tag)))
+
+                for crId in self.xr.chrPerTag[tag]:
+                    lines.append(template.safe_substitute(
+                        self.get_characterMapping(crId)))
+
+        return lines
+
+    def get_locationTags(self):
+        """Process the location related tags.
+        Return a list of strings.
+        """
+        lines = []
+        headerTemplate = Template(self.locPerTagTemplate)
+        template = Template(self.locationTemplate)
+
+        for tag in self.xr.locPerTag:
+
+            if self.xr.locPerTag[tag]:
+                lines.append(headerTemplate.safe_substitute(
+                    self.get_tagMapping(tag)))
+
+                for lcId in self.xr.locPerTag[tag]:
+                    lines.append(template.safe_substitute(
+                        self.get_locationMapping(lcId)))
+
+        return lines
+
+    def get_itemTags(self):
+        """Process the item related tags.
+        Return a list of strings.
+        """
+        lines = []
+        headerTemplate = Template(self.itmPerTagTemplate)
+        template = Template(self.itemTemplate)
+
+        for tag in self.xr.itmPerTag:
+
+            if self.xr.itmPerTag[tag] != []:
+                lines.append(headerTemplate.safe_substitute(
+                    self.get_tagMapping(tag)))
+
+                for itId in self.xr.itmPerTag[tag]:
+                    lines.append(template.safe_substitute(
+                        self.get_itemMapping(itId)))
+
+        return lines
+
+    def get_text(self):
+        """Apply the template method pattern
+        by overwriting a method called during the file export process.
+        """
+        self.xr.generate_xref(self)
+
+        lines = self.get_fileHeader()
+        lines.extend(self.get_characters())
+        lines.extend(self.get_locations())
+        lines.extend(self.get_items())
+        lines.extend(self.get_sceneTags())
+        lines.extend(self.get_characterTags())
+        lines.extend(self.get_locationTags())
+        lines.extend(self.get_itemTags())
+        lines.append(self.fileFooter)
+        return ''.join(lines)
 
 
 
@@ -6123,10 +6553,10 @@ class CsvPlotList(CsvFile):
         '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4
 '''
 
-    def get_projectTemplateMapping(self):
+    def get_fileHeaderMapping(self):
         """Return a mapping dictionary for the project section. 
         """
-        projectTemplateMapping = CsvFile.get_projectTemplateMapping(self)
+        projectTemplateMapping = CsvFile.get_fileHeaderMapping(self)
 
         charList = []
 
@@ -7295,10 +7725,10 @@ class OdsPlotList(OdsFile):
 
     fileFooter = OdsFile.CONTENT_XML_FOOTER
 
-    def get_projectTemplateMapping(self):
+    def get_fileHeaderMapping(self):
         """Return a mapping dictionary for the project section. 
         """
-        projectTemplateMapping = OdsFile.get_projectTemplateMapping(self)
+        projectTemplateMapping = OdsFile.get_fileHeaderMapping(self)
 
         charList = []
 
@@ -7446,6 +7876,9 @@ class UniversalFileFactory(FileFactory):
             elif suffix == OdtItems.SUFFIX:
                 targetFile = OdtItems(fileName + suffix + OdtItems.EXTENSION)
 
+            elif suffix == OdtXref.SUFFIX:
+                targetFile = OdtXref(fileName + suffix + OdtXref.EXTENSION)
+
             elif suffix == OdsSceneList.SUFFIX:
                 targetFile = OdsSceneList(
                     fileName + suffix + OdsSceneList.EXTENSION)
@@ -7497,6 +7930,9 @@ class UniversalFileFactory(FileFactory):
 
             elif sourcePath.endswith(HtmlItems.SUFFIX + HtmlItems.EXTENSION):
                 sourceFile = HtmlItems(sourcePath)
+
+            if (OdtXref.SUFFIX + '.' in sourcePath):
+                return 'ERROR: Cross references are not meant to be written back.', None, None
 
             elif sourcePath.endswith('.html'):
 
@@ -8001,6 +8437,12 @@ def get_itemdesc(*args):
     '''Import item descriptions from yWriter 6/7 to a Writer document.
     '''
     open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
+
+
+def get_xref(*args):
+    '''Generate cross references from yWriter 6/7 to a Writer document.
+    '''
+    open_yw7(OdtXref.SUFFIX, OdtXref.EXTENSION)
 
 
 def get_scenelist(*args):

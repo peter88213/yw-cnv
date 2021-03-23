@@ -46,6 +46,17 @@ Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 
 
 You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.
 
+### Cross references
+
+An OpenDocument text file containing navigable cross references:
+
+* Scenes per character,
+* scenes per location,
+* scenes per item,
+* scenes per tag, 
+* characters per tag, 
+* locations per tag, 
+* items per tag.
 
 ### Create a new yw7 project 
 
