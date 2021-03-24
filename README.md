@@ -100,7 +100,7 @@ An outline has at least one third level heading.
 
 ## Requirements
 
-* LibreOffice 5.4 or more recent.
+* LibreOffice 5.4 or more recent. LibreOffice 7 is highly recommended.
 * Java Runtime Environment (LibreOffice might need it for macro execution).
 
 ## Credits

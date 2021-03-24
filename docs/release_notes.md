@@ -4,8 +4,11 @@
 * If no additional "yWriter Import/Export" submenu shows up in the "Files" menu, please look at the "Tools" > "Extensions" menu.
 
 ## Requirements
+ 
+__Please note:__  _This extension can not be installed on OpenOffice. An OpenOffice variant can be found here: https://github.com/peter88213/pywoo_
 
-* LibreOffice 5.4 or more recent.  __Please note:__  _This extension can not be installed on OpenOffice. An OpenOffice variant can be found here: https://github.com/peter88213/pywoo_
+* LibreOffice 5.4 or more recent. LibreOffice 7 is highly recommended.
+* Java Runtime Environment (LibreOffice might need it for macro execution).
 
 ## Changelog
 
