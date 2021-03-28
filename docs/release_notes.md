@@ -1,3 +1,5 @@
+## Download and install
+
 * Download the `.oxt` file (Scroll down this page to _Assets_).
 * Install it either by double-clicking or using the LibreOffice extension manager. Instructions can be found here: https://wiki.documentfoundation.org/Documentation/HowTo/install_extension
 * After installation (and Office restart) you find a new "yWriter Import/Export" submenu in the "Files" menu.
