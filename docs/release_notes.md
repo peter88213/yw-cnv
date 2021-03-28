@@ -7,7 +7,7 @@
 
 ## Requirements
  
-__Please note:__  _This extension can not be installed on OpenOffice. An OpenOffice variant can be found here: https://github.com/peter88213/pywoo_
+__Please note:__  _This extension can not be installed on OpenOffice. An OpenOffice variant can be found [here]( https://peter88213.github.io/pywoo)._
 
 * LibreOffice 5.4 or more recent. LibreOffice 7 is highly recommended.
 * Java Runtime Environment (LibreOffice might need it for macro execution).
