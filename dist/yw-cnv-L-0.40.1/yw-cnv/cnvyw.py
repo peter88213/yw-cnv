@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.40.0
+Version 0.40.1
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -524,6 +524,17 @@ class YwFile(Novel):
     To be overwritten by version-specific subclasses. 
     """
 
+    def strip_spaces(self, elements):
+        """remove leading and trailing spaces from the elements
+        of a list of strings.
+        """
+        stripped = []
+
+        for element in elements:
+            stripped.append(element.lstrip().rstrip())
+
+        return stripped
+
     def read(self):
         """Parse the yWriter xml file located at filePath, fetching the Novel attributes.
         Return a message beginning with SUCCESS or ERROR.
@@ -559,8 +570,8 @@ class YwFile(Novel):
             if loc.find('Tags') is not None:
 
                 if loc.find('Tags').text is not None:
-                    self.locations[lcId].tags = loc.find(
-                        'Tags').text.split(';')
+                    tags = loc.find('Tags').text.split(';')
+                    self.locations[lcId].tags = self.strip_spaces(tags)
 
         # Read items from the xml element tree.
 
@@ -582,8 +593,8 @@ class YwFile(Novel):
             if itm.find('Tags') is not None:
 
                 if itm.find('Tags').text is not None:
-                    self.items[itId].tags = itm.find(
-                        'Tags').text.split(';')
+                    tags = itm.find('Tags').text.split(';')
+                    self.items[itId].tags = self.strip_spaces(tags)
 
         # Read characters from the xml element tree.
 
@@ -605,8 +616,8 @@ class YwFile(Novel):
             if crt.find('Tags') is not None:
 
                 if crt.find('Tags').text is not None:
-                    self.characters[crId].tags = crt.find(
-                        'Tags').text.split(';')
+                    tags = crt.find('Tags').text.split(';')
+                    self.characters[crId].tags = self.strip_spaces(tags)
 
             if crt.find('Notes') is not None:
                 self.characters[crId].notes = crt.find('Notes').text
@@ -786,8 +797,8 @@ class YwFile(Novel):
             if scn.find('Tags') is not None:
 
                 if scn.find('Tags').text is not None:
-                    self.scenes[scId].tags = scn.find(
-                        'Tags').text.split(';')
+                    tags = scn.find('Tags').text.split(';')
+                    self.scenes[scId].tags = self.strip_spaces(tags)
 
             if scn.find('Field1') is not None:
                 self.scenes[scId].field1 = scn.find('Field1').text
@@ -2702,7 +2713,6 @@ class FileExport(Novel):
     To be overwritten by subclasses providing file type specific 
     markup converters and templates.
     """
-
     fileHeader = ''
     partTemplate = ''
     chapterTemplate = ''
@@ -2725,6 +2735,28 @@ class FileExport(Novel):
     locationTemplate = ''
     itemTemplate = ''
     fileFooter = ''
+
+    def get_string(self, elements):
+        """Return a string which is the concatenation of the 
+        members of the list of strings "elements", separated by 
+        a comma plus a space. The space allows word wrap in 
+        spreadsheet cells.
+        """
+        text = (', ').join(elements)
+        return text
+
+    def get_list(self, text):
+        """Split a sequence of strings into a list of strings
+        using a comma as delimiter. Remove leading and trailing
+        spaces, if any.
+        """
+        elements = []
+        tempList = text.split(',')
+
+        for element in tempList:
+            elements.append(element.lstrip().rstrip())
+
+        return elements
 
     def convert_from_yw(self, text):
         """Convert yw7 markup to target format.
@@ -2838,7 +2870,7 @@ class FileExport(Novel):
         """
 
         if self.scenes[scId].tags is not None:
-            tags = ', '.join(self.scenes[scId].tags)
+            tags = self.get_string(self.scenes[scId].tags)
 
         else:
             tags = ''
@@ -2851,7 +2883,7 @@ class FileExport(Novel):
             for chId in self.scenes[scId].characters:
                 sChList.append(self.characters[chId].title)
 
-            sceneChars = ', '.join(sChList)
+            sceneChars = self.get_string(sChList)
             viewpointChar = sChList[0]
 
         except:
@@ -2864,7 +2896,7 @@ class FileExport(Novel):
             for lcId in self.scenes[scId].locations:
                 sLcList.append(self.locations[lcId].title)
 
-            sceneLocs = ', '.join(sLcList)
+            sceneLocs = self.get_string(sLcList)
 
         else:
             sceneLocs = ''
@@ -2875,7 +2907,7 @@ class FileExport(Novel):
             for itId in self.scenes[scId].items:
                 sItList.append(self.items[itId].title)
 
-            sceneItems = ', '.join(sItList)
+            sceneItems = self.get_string(sItList)
 
         else:
             sceneItems = ''
@@ -2934,7 +2966,7 @@ class FileExport(Novel):
         """
 
         if self.characters[crId].tags is not None:
-            tags = ', '.join(self.characters[crId].tags)
+            tags = self.get_string(self.characters[crId].tags)
 
         else:
             tags = ''
@@ -2967,7 +2999,7 @@ class FileExport(Novel):
         """
 
         if self.locations[lcId].tags is not None:
-            tags = ', '.join(self.locations[lcId].tags)
+            tags = self.get_string(self.locations[lcId].tags)
 
         else:
             tags = ''
@@ -2988,7 +3020,7 @@ class FileExport(Novel):
         """
 
         if self.items[itId].tags is not None:
-            tags = ', '.join(self.items[itId].tags)
+            tags = self.get_string(self.items[itId].tags)
 
         else:
             tags = ''
@@ -6269,9 +6301,6 @@ class CsvFile(FileExport):
     _SEPARATOR = '|'
     # delimits data fields within a record.
 
-    _LIST_SEPARATOR = ','
-    # delimits items listed within a data field
-
     CSV_REPLACEMENTS = []
 
     def convert_from_yw(self, text):
@@ -6402,7 +6431,7 @@ class CsvSceneList(CsvFile):
                 i += 1
                 self.scenes[scId].desc = self.convert_to_yw(cells[i])
                 i += 1
-                self.scenes[scId].tags = cells[i].split(self._LIST_SEPARATOR)
+                self.scenes[scId].tags = self.get_list(cells[i])
                 i += 1
                 self.scenes[scId].sceneNotes = self.convert_to_yw(cells[i])
                 i += 1
@@ -6473,7 +6502,7 @@ class CsvSceneList(CsvFile):
 
                 i += 1
                 ''' Cannot write back character IDs, because self.characters is None
-                charaNames = cells[i].split(self._LIST_SEPARATOR)
+                charaNames = self.get_list(cells[i])
                 self.scenes[scId].characters = []
 
                 for charaName in charaNames:
@@ -6485,7 +6514,7 @@ class CsvSceneList(CsvFile):
                 '''
                 i += 1
                 ''' Cannot write back location IDs, because self.locations is None
-                locaNames = cells[i].split(self._LIST_SEPARATOR)
+                locaNames = self.get_list(cells[i])
                 self.scenes[scId].locations = []
 
                 for locaName in locaNames:
@@ -6497,7 +6526,7 @@ class CsvSceneList(CsvFile):
                 '''
                 i += 1
                 ''' Cannot write back item IDs, because self.items is None
-                itemNames = cells[i].split(self._LIST_SEPARATOR)
+                itemNames = self.get_list(cells[i])
                 self.scenes[scId].items = []
 
                 for itemName in itemNames:
@@ -6637,7 +6666,7 @@ class CsvPlotList(CsvFile):
             if 'ScID:' in cells[0]:
                 scId = re.search('ScID\:([0-9]+)', cells[0]).group(1)
                 self.scenes[scId] = Scene()
-                self.scenes[scId].tags = cells[2].split(self._LIST_SEPARATOR)
+                self.scenes[scId].tags = self.get_list(cells[2])
                 self.scenes[scId].title = cells[3]
                 self.scenes[scId].sceneNotes = self.convert_to_yw(cells[4])
 
@@ -6730,7 +6759,7 @@ class CsvCharList(CsvFile):
                 else:
                     self.characters[crId].isMajor = False
 
-                self.characters[crId].tags = cells[8].split(';')
+                self.characters[crId].tags = self.get_list(cells[8])
                 self.characters[crId].notes = self.convert_to_yw(cells[9])
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
@@ -6782,7 +6811,7 @@ class CsvLocList(CsvFile):
                 self.locations[lcId].title = cells[1]
                 self.locations[lcId].desc = self.convert_to_yw(cells[2])
                 self.locations[lcId].aka = cells[3]
-                self.locations[lcId].tags = cells[4].split(';')
+                self.locations[lcId].tags = self.get_list(cells[4])
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
@@ -6832,7 +6861,7 @@ class CsvItemList(CsvFile):
                 self.items[itId].title = cells[1]
                 self.items[itId].desc = self.convert_to_yw(cells[2])
                 self.items[itId].aka = cells[3]
-                self.items[itId].tags = cells[4].split(';')
+                self.items[itId].tags = self.get_list(cells[4])
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
