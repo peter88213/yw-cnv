@@ -4,87 +4,21 @@
 
 ## Features
 
-### Import from yw6/7 project 
+* Generate a "standard manuscript" formatted  __ODF text document (ODT)__  from an yWriter 6/7 project.
 
-Generate a "standard manuscript" formatted OpenDocument textfile from a yWriter 6/7 project.
+* Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers for  __proof reading__  and writing back. 
 
-* The document is placed in the same folder as the yWriter project.
-* Document's filename: `<yW project name>.odt`.
-* Only "used" chapters and scenes will be imported.
-* Regular chapter headings are assigned the paragraph style _Heading 2_ .
-* Headings of chapters beginning a new section are assigned the paragraph style _Heading 1_ .
-* The first paragraph of each scene is formatted as _Text body_ , all further paragraphs as _First line indent_ . 
-* Text markup: Bold and italics are supported. Other formatting such as underline, strikethrough, alignment, or colored highlighting are lost.
-* yWriter's project variables and global variables are not supported.
-* Scene titles are converted to navigable comments. 
-* Text passages embraced in slashes and asterisks like `/* this is a comment */` are converted to author's comments.
+* Generate a  __character list__  that can be edited in Office Calc and written back to yWriter format.
 
+* Generate a  __location list__  that can be edited in Office Calc and written back to yWriter format.
 
-### Proof reading
+* Generate an  __item list__  that can be edited in Office Calc and written back to yWriter format.
 
-#### Load yWriter 6/7 chapters and scenes into an OpenDocument file with chapter and scene markers. 
+* Generate an OpenDocument text file containing navigable  __cross references__ , such as scenes per character, characters per tag, etc.
 
-* Please consider the following conventions:
-    * Text markup: Bold and italics are supported. Other formatting such as underline, strikethrough, alignment, or colored highlighting are lost.
-    * All chapters and scenes will be exported, whether "used" or "unused".
-    
-* Back up your yWriter project and close yWriter before.
-* The proof read document is placed in the same folder as the yWriter project.
-* Document's filename: `<yW project name>_proof.odt`.
-* The document contains chapter `[ChID:x]` and scene `[ScID:y]` markers according to yWriter 5 standard.  __Do not touch lines containing the markers__  if you want to be able to reimport the document into yWriter.
+* Generate a new yWriter 7 project from a  __work in progress__  or an  __outline__ .
 
-#### Write back the proofread scenes to the yWriter 6/7 project file.
-
-* The yWriter 6/7 project to rewrite must exist in the same folder as the document.
-* If both yw6 and yw7 project files exist, yw7 is rewritten. 
-
-### World building lists
-
-* Character lists that can be edited in Office Calc and written back to yWriter format.
-* Location lists that can be edited in Office Calc and written back to yWriter format.
-* Item lists that can be edited in Office Calc and written back to yWriter format.
-
-You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.
-
-### Cross references
-
-An OpenDocument text file containing navigable cross references:
-
-* Scenes per character,
-* scenes per location,
-* scenes per item,
-* scenes per tag, 
-* characters per tag, 
-* locations per tag, 
-* items per tag.
-
-### Create a new yw7 project 
-
-Generate a new yWriter 7 project from a work in progress or an outline.
-
-* The new yWriter project is placed in the same folder as the document.
-* yWriter project's filename: `<document name>.yw7`.
-* Existing yWriter 7 projects will not be overwritten.
-
-
-#### Formatting a work in progress
-
-A work in progress has no third level heading.
-
-* _Heading 1_  -->  New chapter title (beginning a new section).
-* _Heading 2_  -->  New chapter title.
-* `* * *`  -->  Scene divider (not needed for the first scenes in a chapter).
-* All other text is considered to be scene content.
-
-#### Formatting an outline
-
-An outline has at least one third level heading.
-
-* _Heading 1_  -->  New chapter title (beginning a new section).
-* _Heading 2_  -->  New chapter title.
-* _Heading 3_  -->  New scene title.
-* All other text is considered to be chapter/scene description.
-
+You can find more information in the [help text](https://raw.githubusercontent.com/peter88213/yw-cnv/master/oxt/help/help.html).
 
 ## Download and install
 
