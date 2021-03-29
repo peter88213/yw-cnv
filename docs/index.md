@@ -26,6 +26,13 @@
 
 You can find more information in the [help text](help/help.html).
 
+## Requirements
+
+-   [LibreOffice](https://www.libreoffice.org/) version 5.4 or more 
+    recent. LibreOffice 7 is highly recommended.
+-   Java Runtime Environment (LibreOffice might need it for macro
+    execution).
+
 ## Download and install {#download}
 
 [Download page](https://github.com/peter88213/yw-cnv/releases/latest)
@@ -43,12 +50,6 @@ You can find more information in the [help text](help/help.html).
     "Files" menu, please look at the "Tools" > "Extensions" menu.
 
 [Changelog](changelog)
-
-## Requirements
-
--   LibreOffice 5.4 or more recent. LibreOffice 7 is highly recommended.
--   Java Runtime Environment (LibreOffice might need it for macro
-    execution).
 
 ## Credits
 
