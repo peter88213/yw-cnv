@@ -81,8 +81,11 @@ Based on PyWriter v2.9.0
 ### v0.34.0
 
 Delete the temporary file unconditionally after execution. Process all
-yWriter formatting tags. \* Convert underline and strikethrough. \*
-Discard alignment. \* Discard highlighting.
+yWriter formatting tags.
+
+- Convert underline and strikethrough. 
+- Discard alignment. 
+- Discard highlighting.
 
 Based on PyWriter v2.8.0
 
@@ -126,14 +129,17 @@ Based on PyWriter v2.5.1
 
 ### v0.30.0
 
-Adapt to modified yw7 file format (yWriter 7.0.7.2+): \* "Info"
-chapters are replaced by "Notes" chapters (always unused). \* New
-"Todo" chapter type (always unused). \* Distinguish between "Notes
-scene", "Todo scene" and "Unused scene". \* Chapter/scene tag
-colors in "proofread" export correspond to those of the yWriter
-chapter list.
+Adapt to modified yw7 file format (yWriter 7.0.7.2+): 
 
-Bugfix: \* Suppress chapter title if required.
+- "Info" chapters are replaced by "Notes" chapters (always unused). 
+- New "Todo" chapter type (always unused). 
+- Distinguish between "Notes scene", "Todo scene" and "Unused scene". 
+- Chapter/scene tag colors in "proofread" export correspond to those of the 
+  yWriter chapter list.
+
+Bugfix: 
+
+- Suppress chapter title if required.
 
 Based on PyWriter v2.2.0
 
