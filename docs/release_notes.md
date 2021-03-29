@@ -14,4 +14,4 @@ __Please note:__  _This extension can not be installed on OpenOffice. An OpenOff
 
 ## Changelog
 
-[https://peter88213.github.io/yw-cnv/changelog.html](https://peter88213.github.io/yw-cnv/changelog.html).
+[https://peter88213.github.io/yw-cnv/changelog](https://peter88213.github.io/yw-cnv/changelog).
