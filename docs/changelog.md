@@ -156,7 +156,7 @@ Adapt to yWriter 7.0.4.9 Beta: Don't replace dashes any longer by
 ### v0.29.4
 
 Rewrite large parts of the code (PyWriter library v2.1.0). Support
-author's comments: Text /\* commented out \*/ in yWriter scenes is
+author's comments: Text `/* commented out */` in yWriter scenes is
 exported as comment and vice versa.
 
 ### v0.28.2
