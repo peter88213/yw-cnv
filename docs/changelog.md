@@ -4,23 +4,23 @@
 
 ### v0.40.1 Improve the processing of comma-separated lists
 
--   Fix incorrectly defined tags during yWriter import.
--   Protect the processing of comma-separated lists against wrongly set
-    blanks.
--   Update HTML help and documentation.
+- Fix incorrectly defined tags during yWriter import.
+- Protect the processing of comma-separated lists against wrongly set
+  blanks.
+- Update HTML help and documentation.
 
 ### v0.40.0 Export cross references
 
 Generate an OpenDocument text file containing navigable cross
 references:
 
--   Scenes per character,
--   scenes per location,
--   scenes per item,
--   scenes per tag,
--   characters per tag,
--   locations per tag,
--   items per tag.
+- Scenes per character,
+- scenes per location,
+- scenes per item,
+- scenes per tag,
+- characters per tag,
+- locations per tag,
+- items per tag.
 
 ### v0.38.0 Add advanced features to the "Files" menu
 
@@ -33,19 +33,19 @@ up the IDs in the ods tables.
 
 Export files with invisible markers (to be written back after editing):
 
--   Manuscript with invisible chapter and scene sections.
--   Very brief synopsis (Part descriptions): Titles and descriptions of
-    chapters "beginning a new section".
--   Brief synopsis (Chapter descriptions): Chapter titles and chapter
-    descriptions.
--   Full synopsis (Scene descriptions): Chapter titles and scene
-    descriptions.
--   Character sheet: Character descriptions, bio and goals.
--   Location sheet: Location descriptions.
--   Item sheet: Item descriptions.
--   Scene list: Spreadsheet with all scene metadata.
--   Plot list: Spreadsheet with scene metadata following conventions
-    described in the help text.
+- Manuscript with invisible chapter and scene sections.
+- Very brief synopsis (Part descriptions): Titles and descriptions of
+  chapters "beginning a new section".
+- Brief synopsis (Chapter descriptions): Chapter titles and chapter
+  descriptions.
+- Full synopsis (Scene descriptions): Chapter titles and scene
+  descriptions.
+- Character sheet: Character descriptions, bio and goals.
+- Location sheet: Location descriptions.
+- Item sheet: Item descriptions.
+- Scene list: Spreadsheet with all scene metadata.
+- Plot list: Spreadsheet with scene metadata following conventions
+  described in the help text.
 
 Based on PyWriter v2.12.3
 
@@ -91,15 +91,15 @@ Based on PyWriter v2.8.0
 
 ### v0.33.1
 
--   Refactor and update docstrings.
--   Work around a yWriter 7.1.1.2 bug.
+- Refactor and update docstrings.
+- Work around a yWriter 7.1.1.2 bug.
 
 Based on PyWriter v2.7.2
 
 ### v0.33.0
 
--   Update UI application context.
--   Set a blank line as scene divider template.
+- Update UI application context.
+- Set a blank line as scene divider template.
 
 Based on PyWriter v2.7.0
 
@@ -110,20 +110,20 @@ characters to scenes created by splitting.
 
 ### v0.32.2
 
--   Refactor the code for better maintainability.
+- Refactor the code for better maintainability.
 
 Based on PyWriter v2.6.1
 
 ### v0.31.1
 
--   Add strict project structure check.
--   Improve screen output.
--   Do not indent a chapter's first scene even if marked "append to
-    previous".
--   Can now write complete yw5 Files.
--   Convert work in progress that contains empty chapter titles.
--   Fix location descriptions export.
--   Refactor the code for better maintainability.
+- Add strict project structure check.
+- Improve screen output.
+- Do not indent a chapter's first scene even if marked "append to
+  previous".
+- Can now write complete yw5 Files.
+- Convert work in progress that contains empty chapter titles.
+- Fix location descriptions export.
+- Refactor the code for better maintainability.
 
 Based on PyWriter v2.5.1
 
