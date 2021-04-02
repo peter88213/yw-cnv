@@ -1,4 +1,4 @@
-![](https://raw.githubusercontent.com/peter88213/yw-cnv/master/docs/Screenshots/lo_menu.png)
+![screenshot](Screenshots/lo_menu.png)
 
 ## Features
 
