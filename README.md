@@ -1,6 +1,6 @@
 # The yw-cnv extension for LibreOffice: Import and export yWriter 6/7 projects 
 
-* [Description and download](https://peter88213.github.io/yw-cnv)
+For more information, see the [project homepage](https://peter88213.github.io/yw-cnv) with description and download instructions.
 
 
 ## Want to fork this project?
