@@ -37,7 +37,7 @@ __Please note:__  _This extension can not be installed on OpenOffice. An OpenOff
 
 ## Download and install {#download}
 
-[Download the latest release (version 0.40.1)](https://raw.githubusercontent.com/peter88213/yw-cnv/master/dist/yw-cnv-L-0.40.1.oxt)
+[Download the latest release (version 0.99.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/master/dist/yw-cnv-L-0.99.0.oxt)
 
 -   Download the `OXT` file.
 
