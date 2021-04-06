@@ -2,6 +2,13 @@
 
 ## Changelog
 
+### v0.40.2 Service release
+
+- Generate compressed ODF documents.
+- Add a project website link to the help files.
+
+Based on PyWriter v2.14.2
+
 ### v0.40.1 Improve the processing of comma-separated lists
 
 - Fix incorrectly defined tags during yWriter import.

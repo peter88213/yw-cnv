@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.40.1
+Version 0.40.2
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3402,7 +3402,7 @@ class OdfFile(FileExport):
             return message
 
         # Pack the contents of the temporary directory
-        # into the ODS file.
+        # into the ODF file.
 
         workdir = os.getcwd()
 
@@ -3411,7 +3411,7 @@ class OdfFile(FileExport):
                 os.chdir(self.TEMPDIR)
 
                 for file in self.ODF_COMPONENTS:
-                    odfTarget.write(file)
+                    odfTarget.write(file, compress_type=zipfile.ZIP_DEFLATED)
         except:
             os.chdir(workdir)
             return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
