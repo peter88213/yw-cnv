@@ -1,5 +1,7 @@
 ![screenshot](Screenshots/lo_menu.png)
 
+[yWriter](http://spacejock.com/yWriter7.html) is a free word processor written by Australian author and programmer Simon Haynes. yWriter's strengths are structuring novels and controlling the progress during the writing process. With this extension you can combine the advantages of yWriter 7 with the advantages of LibreOffice.
+
 ## Features
 
 -   Generate a "standard manuscript" formatted **ODF text document
