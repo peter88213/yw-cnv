@@ -2,6 +2,11 @@
 
 ## Changelog
 
+### v0.40.3 Bugfix release
+
+Fix a regression causing wrong file type detection. 
+Based on PyWriter v2.14.3
+
 ### v0.40.2 Service release
 
 - Generate compressed ODF documents.
