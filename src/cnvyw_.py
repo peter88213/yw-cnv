@@ -33,18 +33,9 @@ from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERR
 
 from libreoffice.uno_tools import *
 from libreoffice.yw_cnv_uno import YwCnvUno
+from libreoffice.ui_uno import UiUno
 
 INI_FILE = 'openyw.ini'
-
-
-class Converter(YwCnvUno):
-    """Converter for yWriter project files.
-    Variant with UNO UI.
-    """
-
-    def __init__(self, silentMode=False):
-        YwCnvUno.__init__(self, silentMode)
-        self.fileFactory = UniversalFileFactory()
 
 
 def open_yw7(suffix, newExt):
@@ -109,10 +100,12 @@ def open_yw7(suffix, newExt):
 
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
-    converter = Converter()
+    converter = YwCnvUno()
+    converter.ui = UiUno('Import from yWriter')
+    converter.fileFactory = UniversalFileFactory()
     converter.run(sourcePath, suffix)
 
-    if converter.success:
+    if converter.newFile:
         desktop = XSCRIPTCONTEXT.getDesktop()
         doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
@@ -303,4 +296,7 @@ def export_yw(*args):
         msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
                '" not supported.', type_msg=ERRORBOX)
 
-    Converter().run(targetPath, None)
+    converter = YwCnvUno()
+    converter.ui = UiUno('Export to yWriter')
+    converter.fileFactory = UniversalFileFactory()
+    converter.run(targetPath, None)

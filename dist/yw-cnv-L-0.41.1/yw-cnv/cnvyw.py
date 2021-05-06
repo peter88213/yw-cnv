@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.40.3
+Version 0.41.1
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -20,13 +20,13 @@ from abc import abstractmethod
 
 
 class FileFactory(ABC):
-    """Abstract factory class that instantiates a source file object
+    """Abstract class that instantiates a source file object
     and a target file object for conversion.
     """
 
     @abstractmethod
     def get_file_objects(self, sourcePath, suffix=None):
-        """Abstract method to be overwritten by subclasses.
+        """Factory method to be overwritten by subclasses.
         Return a tuple with three elements:
         * A message string starting with 'SUCCESS' or 'ERROR'
         * sourceFile: a Novel subclass instance
@@ -640,7 +640,9 @@ class YwFile(Novel):
         # Read attributes at novel level from the xml element tree.
 
         prj = root.find('PROJECT')
-        self.title = prj.find('Title').text
+
+        if prj.find('Title') is not None:
+            self.title = prj.find('Title').text
 
         if prj.find('AuthorName') is not None:
             self.author = prj.find('AuthorName').text
@@ -7839,11 +7841,13 @@ class OdsPlotList(OdsFile):
 class UniversalFileFactory(FileFactory):
     """A factory class that instantiates a source file object
     and a target file object for conversion.
-    All filetypes are covered.
+    All file types relevant for OpenOffice/LibreOffice import 
+    and export are available.
     """
 
     def get_file_objects(self, sourcePath, suffix=None):
-        """Return a tuple with three elements:
+        """Factory method.
+        Return a tuple with three elements:
         * A message string starting with 'SUCCESS' or 'ERROR'
         * sourceFile: a Novel subclass instance
         * targetFile: a Novel subclass instance
@@ -8094,6 +8098,7 @@ def FilePicker(path=None, mode=0):
         return filepicker.getFiles()[0]
 
 
+import sys
 
 
 
@@ -8101,10 +8106,15 @@ class Ui():
     """Superclass for UI facades, implementing a 'silent mode'."""
 
     def __init__(self, title):
+        """Initialize text buffers for messaging.
+        """
         self.infoWhatText = ''
         self.infoHowText = ''
 
     def ask_yes_no(self, text):
+        """The application may use a subclass  
+        for confirmation requests.    
+        """
         return True
 
     def set_info_what(self, message):
@@ -8115,9 +8125,9 @@ class Ui():
         """How's the converter doing?"""
         self.infoHowText = message
 
-    def finish(self):
+    def start(self):
         """To be overwritten by subclasses requiring
-        special action to finish user interaction.
+        special action to launch the user interaction.
         """
 
 
@@ -8141,7 +8151,7 @@ class YwCnv():
             return 'ERROR: Target "' + os.path.normpath(targetFile.filePath) + '" is not of the supported type.'
 
         if targetFile.file_exists() and not self.confirm_overwrite(targetFile.filePath):
-            return 'Program abort by user.'
+            return 'Canceled by user.'
 
         message = sourceFile.read()
 
@@ -8161,15 +8171,16 @@ class YwCnv():
 
 
 class YwCnvUi(YwCnv):
-    """Standalone yWriter converter with a simple tkinter GUI. 
+    """yWriter converter using a user interface facade. 
+    Per default, 'silent mode' is active.
     """
 
     YW_EXTENSIONS = ['.yw5', '.yw6', '.yw7']
 
     def __init__(self):
-        self.userInterface = Ui('yWriter import/export')
-        self.success = False
+        self.ui = Ui('')
         self.fileFactory = None
+        self.newFile = None
 
     def run(self, sourcePath, suffix=None):
         """Create source and target objects and run conversion.
@@ -8178,10 +8189,10 @@ class YwCnvUi(YwCnv):
             sourcePath, suffix)
 
         if not message.startswith('SUCCESS'):
-            self.userInterface.set_info_how(message)
+            self.ui.set_info_how(message)
 
         elif not sourceFile.file_exists():
-            self.userInterface.set_info_how(
+            self.ui.set_info_how(
                 'ERROR: File "' + os.path.normpath(sourceFile.filePath) + '" not found.')
 
         elif sourceFile.EXTENSION in self.YW_EXTENSIONS:
@@ -8193,51 +8204,50 @@ class YwCnvUi(YwCnv):
         else:
             self.import_to_yw(sourceFile, targetFile)
 
-        self.finish(sourcePath)
-
     def export_from_yw(self, sourceFile, targetFile):
         """Template method for conversion from yw to other.
         """
-        self.userInterface.set_info_what('Input: ' + sourceFile.DESCRIPTION + ' "' + os.path.normpath(
+        self.ui.set_info_what('Input: ' + sourceFile.DESCRIPTION + ' "' + os.path.normpath(
             sourceFile.filePath) + '"\nOutput: ' + targetFile.DESCRIPTION + ' "' + os.path.normpath(targetFile.filePath) + '"')
         message = self.convert(sourceFile, targetFile)
-        self.userInterface.set_info_how(message)
+        self.ui.set_info_how(message)
 
         if message.startswith('SUCCESS'):
-            self.success = True
+            self.newFile = targetFile.filePath
 
     def create_yw7(self, sourceFile, targetFile):
         """Template method for creation of a new yw7 project.
         """
-        self.userInterface.set_info_what(
+        self.ui.set_info_what(
             'Create a yWriter project file from ' + sourceFile.DESCRIPTION + '\nNew project: "' + os.path.normpath(targetFile.filePath) + '"')
 
         if targetFile.file_exists():
-            self.userInterface.set_info_how(
+            self.ui.set_info_how(
                 'ERROR: "' + os.path.normpath(targetFile.filePath) + '" already exists.')
 
         else:
             message = self.convert(sourceFile, targetFile)
-            self.userInterface.set_info_how(message)
+            self.ui.set_info_how(message)
 
             if message.startswith('SUCCESS'):
-                self.success = True
+                self.newFile = targetFile.filePath
 
     def import_to_yw(self, sourceFile, targetFile):
         """Template method for conversion from other to yw.
         """
-        self.userInterface.set_info_what('Input: ' + sourceFile.DESCRIPTION + ' "' + os.path.normpath(
+        self.ui.set_info_what('Input: ' + sourceFile.DESCRIPTION + ' "' + os.path.normpath(
             sourceFile.filePath) + '"\nOutput: ' + targetFile.DESCRIPTION + ' "' + os.path.normpath(targetFile.filePath) + '"')
         message = self.convert(sourceFile, targetFile)
-        self.userInterface.set_info_how(message)
+        self.ui.set_info_how(message)
+        self.delete_tempfile(sourceFile.filePath)
 
         if message.startswith('SUCCESS'):
-            self.success = True
+            self.newFile = targetFile.filePath
 
     def confirm_overwrite(self, filePath):
         """ Invoked by the parent if a file already exists.
         """
-        return self.userInterface.ask_yes_no('Overwrite existing file "' + os.path.normpath(filePath) + '"?')
+        return self.ui.ask_yes_no('Overwrite existing file "' + os.path.normpath(filePath) + '"?')
 
     def delete_tempfile(self, filePath):
         """If an Office file exists, delete the temporary file."""
@@ -8262,8 +8272,27 @@ class YwCnvUi(YwCnv):
                 except:
                     pass
 
-    def finish(self, sourcePath):
-        """Hook for actions to take place after the conversion."""
+    def open_newFile(self):
+        os.startfile(self.newFile)
+        sys.exit(0)
+
+
+class YwCnvUno(YwCnvUi):
+    """Converter for yWriter project files.
+    Variant with UNO UI.
+    """
+
+    def export_from_yw(self, sourceFile, targetFile):
+        """Method for conversion from yw to other.
+        Show only error messages.
+        """
+        message = self.convert(sourceFile, targetFile)
+
+        if message.startswith('SUCCESS'):
+            self.newFile = targetFile.filePath
+
+        else:
+            self.userInterface.set_info_how(message)
 from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
@@ -8293,49 +8322,7 @@ class UiUno(Ui):
         else:
             msgbox(message, type_msg=ERRORBOX)
 
-
-class YwCnvUno(YwCnvUi):
-    """Converter for yWriter project files.
-    Variant with UNO UI.
-    """
-
-    def __init__(self, silentMode=False):
-        if silentMode:
-            self.userInterface = Ui('')
-
-        else:
-            self.userInterface = UiUno('yWriter import/export')
-
-        self.success = False
-        self.fileFactory = None
-
-    def finish(self, sourcePath):
-        self.delete_tempfile(sourcePath)
-        self.userInterface.finish()
-
-    def export_from_yw(self, sourceFile, targetFile):
-        """Method for conversion from yw to other.
-        Show only error messages.
-        """
-        message = self.convert(sourceFile, targetFile)
-
-        if message.startswith('SUCCESS'):
-            self.success = True
-
-        else:
-            self.userInterface.set_info_how(message)
-
 INI_FILE = 'openyw.ini'
-
-
-class Converter(YwCnvUno):
-    """Converter for yWriter project files.
-    Variant with UNO UI.
-    """
-
-    def __init__(self, silentMode=False):
-        YwCnvUno.__init__(self, silentMode)
-        self.fileFactory = UniversalFileFactory()
 
 
 def open_yw7(suffix, newExt):
@@ -8400,10 +8387,12 @@ def open_yw7(suffix, newExt):
 
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
-    converter = Converter()
+    converter = YwCnvUno()
+    converter.ui = UiUno('Import from yWriter')
+    converter.fileFactory = UniversalFileFactory()
     converter.run(sourcePath, suffix)
 
-    if converter.success:
+    if converter.newFile:
         desktop = XSCRIPTCONTEXT.getDesktop()
         doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
@@ -8594,4 +8583,7 @@ def export_yw(*args):
         msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
                '" not supported.', type_msg=ERRORBOX)
 
-    Converter().run(targetPath, None)
+    converter = YwCnvUno()
+    converter.ui = UiUno('Export to yWriter')
+    converter.fileFactory = UniversalFileFactory()
+    converter.run(targetPath, None)
