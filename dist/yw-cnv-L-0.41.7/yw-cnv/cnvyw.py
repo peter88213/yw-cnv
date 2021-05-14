@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.41.6
+Version 0.41.7
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -8543,103 +8543,103 @@ def open_yw7(suffix, newExt):
         doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
 
-def import_yw(*args):
+def import_yw():
     '''Import scenes from yWriter 6/7 to a Writer document
     without chapter and scene markers. 
     '''
     open_yw7('', '.odt')
 
 
-def proof_yw(*args):
+def proof_yw():
     '''Import scenes from yWriter 6/7 to a Writer document
     with visible chapter and scene markers. 
     '''
     open_yw7(OdtProof.SUFFIX, OdtProof.EXTENSION)
 
 
-def get_manuscript(*args):
+def get_manuscript():
     '''Import scenes from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtManuscript.SUFFIX, OdtManuscript.EXTENSION)
 
 
-def get_partdesc(*args):
+def get_partdesc():
     '''Import pard descriptions from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtPartDesc.SUFFIX, OdtPartDesc.EXTENSION)
 
 
-def get_chapterdesc(*args):
+def get_chapterdesc():
     '''Import chapter descriptions from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtChapterDesc.SUFFIX, OdtChapterDesc.EXTENSION)
 
 
-def get_scenedesc(*args):
+def get_scenedesc():
     '''Import scene descriptions from yWriter 6/7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtSceneDesc.SUFFIX, OdtSceneDesc.EXTENSION)
 
 
-def get_chardesc(*args):
+def get_chardesc():
     '''Import character descriptions from yWriter 6/7 to a Writer document.
     '''
     open_yw7(OdtCharacters.SUFFIX, OdtCharacters.EXTENSION)
 
 
-def get_locdesc(*args):
+def get_locdesc():
     '''Import location descriptions from yWriter 6/7 to a Writer document.
     '''
     open_yw7(OdtLocations.SUFFIX, OdtLocations.EXTENSION)
 
 
-def get_itemdesc(*args):
+def get_itemdesc():
     '''Import item descriptions from yWriter 6/7 to a Writer document.
     '''
     open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
 
 
-def get_xref(*args):
+def get_xref():
     '''Generate cross references from yWriter 6/7 to a Writer document.
     '''
     open_yw7(OdtXref.SUFFIX, OdtXref.EXTENSION)
 
 
-def get_scenelist(*args):
+def get_scenelist():
     '''Import a scene list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
 
 
-def get_plotlist(*args):
+def get_plotlist():
     '''Import a plot list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(OdsPlotList.SUFFIX, OdsPlotList.EXTENSION)
 
 
-def get_charlist(*args):
+def get_charlist():
     '''Import a character list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(OdsCharList.SUFFIX, OdsCharList.EXTENSION)
 
 
-def get_loclist(*args):
+def get_loclist():
     '''Import a location list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(OdsLocList.SUFFIX, OdsLocList.EXTENSION)
 
 
-def get_itemlist(*args):
+def get_itemlist():
     '''Import an item list from yWriter 6/7 to a Calc document.
     '''
     open_yw7(OdsItemList.SUFFIX, OdsItemList.EXTENSION)
 
 
-def export_yw(*args):
+def export_yw():
     '''Export the document to a yWriter 6/7 project.
     '''
 
