@@ -23,7 +23,7 @@ def create_instance(name, with_context=False):
     return instance
 
 
-def msgbox(message, title='LibreOffice', buttons=BUTTONS_OK, type_msg=INFOBOX):
+def msgbox(message, title='yWriter import/export', buttons=BUTTONS_OK, type_msg=INFOBOX):
     """ Create message box
         type_msg: MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 

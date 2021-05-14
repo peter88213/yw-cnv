@@ -12,7 +12,6 @@ from configparser import ConfigParser
 from urllib.parse import unquote
 from urllib.parse import quote
 
-from pywriter.converter.universal_file_factory import UniversalFileFactory
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
@@ -102,7 +101,6 @@ def open_yw7(suffix, newExt):
     os.chdir(workdir)
     converter = YwCnvUno()
     converter.ui = UiUno('Import from yWriter')
-    converter.fileFactory = UniversalFileFactory()
     converter.run(sourcePath, suffix)
 
     if converter.newFile:
@@ -298,5 +296,4 @@ def export_yw(*args):
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')
-    converter.fileFactory = UniversalFileFactory()
     converter.run(targetPath, None)
