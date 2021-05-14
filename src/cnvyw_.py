@@ -101,7 +101,8 @@ def open_yw7(suffix, newExt):
     os.chdir(workdir)
     converter = YwCnvUno()
     converter.ui = UiUno('Import from yWriter')
-    converter.run(sourcePath, suffix)
+    kwargs = {'suffix': suffix}
+    converter.run(sourcePath, **kwargs)
 
     if converter.newFile:
         desktop = XSCRIPTCONTEXT.getDesktop()
@@ -296,4 +297,5 @@ def export_yw():
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')
-    converter.run(targetPath, None)
+    kwargs = {'suffix': None}
+    converter.run(targetPath, **kwargs)

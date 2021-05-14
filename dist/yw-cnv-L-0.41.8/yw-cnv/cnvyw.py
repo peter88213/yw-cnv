@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.41.7
+Version 0.41.8
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -272,7 +272,7 @@ class Novel():
     SUFFIX = None
     # To be extended by file format specific subclasses.
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         self.title = None
         # str
         # xml: <PROJECT><Title>
@@ -4409,7 +4409,7 @@ class FileFactory:
     def __init__(self, fileClasses=[]):
         self.fileClasses = fileClasses
 
-    def make_file_objects(self, sourcePath, suffix=None):
+    def make_file_objects(self, sourcePath, **kwargs):
         """A factory method stub.
 
         Return a tuple with three elements:
@@ -4430,7 +4430,7 @@ class FileFactory:
 class ExportSourceFactory(FileFactory):
     """A factory class that instantiates an export source file object."""
 
-    def make_file_objects(self, sourcePath, suffix=None):
+    def make_file_objects(self, sourcePath, **kwargs):
         """Instantiate a source object for conversion from a yWriter format.
 
         Return a tuple with three elements:
@@ -4453,7 +4453,7 @@ class ExportSourceFactory(FileFactory):
 class ExportTargetFactory(FileFactory):
     """A factory class that instantiates an export target file object."""
 
-    def make_file_objects(self, sourcePath, suffix=None):
+    def make_file_objects(self, sourcePath, **kwargs):
         """Instantiate a target object for conversion to any format.
 
         Return a tuple with three elements:
@@ -4462,6 +4462,7 @@ class ExportTargetFactory(FileFactory):
         - targetFile: a FileExport subclass instance, or None in case of error 
         """
         fileName, fileExtension = os.path.splitext(sourcePath)
+        suffix = kwargs['suffix']
 
         for fileClass in self.fileClasses:
 
@@ -4479,7 +4480,7 @@ class ExportTargetFactory(FileFactory):
 class ImportSourceFactory(FileFactory):
     """A factory class that instantiates a source file object for import or export."""
 
-    def make_file_objects(self, sourcePath, suffix=None):
+    def make_file_objects(self, sourcePath, **kwargs):
         """Instantiate a source object for conversion to a yWriter format.
 
         Return a tuple with three elements:
@@ -4503,7 +4504,7 @@ class ImportSourceFactory(FileFactory):
 class ImportTargetFactory(FileFactory):
     """A factory class that instantiates a target file object for import."""
 
-    def make_file_objects(self, sourcePath, sourceSuffix=''):
+    def make_file_objects(self, sourcePath, **kwargs):
         """Factory method.
         Return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
@@ -4512,6 +4513,11 @@ class ImportTargetFactory(FileFactory):
 
         """
         fileName, fileExtension = os.path.splitext(sourcePath)
+        sourceSuffix = kwargs['suffix']
+
+        if sourceSuffix is None:
+            sourceSuffix = ''
+
         ywPathBasis = fileName.split(sourceSuffix)[0]
 
         # Look for an existing yWriter project to rewrite.
@@ -4562,7 +4568,7 @@ class YwCnvUi(YwCnv):
         self.newFile = None
         # Also indicates successful conversion.
 
-    def run(self, sourcePath, suffix=None):
+    def run(self, sourcePath, **kwargs):
         """Create source and target objects and run conversion.
 
         sourcePath -- str; the source file path.
@@ -4582,7 +4588,7 @@ class YwCnvUi(YwCnv):
             # The source file is a yWriter project.
 
             message, dummy, targetFile = self.exportTargetFactory.make_file_objects(
-                sourcePath, suffix)
+                sourcePath, **kwargs)
 
             if message.startswith('SUCCESS'):
                 self.export_from_yw(sourceFile, targetFile)
@@ -4597,11 +4603,15 @@ class YwCnvUi(YwCnv):
                 sourcePath)
 
             if message.startswith('SUCCESS'):
+                kwargs['suffix'] = sourceFile.SUFFIX
                 message, dummy, targetFile = self.importTargetFactory.make_file_objects(
-                    sourcePath, sourceFile.SUFFIX)
+                    sourcePath, **kwargs)
 
                 if message.startswith('SUCCESS'):
                     self.import_to_yw(sourceFile, targetFile)
+
+                else:
+                    self.ui.set_info_how(message)
 
             else:
                 # A new yWriter project might be required.
@@ -8536,7 +8546,8 @@ def open_yw7(suffix, newExt):
     os.chdir(workdir)
     converter = YwCnvUno()
     converter.ui = UiUno('Import from yWriter')
-    converter.run(sourcePath, suffix)
+    kwargs = {'suffix': suffix}
+    converter.run(sourcePath, **kwargs)
 
     if converter.newFile:
         desktop = XSCRIPTCONTEXT.getDesktop()
@@ -8731,4 +8742,5 @@ def export_yw():
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')
-    converter.run(targetPath, None)
+    kwargs = {'suffix': None}
+    converter.run(targetPath, **kwargs)
