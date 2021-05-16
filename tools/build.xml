@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="yw-cnv" basedir=".">
-	<property name="release" value="0.41.9" />
+	<property name="release" value="0.41.10" />
 	<property name="project-name" value="${ant.project.name}" />
 	<property name="release-name" value="${project-name}-${release}" />
 	<property name="release-name-L" value="${project-name}-L-${release}" />
@@ -31,7 +31,35 @@
 		<mkdir dir="${dist}/${release-name-L}" />
 		<mkdir dir="${dist}/${release-name-L}/${ant.project.name}" />
 
-		<mkdir dir="${dist}/${release-name-L}/${ant.project.name}" /> 
+		<mkdir dir="${dist}/${release-name-L}/help" />
+		
+		<copy file="${docs}/template/help.md" overwrite="True" todir="./help" />
+		<replace encoding="utf-8" file="./help/help.md" token="@help_adv@" value="help_adv.html" />
+		
+		<copy file="${docs}/template/help_adv.md" overwrite="True" todir="./help" />
+		<replace encoding="utf-8" file="./help/help_adv.md" token="@help@" value="help.html" />
+		
+		<exec executable="cmd">
+			<arg value="/c"/>
+			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help.md"/>
+		</exec>
+		
+		<concat destfile="${dist}/${release-name-L}/help/help.html">
+			<filelist dir="./help" files="header.txt, body.html, footer.txt" />
+		</concat>
+		
+		<exec executable="cmd">
+			<arg value="/c"/>
+			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help_adv.md"/>
+		</exec>
+		
+		<concat destfile="${dist}/${release-name-L}/help/help_adv.html">
+			<filelist dir="./help" files="header.txt, body.html, footer.txt" />
+		</concat>
+		
+		<delete file="./help/help.md" />
+		<delete file="./help/help_adv.md" />
+		<delete file="./help/body.html" />
 		
 		<copy todir="${dist}/${release-name-L}/META-INF"> 
 			<fileset dir="${oxt}/META-INF" />
@@ -43,10 +71,6 @@
 		
 		<copy todir="${dist}/${release-name-L}/Legal"> 
 			<fileset dir="${oxt}/Legal" />
-		</copy>
-		
-		<copy todir="${dist}/${release-name-L}/help"> 
-			<fileset dir="${docs}/help" />
 		</copy>
 		
 		<copy todir="${dist}/${release-name-L}/Tooltips"> 
@@ -74,6 +98,12 @@
 		<copy file="${docs}/template/index.md" overwrite="True" todir="${docs}" />
 		<replace encoding="utf-8" file="${docs}/index.md" token="0.99.0" value="${release}" />
 
+		<copy file="${docs}/template/help.md" overwrite="True" todir="${docs}" />
+		<replace encoding="utf-8" file="${docs}/help.md" token="@help_adv@" value="help_adv" />
+		
+		<copy file="${docs}/template/help_adv.md" overwrite="True" todir="${docs}" />
+		<replace encoding="utf-8" file="${docs}/help_adv.md" token="@help@" value="help" />
+		
 	</target>
 
 	<target name="clean" description="clean up">
