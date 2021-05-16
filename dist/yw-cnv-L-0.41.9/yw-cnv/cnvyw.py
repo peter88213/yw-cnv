@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 0.41.8
+Version 0.41.9
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -434,6 +434,8 @@ class FileExport(Novel):
     To be overwritten by subclasses providing file type specific 
     markup converters and templates.
     """
+    SUFFIX = ''
+
     fileHeader = ''
     partTemplate = ''
     chapterTemplate = ''
@@ -1003,7 +1005,6 @@ class FileExport(Novel):
 class OdfFile(FileExport):
     """OpenDocument xml project file representation.
     """
-
     TEMPDIR = 'temp_odf'
 
     ODF_COMPONENTS = []
@@ -2971,7 +2972,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 '''
     fileFooter = OdtFile.CONTENT_XML_FOOTER
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         """Apply the strategy pattern 
         by delegating the cross reference to an external object.
         """
@@ -4443,7 +4444,7 @@ class ExportSourceFactory(FileFactory):
         for fileClass in self.fileClasses:
 
             if fileClass.EXTENSION == fileExtension:
-                sourceFile = fileClass(sourcePath)
+                sourceFile = fileClass(sourcePath, **kwargs)
                 return 'SUCCESS', sourceFile, None
 
         return 'ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None
@@ -4471,7 +4472,8 @@ class ExportTargetFactory(FileFactory):
                 if suffix is None:
                     suffix = ''
 
-                targetFile = fileClass(fileName + suffix + fileClass.EXTENSION)
+                targetFile = fileClass(
+                    fileName + suffix + fileClass.EXTENSION, **kwargs)
                 return 'SUCCESS', None, targetFile
 
         return 'ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None
@@ -4494,7 +4496,7 @@ class ImportSourceFactory(FileFactory):
             if fileClass.SUFFIX is not None:
 
                 if sourcePath.endswith(fileClass.SUFFIX + fileClass.EXTENSION):
-                    sourceFile = fileClass(sourcePath)
+                    sourceFile = fileClass(sourcePath, **kwargs)
                     return 'SUCCESS', sourceFile, None
 
         return 'ERROR: This document is not meant to be written back.', None, None
@@ -4515,17 +4517,19 @@ class ImportTargetFactory(FileFactory):
         fileName, fileExtension = os.path.splitext(sourcePath)
         sourceSuffix = kwargs['suffix']
 
-        if sourceSuffix is None:
-            sourceSuffix = ''
+        if sourceSuffix:
+            ywPathBasis = fileName.split(sourceSuffix)[0]
 
-        ywPathBasis = fileName.split(sourceSuffix)[0]
+        else:
+            ywPathBasis = fileName
 
         # Look for an existing yWriter project to rewrite.
 
         for fileClass in self.fileClasses:
 
             if os.path.isfile(ywPathBasis + fileClass.EXTENSION):
-                targetFile = fileClass(ywPathBasis + fileClass.EXTENSION)
+                targetFile = fileClass(
+                    ywPathBasis + fileClass.EXTENSION, **kwargs)
                 return 'SUCCESS', None, targetFile
 
         return 'ERROR: No yWriter project to write.', None, None
@@ -4582,7 +4586,7 @@ class YwCnvUi(YwCnv):
             return
 
         message, sourceFile, dummy = self.exportSourceFactory.make_file_objects(
-            sourcePath)
+            sourcePath, **kwargs)
 
         if message.startswith('SUCCESS'):
             # The source file is a yWriter project.
@@ -4600,7 +4604,7 @@ class YwCnvUi(YwCnv):
             # The source file is not a yWriter project.
 
             message, sourceFile, dummy = self.importSourceFactory.make_file_objects(
-                sourcePath)
+                sourcePath, **kwargs)
 
             if message.startswith('SUCCESS'):
                 kwargs['suffix'] = sourceFile.SUFFIX
@@ -4617,7 +4621,7 @@ class YwCnvUi(YwCnv):
                 # A new yWriter project might be required.
 
                 message, sourceFile, targetFile = self.newProjectFactory.make_file_objects(
-                    sourcePath)
+                    sourcePath, **kwargs)
 
                 if message.startswith('SUCCESS'):
                     self.create_yw7(sourceFile, targetFile)
@@ -6407,7 +6411,7 @@ class Yw7File(YwFile):
     DESCRIPTION = 'yWriter 7 project'
     EXTENSION = '.yw7'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         YwFile.__init__(self, filePath)
         self.ywTreeReader = Utf8TreeReader()
         self.ywProjectMerger = YwProjectMerger()
@@ -6749,7 +6753,7 @@ class YwProjectCreator(YwProjectMerger):
 class Yw7NewFile(Yw7File):
     """yWriter 7 new project file representation."""
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         """Extends the superclass constructor."""
         Yw7File.__init__(self, filePath)
 
@@ -6791,7 +6795,7 @@ class HtmlFile(Novel, HTMLParser):
 
     EXTENSION = '.html'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         Novel.__init__(self, filePath)
         HTMLParser.__init__(self)
         self._lines = []
@@ -6924,8 +6928,10 @@ class HtmlImport(HtmlFile):
 
     _SCENE_DIVIDER = '* * *'
     _LOW_WORDCOUNT = 10
+    _COMMENT_START = '/*'
+    _COMMENT_END = '*/'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         HtmlFile.__init__(self, filePath)
         self._chCount = 0
         self._scCount = 0
@@ -7010,7 +7016,23 @@ class HtmlImport(HtmlFile):
             self._scId = None
 
         else:
-            self._lines.append(data.rstrip().lstrip())
+            data = data.rstrip().lstrip()
+            
+            # Convert prefixed comment into scene title.
+
+            if self._lines == [] and data.startswith(self._COMMENT_START):
+
+                try:
+                    scTitle, scText = data.split(
+                        sep=self._COMMENT_END, maxsplit=1)
+                    self.scenes[self._scId].title = scTitle.lstrip(
+                        self._COMMENT_START).lstrip('- ')
+                    data = scText
+
+                except:
+                    pass
+
+            self._lines.append(data)
 
 
 
@@ -7024,7 +7046,7 @@ class HtmlOutline(HtmlFile):
     DESCRIPTION = 'Novel outline'
     SUFFIX = ''
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         HtmlFile.__init__(self, filePath)
         self._chCount = 0
         self._scCount = 0
@@ -7106,7 +7128,7 @@ class NewProjectFactory(FileFactory):
 
     DO_NOT_IMPORT = ['_xref']
 
-    def make_file_objects(self, sourcePath, suffix=None):
+    def make_file_objects(self, sourcePath, **kwargs):
         """Factory method.
         Return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
@@ -7117,6 +7139,9 @@ class NewProjectFactory(FileFactory):
         if not self.canImport(sourcePath):
             return 'ERROR: This document is not meant to be written back.', None, None
 
+        fileName, fileExtension = os.path.splitext(sourcePath)
+        targetFile = Yw7NewFile(fileName + Yw7NewFile.EXTENSION, **kwargs)
+
         if sourcePath.endswith('.html'):
 
             # The source file might be an outline or a "work in progress".
@@ -7124,22 +7149,28 @@ class NewProjectFactory(FileFactory):
             result = read_html_file(sourcePath)
 
             if result[0].startswith('SUCCESS'):
-                fileName, fileExtension = os.path.splitext(sourcePath)
-                targetFile = Yw7NewFile(fileName + Yw7NewFile.EXTENSION)
 
                 if "<h3" in result[1].lower():
-                    sourceFile = HtmlOutline(sourcePath)
+                    sourceFile = HtmlOutline(sourcePath, **kwargs)
 
                 else:
-                    sourceFile = HtmlImport(sourcePath)
+                    sourceFile = HtmlImport(sourcePath, **kwargs)
+
+                return 'SUCCESS', sourceFile, targetFile
 
             else:
                 return 'ERROR: Cannot read "' + os.path.normpath(sourcePath) + '".', None, None
 
         else:
-            return 'ERROR: File type of  "' + os.path.normpath(sourcePath) + '" not supported.', None, None
+            for fileClass in self.fileClasses:
 
-        return 'SUCCESS', sourceFile, targetFile
+                if fileClass.SUFFIX is not None:
+
+                    if sourcePath.endswith(fileClass.SUFFIX + fileClass.EXTENSION):
+                        sourceFile = fileClass(sourcePath, **kwargs)
+                        return 'SUCCESS', sourceFile, targetFile
+
+            return 'ERROR: File type of  "' + os.path.normpath(sourcePath) + '" not supported.', None, None
 
     def canImport(self, sourcePath):
         fileName, fileExtension = os.path.splitext(sourcePath)
@@ -7189,7 +7220,7 @@ class Yw6File(YwFile):
     DESCRIPTION = 'yWriter 6 project'
     EXTENSION = '.yw6'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         YwFile.__init__(self, filePath)
         self.ywTreeReader = Utf8TreeReader()
         self.ywProjectMerger = YwProjectMerger()
@@ -7386,7 +7417,7 @@ class Yw5File(YwFile):
     DESCRIPTION = 'yWriter 5 project'
     EXTENSION = '.yw5'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         """Extends the super class constructor."""
         YwFile.__init__(self, filePath)
 
@@ -7401,9 +7432,6 @@ class Yw5File(YwFile):
 class OdtExport(OdtFile):
     """OpenDocument xml project file representation.
     """
-
-    SUFFIX = ''
-
     fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
@@ -7456,7 +7484,7 @@ class HtmlProof(HtmlFile):
     DESCRIPTION = 'Tagged manuscript for proofing'
     SUFFIX = '_proof'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         HtmlFile.__init__(self, filePath)
         self._collectText = False
 
@@ -7643,7 +7671,7 @@ class HtmlCharacters(HtmlFile):
     DESCRIPTION = 'Character descriptions'
     SUFFIX = '_characters'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         HtmlFile.__init__(self, filePath)
         self._crId = None
         self._section = None
@@ -7710,7 +7738,7 @@ class HtmlLocations(HtmlFile):
     DESCRIPTION = 'Location descriptions'
     SUFFIX = '_locations'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         HtmlFile.__init__(self, filePath)
         self._lcId = None
 
@@ -7756,7 +7784,7 @@ class HtmlItems(HtmlFile):
     DESCRIPTION = 'Item descriptions'
     SUFFIX = '_items'
 
-    def __init__(self, filePath):
+    def __init__(self, filePath, **kwargs):
         HtmlFile.__init__(self, filePath)
         self._itId = None
 
@@ -8428,10 +8456,11 @@ class UniversalConverter(YwCnvUi):
                              Yw6File,
                              Yw5File,
                              ]
+    CREATE_SOURCE_CLASSES = []
 
     def __init__(self):
         YwCnvUi.__init__(self)
-        self.newProjectFactory = NewProjectFactory()
+        self.newProjectFactory = NewProjectFactory(self.CREATE_SOURCE_CLASSES)
 
 
 class YwCnvUno(UniversalConverter):
