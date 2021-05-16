@@ -14,7 +14,7 @@
 -   [Item list](#item-list)
 -   [Cross reference](#cross-reference)
 -   [Export to yWriter](#export-to-ywriter) 
--   [Advanced features](@help-adv@)
+-   [Advanced features](help-adv)
 
 ## HowTo
 

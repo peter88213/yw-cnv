@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+    <meta charset="utf-8" />
+    <title>yWriter import/export help</title>
+    <style type='text/css'>
+    <!--
+    body {padding: 1em;}
+    h1, h2, h3 {font-family: sans-serif;}
+    h1, h2 {color: green;}
+    h3 {font-style: italic; font-size: 1em;}
+    em, code {color: maroon;}
+    li {margin-top: 0.5em;}
+    -->
+    </style>
+</head>
+<body>
+<p><a href="https://peter88213.github.io/yw-cnv/">Project home page</a> &gt; <a href="help.html">Main help page</a> &gt; Advanced features</p>
+<hr />
+<h1 id="ywriter-importexport-advanced-features">yWriter import/export: advanced features</h1>
+<h2 id="warning">Warning!</h2>
+<p>The "advanced features" are meant to be used by experienced OpenOffice/LibreOffice users only. If you aren't familiar with <strong>Calc</strong> and the concept of <strong>sections in Writer</strong>, please do not use the advanced features. There is a risk of damaging the project when writing back if you don't respect the section boundaries in the ODT text documents, or if you mess up the IDs in the ODS tables. Be sure to try out the features with a test project first.</p>
+<h2 id="command-reference">Command reference</h2>
+<ul>
+<li><a href="#manuscript-with-chapter-and-scene-sections">Manuscript with chapter and scene sections</a></li>
+<li><a href="#scene-descriptions">Scene descriptions</a></li>
+<li><a href="#chapter-descriptions">Chapter descriptions</a></li>
+<li><a href="#part-descriptions">Part descriptions</a></li>
+<li><a href="#character-descriptions">Character descriptions</a></li>
+<li><a href="#location-descriptions">Location descriptions</a></li>
+<li><a href="#item-descriptions">Item descriptions</a></li>
+<li><a href="#scene-list">Scene list</a></li>
+<li><a href="#plot-list">Plot list</a></li>
+</ul>
+<hr />
+<h2 id="manuscript-with-chapter-and-scene-sections">Manuscript with chapter and scene sections</h2>
+<p>This will load yWriter 6/7 chapters and scenes into a new OpenDocument text document (odt) with invisible chapter and scene sections (to be seen in the Navigator). File name suffix is <code>_manuscript</code>.</p>
+<p>You can write back the edited scene contents to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="scene-descriptions">Scene descriptions</h2>
+<p>This will generate a new OpenDocument text document (odt) containing a <strong>full synopsis</strong> with chapter titles and scene descriptions that can be edited and written back to yWriter format. File name suffix is <code>_scenes</code>.</p>
+<p>You can write back the edited descriptions to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="chapter-descriptions">Chapter descriptions</h2>
+<p>This will generate a new OpenDocument text document (odt) containing a <strong>brief synopsis</strong> with chapter titles and chapter descriptions that can be edited and written back to yWriter format. File name suffix is <code>_chapters</code>.</p>
+<p><strong>Note:</strong> Doesn't apply to chapters marked <code>This chapter begins a new section</code> in yWriter.</p>
+<p>You can write back the edited descriptions to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="part-descriptions">Part descriptions</h2>
+<p>This will generate a new OpenDocument text document (odt) containing a <strong>very brief synopsis</strong> with part titles and part descriptions that can be edited and written back to yWriter format. File name suffix is <code>_parts</code>.</p>
+<p><strong>Note:</strong> Applies only to chapters marked <code>This chapter  begins a new section</code> in yWriter.</p>
+<p>You can write back the edited descriptions to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="character-descriptions">Character descriptions</h2>
+<p>This will generate a new OpenDocument text document (odt) containing character descriptions, bio and goals that can be edited in Office Writer and written back to yWriter format. File name suffix is <code>_characters</code>.</p>
+<p>You can write back the edited descriptions to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="location-descriptions">Location descriptions</h2>
+<p>This will generate a new OpenDocument text document (odt) containing location descriptions that can be edited in Office Writer and written back to yWriter format. File name suffix is <code>_locations</code>.</p>
+<p>You can write back the edited descriptions to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="item-descriptions">Item descriptions</h2>
+<p>This will generate a new OpenDocument text document (odt) containing item descriptions that can be edited in Office Writer and written back to yWriter format. File name suffix is <code>_items</code>.</p>
+<p>You can write back the edited descriptions to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="scene-list">Scene list</h2>
+<p>This will generate a new OpenDocument spreadsheet (ods) listing scene title, scene descriptions, and links to the manuscript's scene sections. Further scene metadata (e.g. tags, goals, time), if any. File name suffix is <code>_scenelist</code>.</p>
+<p>You can write back the edited table to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="plot-list">Plot list</h2>
+<p>This will generate a new OpenDocument spreadsheet (ods) listing plot related metadata that can be displayed and edited. File name suffix is <code>_plotlist</code>.</p>
+<h3 id="plotting-conventions">Plotting conventions</h3>
+<p>In yWriter, you can divide your novel into <strong>Plot Sections</strong> (e.g. acts or steps) by inserting chapters marked "other". They will show up in blue color and won't get exported.</p>
+<p><strong>Plot-related events</strong> (e.g. "Mid Point", "Climax") can be identified by "scene tags" if you want to link them to a specific scene.</p>
+<p>You can use scene notes for <strong>plot-specific explanations</strong>.</p>
+<p>If you want to <strong>visualize character arcs</strong>, you can use the project's rating names by changing them to the names of up to four main characters. Then you can quantify the state of these four characters and put them into the scenes. It's easy then to let OpenOffice Calc show a diagram for the scene ratings over scene count or word count.</p>
+<ul>
+<li>Only rating field names corresponding to character names or containing the string "story", e.g. "A-Story", "BStoryline" (up to 10 case insensitive characters) appear in the plot list.</li>
+<li>Only ratings greater than 1 appear in the plot list, i.e. 1 means "a rating is not set for this chapter".</li>
+<li>Recommended ratings:
+<ul>
+<li>1 = N/A</li>
+<li>2 = unhappy</li>
+<li>3 = dissatisfied</li>
+<li>4 = vague</li>
+<li>5 = satisfied</li>
+<li>6 = happy</li>
+</ul></li>
+<li>Ratings deleted while editing the plotlist will be converted to 1 on writing back.</li>
+</ul>
+<p>You can write back the edited table to the yWriter 6/7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+</body>
+</html>

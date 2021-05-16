@@ -26,7 +26,7 @@
 -   Generate a new yWriter 7 project from a **work in progress** or an
     **outline** .
 
-You can find more information in the [help text](help/help.html).
+You can find more information in the [help text](help).
 
 ## Requirements
 
@@ -39,7 +39,7 @@ __Please note:__  _This extension can not be installed on OpenOffice. An OpenOff
 
 ## Download and install {#download}
 
-[Download the latest release (version 0.41.9)](https://raw.githubusercontent.com/peter88213/yw-cnv/master/dist/yw-cnv-L-0.41.9.oxt)
+[Download the latest release (version 0.41.10)](https://raw.githubusercontent.com/peter88213/yw-cnv/master/dist/yw-cnv-L-0.41.10.oxt)
 
 -   Installation right at download, by double-clicking on the downloaded 
     file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).

@@ -15,5 +15,3 @@
     </style>
 </head>
 <body>
-
-<p><a href="https://peter88213.github.io/yw-cnv/">Visit the project website</a></p>

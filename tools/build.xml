@@ -34,10 +34,10 @@
 		<mkdir dir="${dist}/${release-name-L}/help" />
 		
 		<copy file="${docs}/template/help.md" overwrite="True" todir="./help" />
-		<replace encoding="utf-8" file="./help/help.md" token="@help_adv@" value="help_adv.html" />
+		<replace encoding="utf-8" file="./help/help.md" token="@help-adv@" value="help-adv.html" />
 		
-		<copy file="${docs}/template/help_adv.md" overwrite="True" todir="./help" />
-		<replace encoding="utf-8" file="./help/help_adv.md" token="@help@" value="help.html" />
+		<copy file="${docs}/template/help-adv.md" overwrite="True" todir="./help" />
+		<replace encoding="utf-8" file="./help/help-adv.md" token="@help@" value="help.html" />
 		
 		<exec executable="cmd">
 			<arg value="/c"/>
@@ -50,15 +50,15 @@
 		
 		<exec executable="cmd">
 			<arg value="/c"/>
-			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help_adv.md"/>
+			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help-adv.md"/>
 		</exec>
 		
-		<concat destfile="${dist}/${release-name-L}/help/help_adv.html">
+		<concat destfile="${dist}/${release-name-L}/help/help-adv.html">
 			<filelist dir="./help" files="header.txt, body.html, footer.txt" />
 		</concat>
 		
 		<delete file="./help/help.md" />
-		<delete file="./help/help_adv.md" />
+		<delete file="./help/help-adv.md" />
 		<delete file="./help/body.html" />
 		
 		<copy todir="${dist}/${release-name-L}/META-INF"> 
@@ -99,10 +99,10 @@
 		<replace encoding="utf-8" file="${docs}/index.md" token="0.99.0" value="${release}" />
 
 		<copy file="${docs}/template/help.md" overwrite="True" todir="${docs}" />
-		<replace encoding="utf-8" file="${docs}/help.md" token="@help_adv@" value="help_adv" />
+		<replace encoding="utf-8" file="${docs}/help.md" token="@help-adv@" value="help-adv" />
 		
-		<copy file="${docs}/template/help_adv.md" overwrite="True" todir="${docs}" />
-		<replace encoding="utf-8" file="${docs}/help_adv.md" token="@help@" value="help" />
+		<copy file="${docs}/template/help-adv.md" overwrite="True" todir="${docs}" />
+		<replace encoding="utf-8" file="${docs}/help-adv.md" token="@help@" value="help" />
 		
 	</target>
 
