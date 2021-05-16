@@ -1,7 +1,0 @@
-body {padding: 1em;}
-h1, h2, h3 {font-family: sans-serif;}
-h1, h2 {color: green;}
-h3 {font-style: italic; font-size: 1em;}
-em, code {color: maroon;}
-#new_section {padding-top: 0.5em}
-#warning {font-family: sans-serif; color: red;}
