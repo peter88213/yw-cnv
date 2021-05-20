@@ -2,6 +2,12 @@
 
 ## Changelog
 
+### v1.0.0 Release
+
+- Update the underlying class library with changed API for better maintainability.
+- Revise the GUI.
+Based on PyWriter v3.0.0
+
 ### v0.40.3 Bugfix release
 
 Fix a regression causing wrong file type detection. 
