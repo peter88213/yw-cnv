@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_cTfU0L8tEeuEecdtmvW-dw" name="yw-cnv">
+  <packageImport xmi:type="uml:PackageImport" xmi:id="_cbsOkL8tEeuEecdtmvW-dw">
+    <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
+  </packageImport>
+  <packagedElement xmi:type="uml:Package" xmi:id="_N2EEEPywEeqEK6KdQRY5bw" name="LibreOffice">
+    <packagedElement xmi:type="uml:Class" xmi:id="_p2jIMPxAEeq5hMee5ike2Q" name="YwCnvUno">
+      <generalization xmi:type="uml:Generalization" xmi:id="_2oVYoPxAEeq5hMee5ike2Q">
+        <general xmi:type="uml:Class" href="../PyWriter/PyWriter.uml#_gJJ3IL4iEeuITv7MyBA5yA"/>
+      </generalization>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_Xe5vAL8uEeuEecdtmvW-dw" name="export_from_yw" visibility="public"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Class" xmi:id="_dNHGkPywEeqEK6KdQRY5bw" name="UiUno">
+      <generalization xmi:type="uml:Generalization" xmi:id="_hspM8PywEeqEK6KdQRY5bw">
+        <general xmi:type="uml:Class" href="../PyWriter/PyWriter.uml#_JtCGsPxDEeq5hMee5ike2Q"/>
+      </generalization>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_SZnawL8vEeuEecdtmvW-dw" name="ask_yes_no"/>
+      <ownedOperation xmi:type="uml:Operation" xmi:id="_ZQsAQL8vEeuEecdtmvW-dw" name="set_info_how"/>
+    </packagedElement>
+    <packagedElement xmi:type="uml:Association" xmi:id="_w7Oi8L8vEeuEecdtmvW-dw"/>
+  </packagedElement>
+</uml:Model>
