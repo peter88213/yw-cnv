@@ -17,4 +17,4 @@ def show_help():
 
 def show_adv_help():
     scriptLocation = os.path.dirname(__file__)
-    os.startfile(scriptLocation + '/help_adv.html')
+    os.startfile(scriptLocation + '/help-adv.html')

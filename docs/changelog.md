@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.0.1 bugfix release
+
+- Fix a link in the help script.
+Based on Pywriter v3.2.0
+
+
 ### v1.0.0 Release
 
 - Update the underlying class library with changed API for better maintainability.

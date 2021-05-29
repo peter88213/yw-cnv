@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.0.0
+Version 1.0.1
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -265,14 +265,46 @@ class Novel():
     This class represents a file containing a novel with additional 
     attributes and structural information (a full set or a subset
     of the information included in an yWriter project file).
+
+    Public methods: 
+        read() -- Parse the file and store selected properties.
+        merge(novel) -- Copy required attributes of the novel object.
+        write() -- Write selected properties to the file.
+        convert_to_yw(text) -- Return text, converted from source format to yw7 markup.
+        convert_from_yw(text) -- Return text, converted from yw7 markup to target format.
+        file_exists() -- Return True, if the file specified by filePath exists.
+
+    Instance variables:
+        title -- str; title
+        desc -- str; description
+        author -- str; author name
+        fieldTitle1 -- str; field title 1
+        fieldTitle2 -- str; field title 2
+        fieldTitle3 -- str; field title 3
+        fieldTitle4 -- str; field title 4
+        chapters -- dict; key = chapter ID, value = Chapter instance.
+        scenes -- dict; key = scene ID, value = Scene instance.
+        srtChapters -- list of str; The novel's sorted chapter IDs. 
+        locations -- dict; key = location ID, value = WorldElement instance.
+        srtLocations -- list of str; The novel's sorted location IDs. 
+        items -- dict; key = item ID, value = WorldElement instance.
+        srtItems -- list of str; The novel's sorted item IDs. 
+        characters -- dict; key = character ID, value = Character instance.
+        srtCharacters -- list of str The novel's sorted character IDs.
+        filePath -- str; path to the file represented by the class.   
     """
 
     DESCRIPTION = 'Novel'
     EXTENSION = None
     SUFFIX = None
-    # To be extended by file format specific subclasses.
+    # To be extended by subclass methods.
 
     def __init__(self, filePath, **kwargs):
+        """Define instance variables.
+
+        Positional argument:
+            filePath -- string; path to the file represented by the class.
+        """
         self.title = None
         # str
         # xml: <PROJECT><Title>
@@ -304,14 +336,14 @@ class Novel():
         self.chapters = {}
         # dict
         # xml: <CHAPTERS><CHAPTER><ID>
-        # key = chapter ID, value = Chapter object.
+        # key = chapter ID, value = Chapter instance.
         # The order of the elements does not matter (the novel's
         # order of the chapters is defined by srtChapters)
 
         self.scenes = {}
         # dict
         # xml: <SCENES><SCENE><ID>
-        # key = scene ID, value = Scene object.
+        # key = scene ID, value = Scene instance.
         # The order of the elements does not matter (the novel's
         # order of the scenes is defined by the order of the chapters
         # and the order of the scenes within the chapters)
@@ -324,7 +356,7 @@ class Novel():
         self.locations = {}
         # dict
         # xml: <LOCATIONS>
-        # key = location ID, value = Object.
+        # key = location ID, value = WorldElement instance.
         # The order of the elements does not matter.
 
         self.srtLocations = []
@@ -335,7 +367,7 @@ class Novel():
         self.items = {}
         # dict
         # xml: <ITEMS>
-        # key = item ID, value = Object.
+        # key = item ID, value = WorldElement instance.
         # The order of the elements does not matter.
 
         self.srtItems = []
@@ -346,7 +378,7 @@ class Novel():
         self.characters = {}
         # dict
         # xml: <CHARACTERS>
-        # key = character ID, value = Character object.
+        # key = character ID, value = Character instance.
         # The order of the elements does not matter.
 
         self.srtCharacters = []
@@ -375,7 +407,10 @@ class Novel():
 
     @filePath.setter
     def filePath(self, filePath):
-        """Accept only filenames with the right extension. """
+        """Setter for the filePath instance variable.        
+        - Format the path string according to Python's requirements. 
+        - Accept only filenames with the right suffix and extension.
+        """
 
         if self.SUFFIX is not None:
             suffix = self.SUFFIX
@@ -392,36 +427,41 @@ class Novel():
 
     def read(self):
         """Parse the file and store selected properties.
-        To be overwritten by file format specific subclasses.
+        Return a message beginning with SUCCESS or ERROR.
+        This is a stub to be overridden by subclass methods.
         """
         return 'ERROR: read method is not implemented.'
 
     def merge(self, novel):
         """Copy required attributes of the novel object.
-        To be overwritten by file format specific subclasses.
+        Return a message beginning with SUCCESS or ERROR.
+        This is a stub to be overridden by subclass methods.
         """
         return 'ERROR: merge method is not implemented.'
 
     def write(self):
         """Write selected properties to the file.
-        To be overwritten by file format specific subclasses.
+        Return a message beginning with SUCCESS or ERROR.
+        This is a stub to be overridden by subclass methods.
         """
         return 'ERROR: write method is not implemented.'
 
     def convert_to_yw(self, text):
-        """Convert source format to yw7 markup.
-        To be overwritten by file format specific subclasses.
+        """Return text, converted from source format to yw7 markup.
+        This is a stub to be overridden by subclass methods.
         """
         return text
 
     def convert_from_yw(self, text):
-        """Convert yw7 markup to target format.
-        To be overwritten by file format specific subclasses.
+        """Return text, converted from yw7 markup to target format.
+        This is a stub to be overridden by subclass methods.
         """
         return text
 
     def file_exists(self):
-        """Check whether the file specified by filePath exists. """
+        """Return True, if the file specified by filePath exists. 
+        Otherwise, return False.
+        """
         if os.path.isfile(self.filePath):
             return True
 
@@ -431,8 +471,7 @@ class Novel():
 
 class FileExport(Novel):
     """Abstract yWriter project file exporter representation.
-    To be overwritten by subclasses providing file type specific 
-    markup converters and templates.
+    This class is generic and contains no conversion algorithm and no templates.
     """
     SUFFIX = ''
 
@@ -483,7 +522,7 @@ class FileExport(Novel):
 
     def convert_from_yw(self, text):
         """Convert yw7 markup to target format.
-        To be overwritten by file format specific subclasses.
+        This is a stub to be overridden by subclass methods.
         """
 
         if text is None:
@@ -1004,8 +1043,6 @@ class FileExport(Novel):
 
 class OdfFile(FileExport):
     """Generic OpenDocument xml file representation.
-
-    Specific document representations inherit from this class.
     """
     TEMPDIR = 'temp_odf'
 
@@ -4325,8 +4362,6 @@ import sys
 
 class Ui():
     """Base class for UI facades, implementing a 'silent mode'.
-
-    All UI facades inherit from this class. 
     """
 
     def __init__(self, title):
@@ -4350,7 +4385,7 @@ class Ui():
         self.infoHowText = message
 
     def start(self):
-        """To be overwritten by subclasses requiring
+        """To be overridden by subclasses requiring
         special action to launch the user interaction.
         """
 
@@ -4359,15 +4394,14 @@ class YwCnv():
     """Base class for Novel file conversion.
 
     Public methods:
-    convert(sourceFile, targetFile) -- Convert sourceFile into targetFile and return a message.
-
-    All converters inherit from this class. 
+        convert(sourceFile, targetFile) -- Convert sourceFile into targetFile.
     """
 
     def convert(self, sourceFile, targetFile):
         """Convert sourceFile into targetFile and return a message.
 
-        sourceFile, targetFile -- Novel subclass instances.
+        Positional arguments:
+            sourceFile, targetFile -- Novel subclass instances.
 
         1. Make the source object read the source file.
         2. Make the target object merge the source object's instance variables.
@@ -4414,7 +4448,9 @@ class YwCnv():
         return targetFile.write()
 
     def confirm_overwrite(self, fileName):
-        """Return boolean permission to overwrite the target file."""
+        """Return boolean permission to overwrite the target file.
+        This is a stub to be overridden by subclass methods.
+        """
         return True
 
 
@@ -4422,22 +4458,36 @@ class YwCnv():
 class FileFactory:
     """Base class for conversion object factory classes.
 
+    Public methods:
+        make_file_objects(self, sourcePath, **kwargs) -- return conversion objects.
+
     This class emulates a "FileFactory" Interface.
     Instances can be used as stubs for factories instantiated at runtime.
     """
 
     def __init__(self, fileClasses=[]):
+        """Write the parameter to a private instance variable.
+
+        Positional arguments:
+            fileClasses -- list of classes from which an instance can be returned.
+        """
         self.fileClasses = fileClasses
 
     def make_file_objects(self, sourcePath, **kwargs):
         """A factory method stub.
+
+        Positional arguments:
+            sourcePath -- string; path to the source file to convert.
+
+        Optional arguments:
+            suffix -- string; an indicator for the target file type.
 
         Return a tuple with three elements:
         - A message string starting with 'ERROR'
         - sourceFile: None
         - targetFile: None
 
-        Factory method to be overwritten by subclasses.
+        Factory method to be overridden by subclasses.
         Subclasses return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
         - sourceFile: a Novel subclass instance
@@ -4448,10 +4498,14 @@ class FileFactory:
 
 
 class ExportSourceFactory(FileFactory):
-    """A factory class that instantiates an export source file object."""
+    """A factory class that instantiates a yWriter object to read."""
 
     def make_file_objects(self, sourcePath, **kwargs):
-        """Instantiate a source object for conversion from a yWriter format.
+        """Instantiate a source object for conversion from a yWriter project.
+        Override the superclass method.
+
+        Positional arguments:
+            sourcePath -- string; path to the source file to convert.
 
         Return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
@@ -4471,10 +4525,17 @@ class ExportSourceFactory(FileFactory):
 
 
 class ExportTargetFactory(FileFactory):
-    """A factory class that instantiates an export target file object."""
+    """A factory class that instantiates a document object to write."""
 
     def make_file_objects(self, sourcePath, **kwargs):
-        """Instantiate a target object for conversion to any format.
+        """Instantiate a target object for conversion from a yWriter project.
+        Override the superclass method.
+
+        Positional arguments:
+            sourcePath -- string; path to the source file to convert.
+
+        Optional arguments:
+            suffix -- string; an indicator for the target file type.
 
         Return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
@@ -4499,10 +4560,14 @@ class ExportTargetFactory(FileFactory):
 
 
 class ImportSourceFactory(FileFactory):
-    """A factory class that instantiates an import source file object."""
+    """A factory class that instantiates a documente object to read."""
 
     def make_file_objects(self, sourcePath, **kwargs):
-        """Instantiate a source object for conversion to a yWriter format.
+        """Instantiate a source object for conversion to a yWriter project.       
+        Override the superclass method.
+
+        Positional arguments:
+            sourcePath -- string; path to the source file to convert.
 
         Return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
@@ -4523,10 +4588,18 @@ class ImportSourceFactory(FileFactory):
 
 
 class ImportTargetFactory(FileFactory):
-    """A factory class that instantiates an import target file object."""
+    """A factory class that instantiates a yWriter object to write."""
 
     def make_file_objects(self, sourcePath, **kwargs):
-        """Factory method.
+        """Instantiate a target object for conversion to a yWriter project.
+        Override the superclass method.
+
+        Positional arguments:
+            sourcePath -- string; path to the source file to convert.
+
+        Optional arguments:
+            suffix -- string; an indicator for the source file type.
+
         Return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
         - sourceFile: None
@@ -4555,12 +4628,27 @@ class ImportTargetFactory(FileFactory):
 
 
 class YwCnvUi(YwCnv):
-    """Class for Novel file conversion with user interface.
+    """Base class for Novel file conversion with user interface.
 
     Public methods:
-    run(sourcePath, suffix) -- Create source and target objects and run conversion.
+        run(sourcePath, suffix) -- Create source and target objects and run conversion.
 
-    All converters with a user interface inherit from this class. 
+    Class constants:
+        EXPORT_SOURCE_CLASSES -- List of YwFile subclasses from which can be exported.
+        EXPORT_TARGET_CLASSES -- List of FileExport subclasses to which export is possible.
+        IMPORT_SOURCE_CLASSES -- List of Novel subclasses from which can be imported.
+        IMPORT_TARGET_CLASSES -- List of YwFile subclasses to which import is possible.
+
+    All lists are empty and meant to be overridden by subclasses.
+
+    Instance variables:
+        ui -- Ui (can be overridden e.g. by subclasses).
+        exportSourceFactory -- ExportSourceFactory.
+        exportTargetFactory -- ExportTargetFactory.
+        importSourceFactory -- ImportSourceFactory.
+        importTargetFactory -- ImportTargetFactory.
+        newProjectFactory -- FileFactory (a stub to be overridden by subclasses).
+        newFile -- string; path to the target file in case of success.   
     """
 
     EXPORT_SOURCE_CLASSES = []
@@ -4569,12 +4657,7 @@ class YwCnvUi(YwCnv):
     IMPORT_TARGET_CLASSES = []
 
     def __init__(self):
-        """Define instance variables.
-
-        ui -- user interface object; instance of Ui or a Ui subclass.
-        fileFactory -- file factory object; instance of a FileFactory subclass.
-        """
-
+        """Define instance variables."""
         self.ui = Ui('')
         # Per default, 'silent mode' is active.
 
@@ -4893,7 +4976,6 @@ class Chapter():
 
 class YwFile(Novel):
     """Abstract yWriter xml project file representation.
-    To be overwritten by yWriter-version-specific subclasses. 
     """
 
     def strip_spaces(self, elements):
@@ -5330,7 +5412,7 @@ class YwTreeBuilder():
     def build_element_tree(self, ywProject):
         """Modify the yWriter project attributes of an existing xml element tree.
         Return a message beginning with SUCCESS or ERROR.
-        To be overwritten by file format specific subclasses.
+        To be overridden by file format specific subclasses.
         """
         root = ywProject._tree.getroot()
 
@@ -5903,7 +5985,7 @@ class YwTreeReader(ABC):
     def read_element_tree(self, ywFile):
         """Parse the yWriter xml file located at filePath, fetching the Novel attributes.
         Return a message beginning with SUCCESS or ERROR.
-        To be overwritten by file format specific subclasses.
+        To be overridden by file format specific subclasses.
         """
 
 
@@ -6321,7 +6403,7 @@ class YwTreeWriter(ABC):
     def write_element_tree(self, ywProject):
         """Write back the xml element tree to a yWriter xml file located at filePath.
         Return a message beginning with SUCCESS or ERROR.
-        To be overwritten by file format specific subclasses.
+        To be overridden by file format specific subclasses.
         """
 
 
@@ -6355,7 +6437,7 @@ class YwPostprocessor(ABC):
         Put a header on top, insert the missing CDATA tags,
         and replace xml entities by plain text.
         Return a message beginning with SUCCESS or ERROR.
-        To be overwritten by file format specific subclasses.
+        To be overridden by file format specific subclasses.
         '''
 
     def format_xml(self, text):
@@ -7141,17 +7223,26 @@ class HtmlOutline(HtmlFile):
 
 
 class NewProjectFactory(FileFactory):
-    """A factory class that instantiates source and target file objects."""
+    """A factory class that instantiates a document object to read, 
+    and a new yWriter project.
+
+    Class constant:
+        DO_NOT_IMPORT -- list of suffixes from file classes not meant to be imported.    
+    """
 
     DO_NOT_IMPORT = ['_xref']
 
     def make_file_objects(self, sourcePath, **kwargs):
-        """Factory method.
+        """Instantiate a source and a target object for creation of a new yWriter project.
+        Override the superclass method.
+
+        Positional arguments:
+            sourcePath -- string; path to the source file to convert.
+
         Return a tuple with three elements:
         - A message string starting with 'SUCCESS' or 'ERROR'
         - sourceFile: a Novel subclass instance
         - targetFile: a Novel subclass instance
-
         """
         if not self.canImport(sourcePath):
             return 'ERROR: This document is not meant to be written back.', None, None
@@ -7190,6 +7281,9 @@ class NewProjectFactory(FileFactory):
             return 'ERROR: File type of  "' + os.path.normpath(sourcePath) + '" not supported.', None, None
 
     def canImport(self, sourcePath):
+        """Return True, if the file located at sourcepath is of an importable type.
+        Otherwise, return False.
+        """
         fileName, fileExtension = os.path.splitext(sourcePath)
 
         for suffix in self.DO_NOT_IMPORT:
@@ -8447,10 +8541,17 @@ class CsvItemList(CsvFile):
 
 
 class UniversalConverter(YwCnvUi):
-    """A converter for import and export.
+    """A converter for universal import and export.
 
     Support yWriter 7 projects and most of the Novel subclasses 
-    that can be read or written by OpenOffice/LibreOffice. 
+    that can be read or written by OpenOffice/LibreOffice.
+
+    Override the superclass constants EXPORT_SOURCE_CLASSES,
+    EXPORT_TARGET_CLASSES, IMPORT_SOURCE_CLASSES, IMPORT_TARGET_CLASSES.
+
+    Class constants:
+        CREATE_SOURCE_CLASSES -- list of classes that - additional to HtmlImport
+                        and HtmlOutline - can be exported to a new yWriter project.
     """
     EXPORT_SOURCE_CLASSES = [Yw7File,
                              Yw6File,
@@ -8493,6 +8594,9 @@ class UniversalConverter(YwCnvUi):
     CREATE_SOURCE_CLASSES = []
 
     def __init__(self):
+        """Extend the superclass constructor.
+        Override newProjectFactory.
+        """
         YwCnvUi.__init__(self)
         self.newProjectFactory = NewProjectFactory(self.CREATE_SOURCE_CLASSES)
 
