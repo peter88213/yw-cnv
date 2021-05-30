@@ -3,7 +3,7 @@
   <packageImport xmi:type="uml:PackageImport" xmi:id="_cbsOkL8tEeuEecdtmvW-dw">
     <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
   </packageImport>
-  <packagedElement xmi:type="uml:Package" xmi:id="_N2EEEPywEeqEK6KdQRY5bw" name="LibreOffice">
+  <packagedElement xmi:type="uml:Package" xmi:id="_N2EEEPywEeqEK6KdQRY5bw" name="libreoffice">
     <packagedElement xmi:type="uml:Class" xmi:id="_p2jIMPxAEeq5hMee5ike2Q" name="YwCnvUno">
       <generalization xmi:type="uml:Generalization" xmi:id="_2oVYoPxAEeq5hMee5ike2Q">
         <general xmi:type="uml:Class" href="../PyWriter/PyWriter.uml#_gJJ3IL4iEeuITv7MyBA5yA"/>
