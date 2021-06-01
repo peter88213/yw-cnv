@@ -4,11 +4,15 @@
 
 ## Changelog
 
-### v1.0.1 bugfix release
+### v1.0.2 Service release
+
+- Refactor for faster execution.
+Based on Pywriter v3.2.1
+
+### v1.0.1 Bugfix release
 
 - Fix a link in the help script.
 Based on Pywriter v3.2.0
-
 
 ### v1.0.0 Release
 
