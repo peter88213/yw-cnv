@@ -4,25 +4,29 @@
 
 ## Changelog
 
-### v1.0.2 Service release
+### v1.0.2 Optional update
 
 - Refactor for faster execution.
+
 Based on Pywriter v3.2.1
 
 ### v1.0.1 Bugfix release
 
 - Fix a link in the help script.
+
 Based on Pywriter v3.2.0
 
-### v1.0.0 Release
+### v1.0.0 Official release
 
 - Update the underlying class library with changed API for better maintainability.
 - Revise the GUI.
+
 Based on PyWriter v3.0.0
 
 ### v0.40.3 Bugfix release
 
 Fix a regression causing wrong file type detection. 
+
 Based on PyWriter v2.14.3
 
 ### v0.40.2 Service release
