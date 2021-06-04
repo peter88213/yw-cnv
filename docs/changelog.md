@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.0 Drop yWriter 6 support
+
+Support only yWriter 7 projects for better maintainability and speed.
+
+Based on PyWriter v3.4.0
+
 ### v1.0.2 Optional update
 
 - Refactor for faster execution.

@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.0.2
+Version 1.2.0
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -432,8 +432,8 @@ class Novel():
         """
         return 'ERROR: read method is not implemented.'
 
-    def merge(self, novel):
-        """Copy required attributes of the novel object.
+    def merge(self, source):
+        """Copy required attributes of the source object.
         Return a message beginning with SUCCESS or ERROR.
         This is a stub to be overridden by subclass methods.
         """
@@ -530,73 +530,73 @@ class FileExport(Novel):
 
         return(text)
 
-    def merge(self, novel):
-        """Copy required attributes of the novel object.
+    def merge(self, source):
+        """Copy required attributes of the source object.
         Return a message beginning with SUCCESS or ERROR.
         """
 
-        if novel.title is not None:
-            self.title = novel.title
+        if source.title is not None:
+            self.title = source.title
 
         else:
             self.title = ''
 
-        if novel.desc is not None:
-            self.desc = novel.desc
+        if source.desc is not None:
+            self.desc = source.desc
 
         else:
             self.desc = ''
 
-        if novel.author is not None:
-            self.author = novel.author
+        if source.author is not None:
+            self.author = source.author
 
         else:
             self.author = ''
 
-        if novel.fieldTitle1 is not None:
-            self.fieldTitle1 = novel.fieldTitle1
+        if source.fieldTitle1 is not None:
+            self.fieldTitle1 = source.fieldTitle1
 
         else:
             self.fieldTitle1 = 'Field 1'
 
-        if novel.fieldTitle2 is not None:
-            self.fieldTitle2 = novel.fieldTitle2
+        if source.fieldTitle2 is not None:
+            self.fieldTitle2 = source.fieldTitle2
 
         else:
             self.fieldTitle2 = 'Field 2'
 
-        if novel.fieldTitle3 is not None:
-            self.fieldTitle3 = novel.fieldTitle3
+        if source.fieldTitle3 is not None:
+            self.fieldTitle3 = source.fieldTitle3
 
         else:
             self.fieldTitle3 = 'Field 3'
 
-        if novel.fieldTitle4 is not None:
-            self.fieldTitle4 = novel.fieldTitle4
+        if source.fieldTitle4 is not None:
+            self.fieldTitle4 = source.fieldTitle4
 
         else:
             self.fieldTitle4 = 'Field 4'
 
-        if novel.srtChapters != []:
-            self.srtChapters = novel.srtChapters
+        if source.srtChapters != []:
+            self.srtChapters = source.srtChapters
 
-        if novel.scenes is not None:
-            self.scenes = novel.scenes
+        if source.scenes is not None:
+            self.scenes = source.scenes
 
-        if novel.chapters is not None:
-            self.chapters = novel.chapters
+        if source.chapters is not None:
+            self.chapters = source.chapters
 
-        if novel.srtCharacters != []:
-            self.srtCharacters = novel.srtCharacters
-            self.characters = novel.characters
+        if source.srtCharacters != []:
+            self.srtCharacters = source.srtCharacters
+            self.characters = source.characters
 
-        if novel.srtLocations != []:
-            self.srtLocations = novel.srtLocations
-            self.locations = novel.locations
+        if source.srtLocations != []:
+            self.srtLocations = source.srtLocations
+            self.locations = source.locations
 
-        if novel.srtItems != []:
-            self.srtItems = novel.srtItems
-            self.items = novel.items
+        if source.srtItems != []:
+            self.srtItems = source.srtItems
+            self.items = source.items
 
         return 'SUCCESS'
 
@@ -4976,15 +4976,45 @@ class Chapter():
 import xml.etree.ElementTree as ET
 
 
-class YwTreeBuilder():
-    """Build yWriter project xml tree."""
+class Yw7TreeBuilder():
+    """Build yWriter 7 project xml tree."""
+
+    TAG = 'YWRITER7'
+    VER = '7'
+
+    def put_scene_contents(self, ywProject):
+        """Modify the scene contents of an existing xml element tree.
+        Return a message beginning with SUCCESS or ERROR.
+        """
+
+        root = ywProject.tree.getroot()
+
+        for scn in root.iter('SCENE'):
+            scId = scn.find('ID').text
+
+            if ywProject.scenes[scId].sceneContent is not None:
+                scn.find(
+                    'SceneContent').text = ywProject.scenes[scId].sceneContent
+                scn.find('WordCount').text = str(
+                    ywProject.scenes[scId].wordCount)
+                scn.find('LetterCount').text = str(
+                    ywProject.scenes[scId].letterCount)
+
+            try:
+                scn.remove(scn.find('RTFFile'))
+
+            except:
+                pass
+
+        return 'SUCCESS'
 
     def build_element_tree(self, ywProject):
         """Modify the yWriter project attributes of an existing xml element tree.
         Return a message beginning with SUCCESS or ERROR.
-        To be overridden by file format specific subclasses.
         """
         root = ywProject.tree.getroot()
+        root.tag = self.TAG
+        root.find('PROJECT').find('Ver').text = self.VER
 
         # Write locations to the xml element tree.
 
@@ -5183,6 +5213,11 @@ class YwTreeBuilder():
                     chp.remove(chp.find('Unused'))
 
         # Write attributes at scene level to the xml element tree.
+
+        message = self.put_scene_contents(ywProject)
+
+        if message.startswith('ERROR'):
+            return message
 
         for scn in root.iter('SCENE'):
             scId = scn.find('ID').text
@@ -5509,40 +5544,6 @@ class YwTreeBuilder():
         else:
             if level and (not elem.tail or not elem.tail.strip()):
                 elem.tail = i
-
-
-class Yw7TreeBuilder(YwTreeBuilder):
-    """Build yWriter 7 project xml tree."""
-
-    def build_element_tree(self, ywProject):
-        """Modify the yWriter project attributes of an existing xml element tree.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        root = ywProject.tree.getroot()
-
-        for scn in root.iter('SCENE'):
-            scId = scn.find('ID').text
-
-            if ywProject.scenes[scId].sceneContent is not None:
-                scn.find(
-                    'SceneContent').text = ywProject.scenes[scId].sceneContent
-                scn.find('WordCount').text = str(
-                    ywProject.scenes[scId].wordCount)
-                scn.find('LetterCount').text = str(
-                    ywProject.scenes[scId].letterCount)
-
-            try:
-                scn.remove(scn.find('RTFFile'))
-
-            except:
-                pass
-
-        root.tag = 'YWRITER7'
-        root.find('PROJECT').find('Ver').text = '7'
-        ywProject.tree = ET.ElementTree(root)
-
-        return YwTreeBuilder.build_element_tree(self, ywProject)
 
 
 
@@ -6037,28 +6038,21 @@ class Utf8Postprocessor():
 class Yw7File(Novel):
     """yWriter 7 project file representation.
 
-    Instance variables:
+    Additional attributes:
         ywTreeReader -- strategy class to read yWriter project files.
         ywProjectMerger -- strategy class to merge two yWriter project structures.
         ywTreeBuilder -- strategy class to build an xml tree.
         ywTreeWriter -- strategy class to write yWriter project files.
         ywPostprocessor -- strategy class to postprocess yWriter project files.
         tree -- xml element tree of the yWriter project
-
-    Public methods:
-        read() -- Parse the yWriter xml file, fetching the Novel attributes.
-        merge(novel) -- Copy required attributes of the novel object.
-        write() -- Open the yWriter xml file and replace a set of attributes not being None.
-        is_locked() -- Return True if a .lock file placed by yWriter exists.
-
     """
 
     DESCRIPTION = 'yWriter 7 project'
     EXTENSION = '.yw7'
 
     def __init__(self, filePath, **kwargs):
-        """Extend the superclass constructor.
-        Initialize instance variables.
+        """Initialize instance variables:
+        Extend the superclass constructor by adding.
         """
         Novel.__init__(self, filePath)
 
@@ -6085,9 +6079,9 @@ class Yw7File(Novel):
         return stripped
 
     def read(self):
-        """Override the superclass method.
-        Parse the yWriter xml file located at filePath, fetching the Novel attributes.
+        """Parse the yWriter xml file, fetching the Novel attributes.
         Return a message beginning with SUCCESS or ERROR.
+        Override the superclass method.
         """
 
         if self.is_locked():
@@ -6455,10 +6449,10 @@ class Yw7File(Novel):
 
         return 'SUCCESS: ' + str(len(self.scenes)) + ' Scenes read from "' + os.path.normpath(self.filePath) + '".'
 
-    def merge(self, novel):
-        """Override the superclass method.
-        Copy required attributes of the novel object.
+    def merge(self, source):
+        """Copy required attributes of the source object.
         Return a message beginning with SUCCESS or ERROR.
+        Override the superclass method.
         """
 
         if self.file_exists():
@@ -6468,13 +6462,13 @@ class Yw7File(Novel):
             if message.startswith('ERROR'):
                 return message
 
-        return self.ywProjectMerger.merge_projects(self, novel)
+        return self.ywProjectMerger.merge_projects(self, source)
 
     def write(self):
-        """Override the superclass method.
-        Open the yWriter xml file located at filePath and 
+        """Open the yWriter xml file located at filePath and 
         replace a set of attributes not being None.
         Return a message beginning with SUCCESS or ERROR.
+        Override the superclass method.
         """
 
         if self.is_locked():
@@ -6504,7 +6498,7 @@ class Yw7File(Novel):
 
 
 
-class Yw7TreeCreator(YwTreeBuilder):
+class Yw7TreeCreator(Yw7TreeBuilder):
     """Create a new yWriter 7 project xml tree."""
 
     def build_element_tree(self, ywProject):
@@ -6512,12 +6506,12 @@ class Yw7TreeCreator(YwTreeBuilder):
         Return a message beginning with SUCCESS or ERROR.
         """
 
-        root = ET.Element('YWRITER7')
+        root = ET.Element(self.TAG)
 
         # Write attributes at novel level to the xml element tree.
 
         prj = ET.SubElement(root, 'PROJECT')
-        ET.SubElement(prj, 'Ver').text = '7'
+        ET.SubElement(prj, 'Ver').text = self.VER
 
         if ywProject.title is not None:
             ET.SubElement(prj, 'Title').text = ywProject.title
@@ -6825,7 +6819,7 @@ class YwProjectCreator(YwProjectMerger):
     """Extend the super class by disabling its project structure check."""
 
     def merge_projects(self, target, source):
-        """Create target attributes with source attributes.
+        """Copy source attributes to the target.
         Return a message beginning with SUCCESS, even if the source and 
         target project structures are inconsistent. Thus the source
         project can be merged with an empty target, creating a new project.
@@ -6838,7 +6832,10 @@ class Yw7NewFile(Yw7File):
     """yWriter 7 new project file representation."""
 
     def __init__(self, filePath, **kwargs):
-        """Extends the superclass constructor."""
+        """Initialize instance variables.
+        Extend the superclass constructor by changing the
+        ywProjectMerger and ywTreeBuilder strategies.
+        """
         Yw7File.__init__(self, filePath)
 
         self.ywProjectMerger = YwProjectCreator()
@@ -7277,259 +7274,6 @@ class NewProjectFactory(FileFactory):
 
         return True
 
-
-
-
-
-class Yw6TreeBuilder(YwTreeBuilder):
-    """Build yWriter 6 project xml tree."""
-
-    def build_element_tree(self, ywProject):
-        """Modify the yWriter project attributes of an existing xml element tree.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        root = ywProject.tree.getroot()
-
-        for scn in root.iter('SCENE'):
-            scId = scn.find('ID').text
-
-            if ywProject.scenes[scId].sceneContent is not None:
-                scn.find(
-                    'SceneContent').text = ywProject.scenes[scId].sceneContent
-                scn.find('WordCount').text = str(
-                    ywProject.scenes[scId].wordCount)
-                scn.find('LetterCount').text = str(
-                    ywProject.scenes[scId].letterCount)
-
-        root.tag = 'YWRITER6'
-        root.find('PROJECT').find('Ver').text = '5'
-        ywProject.tree = ET.ElementTree(root)
-
-        return YwTreeBuilder.build_element_tree(self, ywProject)
-
-
-class Yw6File(Yw7File):
-    """yWriter 6 project file representation."""
-
-    DESCRIPTION = 'yWriter 6 project'
-    EXTENSION = '.yw6'
-
-    def __init__(self, filePath, **kwargs):
-        """Extend the superclass constructor.
-        Initialize instance variables.
-        """
-        Yw7File.__init__(self, filePath)
-
-        self.ywTreeReader = Utf8TreeReader()
-        self.ywProjectMerger = YwProjectMerger()
-        self.ywTreeBuilder = Yw6TreeBuilder()
-        self.ywTreeWriter = Utf8TreeWriter()
-        self.ywPostprocessor = Utf8Postprocessor()
-
-
-
-
-
-class Yw5TreeBuilder(YwTreeBuilder):
-    """Build yWriter 5 project xml tree."""
-
-    def convert_to_rtf(self, text):
-        """Convert yw6/7 raw markup to rtf. 
-        Return a rtf encoded string.
-        """
-
-        RTF_HEADER = '{\\rtf1\\ansi\\deff0\\nouicompat{\\fonttbl{\\f0\\fnil\\fcharset0 Courier New;}}{\\*\\generator PyWriter}\\viewkind4\\uc1 \\pard\\sa0\\sl240\\slmult1\\f0\\fs24\\lang9 '
-        RTF_FOOTER = ' }'
-
-        RTF_REPLACEMENTS = [
-            ['\n\n', '\\line\\par '],
-            ['\n', '\\par '],
-            ['[i]', '{\\i '],
-            ['[/i]', '}'],
-            ['[b]', '{\\b '],
-            ['[/b]', '}'],
-            ['–', '--'],
-            ['—', '--'],
-            ['„', '\\u8222?'],
-            ['‚', '\\u8218?'],
-            ['‘', '\\lquote '],
-            ['’', '\\rquote '],
-            ['“', '\\ldblquote '],
-            ['”', '\\rdblquote '],
-            ['\u202f', '\\~'],
-            ['»', '\\u0187?'],
-            ['«', '\\u0171?'],
-            ['›', '\\u8250?'],
-            ['‹', '\\u8249?'],
-            ['…', '\\u8230?'],
-        ]
-
-        try:
-
-            for r in RTF_REPLACEMENTS:
-                text = text.replace(r[0], r[1])
-
-        except AttributeError:
-            text = ''
-
-        return RTF_HEADER + text + RTF_FOOTER
-
-    def build_element_tree(self, ywProject):
-        """Modify the yWriter project attributes of an existing xml element tree.
-        Write scene contents to RTF files.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-        rtfDir = os.path.dirname(ywProject.filePath)
-
-        if rtfDir == '':
-            rtfDir = './RTF5'
-
-        else:
-            rtfDir += '/RTF5'
-
-        for chId in ywProject.chapters:
-
-            if ywProject.chapters[chId].oldType == 1:
-                ywProject.chapters[chId].isUnused = False
-
-        root = ywProject.tree.getroot()
-
-        for scn in root.iter('SCENE'):
-            scId = scn.find('ID').text
-
-            try:
-                scn.remove(scn.find('SceneContent'))
-
-            except:
-                pass
-
-            if ywProject.scenes[scId].rtfFile is not None:
-
-                if scn.find('RTFFile') is None:
-                    ET.SubElement(
-                        scn, 'RTFFile').text = ywProject.scenes[scId].rtfFile
-
-                if ywProject.scenes[scId].sceneContent is not None:
-                    rtfPath = rtfDir + '/' + ywProject.scenes[scId].rtfFile
-
-                    rtfScene = self.convert_to_rtf(
-                        ywProject.scenes[scId].sceneContent)
-
-                    try:
-
-                        with open(rtfPath, 'w') as f:
-                            f.write(rtfScene)
-
-                    except:
-
-                        return 'ERROR: Can not write scene file "' + rtfPath + '".'
-
-        root.tag = 'YWRITER5'
-        root.find('PROJECT').find('Ver').text = '5'
-        ywProject.tree = ET.ElementTree(root)
-
-        return YwTreeBuilder.build_element_tree(self, ywProject)
-
-
-
-class AnsiTreeReader(Utf8TreeReader):
-    """Read ANSI encoded yWriter xml project file."""
-
-    def read_element_tree(self, ywProject):
-        """Override the superclass method.
-        Parse the yWriter xml file located at filePath, fetching the Novel attributes.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        _TEMPFILE = '._tempfile.xml'
-
-        try:
-
-            with open(ywProject.filePath, 'r') as f:
-                project = f.readlines()
-
-            project[0] = project[0].replace('<?xml version="1.0" encoding="iso-8859-1"?>',
-                                            '<?xml version="1.0" encoding="cp1252"?>')
-
-            with open(_TEMPFILE, 'w') as f:
-                f.writelines(project)
-
-            ywProject.tree = ET.parse(_TEMPFILE)
-            os.remove(_TEMPFILE)
-
-        except:
-            return 'ERROR: Can not process "' + os.path.normpath(ywProject.filePath) + '".'
-
-        return 'SUCCESS: XML element tree read in.'
-
-
-
-class AnsiTreeWriter(Utf8TreeWriter):
-    """Write ANSI encoded yWriter project file."""
-
-    def write_element_tree(self, ywProject):
-        """Override the superclass method.
-        Write back the xml element tree to a yWriter xml file located at filePath.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        try:
-            ywProject.tree.write(
-                ywProject.filePath, xml_declaration=False, encoding='iso-8859-1')
-
-        except(PermissionError):
-            return 'ERROR: "' + os.path.normpath(ywProject.filePath) + '" is write protected.'
-
-        return 'SUCCESS'
-
-
-
-class AnsiPostprocessor(Utf8Postprocessor):
-    """Postprocess ANSI encoded yWriter project."""
-
-    def postprocess_xml_file(self, filePath):
-        '''Override the superclass method.
-        Postprocess the xml file created by ElementTree:
-        Put a header on top, insert the missing CDATA tags,
-        and replace xml entities by plain text.
-        Return a message beginning with SUCCESS or ERROR.
-        '''
-
-        with open(filePath, 'r') as f:
-            text = f.read()
-
-        text = self.format_xml(text)
-        text = '<?xml version="1.0" encoding="iso-8859-1"?>\n' + text
-
-        try:
-
-            with open(filePath, 'w') as f:
-                f.write(text)
-
-        except:
-            return 'ERROR: Can not write "' + os.path.normpath(filePath) + '".'
-
-        return 'SUCCESS: "' + os.path.normpath(filePath) + '" written.'
-
-
-class Yw5File(Yw7File):
-    """yWriter 5 project file representation."""
-
-    DESCRIPTION = 'yWriter 5 project'
-    EXTENSION = '.yw5'
-
-    def __init__(self, filePath, **kwargs):
-        """Extend the superclass constructor.
-        Initialize instance variables.
-        """
-        Yw7File.__init__(self, filePath)
-
-        self.ywTreeReader = AnsiTreeReader()
-        self.ywProjectMerger = YwProjectMerger()
-        self.ywTreeBuilder = Yw5TreeBuilder()
-        self.ywTreeWriter = AnsiTreeWriter()
-        self.ywPostprocessor = AnsiPostprocessor()
 
 
 
@@ -8423,12 +8167,12 @@ class CsvCharList(CsvFile):
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
-    def merge(self, novel):
-        """Copy required attributes of the novel object.
+    def merge(self, source):
+        """Copy required attributes of the source object.
         Return a message beginning with SUCCESS or ERROR.
         """
-        self.srtCharacters = novel.srtCharacters
-        self.characters = novel.characters
+        self.srtCharacters = source.srtCharacters
+        self.characters = source.characters
         return 'SUCCESS'
 
 
@@ -8474,12 +8218,12 @@ class CsvLocList(CsvFile):
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
-    def merge(self, novel):
-        """Copy required attributes of the novel object.
+    def merge(self, source):
+        """Copy required attributes of the source object.
         Return a message beginning with SUCCESS or ERROR.
         """
-        self.srtLocations = novel.srtLocations
-        self.locations = novel.locations
+        self.srtLocations = source.srtLocations
+        self.locations = source.locations
         return 'SUCCESS'
 
 
@@ -8524,16 +8268,16 @@ class CsvItemList(CsvFile):
 
         return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
-    def merge(self, novel):
-        """Copy required attributes of the novel object.
+    def merge(self, source):
+        """Copy required attributes of the source object.
         Return a message beginning with SUCCESS or ERROR.
         """
-        self.srtItems = novel.srtItems
-        self.items = novel.items
+        self.srtItems = source.srtItems
+        self.items = source.items
         return 'SUCCESS'
 
 
-class UniversalConverter(YwCnvUi):
+class Yw7Converter(YwCnvUi):
     """A converter for universal import and export.
 
     Support yWriter 7 projects and most of the Novel subclasses 
@@ -8546,10 +8290,7 @@ class UniversalConverter(YwCnvUi):
         CREATE_SOURCE_CLASSES -- list of classes that - additional to HtmlImport
                         and HtmlOutline - can be exported to a new yWriter project.
     """
-    EXPORT_SOURCE_CLASSES = [Yw7File,
-                             Yw6File,
-                             Yw5File,
-                             ]
+    EXPORT_SOURCE_CLASSES = [Yw7File]
     EXPORT_TARGET_CLASSES = [OdtExport,
                              OdtProof,
                              OdtManuscript,
@@ -8580,21 +8321,19 @@ class UniversalConverter(YwCnvUi):
                              CsvSceneList,
                              CsvPlotList,
                              ]
-    IMPORT_TARGET_CLASSES = [Yw7File,
-                             Yw6File,
-                             Yw5File,
-                             ]
+    IMPORT_TARGET_CLASSES = [Yw7File]
     CREATE_SOURCE_CLASSES = []
 
     def __init__(self):
-        """Extend the superclass constructor.
-        Override newProjectFactory.
+        """Initialize instance variables.
+        Extend the superclass constructor by
+        changing the newProjectFactory strategy.
         """
         YwCnvUi.__init__(self)
         self.newProjectFactory = NewProjectFactory(self.CREATE_SOURCE_CLASSES)
 
 
-class YwCnvUno(UniversalConverter):
+class YwCnvUno(Yw7Converter):
     """Converter for yWriter project files.
     Variant with UNO UI.
     """
@@ -8662,7 +8401,7 @@ def open_yw7(suffix, newExt):
     except:
         pass
 
-    # Ask for yWriter 6 or 7 project to open:
+    # Ask for yWriter 7 project to open:
 
     ywFile = FilePicker(path=defaultFile)
 
@@ -8672,8 +8411,8 @@ def open_yw7(suffix, newExt):
     sourcePath = unquote(ywFile.replace('file:///', ''))
     ywExt = os.path.splitext(sourcePath)[1]
 
-    if not ywExt in ['.yw6', '.yw7']:
-        msgbox('Please choose a yWriter 6/7 project.',
+    if not ywExt in ['.yw7']:
+        msgbox('Please choose a yWriter 7 project.',
                'Import from yWriter', type_msg=ERRORBOX)
         return
 
@@ -8715,103 +8454,103 @@ def open_yw7(suffix, newExt):
 
 
 def import_yw():
-    '''Import scenes from yWriter 6/7 to a Writer document
+    '''Import scenes fromyWriter 7 to a Writer document
     without chapter and scene markers. 
     '''
     open_yw7('', '.odt')
 
 
 def proof_yw():
-    '''Import scenes from yWriter 6/7 to a Writer document
+    '''Import scenes fromyWriter 7 to a Writer document
     with visible chapter and scene markers. 
     '''
     open_yw7(OdtProof.SUFFIX, OdtProof.EXTENSION)
 
 
 def get_manuscript():
-    '''Import scenes from yWriter 6/7 to a Writer document
+    '''Import scenes fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtManuscript.SUFFIX, OdtManuscript.EXTENSION)
 
 
 def get_partdesc():
-    '''Import pard descriptions from yWriter 6/7 to a Writer document
+    '''Import pard descriptions fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtPartDesc.SUFFIX, OdtPartDesc.EXTENSION)
 
 
 def get_chapterdesc():
-    '''Import chapter descriptions from yWriter 6/7 to a Writer document
+    '''Import chapter descriptions fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtChapterDesc.SUFFIX, OdtChapterDesc.EXTENSION)
 
 
 def get_scenedesc():
-    '''Import scene descriptions from yWriter 6/7 to a Writer document
+    '''Import scene descriptions fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtSceneDesc.SUFFIX, OdtSceneDesc.EXTENSION)
 
 
 def get_chardesc():
-    '''Import character descriptions from yWriter 6/7 to a Writer document.
+    '''Import character descriptions fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtCharacters.SUFFIX, OdtCharacters.EXTENSION)
 
 
 def get_locdesc():
-    '''Import location descriptions from yWriter 6/7 to a Writer document.
+    '''Import location descriptions fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtLocations.SUFFIX, OdtLocations.EXTENSION)
 
 
 def get_itemdesc():
-    '''Import item descriptions from yWriter 6/7 to a Writer document.
+    '''Import item descriptions fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
 
 
 def get_xref():
-    '''Generate cross references from yWriter 6/7 to a Writer document.
+    '''Generate cross references fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtXref.SUFFIX, OdtXref.EXTENSION)
 
 
 def get_scenelist():
-    '''Import a scene list from yWriter 6/7 to a Calc document.
+    '''Import a scene list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
 
 
 def get_plotlist():
-    '''Import a plot list from yWriter 6/7 to a Calc document.
+    '''Import a plot list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsPlotList.SUFFIX, OdsPlotList.EXTENSION)
 
 
 def get_charlist():
-    '''Import a character list from yWriter 6/7 to a Calc document.
+    '''Import a character list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsCharList.SUFFIX, OdsCharList.EXTENSION)
 
 
 def get_loclist():
-    '''Import a location list from yWriter 6/7 to a Calc document.
+    '''Import a location list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsLocList.SUFFIX, OdsLocList.EXTENSION)
 
 
 def get_itemlist():
-    '''Import an item list from yWriter 6/7 to a Calc document.
+    '''Import an item list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsItemList.SUFFIX, OdsItemList.EXTENSION)
 
 
 def export_yw():
-    '''Export the document to a yWriter 6/7 project.
+    '''Export the document to ayWriter 7 project.
     '''
 
     # Get document's filename

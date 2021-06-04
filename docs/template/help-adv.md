@@ -31,11 +31,11 @@ out the features with a test project first.
 
 ## Manuscript with chapter and scene sections
 
-This will load yWriter 6/7 chapters and scenes into a new OpenDocument
+This will load yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
-You can write back the edited scene contents to the yWriter 6/7 project
+You can write back the edited scene contents to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -49,7 +49,7 @@ This will generate a new OpenDocument text document (odt) containing a
 edited and written back to yWriter format. File name suffix is
 `_scenes`.
 
-You can write back the edited descriptions to the yWriter 6/7 project
+You can write back the edited descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -66,7 +66,7 @@ be edited and written back to yWriter format. File name suffix is
 **Note:** Doesn\'t apply to chapters marked
 `This chapter begins a new section` in yWriter.
 
-You can write back the edited descriptions to the yWriter 6/7 project
+You can write back the edited descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -83,7 +83,7 @@ be edited and written back to yWriter format. File name suffix is
 **Note:** Applies only to chapters marked
 `This chapter  begins a new section` in yWriter.
 
-You can write back the edited descriptions to the yWriter 6/7 project
+You can write back the edited descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -97,7 +97,7 @@ character descriptions, bio and goals that can be edited in Office
 Writer and written back to yWriter format. File name suffix is
 `_characters`.
 
-You can write back the edited descriptions to the yWriter 6/7 project
+You can write back the edited descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -110,7 +110,7 @@ This will generate a new OpenDocument text document (odt) containing
 location descriptions that can be edited in Office Writer and written
 back to yWriter format. File name suffix is `_locations`.
 
-You can write back the edited descriptions to the yWriter 6/7 project
+You can write back the edited descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -123,7 +123,7 @@ This will generate a new OpenDocument text document (odt) containing
 item descriptions that can be edited in Office Writer and written back
 to yWriter format. File name suffix is `_items`.
 
-You can write back the edited descriptions to the yWriter 6/7 project
+You can write back the edited descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -137,7 +137,7 @@ title, scene descriptions, and links to the manuscript\'s scene
 sections. Further scene metadata (e.g. tags, goals, time), if any. File
 name suffix is `_scenelist`.
 
-You can write back the edited table to the yWriter 6/7 project file with
+You can write back the edited table to the yWriter 7 project file with
 the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -183,7 +183,7 @@ diagram for the scene ratings over scene count or word count.
 -   Ratings deleted while editing the plotlist will be converted to 1 on
     writing back.
 
-You can write back the edited table to the yWriter 6/7 project file with
+You can write back the edited table to the yWriter 7 project file with
 the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)

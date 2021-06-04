@@ -27,7 +27,7 @@
 
 ## Import from yWriter
 
-This will load yWriter 6/7 chapters and scenes into a new OpenDocument
+This will load yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt).
 
 -   The document is placed in the same folder as the yWriter project.
@@ -63,7 +63,7 @@ text document (odt).
 
 ## Import from yWriter for proof reading
 
-This will load yWriter 6/7 chapters and scenes into a new OpenDocument
+This will load yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with chapter and scene markers. File name suffix is
 `_proof`.
 
@@ -80,7 +80,7 @@ text document (odt) with chapter and scene markers. File name suffix is
     document into yWriter.
 -   Back up your yWriter project and close yWriter before.
 
-You can write back the proofread scenes to the yWriter 6/7 project file
+You can write back the proofread scenes to the yWriter 7 project file
 with the [Export to yWriter](#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -96,7 +96,7 @@ yWriter format. File name suffix is `_charlist`.
 You may change the sort order of the rows. You may also add or remove
 rows. New entities must get a unique ID.
 
-You can write back the edited table to the yWriter 6/7 project file with
+You can write back the edited table to the yWriter 7 project file with
 the [Export to yWriter](#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -112,7 +112,7 @@ yWriter format. File name suffix is `_loclist`.
 You may change the sort order of the rows. You may also add or remove
 rows. New entities must get a unique ID.
 
-You can write back the edited table to the yWriter 6/7 project file with
+You can write back the edited table to the yWriter 7 project file with
 the [Export to yWriter](#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -128,7 +128,7 @@ format. File name suffix is `_itemlist`.
 You may change the sort order of the rows. You may also add or remove
 rows. New entities must get a unique ID.
 
-You can write back the edited table to the yWriter 6/7 project file with
+You can write back the edited table to the yWriter 7 project file with
 the [Export to yWriter](#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -159,13 +159,11 @@ This writes back the document's content to the yWriter project file.
 
 -   Make sure not to change a generated document's file name before
     writing back to yWriter format.
--   The yWriter 6/7 project to rewrite must exist in the same folder as
+-   The yWriter 7 project to rewrite must exist in the same folder as
     the document.
--   If both yw6 and yw7 project files exist, yw7 is rewritten.
 -   If the document's file name has no suffix, the document is
-    considered a [Work in
-    progress](#how-to-set-up-a-work-in-progress-for-export) or an
-    [Outline](#how-to-set-up-an-outline-for-export) to be exported into
+    considered a [Work in progress](#how-to-set-up-a-work-in-progress-for-export) 
+    or an [Outline](#how-to-set-up-an-outline-for-export) to be exported into
     a newly created yWriter project. **Note:** Existing yWriter projects
     will not be overwritten.
 

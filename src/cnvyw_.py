@@ -57,7 +57,7 @@ def open_yw7(suffix, newExt):
     except:
         pass
 
-    # Ask for yWriter 6 or 7 project to open:
+    # Ask for yWriter 7 project to open:
 
     ywFile = FilePicker(path=defaultFile)
 
@@ -67,8 +67,8 @@ def open_yw7(suffix, newExt):
     sourcePath = unquote(ywFile.replace('file:///', ''))
     ywExt = os.path.splitext(sourcePath)[1]
 
-    if not ywExt in ['.yw6', '.yw7']:
-        msgbox('Please choose a yWriter 6/7 project.',
+    if not ywExt in ['.yw7']:
+        msgbox('Please choose a yWriter 7 project.',
                'Import from yWriter', type_msg=ERRORBOX)
         return
 
@@ -110,103 +110,103 @@ def open_yw7(suffix, newExt):
 
 
 def import_yw():
-    '''Import scenes from yWriter 6/7 to a Writer document
+    '''Import scenes fromyWriter 7 to a Writer document
     without chapter and scene markers. 
     '''
     open_yw7('', '.odt')
 
 
 def proof_yw():
-    '''Import scenes from yWriter 6/7 to a Writer document
+    '''Import scenes fromyWriter 7 to a Writer document
     with visible chapter and scene markers. 
     '''
     open_yw7(OdtProof.SUFFIX, OdtProof.EXTENSION)
 
 
 def get_manuscript():
-    '''Import scenes from yWriter 6/7 to a Writer document
+    '''Import scenes fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtManuscript.SUFFIX, OdtManuscript.EXTENSION)
 
 
 def get_partdesc():
-    '''Import pard descriptions from yWriter 6/7 to a Writer document
+    '''Import pard descriptions fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtPartDesc.SUFFIX, OdtPartDesc.EXTENSION)
 
 
 def get_chapterdesc():
-    '''Import chapter descriptions from yWriter 6/7 to a Writer document
+    '''Import chapter descriptions fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtChapterDesc.SUFFIX, OdtChapterDesc.EXTENSION)
 
 
 def get_scenedesc():
-    '''Import scene descriptions from yWriter 6/7 to a Writer document
+    '''Import scene descriptions fromyWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
     open_yw7(OdtSceneDesc.SUFFIX, OdtSceneDesc.EXTENSION)
 
 
 def get_chardesc():
-    '''Import character descriptions from yWriter 6/7 to a Writer document.
+    '''Import character descriptions fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtCharacters.SUFFIX, OdtCharacters.EXTENSION)
 
 
 def get_locdesc():
-    '''Import location descriptions from yWriter 6/7 to a Writer document.
+    '''Import location descriptions fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtLocations.SUFFIX, OdtLocations.EXTENSION)
 
 
 def get_itemdesc():
-    '''Import item descriptions from yWriter 6/7 to a Writer document.
+    '''Import item descriptions fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
 
 
 def get_xref():
-    '''Generate cross references from yWriter 6/7 to a Writer document.
+    '''Generate cross references fromyWriter 7 to a Writer document.
     '''
     open_yw7(OdtXref.SUFFIX, OdtXref.EXTENSION)
 
 
 def get_scenelist():
-    '''Import a scene list from yWriter 6/7 to a Calc document.
+    '''Import a scene list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
 
 
 def get_plotlist():
-    '''Import a plot list from yWriter 6/7 to a Calc document.
+    '''Import a plot list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsPlotList.SUFFIX, OdsPlotList.EXTENSION)
 
 
 def get_charlist():
-    '''Import a character list from yWriter 6/7 to a Calc document.
+    '''Import a character list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsCharList.SUFFIX, OdsCharList.EXTENSION)
 
 
 def get_loclist():
-    '''Import a location list from yWriter 6/7 to a Calc document.
+    '''Import a location list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsLocList.SUFFIX, OdsLocList.EXTENSION)
 
 
 def get_itemlist():
-    '''Import an item list from yWriter 6/7 to a Calc document.
+    '''Import an item list fromyWriter 7 to a Calc document.
     '''
     open_yw7(OdsItemList.SUFFIX, OdsItemList.EXTENSION)
 
 
 def export_yw():
-    '''Export the document to a yWriter 6/7 project.
+    '''Export the document to ayWriter 7 project.
     '''
 
     # Get document's filename

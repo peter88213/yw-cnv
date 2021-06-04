@@ -5,9 +5,9 @@
 ## Features
 
 -   Generate a "standard manuscript" formatted **ODF text document
-    (ODT)** from an yWriter 6/7 project.
+    (ODT)** from a yWriter 7 project.
 
--   Load yWriter 6/7 chapters and scenes into an OpenDocument file with
+-   Load yWriter 7 chapters and scenes into an OpenDocument file with
     chapter and scene markers for **proof reading** and writing back.
 
 -   Generate a **character list** that can be edited in Office Calc and

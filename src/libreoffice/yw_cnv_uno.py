@@ -4,10 +4,10 @@ Copyright (c) 2020 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
-from pywriter.converter.universal_converter import UniversalConverter
+from pywriter.converter.yw7_converter import Yw7Converter
 
 
-class YwCnvUno(UniversalConverter):
+class YwCnvUno(Yw7Converter):
     """Converter for yWriter project files.
     Variant with UNO UI.
     """
