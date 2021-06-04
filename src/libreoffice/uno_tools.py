@@ -72,7 +72,6 @@ def FilePicker(path=None, mode=0):
 
     filepicker.initialize((mode,))
     filepicker.appendFilter("yWriter 7 Files (.yw7)", "*.yw7")
-    filepicker.appendFilter("yWriter 6 Files (.yw6)", "*.yw6")
 
     if filepicker.execute():
         return filepicker.getFiles()[0]
