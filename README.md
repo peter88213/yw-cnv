@@ -1,4 +1,4 @@
-# The yw-cnv extension for LibreOffice: Import and export yWriter 6/7 projects 
+# The yw-cnv extension for LibreOffice: Import and export yWriter 7 projects 
 
 For more information, see the [project homepage](https://peter88213.github.io/yw-cnv) with description and download instructions.
 
