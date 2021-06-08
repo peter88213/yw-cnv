@@ -1,0 +1,21 @@
+yWriter-Projekt importieren und exportieren.
+
+Aus einem yw7 Projekt importieren:
+- Eine mit "Normseiten" formatierte OpenDocument Textdatei aus einem yWriter 7 Projekt erzeugen.
+
+Korrekturlesen:
+- Ein yWriter 7 Projekt in eine OpenDocument-Datei mit Kapitel- und Szenenmarkierungen importieren.
+- Korrekturgelesene Szenen in die yWriter 7 Projektdatei zurückschreiben.
+
+Weltenbau-Listen:
+- Figuren-, Schauplatz- und Gegenstandslisten als OpenDocument-Tabellen importieren.
+- Geänderte Listen zurückschreiben.
+
+Querverweise:
+- Eine OpenDocument Textdatei mit Querverweisen wie Szenen mit Figur, Szenen mit Tag usw. erzeugen.  
+
+In ein yw7 Projekt exportieren:
+- Ein neues yWriter 7 Projekt aus einem Text (work in progress) oder einer Dokumentenstruktur (outline) erzeugen.
+
+Fügt ein Untermenü im Menü "Datei" hinzu.
+

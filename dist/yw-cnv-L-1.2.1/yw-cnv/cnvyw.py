@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.2.0
+Version 1.2.1
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -830,9 +830,8 @@ class FileExport(Novel):
                 else:
                     continue
 
-            elif self.scenes[scId].isNotesScene or self.chapters[chId].oldType == 1:
-                # Scene is "Notes" (new file format) or "Info" (old file
-                # format) scene.
+            elif self.scenes[scId].isNotesScene:
+                # Scene is "Notes" type.
 
                 if self.notesSceneTemplate != '':
                     template = Template(self.notesSceneTemplate)
@@ -844,6 +843,15 @@ class FileExport(Novel):
 
                 if self.unusedSceneTemplate != '':
                     template = Template(self.unusedSceneTemplate)
+
+                else:
+                    continue
+
+            elif self.chapters[chId].oldType == 1:
+                # Scene is "Info" type (old file format).
+
+                if self.notesSceneTemplate != '':
+                    template = Template(self.notesSceneTemplate)
 
                 else:
                     continue
@@ -912,9 +920,8 @@ class FileExport(Novel):
                 else:
                     continue
 
-            elif self.chapters[chId].chType == 1 or self.chapters[chId].oldType == 1:
-                # Chapter is "Notes" (new file format) or "Info" (old file
-                # format) chapter.
+            elif self.chapters[chId].chType == 1:
+                # Chapter is "Notes" type.
 
                 if self.notesChapterTemplate != '':
                     template = Template(self.notesChapterTemplate)
@@ -926,6 +933,15 @@ class FileExport(Novel):
 
                 if self.unusedChapterTemplate != '':
                     template = Template(self.unusedChapterTemplate)
+
+                else:
+                    continue
+
+            elif self.chapters[chId].oldType == 1:
+                # Chapter is "Info" type (old file format).
+
+                if self.notesChapterTemplate != '':
+                    template = Template(self.notesChapterTemplate)
 
                 else:
                     continue
@@ -959,13 +975,18 @@ class FileExport(Novel):
             if self.chapters[chId].chType == 2 and self.todoChapterEndTemplate != '':
                 lines.append(self.todoChapterEndTemplate)
 
-            elif self.chapters[chId].chType == 1 or self.chapters[chId].oldType == 1:
+            elif self.chapters[chId].chType == 1:
 
                 if self.notesChapterEndTemplate != '':
                     lines.append(self.notesChapterEndTemplate)
 
             elif self.chapters[chId].isUnused and self.unusedChapterEndTemplate != '':
                 lines.append(self.unusedChapterEndTemplate)
+
+            elif self.chapters[chId].oldType == 1:
+
+                if self.notesChapterEndTemplate != '':
+                    lines.append(self.notesChapterEndTemplate)
 
             elif doNotExport and self.notExportedChapterEndTemplate != '':
                 lines.append(self.notExportedChapterEndTemplate)
