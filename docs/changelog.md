@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.1 Bugfix update
+
+- Cope better with the chapter/scene type overdetermination since yWriter 7.0.7.2.
+
+Based on PyWriter v3.4.1
+
 ### v1.2.0 Drop yWriter 6 support
 
 Support only yWriter 7 projects for better maintainability and speed.
