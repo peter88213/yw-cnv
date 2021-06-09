@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.2.2 Optional update
+
+- Modify plot list titles.
+
+Based on PyWriter v3.4.2
+
 ### v1.2.1 Bugfix update
 
 - Cope better with the chapter/scene type overdetermination since yWriter 7.0.7.2.

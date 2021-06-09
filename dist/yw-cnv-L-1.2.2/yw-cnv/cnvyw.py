@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.2.1
+Version 1.2.2
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3816,7 +3816,7 @@ class OdsPlotList(OdsFile):
       <text:p>Plot event</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Plot event title</text:p>
+      <text:p>Scene title</text:p>
      </table:table-cell>
      <table:table-cell table:style-name="Heading" office:value-type="string">
       <text:p>Details</text:p>
@@ -7993,7 +7993,7 @@ class CsvPlotList(CsvFile):
                    'vague', 'satisfied', 'happy', '', '', '', '']
 
     fileHeader = '''ID|''' +\
-        '''Plot section|Plot event|Plot event title|Details|''' +\
+        '''Plot section|Plot event|Scene title|Details|''' +\
         '''Scene|Words total|$FieldTitle1|$FieldTitle2|$FieldTitle3|$FieldTitle4
 '''
 
