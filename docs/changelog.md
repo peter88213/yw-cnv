@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.4.2 Bugfix update
+
+- Fix the "proofread tags" paragraph styles.
+- Make the html helpfiles Linux compatible.
+
+Based on PyWriter v3.6.6
+
 ### v1.4.1 Add a "Format" menu entry
 
 - *Replace scene dividers with blank lines* is added to the **Format** menu.
