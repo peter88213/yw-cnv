@@ -1,4 +1,4 @@
-[Project home page](https://peter88213.github.io/yw-cnv/) > [Main help page](@help@) > Advanced features
+[Project home page](https://peter88213.github.io/pywoo/) > [Main help page](@help@) > Advanced features
 
 ------------------------------------------------------------------------
 
@@ -35,8 +35,13 @@ This will load yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
-You can write back the edited scene contents to the yWriter 7 project
-file with the [Export to yWriter](@help@#export-to-ywriter) command.
+You can write back the scene contents and the chapter/part headings to 
+the yWriter 7 project file with the [Export to yWriter](@help@#export-to-ywriter) 
+command. Comments right at the beginning of the scenes are written back 
+as scene titles.
+
+Chapters and scenes can neither be rearranged nor deleted. Added chapters 
+and scenes are not taken into account when writing back. 
 
 [Top of page](#top)
 
@@ -49,8 +54,10 @@ This will generate a new OpenDocument text document (odt) containing a
 edited and written back to yWriter format. File name suffix is
 `_scenes`.
 
-You can write back the edited descriptions to the yWriter 7 project
-file with the [Export to yWriter](@help@#export-to-ywriter) command.
+You can write back the scene descriptions and the chapter/part headings 
+to the yWriter 7 project file with the [Export to yWriter](@help@#export-to-ywriter) 
+command. Comments right at the beginning of the scene descriptions are 
+written back as scene titles.
 
 [Top of page](#top)
 
@@ -66,7 +73,7 @@ be edited and written back to yWriter format. File name suffix is
 **Note:** Doesn't apply to chapters marked
 `This chapter begins a new section` in yWriter.
 
-You can write back the edited descriptions to the yWriter 7 project
+You can write back the headings and descriptions to the yWriter 7 project 
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -83,7 +90,7 @@ be edited and written back to yWriter format. File name suffix is
 **Note:** Applies only to chapters marked
 `This chapter  begins a new section` in yWriter.
 
-You can write back the edited descriptions to the yWriter 7 project
+You can write back the headings and descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -97,7 +104,7 @@ character descriptions, bio and goals that can be edited in Office
 Writer and written back to yWriter format. File name suffix is
 `_characters`.
 
-You can write back the edited descriptions to the yWriter 7 project
+You can write back the descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -110,7 +117,7 @@ This will generate a new OpenDocument text document (odt) containing
 location descriptions that can be edited in Office Writer and written
 back to yWriter format. File name suffix is `_locations`.
 
-You can write back the edited descriptions to the yWriter 7 project
+You can write back the descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -123,7 +130,7 @@ This will generate a new OpenDocument text document (odt) containing
 item descriptions that can be edited in Office Writer and written back
 to yWriter format. File name suffix is `_items`.
 
-You can write back the edited descriptions to the yWriter 7 project
+You can write back the descriptions to the yWriter 7 project
 file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -137,7 +144,7 @@ title, scene descriptions, and links to the manuscript's scene
 sections. Further scene metadata (e.g. tags, goals, time), if any. File
 name suffix is `_scenelist`.
 
-You can write back the edited table to the yWriter 7 project file with
+You can write back the table contents to the yWriter 7 project file with
 the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -183,7 +190,7 @@ diagram for the scene ratings over scene count or word count.
 -   Ratings deleted while editing the plotlist will be converted to 1 on
     writing back.
 
-You can write back the edited table to the yWriter 7 project file with
+You can write back the table contents to the yWriter 7 project file with
 the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)

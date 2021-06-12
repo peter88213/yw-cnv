@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.4.1 Add a "Format" menu entry
+
+- *Replace scene dividers with blank lines* is added to the **Format** menu.
+
+Based on PyWriter v3.6.5
+
 ### v1.4.0 New document formatting, general program improvement
 
 It is highly advised to update to this version.

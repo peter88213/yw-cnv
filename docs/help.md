@@ -1,4 +1,4 @@
-[Project home page](https://peter88213.github.io/yw-cnv/) > Main help page
+[Project home page](https://peter88213.github.io/pywoo/) > Main help page
 
 ------------------------------------------------------------------------
 
@@ -6,15 +6,20 @@
 
 ## Command reference
 
+### "Files" menu
+
 -   [Import from yWriter](#import-from-ywriter)
--   [Import from yWriter for proof
-    reading](#import-from-ywriter-for-proof-reading)
+-   [Import from yWriter for proof reading](#import-from-ywriter-for-proof-reading)
 -   [Character list](#character-list)
 -   [Location list](#location-list)
 -   [Item list](#item-list)
 -   [Cross reference](#cross-reference)
 -   [Export to yWriter](#export-to-ywriter) 
 -   [Advanced features](help-adv)
+
+### "Format" menu
+
+-   [Replace scene dividers with blank lines](#replace-scene-dividers-with-blank-lines)
 
 ## HowTo
 
@@ -78,9 +83,11 @@ text document (odt) with chapter and scene markers. File name suffix is
     markers according to yWriter 5 standard. **Do not touch lines
     containing the markers** if you want to be able to reimport the
     document into yWriter.
+-   Chapters and scenes can neither be rearranged nor deleted. Added 
+    chapters and scenes are not taken into account when writing back. 
 -   Back up your yWriter project and close yWriter before.
 
-You can write back the proofread scenes to the yWriter 7 project file
+You can write back the scene contents to the yWriter 7 project file
 with the [Export to yWriter](#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -162,8 +169,9 @@ This writes back the document's content to the yWriter project file.
 -   The yWriter 7 project to rewrite must exist in the same folder as
     the document.
 -   If the document's file name has no suffix, the document is
-    considered a [Work in progress](#how-to-set-up-a-work-in-progress-for-export) 
-    or an [Outline](#how-to-set-up-an-outline-for-export) to be exported into
+    considered a [Work in
+    progress](#how-to-set-up-a-work-in-progress-for-export) or an
+    [Outline](#how-to-set-up-an-outline-for-export) to be exported into
     a newly created yWriter project. **Note:** Existing yWriter projects
     will not be overwritten.
 
@@ -216,3 +224,14 @@ An outline has at least one third level heading.
 [Top of page](#top)
 
 ------------------------------------------------------------------------
+
+## Replace scene dividers with blank lines
+
+This will replace the three-line "* * *" scene dividers
+with single blank lines. The style of the scene-dividing
+lines will be changed from  _Heading 4_  to  _Heading 5_.
+
+[Top of page](#top)
+
+------------------------------------------------------------------------
+
