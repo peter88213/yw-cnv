@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.2.2
+Version 1.4.0
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -16,6 +16,7 @@ import re
 
 import zipfile
 import locale
+import tempfile
 from shutil import rmtree
 from datetime import datetime
 from string import Template
@@ -1065,7 +1066,6 @@ class FileExport(Novel):
 class OdfFile(FileExport):
     """Generic OpenDocument xml file representation.
     """
-    TEMPDIR = 'temp_odf'
 
     ODF_COMPONENTS = []
     _MIMETYPE = ''
@@ -1074,50 +1074,69 @@ class OdfFile(FileExport):
     _STYLES_XML = ''
     _META_XML = ''
 
+    def __init__(self, filePath, **kwargs):
+        """Extend the superclass constructor, 
+        creating a temporary directory.
+        """
+        FileExport.__init__(self, filePath, **kwargs)
+        self.tempDir = tempfile.mkdtemp(suffix='.tmp', prefix='odf_')
+
+    def __del__(self):
+        """Make sure to delete the temporary directory,
+        in case write() has not been called.
+        """
+        self.tear_down()
+
     def tear_down(self):
         """Delete the temporary directory 
         containing the unpacked ODF directory structure.
         """
         try:
-            rmtree(self.TEMPDIR)
+            rmtree(self.tempDir)
         except:
             pass
 
     def set_up(self):
         """Helper method for ZIP file generation.
 
-        Create a temporary directory containing the internal 
+        Prepare the temporary directory containing the internal 
         structure of an ODF file except 'content.xml'.
         """
-        self.tear_down()
-        os.mkdir(self.TEMPDIR)
-        os.mkdir(self.TEMPDIR + '/META-INF')
-
-        # Generate mimetype
+        # Create and open a temporary directory for the files to zip.
 
         try:
-            with open(self.TEMPDIR + '/mimetype', 'w', encoding='utf-8') as f:
+            self.tear_down()
+            os.mkdir(self.tempDir)
+            os.mkdir(self.tempDir + '/META-INF')
+
+        except:
+            return 'ERROR: Cannot create "' + os.path.normpath(self.tempDir) + '".'
+
+        # Generate mimetype.
+
+        try:
+            with open(self.tempDir + '/mimetype', 'w', encoding='utf-8') as f:
                 f.write(self._MIMETYPE)
         except:
             return 'ERROR: Cannot write "mimetype"'
 
-        # Generate settings.xml
+        # Generate settings.xml.
 
         try:
-            with open(self.TEMPDIR + '/settings.xml', 'w', encoding='utf-8') as f:
+            with open(self.tempDir + '/settings.xml', 'w', encoding='utf-8') as f:
                 f.write(self._SETTINGS_XML)
         except:
             return 'ERROR: Cannot write "settings.xml"'
 
-        # Generate META-INF\manifest.xml
+        # Generate META-INF\manifest.xml.
 
         try:
-            with open(self.TEMPDIR + '/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
+            with open(self.tempDir + '/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
                 f.write(self._MANIFEST_XML)
         except:
             return 'ERROR: Cannot write "manifest.xml"'
 
-        # Generate styles.xml with system language set as document language
+        # Generate styles.xml with system language set as document language.
 
         localeCodes = locale.getdefaultlocale()[0].split('_')
 
@@ -1129,12 +1148,12 @@ class OdfFile(FileExport):
         text = template.safe_substitute(localeMapping)
 
         try:
-            with open(self.TEMPDIR + '/styles.xml', 'w', encoding='utf-8') as f:
+            with open(self.tempDir + '/styles.xml', 'w', encoding='utf-8') as f:
                 f.write(text)
         except:
             return 'ERROR: Cannot write "styles.xml"'
 
-        # Generate meta.xml with actual document metadata
+        # Generate meta.xml with actual document metadata.
 
         dt = datetime.today()
 
@@ -1152,7 +1171,7 @@ class OdfFile(FileExport):
         text = template.safe_substitute(metaMapping)
 
         try:
-            with open(self.TEMPDIR + '/meta.xml', 'w', encoding='utf-8') as f:
+            with open(self.tempDir + '/meta.xml', 'w', encoding='utf-8') as f:
                 f.write(text)
         except:
             return 'ERROR: Cannot write "meta.xml".'
@@ -1174,7 +1193,7 @@ class OdfFile(FileExport):
 
         filePath = self._filePath
 
-        self._filePath = self.TEMPDIR + '/content.xml'
+        self._filePath = self.tempDir + '/content.xml'
 
         message = FileExport.write(self)
 
@@ -1190,7 +1209,7 @@ class OdfFile(FileExport):
 
         try:
             with zipfile.ZipFile(self.filePath, 'w') as odfTarget:
-                os.chdir(self.TEMPDIR)
+                os.chdir(self.tempDir)
 
                 for file in self.ODF_COMPONENTS:
                     odfTarget.write(file, compress_type=zipfile.ZIP_DEFLATED)
@@ -1380,24 +1399,26 @@ class OdtFile(OdfFile):
 '''
     _STYLES_XML = '''<?xml version="1.0" encoding="UTF-8"?>
 
-<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" office:version="1.2">
+<office:document-styles xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:loext="urn:org:documentfoundation:names:experimental:office:xmlns:loext:1.0">
  <office:font-face-decls>
   <style:font-face style:name="StarSymbol" svg:font-family="StarSymbol" style:font-charset="x-symbol"/>
-  <style:font-face style:name="Arial" svg:font-family="&apos;Arial&apos;" style:font-family-generic="swiss"/>
+  <style:font-face style:name="Segoe UI" svg:font-family="&apos;Segoe UI&apos;"/>
   <style:font-face style:name="Courier New" svg:font-family="&apos;Courier New&apos;" style:font-adornments="Standard" style:font-family-generic="modern" style:font-pitch="fixed"/>
-  <style:font-face style:name="Segoe UI" svg:font-family="&apos;Segoe UI&apos;" style:font-family-generic="roman" style:font-pitch="variable"/>
+  <style:font-face style:name="Cumberland" svg:font-family="Cumberland" style:font-family-generic="modern" style:font-pitch="fixed"/>
+  <style:font-face style:name="Courier New1" svg:font-family="&apos;Courier New&apos;" style:font-family-generic="roman" style:font-pitch="fixed"/>
+  <style:font-face style:name="ITC Officina Sans Book" svg:font-family="&apos;ITC Officina Sans Book&apos;" style:font-family-generic="swiss" style:font-pitch="variable"/>
  </office:font-face-decls>
  <office:styles>
   <style:default-style style:family="graphic">
-   <style:graphic-properties fo:wrap-option="no-wrap" draw:shadow-offset-x="0.3cm" draw:shadow-offset-y="0.3cm" draw:start-line-spacing-horizontal="0.283cm" draw:start-line-spacing-vertical="0.283cm" draw:end-line-spacing-horizontal="0.283cm" draw:end-line-spacing-vertical="0.283cm" style:flow-with-text="true"/>
+   <style:graphic-properties svg:stroke-color="#3465a4" draw:fill-color="#729fcf" fo:wrap-option="no-wrap" draw:shadow-offset-x="0.3cm" draw:shadow-offset-y="0.3cm" draw:start-line-spacing-horizontal="0.283cm" draw:start-line-spacing-vertical="0.283cm" draw:end-line-spacing-horizontal="0.283cm" draw:end-line-spacing-vertical="0.283cm" style:flow-with-text="true"/>
    <style:paragraph-properties style:text-autospace="ideograph-alpha" style:line-break="strict" style:writing-mode="lr-tb" style:font-independent-line-spacing="false">
     <style:tab-stops/>
    </style:paragraph-properties>
-   <style:text-properties fo:color="#000000" fo:font-size="10pt" fo:language="$Language" fo:country="$Country" style:letter-kerning="true" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none"/>
+   <style:text-properties fo:color="#000000" fo:font-size="10pt" fo:language="${Language}" fo:country="${Country}" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none"/>
   </style:default-style>
   <style:default-style style:family="paragraph">
    <style:paragraph-properties fo:hyphenation-ladder-count="no-limit" style:text-autospace="ideograph-alpha" style:punctuation-wrap="hanging" style:line-break="strict" style:tab-stop-distance="1.251cm" style:writing-mode="lr-tb"/>
-   <style:text-properties fo:color="#000000" style:font-name="Segoe UI" fo:font-size="10pt" fo:language="$Language" fo:country="$Country" style:letter-kerning="true" style:font-name-asian="Segoe UI" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-name-complex="Segoe UI" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2"/>
+   <style:text-properties fo:color="#000000" style:font-name="Segoe UI" fo:font-size="10pt" fo:language="${Language}" fo:country="${Country}" style:font-name-asian="Segoe UI" style:font-size-asian="10pt" style:language-asian="zxx" style:country-asian="none" style:font-name-complex="Segoe UI" style:font-size-complex="1pt" style:language-complex="zxx" style:country-complex="none" fo:hyphenate="false" fo:hyphenation-remain-char-count="2" fo:hyphenation-push-char-count="2"/>
   </style:default-style>
   <style:default-style style:family="table">
    <style:table-properties table:border-model="separating"/>
@@ -1409,232 +1430,196 @@ class OdtFile(OdfFile):
    <style:paragraph-properties fo:line-height="0.73cm" style:page-number="auto"/>
    <style:text-properties style:font-name="Courier New" fo:font-size="12pt" fo:font-weight="normal"/>
   </style:style>
-  <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="text" style:master-page-name="">
-   <style:paragraph-properties fo:line-height="0.73cm" fo:text-align="center" style:justify-single-word="false" style:page-number="auto" fo:keep-with-next="always">
-    <style:tab-stops/>
-   </style:paragraph-properties>
-  </style:style>
   <style:style style:name="Text_20_body" style:display-name="Text body" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="First_20_line_20_indent" style:class="text" style:master-page-name="">
    <style:paragraph-properties style:page-number="auto">
     <style:tab-stops/>
    </style:paragraph-properties>
   </style:style>
-  <style:style style:name="List" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="list">
-   <style:text-properties fo:font-weight="normal"/>
-  </style:style>
-  <style:style style:name="Caption" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
-   <style:paragraph-properties fo:margin-top="0.212cm" fo:margin-bottom="0.212cm"/>
-  </style:style>
-  <style:style style:name="Table" style:family="paragraph" style:parent-style-name="Caption" style:class="extra"/>
-  <style:style style:name="Index" style:family="paragraph" style:parent-style-name="Standard" style:class="index"/>
-  <style:style style:name="Heading_20_1" style:display-name="Heading 1" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="1" style:list-style-name="" style:class="text" style:master-page-name="">
-   <style:paragraph-properties fo:margin-top="0.73cm" fo:margin-bottom="0.73cm" style:page-number="auto">
-    <style:tab-stops/>
-   </style:paragraph-properties>
-   <style:text-properties fo:text-transform="uppercase" fo:font-weight="bold"/>
-  </style:style>
-  <style:style style:name="Heading_20_2" style:display-name="Heading 2" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="2" style:list-style-name="" style:class="text" style:master-page-name="">
-   <style:paragraph-properties fo:margin-top="0.73cm" fo:margin-bottom="0.73cm" style:page-number="auto"/>
-   <style:text-properties fo:font-weight="bold"/>
-  </style:style>
-  <style:style style:name="Heading_20_3" style:display-name="Heading 3" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="3" style:class="text" style:master-page-name="">
-   <style:paragraph-properties fo:margin-top="0.73cm" fo:margin-bottom="0.73cm" style:page-number="auto"/>
-   <style:text-properties fo:font-style="italic"/>
-  </style:style>
-  <style:style style:name="Heading_20_4" style:display-name="Heading 4" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="" style:list-style-name="" style:class="text" style:master-page-name="">
-   <style:paragraph-properties fo:margin-top="0.73cm" fo:margin-bottom="0.73cm" style:page-number="auto"/>
-  </style:style>
-  <style:style style:name="Heading_20_5" style:display-name="Heading 5" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="5" style:list-style-name="" style:class="text"/>
-  <style:style style:name="Heading_20_6" style:display-name="Heading 6" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="6" style:list-style-name="" style:class="text"/>
-  <style:style style:name="Quotations" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="html" style:master-page-name="">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0.499cm" fo:margin-top="0cm" fo:margin-bottom="0.499cm" fo:text-indent="0cm" style:auto-text-indent="false" style:page-number="auto"/>
-  </style:style>
-  <style:style style:name="Preformatted_20_Text" style:display-name="Preformatted Text" style:family="paragraph" style:parent-style-name="Standard" style:class="html">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0cm"/>
-  </style:style>
-  <style:style style:name="Table_20_Contents" style:display-name="Table Contents" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="extra"/>
-  <style:style style:name="Table_20_Heading" style:display-name="Table Heading" style:family="paragraph" style:parent-style-name="Table_20_Contents" style:class="extra">
-   <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
-   <style:text-properties fo:font-style="italic" fo:font-weight="bold"/>
-  </style:style>
-  <style:style style:name="Footnote" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
-   <style:text-properties fo:font-size="10pt"/>
-  </style:style>
-  <style:style style:name="Footer" style:family="paragraph" style:parent-style-name="Standard" style:class="extra" style:master-page-name="">
-   <style:paragraph-properties fo:text-align="center" style:justify-single-word="false" style:page-number="auto" text:number-lines="false" text:line-number="0">
-    <style:tab-stops>
-     <style:tab-stop style:position="8.5cm" style:type="center"/>
-     <style:tab-stop style:position="17.002cm" style:type="right"/>
-    </style:tab-stops>
-   </style:paragraph-properties>
-   <style:text-properties fo:font-size="11pt"/>
-  </style:style>
-  <style:style style:name="Horizontal_20_Line" style:display-name="Horizontal Line" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="html">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.499cm" style:border-line-width-bottom="0.002cm 0.035cm 0.002cm" fo:padding="0cm" fo:border-left="none" fo:border-right="none" fo:border-top="none" fo:border-bottom="0.039cm double #808080" text:number-lines="false" text:line-number="0"/>
-   <style:text-properties fo:font-size="6pt"/>
-  </style:style>
   <style:style style:name="First_20_line_20_indent" style:display-name="First line indent" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="text" style:master-page-name="">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0.499cm" style:auto-text-indent="false" style:page-number="auto"/>
-  </style:style>
-  <style:style style:name="Heading_20_7" style:display-name="Heading 7" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="7" style:list-style-name="" style:class="text"/>
-  <style:style style:name="Heading_20_8" style:display-name="Heading 8" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="8" style:list-style-name="" style:class="text"/>
-  <style:style style:name="Heading_20_9" style:display-name="Heading 9" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="9" style:list-style-name="" style:class="text"/>
-  <style:style style:name="Heading_20_10" style:display-name="Heading 10" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="10" style:list-style-name="" style:class="text">
-   <style:text-properties fo:font-size="75%" fo:font-weight="bold"/>
-  </style:style>
-  <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Subtitle" style:class="chapter" style:master-page-name="">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.73cm" fo:text-align="center" style:justify-single-word="false" style:page-number="auto" fo:background-color="transparent" fo:padding="0cm" fo:border="none" text:number-lines="false" text:line-number="0">
-    <style:tab-stops/>
-    <style:background-image/>
-   </style:paragraph-properties>
-   <style:text-properties fo:text-transform="uppercase" fo:letter-spacing="normal" fo:font-weight="normal" style:letter-kerning="false"/>
-  </style:style>
-  <style:style style:name="Subtitle" style:family="paragraph" style:parent-style-name="Title" style:class="chapter" style:master-page-name="">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.73cm" style:page-number="auto"/>
-   <style:text-properties fo:font-variant="normal" fo:text-transform="none" fo:letter-spacing="normal"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0.499cm" style:auto-text-indent="false" style:page-number="auto"/>
   </style:style>
   <style:style style:name="Hanging_20_indent" style:display-name="Hanging indent" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="text">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-0.499cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-0.499cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="0cm"/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Text_20_body_20_indent" style:display-name="Text body indent" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="text">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Salutation" style:family="paragraph" style:parent-style-name="Standard" style:class="text"/>
   <style:style style:name="Signature" style:family="paragraph" style:parent-style-name="Standard" style:class="text"/>
   <style:style style:name="List_20_Indent" style:display-name="List Indent" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="text">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="5.001cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-4.5cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="5.001cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-4.5cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="0cm"/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Marginalia" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="text">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="4.001cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="4.001cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
+  <style:style style:name="Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="text" style:master-page-name="">
+   <style:paragraph-properties fo:line-height="0.73cm" fo:text-align="center" style:justify-single-word="false" style:page-number="auto" fo:keep-with-next="always">
+    <style:tab-stops/>
+   </style:paragraph-properties>
+  </style:style>
+  <style:style style:name="Heading_20_1" style:display-name="Heading 1" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="1" style:list-style-name="" style:class="text" style:master-page-name="">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="1.461cm" fo:margin-bottom="0.73cm" style:page-number="auto">
+    <style:tab-stops/>
+   </style:paragraph-properties>
+   <style:text-properties fo:text-transform="uppercase" fo:font-weight="bold"/>
+  </style:style>
+  <style:style style:name="Heading_20_2" style:display-name="Heading 2" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="2" style:list-style-name="" style:class="text" style:master-page-name="">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="1.461cm" fo:margin-bottom="0.73cm" style:page-number="auto"/>
+   <style:text-properties fo:font-weight="bold"/>
+  </style:style>
+  <style:style style:name="Heading_20_3" style:display-name="Heading 3" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="3" style:list-style-name="" style:class="text" style:master-page-name="">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0.73cm" fo:margin-bottom="0.73cm" style:page-number="auto"/>
+   <style:text-properties fo:font-style="italic"/>
+  </style:style>
+  <style:style style:name="Heading_20_4" style:display-name="Heading 4" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="" style:list-style-name="" style:class="text" style:master-page-name="">
+   <style:paragraph-properties fo:margin-top="0.73cm" fo:margin-bottom="0.73cm" style:page-number="auto"/>
+  </style:style>
+  <style:style style:name="Heading_20_5" style:display-name="Heading 5" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="" style:list-style-name="" style:class="text" style:master-page-name="">
+   <style:paragraph-properties style:page-number="auto"/>
+  </style:style>
+  <style:style style:name="Heading_20_6" style:display-name="Heading 6" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="" style:list-style-name="" style:class="text"/>
+  <style:style style:name="Heading_20_7" style:display-name="Heading 7" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="" style:list-style-name="" style:class="text"/>
+  <style:style style:name="Heading_20_8" style:display-name="Heading 8" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="" style:list-style-name="" style:class="text"/>
+  <style:style style:name="Heading_20_9" style:display-name="Heading 9" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="" style:list-style-name="" style:class="text"/>
+  <style:style style:name="Heading_20_10" style:display-name="Heading 10" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="10" style:list-style-name="" style:class="text">
+   <style:text-properties fo:font-size="75%" fo:font-weight="bold"/>
+  </style:style>
+  <style:style style:name="List" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="list"/>
   <style:style style:name="Numbering_20_1_20_Start" style:display-name="Numbering 1 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_1" style:display-name="Numbering 1" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_1_20_End" style:display-name="Numbering 1 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_1_20_Cont." style:display-name="Numbering 1 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_2_20_Start" style:display-name="Numbering 2 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_2" style:display-name="Numbering 2" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_2_20_End" style:display-name="Numbering 2 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_2_20_Cont." style:display-name="Numbering 2 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_3_20_Start" style:display-name="Numbering 3 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_3" style:display-name="Numbering 3" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_3_20_End" style:display-name="Numbering 3 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_3_20_Cont." style:display-name="Numbering 3 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_4_20_Start" style:display-name="Numbering 4 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_4" style:display-name="Numbering 4" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_4_20_End" style:display-name="Numbering 4 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_4_20_Cont." style:display-name="Numbering 4 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_5_20_Start" style:display-name="Numbering 5 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_5" style:display-name="Numbering 5" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_5_20_End" style:display-name="Numbering 5 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Numbering_20_5_20_Cont." style:display-name="Numbering 5 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_1_20_Start" style:display-name="List 1 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_1" style:display-name="List 1" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_1_20_End" style:display-name="List 1 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_1_20_Cont." style:display-name="List 1 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_2_20_Start" style:display-name="List 2 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_2" style:display-name="List 2" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_2_20_End" style:display-name="List 2 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_2_20_Cont." style:display-name="List 2 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_3_20_Start" style:display-name="List 3 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_3" style:display-name="List 3" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_3_20_End" style:display-name="List 3 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_3_20_Cont." style:display-name="List 3 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_4_20_Start" style:display-name="List 4 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_4" style:display-name="List 4" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_4_20_End" style:display-name="List 4 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_4_20_Cont." style:display-name="List 4 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_5_20_Start" style:display-name="List 5 Start" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0.423cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_5" style:display-name="List 5" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_5_20_End" style:display-name="List 5 End" style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.423cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_5_20_Cont." style:display-name="List 5 Cont." style:family="paragraph" style:parent-style-name="List" style:class="list">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0.212cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+  </style:style>
+  <style:style style:name="Header_20_and_20_Footer" style:display-name="Header and Footer" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
+   <style:paragraph-properties text:number-lines="false" text:line-number="0">
+    <style:tab-stops>
+     <style:tab-stop style:position="8.5cm" style:type="center"/>
+     <style:tab-stop style:position="17cm" style:type="right"/>
+    </style:tab-stops>
+   </style:paragraph-properties>
   </style:style>
   <style:style style:name="Header" style:family="paragraph" style:parent-style-name="Standard" style:class="extra" style:master-page-name="">
    <style:paragraph-properties fo:text-align="end" style:justify-single-word="false" style:page-number="auto" fo:padding="0.049cm" fo:border-left="none" fo:border-right="none" fo:border-top="none" fo:border-bottom="0.002cm solid #000000" style:shadow="none">
@@ -1661,6 +1646,15 @@ class OdtFile(OdfFile):
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
+  <style:style style:name="Footer" style:family="paragraph" style:parent-style-name="Standard" style:class="extra" style:master-page-name="">
+   <style:paragraph-properties fo:text-align="center" style:justify-single-word="false" style:page-number="auto" text:number-lines="false" text:line-number="0">
+    <style:tab-stops>
+     <style:tab-stop style:position="8.5cm" style:type="center"/>
+     <style:tab-stop style:position="17.002cm" style:type="right"/>
+    </style:tab-stops>
+   </style:paragraph-properties>
+   <style:text-properties fo:font-size="11pt"/>
+  </style:style>
   <style:style style:name="Footer_20_left" style:display-name="Footer left" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
    <style:paragraph-properties>
     <style:tab-stops>
@@ -1677,280 +1671,284 @@ class OdtFile(OdfFile):
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
+  <style:style style:name="Table_20_Contents" style:display-name="Table Contents" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="extra"/>
+  <style:style style:name="Table_20_Heading" style:display-name="Table Heading" style:family="paragraph" style:parent-style-name="Table_20_Contents" style:class="extra">
+   <style:paragraph-properties fo:text-align="center" style:justify-single-word="false"/>
+   <style:text-properties fo:font-style="italic" fo:font-weight="bold"/>
+  </style:style>
+  <style:style style:name="Caption" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0.212cm" fo:margin-bottom="0.212cm"/>
+  </style:style>
   <style:style style:name="Illustration" style:family="paragraph" style:parent-style-name="Caption" style:class="extra"/>
+  <style:style style:name="Table" style:family="paragraph" style:parent-style-name="Caption" style:class="extra"/>
   <style:style style:name="Text" style:family="paragraph" style:parent-style-name="Caption" style:class="extra" style:master-page-name="">
-   <style:paragraph-properties fo:margin-top="0.21cm" fo:margin-bottom="0.21cm" style:page-number="auto"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0.21cm" fo:margin-bottom="0.21cm" style:page-number="auto"/>
   </style:style>
   <style:style style:name="Frame_20_contents" style:display-name="Frame contents" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="extra"/>
+  <style:style style:name="Footnote" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-0.499cm" style:auto-text-indent="false"/>
+   <style:text-properties fo:font-size="10pt"/>
+  </style:style>
   <style:style style:name="Addressee" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.106cm"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0cm" fo:margin-bottom="0.106cm"/>
   </style:style>
   <style:style style:name="Sender" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
-   <style:paragraph-properties fo:margin-top="0cm" fo:margin-bottom="0.106cm" fo:line-height="100%" text:number-lines="false" text:line-number="0"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0cm" fo:margin-bottom="0.106cm" fo:line-height="100%" text:number-lines="false" text:line-number="0"/>
   </style:style>
   <style:style style:name="Endnote" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-0.499cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="-0.499cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
    <style:text-properties fo:font-size="10pt"/>
   </style:style>
   <style:style style:name="Drawing" style:family="paragraph" style:parent-style-name="Caption" style:class="extra"/>
+  <style:style style:name="Index" style:family="paragraph" style:parent-style-name="Standard" style:class="index"/>
   <style:style style:name="Index_20_Heading" style:display-name="Index Heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
    <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
   </style:style>
   <style:style style:name="Index_20_1" style:display-name="Index 1" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Index_20_2" style:display-name="Index 2" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Index_20_3" style:display-name="Index 3" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Index_20_Separator" style:display-name="Index Separator" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="Contents_20_Heading" style:display-name="Contents Heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
    <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
   </style:style>
   <style:style style:name="Contents_20_1" style:display-name="Contents 1" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="17.002cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_2" style:display-name="Contents 2" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="16.503cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_3" style:display-name="Contents 3" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="16.004cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_4" style:display-name="Contents 4" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="15.505cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_5" style:display-name="Contents 5" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="15.005cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_Heading" style:display-name="User Index Heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
    <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
   </style:style>
   <style:style style:name="User_20_Index_20_1" style:display-name="User Index 1" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="17.002cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_2" style:display-name="User Index 2" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="16.503cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_3" style:display-name="User Index 3" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.998cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="16.004cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_4" style:display-name="User Index 4" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.498cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="15.505cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_5" style:display-name="User Index 5" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1.997cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="15.005cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_6" style:display-name="Contents 6" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="11.105cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_7" style:display-name="Contents 7" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.995cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.995cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="10.606cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_8" style:display-name="Contents 8" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="3.494cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="3.494cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="10.107cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_9" style:display-name="Contents 9" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="3.993cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="3.993cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="9.608cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Contents_20_10" style:display-name="Contents 10" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="4.493cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="4.493cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="9.109cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Illustration_20_Index_20_Heading" style:display-name="Illustration Index Heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
    <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
   </style:style>
   <style:style style:name="Illustration_20_Index_20_1" style:display-name="Illustration Index 1" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="13.601cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Object_20_index_20_heading" style:display-name="Object index heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
    <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
   </style:style>
   <style:style style:name="Object_20_index_20_1" style:display-name="Object index 1" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="13.601cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Table_20_index_20_heading" style:display-name="Table index heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
    <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
   </style:style>
   <style:style style:name="Table_20_index_20_1" style:display-name="Table index 1" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="13.601cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="Bibliography_20_Heading" style:display-name="Bibliography Heading" style:family="paragraph" style:parent-style-name="Heading" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false" text:number-lines="false" text:line-number="0"/>
    <style:text-properties fo:font-size="16pt" fo:font-weight="bold"/>
   </style:style>
   <style:style style:name="Bibliography_20_1" style:display-name="Bibliography 1" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="13.601cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_6" style:display-name="User Index 6" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.496cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="11.105cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_7" style:display-name="User Index 7" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="2.995cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="2.995cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="10.606cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_8" style:display-name="User Index 8" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="3.494cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="3.494cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="10.107cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_9" style:display-name="User Index 9" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="3.993cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="3.993cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="9.608cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
   <style:style style:name="User_20_Index_20_10" style:display-name="User Index 10" style:family="paragraph" style:parent-style-name="Index" style:class="index">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="4.493cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="4.493cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false">
     <style:tab-stops>
      <style:tab-stop style:position="9.109cm" style:type="right" style:leader-style="dotted" style:leader-text="."/>
     </style:tab-stops>
    </style:paragraph-properties>
   </style:style>
+  <style:style style:name="Title" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Subtitle" style:class="chapter" style:master-page-name="">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0.000cm" fo:margin-bottom="0cm" fo:line-height="200%" fo:text-align="center" style:justify-single-word="false" fo:text-indent="0cm" style:auto-text-indent="false" style:page-number="auto" fo:background-color="transparent" fo:padding="0cm" fo:border="none" text:number-lines="false" text:line-number="0">
+    <style:tab-stops/>
+    <style:background-image/>
+   </style:paragraph-properties>
+   <style:text-properties fo:text-transform="uppercase" fo:font-weight="normal" style:letter-kerning="false"/>
+  </style:style>
+  <style:style style:name="Subtitle" style:family="paragraph" style:parent-style-name="Title" style:class="chapter" style:master-page-name="">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0cm" fo:margin-bottom="0cm" style:page-number="auto"/>
+   <style:text-properties fo:font-variant="normal" fo:text-transform="none" fo:letter-spacing="normal" fo:font-style="italic" fo:font-weight="normal"/>
+  </style:style>
+  <style:style style:name="Quotations" style:family="paragraph" style:parent-style-name="Text_20_body" style:class="html" style:master-page-name="">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0.499cm" fo:margin-right="0.499cm" fo:margin-top="0cm" fo:margin-bottom="0.499cm" fo:text-indent="0cm" style:auto-text-indent="false" style:page-number="auto"/>
+  </style:style>
+  <style:style style:name="Preformatted_20_Text" style:display-name="Preformatted Text" style:family="paragraph" style:parent-style-name="Standard" style:class="html">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0cm" fo:margin-bottom="0cm"/>
+  </style:style>
+  <style:style style:name="Horizontal_20_Line" style:display-name="Horizontal Line" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Text_20_body" style:class="html">
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin-top="0cm" fo:margin-bottom="0.499cm" style:border-line-width-bottom="0.002cm 0.035cm 0.002cm" fo:padding="0cm" fo:border-left="none" fo:border-right="none" fo:border-top="none" fo:border-bottom="0.039cm double #808080" text:number-lines="false" text:line-number="0"/>
+   <style:text-properties fo:font-size="6pt"/>
+  </style:style>
   <style:style style:name="List_20_Contents" style:display-name="List Contents" style:family="paragraph" style:parent-style-name="Standard" style:class="html">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="1cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="1cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
   <style:style style:name="List_20_Heading" style:display-name="List Heading" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="List_20_Contents" style:class="html">
-   <style:paragraph-properties fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
+   <style:paragraph-properties loext:contextual-spacing="false" fo:margin="100%" fo:margin-left="0cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark" style:display-name="yWriter mark" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#008000" fo:font-size="10pt"/>
+  <style:style style:name="Footnote_20_Symbol" style:display-name="Footnote Symbol" style:family="text"/>
+  <style:style style:name="Page_20_Number" style:display-name="Page Number" style:family="text">
+   <style:text-properties style:font-name="ITC Officina Sans Book" fo:font-size="7pt" fo:letter-spacing="0.071cm" fo:font-weight="bold"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark_20_unused" style:display-name="yWriter mark unused" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#808080" fo:font-size="10pt"/>
-  </style:style>
-  <style:style style:name="yWriter_20_mark_20_notes" style:display-name="yWriter mark notes" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#0000FF" fo:font-size="10pt"/>
-  </style:style>
-  <style:style style:name="yWriter_20_mark_20_todo" style:display-name="yWriter mark todo" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#B22222" fo:font-size="10pt"/>
-  </style:style>
+  <style:style style:name="Caption_20_characters" style:display-name="Caption characters" style:family="text"/>
+  <style:style style:name="Drop_20_Caps" style:display-name="Drop Caps" style:family="text"/>
   <style:style style:name="Numbering_20_Symbols" style:display-name="Numbering Symbols" style:family="text"/>
   <style:style style:name="Bullet_20_Symbols" style:display-name="Bullet Symbols" style:family="text">
    <style:text-properties style:font-name="StarSymbol" fo:font-size="9pt"/>
   </style:style>
-  <style:style style:name="Emphasis" style:family="text">
-   <style:text-properties fo:font-style="italic" fo:background-color="transparent"/>
-  </style:style>
-  <style:style style:name="Strong_20_Emphasis" style:display-name="Strong Emphasis" style:family="text">
-   <style:text-properties fo:text-transform="uppercase"/>
-  </style:style>
-  <style:style style:name="Citation" style:family="text">
-   <style:text-properties fo:font-style="italic"/>
-  </style:style>
-  <style:style style:name="Teletype" style:family="text">
-   <style:text-properties style:font-name="Cumberland" style:font-name-asian="Cumberland" style:font-name-complex="Cumberland"/>
-  </style:style>
   <style:style style:name="Internet_20_link" style:display-name="Internet link" style:family="text">
    <style:text-properties fo:color="#000080" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/>
   </style:style>
-  <style:style style:name="Footnote_20_Symbol" style:display-name="Footnote Symbol" style:family="text"/>
-  <style:style style:name="Footnote_20_anchor" style:display-name="Footnote anchor" style:family="text">
-   <style:text-properties style:text-position="super 58%"/>
-  </style:style>
-  <style:style style:name="Definition" style:family="text"/>
-  <style:style style:name="Line_20_numbering" style:display-name="Line numbering" style:family="text">
-   <style:text-properties style:font-name="Courier New" fo:font-size="8pt"/>
-  </style:style>
-  <style:style style:name="Page_20_Number" style:display-name="Page Number" style:family="text">
-   <style:text-properties style:font-name="Courier New" fo:font-size="8pt"/>
-  </style:style>
-  <style:style style:name="Caption_20_characters" style:display-name="Caption characters" style:family="text"/>
-  <style:style style:name="Drop_20_Caps" style:display-name="Drop Caps" style:family="text"/>
   <style:style style:name="Visited_20_Internet_20_Link" style:display-name="Visited Internet Link" style:family="text">
    <style:text-properties fo:color="#800000" style:text-underline-style="solid" style:text-underline-width="auto" style:text-underline-color="font-color"/>
   </style:style>
@@ -1959,14 +1957,29 @@ class OdtFile(OdfFile):
   </style:style>
   <style:style style:name="Index_20_Link" style:display-name="Index Link" style:family="text"/>
   <style:style style:name="Endnote_20_Symbol" style:display-name="Endnote Symbol" style:family="text"/>
+  <style:style style:name="Line_20_numbering" style:display-name="Line numbering" style:family="text">
+   <style:text-properties style:font-name="Courier New" fo:font-size="8pt"/>
+  </style:style>
   <style:style style:name="Main_20_index_20_entry" style:display-name="Main index entry" style:family="text">
    <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
+  </style:style>
+  <style:style style:name="Footnote_20_anchor" style:display-name="Footnote anchor" style:family="text">
+   <style:text-properties style:text-position="super 58%"/>
   </style:style>
   <style:style style:name="Endnote_20_anchor" style:display-name="Endnote anchor" style:family="text">
    <style:text-properties style:text-position="super 58%"/>
   </style:style>
   <style:style style:name="Rubies" style:family="text">
    <style:text-properties fo:font-size="6pt" style:font-size-asian="6pt" style:font-size-complex="6pt"/>
+  </style:style>
+  <style:style style:name="Emphasis" style:family="text">
+   <style:text-properties fo:font-style="italic" fo:background-color="transparent"/>
+  </style:style>
+  <style:style style:name="Citation" style:family="text">
+   <style:text-properties fo:font-style="italic"/>
+  </style:style>
+  <style:style style:name="Strong_20_Emphasis" style:display-name="Strong Emphasis" style:family="text">
+   <style:text-properties fo:text-transform="uppercase"/>
   </style:style>
   <style:style style:name="Source_20_Text" style:display-name="Source Text" style:family="text">
    <style:text-properties style:font-name="Cumberland" style:font-name-asian="Cumberland" style:font-name-complex="Cumberland"/>
@@ -1979,6 +1992,10 @@ class OdtFile(OdfFile):
   </style:style>
   <style:style style:name="Variable" style:family="text">
    <style:text-properties fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic"/>
+  </style:style>
+  <style:style style:name="Definition" style:family="text"/>
+  <style:style style:name="Teletype" style:family="text">
+   <style:text-properties style:font-name="Cumberland" style:font-name-asian="Cumberland" style:font-name-complex="Cumberland"/>
   </style:style>
   <style:style style:name="Frame" style:family="graphic">
    <style:graphic-properties text:anchor-type="paragraph" svg:x="0cm" svg:y="0cm" style:wrap="parallel" style:number-wrapped-paragraphs="no-limit" style:wrap-contour="false" style:vertical-pos="top" style:vertical-rel="paragraph-content" style:horizontal-pos="center" style:horizontal-rel="paragraph-content"/>
@@ -2002,8 +2019,8 @@ class OdtFile(OdfFile):
    <text:outline-level-style text:level="2" style:num-format="">
     <style:list-level-properties text:min-label-distance="0.381cm"/>
    </text:outline-level-style>
-   <text:outline-level-style text:level="3" style:num-format="">
-    <style:list-level-properties text:min-label-distance="0.381cm"/>
+   <text:outline-level-style text:level="3" text:style-name="Zeichenformat" style:num-format="">
+    <style:list-level-properties/>
    </text:outline-level-style>
    <text:outline-level-style text:level="4" style:num-format="">
     <style:list-level-properties text:min-label-distance="0.381cm"/>
@@ -2058,141 +2075,6 @@ class OdtFile(OdfFile):
    <text:list-level-style-number text:level="10" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="1">
     <style:list-level-properties text:space-before="4.493cm" text:min-label-width="0.499cm"/>
    </text:list-level-style-number>
-  </text:list-style>
-  <text:list-style style:name="Numbering_20_2" style:display-name="Numbering 2">
-   <text:list-level-style-number text:level="1" text:style-name="Numbering_20_Symbols" style:num-format="1">
-    <style:list-level-properties text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="2" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="2">
-    <style:list-level-properties text:space-before="0.499cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="3" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="3">
-    <style:list-level-properties text:space-before="0.998cm" text:min-label-width="1cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="4" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="4">
-    <style:list-level-properties text:space-before="1.998cm" text:min-label-width="1.251cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="5" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="5">
-    <style:list-level-properties text:space-before="3.249cm" text:min-label-width="1.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="6" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="6">
-    <style:list-level-properties text:space-before="4.748cm" text:min-label-width="1.801cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="7" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="7">
-    <style:list-level-properties text:space-before="6.549cm" text:min-label-width="2.3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="8" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="8">
-    <style:list-level-properties text:space-before="8.849cm" text:min-label-width="2.6cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="9" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="9">
-    <style:list-level-properties text:space-before="11.449cm" text:min-label-width="2.801cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="10" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="10">
-    <style:list-level-properties text:space-before="14.25cm" text:min-label-width="3.101cm"/>
-   </text:list-level-style-number>
-  </text:list-style>
-  <text:list-style style:name="Numbering_20_3" style:display-name="Numbering 3">
-   <text:list-level-style-number text:level="1" text:style-name="Numbering_20_Symbols" style:num-format="1">
-    <style:list-level-properties text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="2" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="2">
-    <style:list-level-properties text:space-before="3.001cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="3" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="3">
-    <style:list-level-properties text:space-before="6.001cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="4" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="4">
-    <style:list-level-properties text:space-before="9.002cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="5" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="5">
-    <style:list-level-properties text:space-before="12.002cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="6" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="6">
-    <style:list-level-properties text:space-before="15.002cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="7" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="7">
-    <style:list-level-properties text:space-before="18.003cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="8" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="8">
-    <style:list-level-properties text:space-before="21.003cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="9" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="9">
-    <style:list-level-properties text:space-before="24.003cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="10" text:style-name="Numbering_20_Symbols" style:num-format="1" text:start-value="10">
-    <style:list-level-properties text:space-before="27.004cm" text:min-label-width="3cm"/>
-   </text:list-level-style-number>
-  </text:list-style>
-  <text:list-style style:name="Numbering_20_4" style:display-name="Numbering 4">
-   <text:list-level-style-number text:level="1" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I">
-    <style:list-level-properties text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="2" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="2">
-    <style:list-level-properties text:space-before="0.501cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="3" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="3">
-    <style:list-level-properties text:space-before="1cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="4" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="4">
-    <style:list-level-properties text:space-before="1.501cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="5" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="5">
-    <style:list-level-properties text:space-before="2cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="6" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="6">
-    <style:list-level-properties text:space-before="2.501cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="7" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="7">
-    <style:list-level-properties text:space-before="3.001cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="8" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="8">
-    <style:list-level-properties text:space-before="3.502cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="9" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="9">
-    <style:list-level-properties text:space-before="4.001cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="10" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="I" text:start-value="10">
-    <style:list-level-properties text:space-before="4.502cm" text:min-label-width="0.499cm"/>
-   </text:list-level-style-number>
-  </text:list-style>
-  <text:list-style style:name="Numbering_20_5" style:display-name="Numbering 5">
-   <text:list-level-style-number text:level="1" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="1">
-    <style:list-level-properties text:min-label-width="0.4cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="2" text:style-name="Numbering_20_Symbols" style:num-suffix="." style:num-format="1" text:start-value="2" text:display-levels="2">
-    <style:list-level-properties text:space-before="0.45cm" text:min-label-width="0.651cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-number text:level="3" text:style-name="Numbering_20_Symbols" style:num-suffix=")" style:num-format="a" text:start-value="3">
-    <style:list-level-properties text:space-before="1.1cm" text:min-label-width="0.45cm"/>
-   </text:list-level-style-number>
-   <text:list-level-style-bullet text:level="4" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
-    <style:list-level-properties text:space-before="1.605cm" text:min-label-width="0.395cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="5" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
-    <style:list-level-properties text:space-before="2cm" text:min-label-width="0.395cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="6" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
-    <style:list-level-properties text:space-before="2.395cm" text:min-label-width="0.395cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="7" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
-    <style:list-level-properties text:space-before="2.791cm" text:min-label-width="0.395cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="8" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
-    <style:list-level-properties text:space-before="3.186cm" text:min-label-width="0.395cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="9" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
-    <style:list-level-properties text:space-before="3.581cm" text:min-label-width="0.395cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="10" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
-    <style:list-level-properties text:space-before="3.976cm" text:min-label-width="0.395cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
   </text:list-style>
   <text:list-style style:name="List_20_1" style:display-name="List 1">
    <text:list-level-style-bullet text:level="1" text:style-name="Numbering_20_Symbols" text:bullet-char="•">
@@ -2360,97 +2242,13 @@ class OdtFile(OdfFile):
     <style:text-properties fo:font-family="OpenSymbol"/>
    </text:list-level-style-bullet>
   </text:list-style>
-  <text:list-style style:name="List_20_4" style:display-name="List 4">
-   <text:list-level-style-bullet text:level="1" text:style-name="Numbering_20_Symbols" text:bullet-char="➢">
-    <style:list-level-properties text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="2" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="0.401cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="3" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="0.799cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="4" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="1.2cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="5" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="1.6cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="6" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="2.001cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="7" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="2.399cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="8" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="2.8cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="9" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="3.2cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="10" text:style-name="Numbering_20_Symbols" text:bullet-char="">
-    <style:list-level-properties text:space-before="3.601cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-  </text:list-style>
-  <text:list-style style:name="List_20_5" style:display-name="List 5">
-   <text:list-level-style-bullet text:level="1" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="2" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="0.401cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="3" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="0.799cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="4" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="1.2cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="5" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="1.6cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="6" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="2.001cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="7" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="2.399cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="8" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="2.8cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="9" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="3.2cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-   <text:list-level-style-bullet text:level="10" text:style-name="Numbering_20_Symbols" text:bullet-char="✗">
-    <style:list-level-properties text:space-before="3.601cm" text:min-label-width="0.4cm"/>
-    <style:text-properties fo:font-family="StarSymbol"/>
-   </text:list-level-style-bullet>
-  </text:list-style>
-  <text:notes-configuration text:note-class="footnote" text:citation-style-name="Footnote_20_Symbol" text:citation-body-style-name="Footnote_20_anchor" style:num-format="1" text:start-value="0" text:footnotes-position="page" text:start-numbering-at="document"/>
-  <text:notes-configuration text:note-class="endnote" style:num-format="i" text:start-value="0"/>
-  <text:linenumbering-configuration text:number-lines="false" text:offset="0.499cm" style:num-format="1" text:number-position="left" text:increment="5"/>
+  <text:notes-configuration text:note-class="footnote" text:citation-style-name="Footnote_20_Symbol" text:citation-body-style-name="Footnote_20_anchor" style:num-format="1" text:start-value="0" text:footnotes-position="page" text:start-numbering-at="page"/>
+  <text:notes-configuration text:note-class="endnote" text:citation-style-name="Endnote_20_Symbol" text:citation-body-style-name="Endnote_20_anchor" text:master-page-name="Endnote" style:num-format="1" text:start-value="0"/>
+  <text:linenumbering-configuration text:style-name="Line_20_numbering" text:number-lines="false" text:offset="0.499cm" style:num-format="1" text:number-position="left" text:increment="5"/>
  </office:styles>
  <office:automatic-styles>
   <style:page-layout style:name="Mpm1">
-   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:paper-tray-name="[From printer settings]" style:print-orientation="portrait" fo:margin-top="3.2cm" fo:margin-bottom="2.499cm" fo:margin-left="2.701cm" fo:margin-right="3cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm">
+   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:paper-tray-name="[From printer settings]" style:print-orientation="portrait" fo:margin-top="3.2cm" fo:margin-bottom="2.499cm" fo:margin-left="2.701cm" fo:margin-right="3cm" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20" style:layout-grid-base-height="0.706cm" style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:footnote-max-height="0cm">
     <style:columns fo:column-count="1" fo:column-gap="0cm"/>
     <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
    </style:page-layout-properties>
@@ -2460,7 +2258,7 @@ class OdtFile(OdfFile):
    </style:footer-style>
   </style:page-layout>
   <style:page-layout style:name="Mpm2">
-   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2.499cm" fo:margin-right="2.499cm" style:shadow="none" fo:background-color="transparent" style:writing-mode="lr-tb" style:footnote-max-height="0cm">
+   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2.499cm" fo:margin-right="2.499cm" style:shadow="none" fo:background-color="transparent" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20" style:layout-grid-base-height="0.706cm" style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:footnote-max-height="0cm">
     <style:background-image/>
     <style:columns fo:column-count="1" fo:column-gap="0cm"/>
     <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
@@ -2469,35 +2267,35 @@ class OdtFile(OdfFile):
    <style:footer-style/>
   </style:page-layout>
   <style:page-layout style:name="Mpm3" style:page-usage="left">
-   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="1cm" fo:margin-left="2.499cm" fo:margin-right="4.5cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm">
+   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="1cm" fo:margin-left="2.499cm" fo:margin-right="4.5cm" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20" style:layout-grid-base-height="0.706cm" style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:footnote-max-height="0cm">
     <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
    </style:page-layout-properties>
    <style:header-style/>
    <style:footer-style/>
   </style:page-layout>
   <style:page-layout style:name="Mpm4" style:page-usage="right">
-   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="1cm" fo:margin-left="2.499cm" fo:margin-right="4.5cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm">
+   <style:page-layout-properties fo:page-width="21.001cm" fo:page-height="29.7cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="1cm" fo:margin-left="2.499cm" fo:margin-right="4.5cm" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20" style:layout-grid-base-height="0.706cm" style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:footnote-max-height="0cm">
     <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
    </style:page-layout-properties>
    <style:header-style/>
    <style:footer-style/>
   </style:page-layout>
   <style:page-layout style:name="Mpm5">
-   <style:page-layout-properties fo:page-width="22.721cm" fo:page-height="11.4cm" style:num-format="1" style:print-orientation="landscape" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:margin-left="0cm" fo:margin-right="0cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm">
+   <style:page-layout-properties fo:page-width="22.721cm" fo:page-height="11.4cm" style:num-format="1" style:print-orientation="landscape" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:margin-left="0cm" fo:margin-right="0cm" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20" style:layout-grid-base-height="0.706cm" style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:footnote-max-height="0cm">
     <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
    </style:page-layout-properties>
    <style:header-style/>
    <style:footer-style/>
   </style:page-layout>
   <style:page-layout style:name="Mpm6">
-   <style:page-layout-properties fo:page-width="14.801cm" fo:page-height="21.001cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2cm" fo:margin-right="2cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm">
+   <style:page-layout-properties fo:page-width="14.801cm" fo:page-height="21.001cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2cm" fo:margin-right="2cm" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20" style:layout-grid-base-height="0.706cm" style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:footnote-max-height="0cm">
     <style:footnote-sep style:width="0.018cm" style:distance-before-sep="0.101cm" style:distance-after-sep="0.101cm" style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
    </style:page-layout-properties>
    <style:header-style/>
    <style:footer-style/>
   </style:page-layout>
   <style:page-layout style:name="Mpm7">
-   <style:page-layout-properties fo:page-width="20.999cm" fo:page-height="29.699cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2cm" fo:margin-right="2cm" style:writing-mode="lr-tb" style:footnote-max-height="0cm">
+   <style:page-layout-properties fo:page-width="20.999cm" fo:page-height="29.699cm" style:num-format="1" style:print-orientation="portrait" fo:margin-top="2cm" fo:margin-bottom="2cm" fo:margin-left="2cm" fo:margin-right="2cm" style:writing-mode="lr-tb" style:layout-grid-color="#c0c0c0" style:layout-grid-lines="20" style:layout-grid-base-height="0.706cm" style:layout-grid-ruby-height="0.353cm" style:layout-grid-mode="none" style:layout-grid-ruby-below="false" style:layout-grid-print="false" style:layout-grid-display="false" style:footnote-max-height="0cm">
     <style:footnote-sep style:adjustment="left" style:rel-width="25%" style:color="#000000"/>
    </style:page-layout-properties>
    <style:header-style/>
@@ -2507,7 +2305,7 @@ class OdtFile(OdfFile):
  <office:master-styles>
   <style:master-page style:name="Standard" style:page-layout-name="Mpm1">
    <style:footer>
-    <text:p text:style-name="Footer"><text:page-number text:select-page="current">14</text:page-number></text:p>
+    <text:p text:style-name="Footer"><text:page-number text:select-page="current"/></text:p>
    </style:footer>
   </style:master-page>
   <style:master-page style:name="First_20_Page" style:display-name="First Page" style:page-layout-name="Mpm2" style:next-style-name="Standard"/>
@@ -2536,7 +2334,7 @@ class OdtFile(OdfFile):
         # Generate manifest.rdf
 
         try:
-            with open(self.TEMPDIR + '/manifest.rdf', 'w', encoding='utf-8') as f:
+            with open(self.tempDir + '/manifest.rdf', 'w', encoding='utf-8') as f:
                 f.write(self._MANIFEST_RDF)
         except:
             return 'ERROR: Cannot write "manifest.rdf"'
@@ -2709,9 +2507,9 @@ class OdtManuscript(OdtFile):
     sceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="Text_20_body"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>- $Title</text:p>
+<text:p>~ ${Title} ~</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a> -</text:p>
+<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a></text:p>
 </office:annotation>$SceneContent</text:p>
 </text:section>
 '''
@@ -2719,15 +2517,15 @@ class OdtManuscript(OdtFile):
     appendedSceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="First_20_line_20_indent"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>- $Title</text:p>
+<text:p>~ ${Title} ~</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a> -</text:p>
+<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a></text:p>
 </office:annotation>$SceneContent</text:p>
 </text:section>
 '''
 
-    sceneDivider = '<text:p ></text:p>'
-    #sceneDivider = '<text:p text:style-name="Heading_20_4">* * *</text:p>'
+    sceneDivider = '<text:p text:style-name="Heading_20_4">* * *</text:p>\n'
+    #sceneDivider = '<text:p text:style-name="Heading_20_5"></text:p>\n'
 
     chapterEndTemplate = '''</text:section>
 '''
@@ -2769,9 +2567,9 @@ class OdtSceneDesc(OdtFile):
     sceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="Text_20_body"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>- $Title</text:p>
+<text:p>~ ${Title} ~</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a> -</text:p>
+<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a></text:p>
 </office:annotation>$Desc</text:p>
 </text:section>
 '''
@@ -2779,9 +2577,9 @@ class OdtSceneDesc(OdtFile):
     appendedSceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="First_20_line_20_indent"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>- $Title</text:p>
+<text:p>~ ${Title} ~</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a> -</text:p>
+<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a></text:p>
 </office:annotation>$Desc</text:p>
 </text:section>
 '''
@@ -2811,8 +2609,8 @@ class OdtChapterDesc(OdtFile):
     partTemplate = '''<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:a xlink:href="../${ProjectName}_parts.odt#ChID:$ID%7Cregion">$Title</text:a></text:h>
 '''
 
-    chapterTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:a xlink:href="../${ProjectName}_manuscript.odt#ChID:$ID%7Cregion">$Title</text:a></text:h>
-<text:section text:style-name="Sect1" text:name="ChID:$ID">
+    chapterTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
+<text:h text:style-name="Heading_20_2" text:outline-level="2"><text:a xlink:href="../${ProjectName}_manuscript.odt#ChID:$ID%7Cregion">$Title</text:a></text:h>
 <text:p text:style-name="Text_20_body">$Desc</text:p>
 </text:section>
 '''
@@ -2833,8 +2631,8 @@ class OdtPartDesc(OdtFile):
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
-    partTemplate = '''<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:a xlink:href="../${ProjectName}_manuscript.odt#ChID:$ID%7Cregion">$Title</text:a></text:h>
-<text:section text:style-name="Sect1" text:name="ChID:$ID">
+    partTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
+<text:h text:style-name="Heading_20_1" text:outline-level="1"><text:a xlink:href="../${ProjectName}_manuscript.odt#ChID:$ID%7Cregion">$Title</text:a></text:h>
 <text:p text:style-name="Text_20_body">$Desc</text:p>
 </text:section>
 '''
@@ -5195,7 +4993,15 @@ class Yw7TreeBuilder():
             chId = chp.find('ID').text
 
             if chId in ywProject.chapters:
-                chp.find('Title').text = ywProject.chapters[chId].title
+
+                if ywProject.chapters[chId] is not None:
+
+                    if chp.find('Title') is not None:
+                        chp.find('Title').text = ywProject.chapters[chId].title
+
+                    else:
+                        ET.SubElement(
+                            chp, 'Title').text = ywProject.chapters[chId].title
 
                 if ywProject.chapters[chId].desc is not None:
 
@@ -5245,7 +5051,13 @@ class Yw7TreeBuilder():
             if scId in ywProject.scenes:
 
                 if ywProject.scenes[scId].title is not None:
-                    scn.find('Title').text = ywProject.scenes[scId].title
+
+                    if scn.find('Title') is not None:
+                        scn.find('Title').text = ywProject.scenes[scId].title
+
+                    else:
+                        ET.SubElement(
+                            scn, 'Title').text = ywProject.scenes[scId].title
 
                 if ywProject.scenes[scId].desc is not None:
 
@@ -6894,6 +6706,9 @@ class HtmlFile(Novel, HTMLParser):
     """Generic HTML file representation."""
 
     EXTENSION = '.html'
+    COMMENT_START = '/*'
+    COMMENT_END = '*/'
+    SC_TITLE_BRACKET = '~'
 
     def __init__(self, filePath, **kwargs):
         Novel.__init__(self, filePath)
@@ -6948,10 +6763,6 @@ class HtmlFile(Novel, HTMLParser):
         text = text.replace('[/i][i]', '')
         text = text.replace('[/b][b]', '')
 
-        # Remove scene title annotations.
-
-        text = re.sub('\<\!-- - .*? - -->', '', text)
-
         # Convert author's comments
 
         text = text.replace('<!--', '/*')
@@ -6980,10 +6791,10 @@ class HtmlFile(Novel, HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         """Identify scenes and chapters.
-        Overwrites HTMLparser.handle_starttag().
+        Override HTMLparser.handle_starttag().
         This method is applicable to HTML files that are divided into 
         chapters and scenes. For differently structured HTML files 
-        overwrite this method in a subclass.
+        do override this method in a subclass.
         """
         if tag == 'div':
 
@@ -7029,8 +6840,6 @@ class HtmlImport(HtmlFile):
 
     _SCENE_DIVIDER = '* * *'
     _LOW_WORDCOUNT = 10
-    _COMMENT_START = '/*'
-    _COMMENT_END = '*/'
 
     def __init__(self, filePath, **kwargs):
         HtmlFile.__init__(self, filePath)
@@ -7117,18 +6926,24 @@ class HtmlImport(HtmlFile):
             self._scId = None
 
         else:
-            data = data.rstrip().lstrip()
+            data = data.lstrip().rstrip()
 
             # Convert prefixed comment into scene title.
 
-            if self._lines == [] and data.startswith(self._COMMENT_START):
+            if self._lines == [] and data.startswith(self.COMMENT_START):
 
                 try:
-                    scTitle, scText = data.split(
-                        sep=self._COMMENT_END, maxsplit=1)
-                    self.scenes[self._scId].title = scTitle.lstrip(
-                        self._COMMENT_START).lstrip('- ')
-                    data = scText
+                    scTitle, scContent = data.split(
+                        sep=self.COMMENT_END, maxsplit=1)
+
+                    if self.SC_TITLE_BRACKET in scTitle:
+                        scTitle = scTitle.split(self.SC_TITLE_BRACKET)[1]
+
+                    else:
+                        scTitle = scTitle.lstrip(self.COMMENT_START)
+
+                    self.scenes[self._scId].title = scTitle.lstrip().rstrip()
+                    data = scContent
 
                 except:
                     pass
@@ -7314,18 +7129,18 @@ class OdtExport(OdtFile):
 
     sceneTemplate = '''<text:p text:style-name="Text_20_body"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>- $Title</text:p>
+<text:p>~ ${Title} ~</text:p>
 </office:annotation>$SceneContent</text:p>
 '''
 
     appendedSceneTemplate = '''<text:p text:style-name="First_20_line_20_indent"><office:annotation>
 <dc:creator>scene title</dc:creator>
-<text:p>- $Title</text:p>
+<text:p>~ ${Title} ~</text:p>
 </office:annotation>$SceneContent</text:p>
 '''
 
-    sceneDivider = '<text:p ></text:p>'
-    #sceneDivider = '<text:p text:style-name="Heading_20_4">* * *</text:p>'
+    sceneDivider = '<text:p text:style-name="Heading_20_4">* * *</text:p>\n'
+    #sceneDivider = '<text:p text:style-name="Heading_20_5"></text:p>\n'
 
     fileFooter = OdtFile.CONTENT_XML_FOOTER
 
@@ -7438,7 +7253,24 @@ class HtmlManuscript(HtmlFile):
         if self._scId is not None:
 
             if tag == 'div':
-                self.scenes[self._scId].sceneContent = ''.join(self._lines)
+                text = ''.join(self._lines)
+
+                if text.startswith(self.COMMENT_START):
+
+                    try:
+                        scTitle, scContent = text.split(
+                            sep=self.COMMENT_END, maxsplit=1)
+
+                        if self.SC_TITLE_BRACKET in scTitle:
+                            self.scenes[self._scId].title = scTitle.split(
+                                self.SC_TITLE_BRACKET)[1].lstrip().rstrip()
+
+                        text = scContent
+
+                    except:
+                        pass
+
+                self.scenes[self._scId].sceneContent = text
                 self._lines = []
                 self._scId = None
 
@@ -7452,10 +7284,15 @@ class HtmlManuscript(HtmlFile):
 
     def handle_data(self, data):
         """Collect data within scene sections.
-        Overwrites HTMLparser.handle_data().
+        Override HTMLparser.handle_data().
         """
         if self._scId is not None:
             self._lines.append(data.rstrip().lstrip())
+
+        elif self._chId is not None:
+
+            if not self.chapters[self._chId].title:
+                self.chapters[self._chId].title = data.rstrip().lstrip()
 
 
 
@@ -7470,12 +7307,30 @@ class HtmlSceneDesc(HtmlFile):
 
     def handle_endtag(self, tag):
         """Recognize the end of the scene section and save data.
-        Overwrites HTMLparser.handle_endtag().
+        Override HTMLparser.handle_endtag().
         """
+
         if self._scId is not None:
 
             if tag == 'div':
-                self.scenes[self._scId].desc = ''.join(self._lines)
+                text = ''.join(self._lines)
+
+                if text.startswith(self.COMMENT_START):
+
+                    try:
+                        scTitle, scContent = text.split(
+                            sep=self.COMMENT_END, maxsplit=1)
+
+                        if self.SC_TITLE_BRACKET in scTitle:
+                            self.scenes[self._scId].title = scTitle.split(
+                                self.SC_TITLE_BRACKET)[1].lstrip().rstrip()
+
+                        text = scContent
+
+                    except:
+                        pass
+
+                self.scenes[self._scId].desc = text
                 self._lines = []
                 self._scId = None
 
@@ -7489,10 +7344,15 @@ class HtmlSceneDesc(HtmlFile):
 
     def handle_data(self, data):
         """Collect data within scene sections.
-        Overwrites HTMLparser.handle_data().
+        Override HTMLparser.handle_data().
         """
         if self._scId is not None:
             self._lines.append(data.rstrip().lstrip())
+
+        elif self._chId is not None:
+
+            if not self.chapters[self._chId].title:
+                self.chapters[self._chId].title = data.rstrip().lstrip()
 
 
 
@@ -7507,7 +7367,7 @@ class HtmlChapterDesc(HtmlFile):
 
     def handle_endtag(self, tag):
         """Recognize the end of the chapter section and save data.
-        Overwrites HTMLparser.handle_endtag().
+        Override HTMLparser.handle_endtag().
         """
         if self._chId is not None:
 
@@ -7519,9 +7379,15 @@ class HtmlChapterDesc(HtmlFile):
             elif tag == 'p':
                 self._lines.append('\n')
 
+            elif tag == 'h1' or tag == 'h2':
+
+                if not self.chapters[self._chId].title:
+                    self.chapters[self._chId].title = ''.join(self._lines)
+                    self._lines = []
+
     def handle_data(self, data):
         """collect data within chapter sections.
-        Overwrites HTMLparser.handle_data().
+        Override HTMLparser.handle_data().
         """
         if self._chId is not None:
             self._lines.append(data.rstrip().lstrip())
