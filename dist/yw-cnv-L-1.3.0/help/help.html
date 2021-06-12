@@ -15,10 +15,11 @@
     </style>
 </head>
 <body>
-<p><a href="https://peter88213.github.io/yw-cnv/">Project home page</a> &gt; Main help page</p>
+<p><a href="https://peter88213.github.io/pywoo/">Project home page</a> &gt; Main help page</p>
 <hr />
 <h1 id="ywriter-importexport">yWriter import/export</h1>
 <h2 id="command-reference">Command reference</h2>
+<h3 id="files-menu">"Files" menu</h3>
 <ul>
 <li><a href="#import-from-ywriter">Import from yWriter</a></li>
 <li><a href="#import-from-ywriter-for-proof-reading">Import from yWriter for proof reading</a></li>
@@ -28,6 +29,10 @@
 <li><a href="#cross-reference">Cross reference</a></li>
 <li><a href="#export-to-ywriter">Export to yWriter</a></li>
 <li><a href="help-adv.html">Advanced features</a></li>
+</ul>
+<h3 id="format-menu">"Format" menu</h3>
+<ul>
+<li><a href="#replace-scene-dividers-with-blank-lines">Replace scene dividers with blank lines</a></li>
 </ul>
 <h2 id="howto">HowTo</h2>
 <ul>
@@ -63,9 +68,10 @@
 <li>Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.</li>
 <li>All chapters and scenes will be exported, whether "used" or "unused".</li>
 <li>The document contains chapter <code>[ChID:x]</code> and scene <code>[ScID:y]</code> markers according to yWriter 5 standard. <strong>Do not touch lines containing the markers</strong> if you want to be able to reimport the document into yWriter.</li>
+<li>Chapters and scenes can neither be rearranged nor deleted. Added chapters and scenes are not taken into account when writing back.</li>
 <li>Back up your yWriter project and close yWriter before.</li>
 </ul>
-<p>You can write back the proofread scenes to the yWriter 7 project file with the <a href="#export-to-ywriter">Export to yWriter</a> command.</p>
+<p>You can write back the scene contents to the yWriter 7 project file with the <a href="#export-to-ywriter">Export to yWriter</a> command.</p>
 <p><a href="#top">Top of page</a></p>
 <hr />
 <h2 id="character-list">Character list</h2>
@@ -141,6 +147,10 @@
 <li><em>Heading 3</em> --› New scene title.</li>
 <li>All other text is considered to be chapter/scene description.</li>
 </ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="replace-scene-dividers-with-blank-lines">Replace scene dividers with blank lines</h2>
+<p>This will replace the three-line "* * *" scene dividers with single blank lines. The style of the scene-dividing lines will be changed from <em>Heading 4</em> to <em>Heading 5</em>.</p>
 <p><a href="#top">Top of page</a></p>
 <hr />
 </body>
