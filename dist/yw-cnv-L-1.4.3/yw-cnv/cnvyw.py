@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.4.2
+Version 1.4.3
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -9,8 +9,6 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 import os
 
 from configparser import ConfigParser
-from urllib.parse import unquote
-from urllib.parse import quote
 
 import re
 
@@ -8285,8 +8283,7 @@ def open_yw7(suffix, newExt):
     # Set last opened yWriter project as default (if existing).
 
     scriptLocation = os.path.dirname(__file__)
-    inifile = unquote(
-        (scriptLocation + '/' + INI_FILE).replace('file:///', ''))
+    inifile = uno.fileUrlToSystemPath(scriptLocation + '/' + INI_FILE)
     defaultFile = None
     config = ConfigParser()
 
@@ -8295,7 +8292,7 @@ def open_yw7(suffix, newExt):
         ywLastOpen = config.get('FILES', 'yw_last_open')
 
         if os.path.isfile(ywLastOpen):
-            defaultFile = quote('file:///' + ywLastOpen, '/:')
+            defaultFile = uno.systemPathToFileUrl(ywLastOpen)
 
     except:
         pass
@@ -8307,7 +8304,7 @@ def open_yw7(suffix, newExt):
     if ywFile is None:
         return
 
-    sourcePath = unquote(ywFile.replace('file:///', ''))
+    sourcePath = uno.fileUrlToSystemPath(ywFile)
     ywExt = os.path.splitext(sourcePath)[1]
 
     if not ywExt in ['.yw7']:
@@ -8319,14 +8316,13 @@ def open_yw7(suffix, newExt):
 
     newFile = ywFile.replace(ywExt, suffix + newExt)
     dirName, filename = os.path.split(newFile)
-    lockFile = unquote((dirName + '/.~lock.' + filename +
-                        '#').replace('file:///', ''))
+    lockFile = uno.fileUrlToSystemPath(
+        dirName + '/') + '.~lock.' + filename + '#'
 
     if not config.has_section('FILES'):
         config.add_section('FILES')
 
-    config.set('FILES', 'yw_last_open', unquote(
-        ywFile.replace('file:///', '')))
+    config.set('FILES', 'yw_last_open', uno.fileUrlToSystemPath(ywFile))
 
     with open(inifile, 'w') as f:
         config.write(f)
@@ -8497,7 +8493,7 @@ def export_yw():
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        targetPath = unquote(htmlPath.replace('file:///', ''))
+        targetPath = uno.fileUrlToSystemPath(htmlPath)
 
     elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
         odsPath = documentPath.replace('.csv', '.ods')
@@ -8531,7 +8527,7 @@ def export_yw():
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
-        targetPath = unquote(csvPath.replace('file:///', ''))
+        targetPath = uno.fileUrlToSystemPath(csvPath)
 
     else:
         msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +

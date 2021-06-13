@@ -8,13 +8,16 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 
 import os
+import webbrowser
 
 
 def show_help():
     scriptLocation = os.path.dirname(__file__)
-    os.startfile(scriptLocation + '/help.html')
+    helpFile = scriptLocation + '/help.html'
+    webbrowser.open(helpFile)
 
 
 def show_adv_help():
     scriptLocation = os.path.dirname(__file__)
-    os.startfile(scriptLocation + '/help-adv.html')
+    helpFile = scriptLocation + '/help-adv.html'
+    webbrowser.open(helpFile)
