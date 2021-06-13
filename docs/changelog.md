@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.4.3 Linux compatible
+
+Make the Python script Linux compatible.
+
+Based on PyWriter 3.6.6
+
 ### v1.4.2 Bugfix update
 
 - Fix the "proofread tags" paragraph styles.
