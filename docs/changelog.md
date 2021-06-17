@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.4.4 Optional update
+
+- Major refactoring of the yw7 file processing.
+
+Based on PyWriter v3.8.0
+
 ### v1.4.3 Linux compatible
 
 Make the Python script Linux compatible.
