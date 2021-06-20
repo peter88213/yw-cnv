@@ -152,10 +152,10 @@ This will generate a new OpenDocument spreadsheet (ods) listing the following:
 - Outcome
 - Sequential scene number
 - Words total
-- FieldTitle 1
-- FieldTitle 2
-- FieldTitle 3
-- FieldTitle 4
+- Rating 1
+- Rating 2
+- Rating 3
+- Rating 4
 - Word count
 - Letter count
 - Status
@@ -184,10 +184,10 @@ related metadata that can be displayed and edited.
 - Details (Notes)
 - Sequential scene number
 - Words total
-- Field Title1
-- Field Title2
-- Field Title3
-- Field Title4
+- Rating 1
+- Rating 2
+- Rating 3
+- Rating 4
 
 File name suffix is `_plotlist`.
 
