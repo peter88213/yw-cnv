@@ -163,10 +163,30 @@ This will generate a new OpenDocument spreadsheet (ods) listing the following:
 - Locations
 - Items
 
+Only "normal" scenes that would be exported as RTF in yWriter get a 
+row in the scene list. Scenes of the "Unused", "Notes", or "ToDo" 
+type are omitted.
+
 File name suffix is `_scenelist`.
 
 You can write back the table contents to the yWriter 7 project file with
 the [Export to yWriter](help#export-to-ywriter) command.
+
+The following columns can be written back to the yWriter project:
+
+- Title
+- Description
+- Tags (comma-separated)
+- Scene notes
+- A/R (action/reaction scene)
+- Goal
+- Conflict
+- Outcome
+- Rating 1
+- Rating 2
+- Rating 3
+- Rating 4
+- Status ('Outline', 'Draft', '1st Edit', '2nd Edit', 'Done')
 
 [Top of page](#top)
 
