@@ -139,10 +139,31 @@ file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 ## Scene list
 
-This will generate a new OpenDocument spreadsheet (ods) listing scene
-title, scene descriptions, and links to the manuscript's scene
-sections. Further scene metadata (e.g. tags, goals, time), if any. File
-name suffix is `_scenelist`.
+This will generate a new OpenDocument spreadsheet (ods) listing the following:
+
+- Link to the manuscript's scene section
+- Scene title
+- Scene description
+- Tags
+- Scene notes
+- A/R
+- Goal
+- Conflict
+- Outcome
+- Scene
+- Words total
+- FieldTitle 1
+- FieldTitle 2
+- FieldTitle 3
+- FieldTitle 4
+- Word count
+- Letter count
+- Status
+- Characters
+- Locations
+- Items
+
+File name suffix is `_scenelist`.
 
 You can write back the table contents to the yWriter 7 project file with
 the [Export to yWriter](@help@#export-to-ywriter) command.
