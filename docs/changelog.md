@@ -4,6 +4,10 @@
 
 ## Changelog
 
+### v1.4.5 Fix links in the help files
+
+Based on PyWriter v3.8.2
+
 ### v1.4.4 Optional update
 
 - Major refactoring of the yw7 file processing.
