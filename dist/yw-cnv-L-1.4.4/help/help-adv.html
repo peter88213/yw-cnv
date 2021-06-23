@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-<p><a href="https://peter88213.github.io/pywoo/">Project home page</a> &gt; <a href="help.html">Main help page</a> &gt; Advanced features</p>
+<p><a href="https://peter88213.github.io/yw-cnv/">Project home page</a> &gt; <a href="help.html">Main help page</a> &gt; Advanced features</p>
 <hr />
 <h1 id="ywriter-importexport-advanced-features">yWriter import/export: advanced features</h1>
 <h2 id="warning">Warning!</h2>
@@ -72,12 +72,67 @@
 <p><a href="#top">Top of page</a></p>
 <hr />
 <h2 id="scene-list">Scene list</h2>
-<p>This will generate a new OpenDocument spreadsheet (ods) listing scene title, scene descriptions, and links to the manuscript's scene sections. Further scene metadata (e.g. tags, goals, time), if any. File name suffix is <code>_scenelist</code>.</p>
+<p>This will generate a new OpenDocument spreadsheet (ods) listing the following:</p>
+<ul>
+<li>Hyperlink to the manuscript's scene section</li>
+<li>Scene title</li>
+<li>Scene description</li>
+<li>Tags</li>
+<li>Scene notes</li>
+<li>A/R</li>
+<li>Goal</li>
+<li>Conflict</li>
+<li>Outcome</li>
+<li>Sequential scene number</li>
+<li>Words total</li>
+<li>Rating 1</li>
+<li>Rating 2</li>
+<li>Rating 3</li>
+<li>Rating 4</li>
+<li>Word count</li>
+<li>Letter count</li>
+<li>Status</li>
+<li>Characters</li>
+<li>Locations</li>
+<li>Items</li>
+</ul>
+<p>Only "normal" scenes that would be exported as RTF in yWriter get a row in the scene list. Scenes of the "Unused", "Notes", or "ToDo" type are omitted.</p>
+<p>File name suffix is <code>_scenelist</code>.</p>
 <p>You can write back the table contents to the yWriter 7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
+<p>The following columns can be written back to the yWriter project:</p>
+<ul>
+<li>Title</li>
+<li>Description</li>
+<li>Tags (comma-separated)</li>
+<li>Scene notes</li>
+<li>A/R (action/reaction scene)</li>
+<li>Goal</li>
+<li>Conflict</li>
+<li>Outcome</li>
+<li>Rating 1</li>
+<li>Rating 2</li>
+<li>Rating 3</li>
+<li>Rating 4</li>
+<li>Status ('Outline', 'Draft', '1st Edit', '2nd Edit', 'Done')</li>
+</ul>
 <p><a href="#top">Top of page</a></p>
 <hr />
 <h2 id="plot-list">Plot list</h2>
-<p>This will generate a new OpenDocument spreadsheet (ods) listing plot related metadata that can be displayed and edited. File name suffix is <code>_plotlist</code>.</p>
+<p>This will generate a new OpenDocument spreadsheet (ods) listing plot related metadata that can be displayed and edited.</p>
+<ul>
+<li>ID (Hyperlink to the manuscript)</li>
+<li>Plot section (Title of "Notes" chapter)</li>
+<li>Plot event (Scene tag)</li>
+<li>Scene title</li>
+<li>Details (Notes)</li>
+<li>Sequential scene number</li>
+<li>Words total</li>
+<li>Rating 1</li>
+<li>Rating 2</li>
+<li>Rating 3</li>
+<li>Rating 4</li>
+</ul>
+<p>File name suffix is <code>_plotlist</code>.</p>
 <h3 id="plotting-conventions">Plotting conventions</h3>
 <p>In yWriter, you can divide your novel into <strong>Plot Sections</strong> (e.g. acts or steps) by inserting "Notes" chapters. They will show up in blue color and won't get exported.</p>
 <p><strong>Plot-related events</strong> (e.g. "Mid Point", "Climax") can be identified by "scene tags" if you want to link them to a specific scene.</p>

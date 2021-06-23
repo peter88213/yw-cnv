@@ -4512,6 +4512,8 @@ class YwCnvUi(YwCnv):
 
         This is a template method that calls primitive operations by case.
         """
+        self.newFile = None
+
         if not os.path.isfile(sourcePath):
             self.ui.set_info_how(
                 'ERROR: File "' + os.path.normpath(sourcePath) + '" not found.')
@@ -5543,28 +5545,29 @@ from html import unescape
 class Utf8Postprocessor():
     """Postprocess ANSI encoded yWriter project."""
 
+    def __init__(self):
+        """Initialize instance variables."""
+        self.cdataTags = ['Title', 'AuthorName', 'Bio', 'Desc',
+                           'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
+                           'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
+                           'AKA', 'ImageFile', 'FullName', 'Goals',
+                           'Notes', 'RTFFile', 'SceneContent',
+                           'Outcome', 'Goal', 'Conflict']
+        # Names of yWriter xml elements containing CDATA.
+        # ElementTree.write omits CDATA tags, so they have to be inserted
+        # afterwards.
+
     def format_xml(self, text):
         '''Postprocess the xml file created by ElementTree:
            Insert the missing CDATA tags,
            and replace xml entities by plain text.
         '''
-
-        cdataTags = ['Title', 'AuthorName', 'Bio', 'Desc',
-                     'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
-                     'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
-                     'AKA', 'ImageFile', 'FullName', 'Goals',
-                     'Notes', 'RTFFile', 'SceneContent',
-                     'Outcome', 'Goal', 'Conflict']
-        # Names of yWriter xml elements containing CDATA.
-        # ElementTree.write omits CDATA tags, so they have to be inserted
-        # afterwards.
-
         lines = text.split('\n')
         newlines = []
 
         for line in lines:
 
-            for tag in cdataTags:
+            for tag in self.cdataTags:
                 line = re.sub('\<' + tag + '\>', '<' +
                               tag + '><![CDATA[', line)
                 line = re.sub('\<\/' + tag + '\>',
