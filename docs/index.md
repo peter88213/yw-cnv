@@ -54,8 +54,6 @@ __Please note:__  _This extension can not be installed on OpenOffice. An OpenOff
 
 ## Credits
 
-[yWriter](http://spacejock.com/yWriter7.html) by Simon Haynes.
-
 [OpenOffice Extension
 Compiler](https://wiki.openoffice.org/wiki/Extensions_Packager#Extension_Compiler)
 by Bernard Marcelly.
