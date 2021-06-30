@@ -60,6 +60,8 @@ __Please note:__  _This extension can not be installed on OpenOffice. An OpenOff
 Compiler](https://wiki.openoffice.org/wiki/Extensions_Packager#Extension_Compiler)
 by Bernard Marcelly.
 
+Frederik Lundh published the [xml pretty print algorithm](http://effbot.org/zone/element-lib.htm#prettyprint).
+
 ## License
 
 This extension is distributed under the [MIT
