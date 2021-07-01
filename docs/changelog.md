@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.4.6 Optional update
+
+- Major refactoring of the templase based export.
+
+Based on PyWriter v3.12.5
+
 ### v1.4.5 Fix links in the help files
 
 Based on PyWriter v3.8.2
