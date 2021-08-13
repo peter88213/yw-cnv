@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.4.7 Bugfix release
+
+Fix a regression from v1.4.6 causing a crash if a scene has an 
+hour, but no minute set.
+
+Based on PyWriter v3.16.4
+
 ### v1.4.6 Optional update
 
 - Major refactoring of the templase based export.
