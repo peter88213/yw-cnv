@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.4.7
+Version 1.4.8
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -234,6 +234,10 @@ class Scene():
         self.lastsDays = None
         # str
         # xml: <LastsDays>
+
+        self.image = None
+        # str
+        # xml: <ImageFile>
 
     @property
     def sceneContent(self):
@@ -840,8 +844,7 @@ class FileExport(Novel):
             LetterCount=str(self.scenes[scId].letterCount),
             LettersTotal=lettersTotal,
             Status=Scene.STATUS[self.scenes[scId].status],
-            SceneContent=self.convert_from_yw(
-                self.scenes[scId].sceneContent),
+            SceneContent=self.convert_from_yw(self.scenes[scId].sceneContent),
             FieldTitle1=self.fieldTitle1,
             FieldTitle2=self.fieldTitle2,
             FieldTitle3=self.fieldTitle3,
@@ -866,6 +869,7 @@ class FileExport(Novel):
             Conflict=self.convert_from_yw(self.scenes[scId].conflict),
             Outcome=self.convert_from_yw(self.scenes[scId].outcome),
             Tags=tags,
+            Image=self.scenes[scId].image,
             Characters=sceneChars,
             Viewpoint=viewpointChar,
             Locations=sceneLocs,
@@ -898,6 +902,7 @@ class FileExport(Novel):
             Title=self.characters[crId].title,
             Desc=self.convert_from_yw(self.characters[crId].desc),
             Tags=tags,
+            Image=self.characters[crId].image,
             AKA=FileExport.convert_from_yw(self, self.characters[crId].aka),
             Notes=self.convert_from_yw(self.characters[crId].notes),
             Bio=self.convert_from_yw(self.characters[crId].bio),
@@ -925,6 +930,7 @@ class FileExport(Novel):
             Title=self.locations[lcId].title,
             Desc=self.convert_from_yw(self.locations[lcId].desc),
             Tags=tags,
+            Image=self.locations[lcId].image,
             AKA=FileExport.convert_from_yw(self, self.locations[lcId].aka),
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
@@ -946,6 +952,7 @@ class FileExport(Novel):
             Title=self.items[itId].title,
             Desc=self.convert_from_yw(self.items[itId].desc),
             Tags=tags,
+            Image=self.items[itId].image,
             AKA=FileExport.convert_from_yw(self, self.items[itId].aka),
             ProjectName=self.projectName,
             ProjectPath=self.projectPath,
@@ -5297,6 +5304,14 @@ class Yw7TreeBuilder():
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Outcome').text = prjScn.outcome
 
+            if prjScn.image is not None:
+
+                try:
+                    xmlScn.find('ImageFile').text = prjScn.image
+
+                except(AttributeError):
+                    ET.SubElement(xmlScn, 'ImageFile').text = prjScn.image
+
             if prjScn.characters is not None:
                 characters = xmlScn.find('Characters')
 
@@ -6190,6 +6205,9 @@ class Yw7File(Novel):
             if scn.find('Outcome') is not None:
                 self.scenes[scId].outcome = scn.find('Outcome').text
 
+            if scn.find('ImageFile') is not None:
+                self.scenes[scId].image = scn.find('ImageFile').text
+
             if scn.find('Characters') is not None:
                 for crId in scn.find('Characters').iter('CharID'):
 
@@ -6550,7 +6568,7 @@ class Yw7File(Novel):
                 for itId in source.scenes[scId].items:
 
                     if itId in self.items:
-                        self.scenes[scId].append(itId)
+                        self.scenes[scId].items.append(itId)
 
         #--- Merge chapters.
 
