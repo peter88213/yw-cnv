@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.6.0 Feature update
+
+- Add notes to the character descriptions.
+
+Based on PyWriter v3.22.0
+
 ### v1.4.8 Bugfix release
 
 - Fix a bug causing an exception when a new item is added to a scene.

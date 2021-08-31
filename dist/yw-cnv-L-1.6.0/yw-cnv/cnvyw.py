@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.4.8
+Version 1.6.0
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -4218,6 +4218,10 @@ class OdtCharacters(OdtFile):
 <text:section text:style-name="Sect1" text:name="CrID_goals:$ID">
 <text:p text:style-name="Text_20_body">$Goals</text:p>
 </text:section>
+<text:h text:style-name="Heading_20_3" text:outline-level="3">Notes</text:h>
+<text:section text:style-name="Sect1" text:name="CrID_notes:$ID">
+<text:p text:style-name="Text_20_body">$Notes</text:p>
+</text:section>
 </text:section>
 '''
 
@@ -5753,16 +5757,16 @@ from html import unescape
 
 
 class Utf8Postprocessor():
-    """Postprocess ANSI encoded yWriter project."""
+    """Postprocess utf-8 encoded yWriter project."""
 
     def __init__(self):
         """Initialize instance variables."""
         self.cdataTags = ['Title', 'AuthorName', 'Bio', 'Desc',
-                           'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
-                           'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
-                           'AKA', 'ImageFile', 'FullName', 'Goals',
-                           'Notes', 'RTFFile', 'SceneContent',
-                           'Outcome', 'Goal', 'Conflict']
+                          'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
+                          'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
+                          'AKA', 'ImageFile', 'FullName', 'Goals',
+                          'Notes', 'RTFFile', 'SceneContent',
+                          'Outcome', 'Goal', 'Conflict']
         # Names of yWriter xml elements containing CDATA.
         # ElementTree.write omits CDATA tags, so they have to be inserted
         # afterwards.
@@ -7456,6 +7460,9 @@ class HtmlCharacters(HtmlFile):
                 elif attrs[0][1].startswith('CrID_goals'):
                     self._section = 'goals'
 
+                elif attrs[0][1].startswith('CrID_notes'):
+                    self._section = 'notes'
+
     def handle_endtag(self, tag):
         """Recognize the end of the character section and save data.
         Overwrites HTMLparser.handle_endtag().
@@ -7476,6 +7483,11 @@ class HtmlCharacters(HtmlFile):
 
                 elif self._section == 'goals':
                     self.characters[self._crId].goals = ''.join(self._lines)
+                    self._lines = []
+                    self._section = None
+
+                elif self._section == 'notes':
+                    self.characters[self._crId].notes = ''.join(self._lines)
                     self._lines = []
                     self._section = None
 
