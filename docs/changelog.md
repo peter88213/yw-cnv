@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.6.1 Optional update
+
+- Change the csv separator from "|" to "," (applies only to temporary files).
+
+Based on PyWriter v3.24.0
+
 ### v1.6.0 Feature update
 
 - Add notes to the character descriptions.

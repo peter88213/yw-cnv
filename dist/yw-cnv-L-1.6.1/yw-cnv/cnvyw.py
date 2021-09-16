@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.6.0
+Version 1.6.1
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3536,9 +3536,6 @@ class OdsSceneList(OdsFile):
     DESCRIPTION = 'Scene list'
     SUFFIX = '_scenelist'
 
-    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
-    # '1' is assigned N/A (empty table cell).
-
     # Column width:
     # co1 2.000cm
     # co2 3.000cm
@@ -3761,14 +3758,8 @@ class OdsPlotList(OdsFile):
     # Field names containing this string (case insensitive)
     # are associated to storylines
 
-    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
-    # '1' is assigned N/A (empty table cell).
-
     _NOT_APPLICABLE = 'N/A'
     # Scene field column header for fields not being assigned to a storyline
-
-    _CHAR_STATE = ['', 'N/A', 'unhappy', 'dissatisfied',
-                   'vague', 'satisfied', 'happy', '', '', '', '']
 
     # Column width:
     # co1 2.000cm
@@ -7615,37 +7606,8 @@ class CsvFile(FileExport):
     EXTENSION = '.csv'
     # overwrites Novel.EXTENSION
 
-    _SEPARATOR = '|'
+    _SEPARATOR = ','
     # delimits data fields within a record.
-
-    CSV_REPLACEMENTS = []
-
-    def convert_from_yw(self, text):
-        """Convert line breaks."""
-
-        try:
-            text = text.rstrip()
-
-            for r in self.CSV_REPLACEMENTS:
-                text = text.replace(r[0], r[1])
-
-        except AttributeError:
-            text = ''
-
-        return text
-
-    def convert_to_yw(self, text):
-        """Convert line breaks."""
-
-        try:
-
-            for r in self.CSV_REPLACEMENTS:
-                text = text.replace(r[1], r[0])
-
-        except AttributeError:
-            text = ''
-
-        return text
 
     def read(self):
         """Parse the csv file located at filePath, fetching the rows.
@@ -7653,7 +7615,7 @@ class CsvFile(FileExport):
         Return a message beginning with SUCCESS or ERROR.
         """
         self.rows = []
-        cellsPerRow = len(self.fileHeader.split(self._SEPARATOR))
+        cellsPerRow = len(self.rowTitles)
 
         try:
             with open(self.filePath, newline='', encoding='utf-8') as f:
@@ -7679,10 +7641,6 @@ class CsvFile(FileExport):
 
 class CsvSceneList(CsvFile):
     """csv file representation of an yWriter project's scenes table. 
-
-    Represents a csv file with a record per scene.
-    - Records are separated by line breaks.
-    - Data fields are delimited by the _SEPARATOR character.
     """
 
     DESCRIPTION = 'Scene list'
@@ -7691,41 +7649,10 @@ class CsvSceneList(CsvFile):
     _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
     # '1' is assigned N/A (empty table cell).
 
-    fileHeader = '''Scene link|''' +\
-        '''Scene title|Scene description|Tags|Scene notes|''' +\
-        '''A/R|Goal|Conflict|Outcome|''' +\
-        '''Scene|Words total|$FieldTitle1|$FieldTitle2|$FieldTitle3|$FieldTitle4|''' +\
-        '''Word count|Letter count|Status|''' +\
-        '''Characters|Locations|Items
-'''
-
-    sceneTemplate = '''=HYPERLINK("file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion";"ScID:$ID")|''' +\
-        '''$Title|"$Desc"|$Tags|"$Notes"|''' +\
-        '''$ReactionScene|"$Goal"|"$Conflict"|"$Outcome"|''' +\
-        '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4|''' +\
-        '''$WordCount|$LetterCount|$Status|''' +\
-        '''$Characters|$Locations|$Items
-'''
-
-    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        """Return a mapping dictionary for a scene section. 
-        """
-        sceneMapping = CsvFile.get_sceneMapping(
-            self, scId, sceneNumber, wordsTotal, lettersTotal)
-
-        if self.scenes[scId].field1 == '1':
-            sceneMapping['Field1'] = ''
-
-        if self.scenes[scId].field2 == '1':
-            sceneMapping['Field2'] = ''
-
-        if self.scenes[scId].field3 == '1':
-            sceneMapping['Field3'] = ''
-
-        if self.scenes[scId].field4 == '1':
-            sceneMapping['Field4'] = ''
-
-        return sceneMapping
+    rowTitles = ['Scene link', 'Scene title', 'Scene description', 'Tags', 'Scene notes', 'A/R',
+                 'Goal', 'Conflict', 'Outcome', 'Scene', 'Words total',
+                 '$FieldTitle1', '$FieldTitle2', '$FieldTitle3', '$FieldTitle4',
+                 'Word count', 'Letter count', 'Status', 'Characters', 'Locations', 'Items']
 
     def read(self):
         """Parse the csv file located at filePath, 
@@ -7861,21 +7788,10 @@ class CsvSceneList(CsvFile):
 
 class CsvPlotList(CsvFile):
     """csv file representation of an yWriter project's scenes table. 
-
-    Represents a csv file with a record per scene.
-    - Records are separated by line breaks.
-    - Data fields are delimited by the _SEPARATOR character.
     """
 
     DESCRIPTION = 'Plot list'
     SUFFIX = '_plotlist'
-
-    _SEPARATOR = '|'     # delimits data fields within a record.
-    _LINEBREAK = '\t'    # substitutes embedded line breaks.
-
-    _STORYLINE_MARKER = 'story'
-    # Field names containing this string (case insensitive)
-    # are associated to storylines
 
     _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
     # '1' is assigned N/A (empty table cell).
@@ -7883,82 +7799,8 @@ class CsvPlotList(CsvFile):
     _NOT_APPLICABLE = 'N/A'
     # Scene field column header for fields not being assigned to a storyline
 
-    _CHAR_STATE = ['', 'N/A', 'unhappy', 'dissatisfied',
-                   'vague', 'satisfied', 'happy', '', '', '', '']
-
-    fileHeader = '''ID|''' +\
-        '''Plot section|Plot event|Scene title|Details|''' +\
-        '''Scene|Words total|$FieldTitle1|$FieldTitle2|$FieldTitle3|$FieldTitle4
-'''
-
-    notesChapterTemplate = '''ChID:$ID|$Title|||$Desc||||||
-'''
-
-    sceneTemplate = '''=HYPERLINK("file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion";"ScID:$ID")|''' +\
-        '''|$Tags|$Title|"$Notes"|''' +\
-        '''$SceneNumber|$WordsTotal|$Field1|$Field2|$Field3|$Field4
-'''
-
-    def get_fileHeaderMapping(self):
-        """Return a mapping dictionary for the project section. 
-        """
-        projectTemplateMapping = CsvFile.get_fileHeaderMapping(self)
-
-        charList = []
-
-        for crId in self.srtCharacters:
-            charList.append(self.characters[crId].title)
-            # Collect character names to identify storylines
-
-        if self.fieldTitle1 in charList or self._STORYLINE_MARKER in self.fieldTitle1.lower():
-            self.arc1 = True
-
-        else:
-            self.arc1 = False
-            projectTemplateMapping['FieldTitle1'] = self._NOT_APPLICABLE
-
-        if self.fieldTitle2 in charList or self._STORYLINE_MARKER in self.fieldTitle2.lower():
-            self.arc2 = True
-
-        else:
-            self.arc2 = False
-            projectTemplateMapping['FieldTitle2'] = self._NOT_APPLICABLE
-
-        if self.fieldTitle3 in charList or self._STORYLINE_MARKER in self.fieldTitle3.lower():
-            self.arc3 = True
-
-        else:
-            self.arc3 = False
-            projectTemplateMapping['FieldTitle3'] = self._NOT_APPLICABLE
-
-        if self.fieldTitle4 in charList or self._STORYLINE_MARKER in self.fieldTitle4.lower():
-            self.arc4 = True
-
-        else:
-            self.arc4 = False
-            projectTemplateMapping['FieldTitle4'] = self._NOT_APPLICABLE
-
-        return projectTemplateMapping
-
-    def get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        """Return a mapping dictionary for a scene section. 
-        """
-        sceneMapping = CsvFile.get_sceneMapping(
-            self, scId, sceneNumber, wordsTotal, lettersTotal)
-
-        if self.scenes[scId].field1 == '1' or not self.arc1:
-            sceneMapping['Field1'] = ''
-
-        if self.scenes[scId].field2 == '1' or not self.arc2:
-            sceneMapping['Field2'] = ''
-
-        if self.scenes[scId].field3 == '1' or not self.arc3:
-            sceneMapping['Field3'] = ''
-
-        if self.scenes[scId].field4 == '1' or not self.arc4:
-            sceneMapping['Field4'] = ''
-
-        return sceneMapping
+    rowTitles = ['ID', 'Plot section', 'Plot event', 'Scene title', 'Details', 'Scene', 'Words total',
+                 '$FieldTitle1', '$FieldTitle2', '$FieldTitle3', '$FieldTitle4']
 
     def read(self):
         """Parse the csv file located at filePath, fetching 
@@ -8032,20 +7874,12 @@ class CsvPlotList(CsvFile):
 
 class CsvCharList(CsvFile):
     """csv file representation of an yWriter project's characters table. 
-
-    Represents a csv file with a record per character.
-    - Records are separated by line breaks.
-    - Data fields are delimited by the _SEPARATOR character.
     """
 
     DESCRIPTION = 'Character list'
     SUFFIX = '_charlist'
 
-    fileHeader = '''ID|Name|Full name|Aka|Description|Bio|Goals|Importance|Tags|Notes
-'''
-
-    characterTemplate = '''CrID:$ID|$Title|$FullName|$AKA|"$Desc"|"$Bio"|"$Goals"|$Status|$Tags|"$Notes"
-'''
+    rowTitles = ['ID', 'Name', 'Full name', 'Aka', 'Description', 'Bio', 'Goals', 'Importance', 'Tags', 'Notes']
 
     def read(self):
         """Parse the csv file located at filePath, 
@@ -8094,20 +7928,12 @@ class CsvCharList(CsvFile):
 
 class CsvLocList(CsvFile):
     """csv file representation of an yWriter project's locations table. 
-
-    Represents a csv file with a record per location.
-    - Records are separated by line breaks.
-    - Data fields are delimited by the _SEPARATOR location.
     """
 
     DESCRIPTION = 'Location list'
     SUFFIX = '_loclist'
 
-    fileHeader = '''ID|Name|Description|Aka|Tags
-'''
-
-    locationTemplate = '''LcID:$ID|$Title|"$Desc"|$AKA|$Tags
-'''
+    rowTitles = ['ID', 'Name', 'Description', 'Aka', 'Tags']
 
     def read(self):
         """Parse the csv file located at filePath, 
@@ -8144,20 +7970,12 @@ class CsvLocList(CsvFile):
 
 class CsvItemList(CsvFile):
     """csv file representation of an yWriter project's items table. 
-
-    Represents a csv file with a record per item.
-    - Records are separated by line breaks.
-    - Data fields are delimited by the _SEPARATOR item.
     """
 
     DESCRIPTION = 'Item list'
     SUFFIX = '_itemlist'
 
-    fileHeader = '''ID|Name|Description|Aka|Tags
-'''
-
-    itemTemplate = '''ItID:$ID|$Title|"$Desc"|$AKA|$Tags
-'''
+    rowTitles = ['ID', 'Name', 'Description', 'Aka', 'Tags']
 
     def read(self):
         """Parse the csv file located at filePath, 
@@ -8530,8 +8348,8 @@ def export_yw():
         # args1(1).Value = "Text - txt - csv (StarCalc)"
         args1[2].Name = "FilterOptions"
         # args1(2).Name = "FilterOptions"
-        args1[2].Value = "124,34,76,1,,0,false,true,true"
-        # args1(2).Value = "124,34,76,1,,0,false,true,true"
+        args1[2].Value = "44,34,76,1,,0,true,true,true"
+        # args1(2).Value = "44,34,76,1,,0,true,true,true"
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 

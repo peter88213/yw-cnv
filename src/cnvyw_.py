@@ -271,8 +271,8 @@ def export_yw():
         # args1(1).Value = "Text - txt - csv (StarCalc)"
         args1[2].Name = "FilterOptions"
         # args1(2).Name = "FilterOptions"
-        args1[2].Value = "124,34,76,1,,0,false,true,true"
-        # args1(2).Value = "124,34,76,1,,0,false,true,true"
+        args1[2].Value = "44,34,76,1,,0,true,true,true"
+        # args1(2).Value = "44,34,76,1,,0,true,true,true"
         dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
