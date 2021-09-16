@@ -6,7 +6,7 @@
 
 ### v1.6.1 Optional update
 
-- Change the csv separator from "|" to "," (applies only to temporary files).
+- Change the csv separator (applies only to temporary files).
 
 Based on PyWriter v3.24.0
 
