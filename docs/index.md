@@ -77,7 +77,3 @@ A style switcher extension.
 
 [![](https://peter88213.github.io/img/styleswitcher_thumb.png)](https://peter88213.github.io/StyleSwitcher/)
 
-### The emph extension for OpenOffice
-Use character styles instead of direct formatting to mark up text.
-
-[![](https://peter88213.github.io/img/emph_thumb.png)](https://peter88213.github.io/emph/)
