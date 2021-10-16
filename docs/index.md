@@ -64,3 +64,20 @@ Frederik Lundh published the [xml pretty print algorithm](http://effbot.org/zone
 
 This extension is distributed under the [MIT
 License](http://www.opensource.org/licenses/mit-license.php).
+
+## See also
+
+### The "curly" extensions for OpenOffice and LibreOffice
+"Curly quotes" conversion.
+
+[![](https://peter88213.github.io/img/curly_thumb.png)](https://peter88213.github.io/curly/)
+
+### The StyleSwitcher extension for OpenOffice and LibreOffice
+A style switcher extension.
+
+[![](https://peter88213.github.io/img/styleswitcher_thumb.png)](https://peter88213.github.io/StyleSwitcher/)
+
+### The emph extension for OpenOffice
+Use character styles instead of direct formatting to mark up text.
+
+[![](https://peter88213.github.io/img/emph_thumb.png)](https://peter88213.github.io/emph/)
