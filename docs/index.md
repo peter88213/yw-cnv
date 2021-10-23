@@ -52,6 +52,10 @@ __Please note:__  _This extension can not be installed on OpenOffice. An OpenOff
 
 [Changelog](changelog)
 
+## Get updates
+
+This extension supports the update mechanism of OpenOffice/LibreOffice. You can let the Extension Manager check for updates from time to time to get the latest release.
+
 ## Credits
 
 [OpenOffice Extension
