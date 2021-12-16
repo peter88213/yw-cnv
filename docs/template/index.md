@@ -49,6 +49,8 @@ __Please note:__  _This extension can not be installed on OpenOffice. An OpenOff
 
 -   If no additional "yWriter Import/Export" submenu shows up in the
     "Files" menu, please look at the "Tools" > "Extensions" menu.
+    
+-   On Linux (especially Ubuntu), make sure that the *libreoffice-script-provider-python* package is installed.
 
 [Changelog](changelog)
 
