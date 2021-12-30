@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.8.0 Brief synopsis
+
+- Add a brief synopsis with chapter and scene titles.
+
+Based on PyWriter v3.28.2
+
 ### v1.6.2 Optional update
 
 PyWriter Library update:
