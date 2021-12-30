@@ -1,42 +1,43 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="yw-cnv" basedir=".">
-	<property name="release" value="1.6.1" />
-	<property name="project-name" value="${ant.project.name}" />
-	<property name="release-name" value="${project-name}-${release}" />
-	<property name="release-name-L" value="${project-name}-L-${release}" />
-	<property name="release-name-A" value="${project-name}-A-${release}" />
+	<property name="version" value="1.6.2" />
+	<property name="test-app" value="cnvyw" />
 	
-	<property name="oxt" location="../oxt" />
-	<property name="docs" location="../docs" />
-	<property name="src" location="../src" />
-	<property name="test" location="../test" />
-	<property name="dist" location="../dist" />
+	<property name="application" value="${ant.project.name}" />
+	<property name="release" value="${application}-${version}" />
+	<property name="release-L" value="${application}-L-${version}" />
+	<property name="release-A" value="${application}-A-${version}" />
+	
+	<property name="oxt-path" location="../oxt" />
+	<property name="docs-path" location="../docs" />
+	<property name="source-path" location="../src" />
+	<property name="test-path" location="../test" />
+	<property name="dist-path" location="../dist" />
 
 	<target name="build" description="inline all library modules">
 		
-		<mkdir dir="${test}" />
-		<delete file="${test}/cnvyw.py" />
+		<mkdir dir="${test-path}" />
+		<delete file="${test-path}/${test-app}.py" />
 			<exec executable="python" failonerror="true">
-			    <arg value="${src}/build_cnvyw.py"/>
+			    <arg value="${source-path}/build_${test-app}.py"/>
 			</exec>
 	</target>
 
-	<target name="dist" description="Generate the extension">
-		
-		<delete dir="${dist}" />
-		<mkdir dir="${dist}" />
+	<target name="dist" description="Generate the extension">		
+		<delete dir="${dist-path}" />
+		<mkdir dir="${dist-path}" />
 
 		<!-- Generate the LibreOffice distribution -->
 		
-		<mkdir dir="${dist}/${release-name-L}" />
-		<mkdir dir="${dist}/${release-name-L}/${ant.project.name}" />
+		<mkdir dir="${dist-path}/${release-L}" />
+		<mkdir dir="${dist-path}/${release-L}/${application}" />
 
-		<mkdir dir="${dist}/${release-name-L}/help" />
+		<mkdir dir="${dist-path}/${release-L}/help" />
 		
-		<copy file="${docs}/template/help.md" overwrite="True" todir="./help" />
+		<copy file="${docs-path}/template/help.md" overwrite="True" todir="./help" />
 		<replace encoding="utf-8" file="./help/help.md" token="@help-adv@" value="help-adv.html" />
 		
-		<copy file="${docs}/template/help-adv.md" overwrite="True" todir="./help" />
+		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="./help" />
 		<replace encoding="utf-8" file="./help/help-adv.md" token="@help@" value="help.html" />
 		
 		<exec executable="cmd">
@@ -44,74 +45,71 @@
 			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help.md"/>
 		</exec>
 		
-		<concat destfile="${dist}/${release-name-L}/help/help.html">
+		<concat destfile="${dist-path}/${release-L}/help/help.html">
 			<filelist dir="./help" files="header.txt, body.html, footer.txt" />
 		</concat>
-		<fixcrlf encoding="utf-8" eol="lf" file="${dist}/${release-name-L}/help/help.html" />
+		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help.html" />
 		
 		<exec executable="cmd">
 			<arg value="/c"/>
 			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help-adv.md"/>
 		</exec>
 		
-		<concat destfile="${dist}/${release-name-L}/help/help-adv.html">
+		<concat destfile="${dist-path}/${release-L}/help/help-adv.html">
 			<filelist dir="./help" files="header.txt, body.html, footer.txt" />
 		</concat>
-		<fixcrlf encoding="utf-8" eol="lf" file="${dist}/${release-name-L}/help/help-adv.html" />
+		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help-adv.html" />
 		
 		<delete file="./help/help.md" />
 		<delete file="./help/help-adv.md" />
 		<delete file="./help/body.html" />
 		
-		<copy todir="${dist}/${release-name-L}/META-INF"> 
-			<fileset dir="${oxt}/META-INF" />
+		<copy todir="${dist-path}/${release-L}/META-INF"> 
+			<fileset dir="${oxt-path}/META-INF" />
 		</copy>
 		
-		<copy todir="${dist}/${release-name-L}/Descriptions"> 
-			<fileset dir="${oxt}/Descriptions" />
+		<copy todir="${dist-path}/${release-L}/Descriptions"> 
+			<fileset dir="${oxt-path}/Descriptions" />
 		</copy>
 		
-		<copy todir="${dist}/${release-name-L}/Legal"> 
-			<fileset dir="${oxt}/Legal" />
+		<copy todir="${dist-path}/${release-L}/Legal"> 
+			<fileset dir="${oxt-path}/Legal" />
 		</copy>
 		
-		<copy todir="${dist}/${release-name-L}/Tooltips"> 
-			<fileset dir="${oxt}/Tooltips" />
+		<copy todir="${dist-path}/${release-L}/Tooltips"> 
+			<fileset dir="${oxt-path}/Tooltips" />
 		</copy>
 		
-		<copy file="${src}/help.py" todir="${dist}/${release-name-L}/help" />
+		<copy file="${source-path}/help.py" todir="${dist-path}/${release-L}/help" />
 
-		<copy file="${test}/cnvyw.py" todir="${dist}/${release-name-L}/${ant.project.name}" />
-		<replace encoding="utf-8" file="${dist}/${release-name-L}/${ant.project.name}/cnvyw.py" token="@release" value="${release}" />
+		<copy file="${test-path}/${test-app}.py" todir="${dist-path}/${release-L}/${application}" />
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/${application}/${test-app}.py" token="@release" value="${version}" />
 
-		<copy file="${oxt}/AddonUI.xcu" todir="${dist}/${release-name-L}" />
-		<replace encoding="utf-8" file="${dist}/${release-name-L}/AddonUI.xcu" token="0.99.0" value="${release}" />
+		<copy file="${oxt-path}/AddonUI.xcu" todir="${dist-path}/${release-L}" />
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/AddonUI.xcu" token="0.99.0" value="${version}" />
 
-		<copy file="${oxt}/description.xml" todir="${dist}/${release-name-L}" />
-		<replace encoding="utf-8" file="${dist}/${release-name-L}/description.xml" token="0.99.0" value="${release}" />
+		<copy file="${oxt-path}/description.xml" todir="${dist-path}/${release-L}" />
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/description.xml" token="0.99.0" value="${version}" />
 
-		<!-- copy file="../README.md" todir="${dist}/${release-name-L}" /-->
+		<!-- copy file="../README.md" todir="${dist-path}/${release-L}" /-->
 
-		<zip destfile="${dist}/${release-name-L}.oxt" basedir="${dist}/${release-name-L}" />
+		<zip destfile="${dist-path}/${release-L}.oxt" basedir="${dist-path}/${release-L}" />
 
-		<copy file="./${ant.project.name}-L.update.xml" overwrite="True" todir=".." />
-		<replace encoding="utf-8" file="../${ant.project.name}-L.update.xml" token="0.99.0" value="${release}" />
+		<copy file="./${application}-L.update.xml" overwrite="True" todir=".." />
+		<replace encoding="utf-8" file="../${application}-L.update.xml" token="0.99.0" value="${version}" />
 
-		<copy file="${docs}/template/index.md" overwrite="True" todir="${docs}" />
-		<replace encoding="utf-8" file="${docs}/index.md" token="0.99.0" value="${release}" />
+		<copy file="${docs-path}/template/index.md" overwrite="True" todir="${docs-path}" />
+		<replace encoding="utf-8" file="${docs-path}/index.md" token="0.99.0" value="${version}" />
 
-		<copy file="${docs}/template/help.md" overwrite="True" todir="${docs}" />
-		<replace encoding="utf-8" file="${docs}/help.md" token="@help-adv@" value="help-adv" />
+		<copy file="${docs-path}/template/help.md" overwrite="True" todir="${docs-path}" />
+		<replace encoding="utf-8" file="${docs-path}/help.md" token="@help-adv@" value="help-adv" />
 		
-		<copy file="${docs}/template/help-adv.md" overwrite="True" todir="${docs}" />
-		<replace encoding="utf-8" file="${docs}/help-adv.md" token="@help@" value="help" />
-		
+		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="${docs-path}" />
+		<replace encoding="utf-8" file="${docs-path}/help-adv.md" token="@help@" value="help" />		
 	</target>
 
-	<target name="clean" description="clean up">
-		
-		<delete file="${test}/cnvyw.py" />
-		
+	<target name="clean" description="clean up">		
+		<delete file="${test-path}/${test-app}.py" />
 	</target>
 	
 </project>

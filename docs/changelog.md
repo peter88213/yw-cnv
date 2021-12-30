@@ -4,6 +4,14 @@
 
 ## Changelog
 
+### v1.6.2 Optional update
+
+PyWriter Library update:
+- Refactor for more compact code. 
+- (v3.28.1) Fix a bug where "Notes" and "To do" scenes might not be processed the right way.
+
+Based on PyWriter v3.28.1
+
 ### v1.6.1 Optional update
 
 - Change the csv separator (applies only to temporary files).
