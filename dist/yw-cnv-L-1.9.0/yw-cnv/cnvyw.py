@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.8.0
+Version 1.9.0
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -280,6 +280,7 @@ class Novel():
         convert_to_yw(text) -- Return text, converted from source format to yw7 markup.
         convert_from_yw(text) -- Return text, converted from yw7 markup to target format.
         file_exists() -- Return True, if the file specified by filePath exists.
+        back_up() -- Create a backup file from filePath.
 
     Instance variables:
         title -- str; title
@@ -305,6 +306,11 @@ class Novel():
     EXTENSION = None
     SUFFIX = None
     # To be extended by subclass methods.
+
+    PART_SEPARATOR = '# '
+    CHAPTER_SEPARATOR = '## '
+    SCENE_SEPARATOR = '* * *'
+    # This is used for splitting scenes.
 
     def __init__(self, filePath, **kwargs):
         """Define instance variables.
@@ -468,6 +474,8 @@ class Novel():
     def file_exists(self):
         """Return True, if the file specified by filePath exists. 
         Otherwise, return False.
+
+        DEPRECATED -- This method is no longer provided for v4.
         """
         if os.path.isfile(self.filePath):
             return True
@@ -482,6 +490,8 @@ class Novel():
         Parameter: single
         True - Overwrite existing backup file. Extension = .bak
         False - Create a new, numbered backup file. Extension = .bkxxxx
+
+        DEPRECATED -- This method is no longer provided for v4.
         """
         if os.path.isfile(self.filePath):
 
@@ -1221,11 +1231,23 @@ class FileExport(Novel):
         """
         text = self.get_text()
 
+        if os.path.isfile(self.filePath):
+            os.replace(self.filePath, self.filePath + '.bak')
+            backedUp = True
+
+        else:
+            backedUp = False
+
         try:
+
             with open(self.filePath, 'w', encoding='utf-8') as f:
                 f.write(text)
 
         except:
+
+            if backedUp:
+                os.replace(self.filePath + '.bak', self.filePath)
+
             return 'ERROR: Cannot write "' + os.path.normpath(self.filePath) + '".'
 
         return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
@@ -1395,6 +1417,13 @@ class OdfFile(FileExport):
 
         workdir = os.getcwd()
 
+        if os.path.isfile(self.filePath):
+            os.replace(self.filePath, self.filePath + '.bak')
+            backedUp = True
+
+        else:
+            backedUp = False
+
         try:
             with zipfile.ZipFile(self.filePath, 'w') as odfTarget:
                 os.chdir(self.tempDir)
@@ -1402,6 +1431,10 @@ class OdfFile(FileExport):
                 for file in self.ODF_COMPONENTS:
                     odfTarget.write(file, compress_type=zipfile.ZIP_DEFLATED)
         except:
+
+            if backedUp:
+                os.replace(self.filePath + '.bak', self.filePath)
+
             os.chdir(workdir)
             return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
 
@@ -4464,13 +4497,13 @@ class YwCnv():
         if sourceFile.filePath is None:
             return 'ERROR: Source "' + os.path.normpath(sourceFile.filePath) + '" is not of the supported type.'
 
-        if not sourceFile.file_exists():
+        if not os.path.isfile(sourceFile.filePath):
             return 'ERROR: "' + os.path.normpath(sourceFile.filePath) + '" not found.'
 
         if targetFile.filePath is None:
             return 'ERROR: Target "' + os.path.normpath(targetFile.filePath) + '" is not of the supported type.'
 
-        if targetFile.file_exists() and not self.confirm_overwrite(targetFile.filePath):
+        if os.path.isfile(targetFile.filePath) and not self.confirm_overwrite(targetFile.filePath):
             return 'ERROR: Action canceled by user.'
 
         # Make the source object read the source file.
@@ -4839,9 +4872,8 @@ class YwCnvUi(YwCnv):
         self.ui.set_info_what(
             'Create a yWriter project file from ' + sourceFile.DESCRIPTION + '\nNew project: "' + os.path.normpath(targetFile.filePath) + '"')
 
-        if targetFile.file_exists():
-            self.ui.set_info_how(
-                'ERROR: "' + os.path.normpath(targetFile.filePath) + '" already exists.')
+        if os.path.isfile(targetFile.filePath):
+            self.ui.set_info_how('ERROR: "' + os.path.normpath(targetFile.filePath) + '" already exists.')
 
         else:
             # Convert sourceFile into targetFile.
@@ -5088,16 +5120,13 @@ class Yw7TreeBuilder():
             # Scene content is overwritten in subclasses.
 
             if xmlScn.find('SceneContent') is None:
-                ET.SubElement(
-                    xmlScn, 'SceneContent').text = prjScn.sceneContent
+                ET.SubElement(xmlScn, 'SceneContent').text = prjScn.sceneContent
 
             if xmlScn.find('WordCount') is None:
-                ET.SubElement(xmlScn, 'WordCount').text = str(
-                    prjScn.wordCount)
+                ET.SubElement(xmlScn, 'WordCount').text = str(prjScn.wordCount)
 
             if xmlScn.find('LetterCount') is None:
-                ET.SubElement(xmlScn, 'LetterCount').text = str(
-                    prjScn.letterCount)
+                ET.SubElement(xmlScn, 'LetterCount').text = str(prjScn.letterCount)
 
             if prjScn.isUnused:
 
@@ -5129,7 +5158,6 @@ class Yw7TreeBuilder():
                 scFields = xmlScn.find('Fields')
 
                 try:
-
                     scFields.find('Field_SceneType').text = '2'
 
                 except(AttributeError):
@@ -5274,8 +5302,7 @@ class Yw7TreeBuilder():
                     xmlScn.find('LastsHours').text = prjScn.lastsHours
 
                 except(AttributeError):
-                    ET.SubElement(
-                        xmlScn, 'LastsHours').text = prjScn.lastsHours
+                    ET.SubElement(xmlScn, 'LastsHours').text = prjScn.lastsHours
 
             if prjScn.lastsMinutes is not None:
 
@@ -5283,8 +5310,7 @@ class Yw7TreeBuilder():
                     xmlScn.find('LastsMinutes').text = prjScn.lastsMinutes
 
                 except(AttributeError):
-                    ET.SubElement(
-                        xmlScn, 'LastsMinutes').text = prjScn.lastsMinutes
+                    ET.SubElement(xmlScn, 'LastsMinutes').text = prjScn.lastsMinutes
 
             # Plot related information
 
@@ -5419,8 +5445,7 @@ class Yw7TreeBuilder():
                     xmlChp.find('ChapterType').text = str(prjChp.chType)
 
                 except(AttributeError):
-                    ET.SubElement(xmlChp, 'ChapterType').text = str(
-                        prjChp.chType)
+                    ET.SubElement(xmlChp, 'ChapterType').text = str(prjChp.chType)
 
             if prjChp.isUnused:
 
@@ -5430,13 +5455,18 @@ class Yw7TreeBuilder():
             elif xmlChp.find('Unused') is not None:
                 xmlChp.remove(xmlChp.find('Unused'))
 
+            #--- Rebuild the chapter's scene list.
+
             if prjChp.srtScenes:
+                xScnList = xmlChp.find('Scenes')
 
-                if xmlChp.find('Scenes') is None:
-                    sortSc = ET.SubElement(xmlChp, 'Scenes')
+                if xScnList is not None:
+                    xmlChp.remove(xScnList)
 
-                    for scId in prjChp.srtScenes:
-                        ET.SubElement(sortSc, 'ScID').text = scId
+                sortSc = ET.SubElement(xmlChp, 'Scenes')
+
+                for scId in prjChp.srtScenes:
+                    ET.SubElement(sortSc, 'ScID').text = scId
 
         def build_location_subtree(xmlLoc, prjLoc, sortOrder):
             ET.SubElement(xmlLoc, 'ID').text = lcId
@@ -5499,8 +5529,7 @@ class Yw7TreeBuilder():
                 ET.SubElement(xmlCrt, 'AKA').text = prjCrt.aka
 
             if prjCrt.tags is not None:
-                ET.SubElement(xmlCrt, 'Tags').text = ';'.join(
-                    prjCrt.tags)
+                ET.SubElement(xmlCrt, 'Tags').text = ';'.join(prjCrt.tags)
 
             if prjCrt.bio is not None:
                 ET.SubElement(xmlCrt, 'Bio').text = prjCrt.bio
@@ -5552,8 +5581,7 @@ class Yw7TreeBuilder():
                     xmlPrj.find('FieldTitle1').text = ywProject.fieldTitle1
 
                 except(AttributeError):
-                    ET.SubElement(
-                        xmlPrj, 'FieldTitle1').text = ywProject.fieldTitle1
+                    ET.SubElement(xmlPrj, 'FieldTitle1').text = ywProject.fieldTitle1
 
             if ywProject.fieldTitle2 is not None:
 
@@ -5561,8 +5589,7 @@ class Yw7TreeBuilder():
                     xmlPrj.find('FieldTitle2').text = ywProject.fieldTitle2
 
                 except(AttributeError):
-                    ET.SubElement(
-                        xmlPrj, 'FieldTitle2').text = ywProject.fieldTitle2
+                    ET.SubElement(xmlPrj, 'FieldTitle2').text = ywProject.fieldTitle2
 
             if ywProject.fieldTitle3 is not None:
 
@@ -5570,8 +5597,7 @@ class Yw7TreeBuilder():
                     xmlPrj.find('FieldTitle3').text = ywProject.fieldTitle3
 
                 except(AttributeError):
-                    ET.SubElement(
-                        xmlPrj, 'FieldTitle3').text = ywProject.fieldTitle3
+                    ET.SubElement(xmlPrj, 'FieldTitle3').text = ywProject.fieldTitle3
 
             if ywProject.fieldTitle4 is not None:
 
@@ -5579,8 +5605,7 @@ class Yw7TreeBuilder():
                     xmlPrj.find('FieldTitle4').text = ywProject.fieldTitle4
 
                 except(AttributeError):
-                    ET.SubElement(
-                        xmlPrj, 'FieldTitle4').text = ywProject.fieldTitle4
+                    ET.SubElement(xmlPrj, 'FieldTitle4').text = ywProject.fieldTitle4
 
         xmlScenes = {}
         xmlChapters = {}
@@ -5621,8 +5646,7 @@ class Yw7TreeBuilder():
         for lcId in ywProject.srtLocations:
             sortOrder += 1
             xmlLoc = ET.SubElement(locations, 'LOCATION')
-            build_location_subtree(
-                xmlLoc, ywProject.locations[lcId], sortOrder)
+            build_location_subtree(xmlLoc, ywProject.locations[lcId], sortOrder)
 
         #--- Process items.
         # Remove ITEM entries in order to rewrite
@@ -5654,8 +5678,7 @@ class Yw7TreeBuilder():
         for crId in ywProject.srtCharacters:
             sortOrder += 1
             xmlCrt = ET.SubElement(characters, 'CHARACTER')
-            build_character_subtree(
-                xmlCrt, ywProject.characters[crId], sortOrder)
+            build_character_subtree(xmlCrt, ywProject.characters[crId], sortOrder)
 
         #--- Process scenes.
         # Save the original XML scene subtrees
@@ -5697,8 +5720,7 @@ class Yw7TreeBuilder():
                 xmlChapters[chId] = ET.Element('CHAPTER')
                 ET.SubElement(xmlChapters[chId], 'ID').text = chId
 
-            build_chapter_subtree(
-                xmlChapters[chId], ywProject.chapters[chId], sortOrder)
+            build_chapter_subtree(xmlChapters[chId], ywProject.chapters[chId], sortOrder)
 
             chapters.append(xmlChapters[chId])
 
@@ -5721,12 +5743,9 @@ class Yw7TreeBuilder():
             scId = scn.find('ID').text
 
             if ywProject.scenes[scId].sceneContent is not None:
-                scn.find(
-                    'SceneContent').text = ywProject.scenes[scId].sceneContent
-                scn.find('WordCount').text = str(
-                    ywProject.scenes[scId].wordCount)
-                scn.find('LetterCount').text = str(
-                    ywProject.scenes[scId].letterCount)
+                scn.find('SceneContent').text = ywProject.scenes[scId].sceneContent
+                scn.find('WordCount').text = str(ywProject.scenes[scId].wordCount)
+                scn.find('LetterCount').text = str(ywProject.scenes[scId].letterCount)
 
             try:
                 scn.remove(scn.find('RTFFile'))
@@ -5764,12 +5783,22 @@ class Utf8TreeWriter():
         Return a message beginning with SUCCESS or ERROR.
         """
 
-        try:
-            ywProject.tree.write(
-                ywProject.filePath, xml_declaration=False, encoding='utf-8')
+        if os.path.isfile(ywProject.filePath):
+            os.replace(ywProject.filePath, ywProject.filePath + '.bak')
+            backedUp = True
 
-        except(PermissionError):
-            return 'ERROR: "' + os.path.normpath(ywProject.filePath) + '" is write protected.'
+        else:
+            backedUp = False
+
+        try:
+            ywProject.tree.write(ywProject.filePath, xml_declaration=False, encoding='utf-8')
+
+        except:
+
+            if backedUp:
+                os.replace(ywProject.filePath + '.bak', ywProject.filePath)
+
+            return 'ERROR: Cannot write "' + os.path.normpath(ywProject.filePath) + '".'
 
         return 'SUCCESS'
 
@@ -6291,7 +6320,21 @@ class Yw7File(Novel):
         Override the superclass method.
         """
 
-        if self.file_exists():
+        def merge_lists(srcLst, tgtLst):
+            """Insert srcLst items to tgtLst, if missing.
+            """
+            j = 0
+
+            for i in range(len(srcLst)):
+
+                if not srcLst[i] in tgtLst:
+                    tgtLst.insert(j, srcLst[i])
+                    j += 1
+
+                else:
+                    j = tgtLst.index(srcLst[i]) + 1
+
+        if os.path.isfile(self.filePath):
             message = self.read()
             # initialize data
 
@@ -6478,6 +6521,7 @@ class Yw7File(Novel):
         #--- Merge scenes.
 
         mismatchCount = 0
+        sourceHasSceneContent = False
 
         for scId in source.scenes:
 
@@ -6494,6 +6538,7 @@ class Yw7File(Novel):
 
             if source.scenes[scId].sceneContent is not None:
                 self.scenes[scId].sceneContent = source.scenes[scId].sceneContent
+                sourceHasSceneContent = True
 
             if source.scenes[scId].isUnused is not None:
                 self.scenes[scId].isUnused = source.scenes[scId].isUnused
@@ -6599,8 +6644,6 @@ class Yw7File(Novel):
 
         #--- Merge chapters.
 
-        scenesAssigned = []
-
         for chId in source.chapters:
 
             if not chId in self.chapters:
@@ -6636,13 +6679,7 @@ class Yw7File(Novel):
                 self.chapters[chId].isTrash = source.chapters[chId].isTrash
 
             if source.chapters[chId].srtScenes is not None:
-                self.chapters[chId].srtScenes = []
-
-                for scId in source.chapters[chId].srtScenes:
-
-                    if (scId in self.scenes) and not (scId in scenesAssigned):
-                        self.chapters[chId].srtScenes.append(scId)
-                        scenesAssigned.append(scId)
+                merge_lists(source.chapters[chId].srtScenes, self.chapters[chId].srtScenes)
 
         #--- Merge project attributes.
 
@@ -6668,9 +6705,7 @@ class Yw7File(Novel):
         if source.fieldTitle4 is not None:
             self.fieldTitle4 = source.fieldTitle4
 
-        # if source.srtChapters != []:
         if self.srtChapters == []:
-            self.srtChapters = []
 
             for chId in source.srtChapters:
                 self.srtChapters.append(chId)
@@ -6681,6 +6716,9 @@ class Yw7File(Novel):
 
             if mismatchCount != 0:
                 return 'ERROR: Project structure mismatch.'
+
+        if sourceHasSceneContent:
+            self.split_scenes()
 
         return 'SUCCESS'
 
@@ -6710,11 +6748,160 @@ class Yw7File(Novel):
         """Return True if a .lock file placed by yWriter exists.
         Otherwise, return False. 
         """
-        if os.path.isfile(self.filePath + '.lock'):
-            return True
+        return os.path.isfile(self.filePath + '.lock')
 
-        else:
-            return False
+    def split_scenes(self):
+        """Generate new chapters and scenes if there are dividers within the scene content.
+        """
+
+        def create_chapter(chapterId, title, desc, level):
+            """Create a new chapter and add it to the novel.
+            """
+            newChapter = Chapter()
+            newChapter.title = title
+            newChapter.desc = desc
+            newChapter.chLevel = level
+            newChapter.chType = 0
+            self.chapters[chapterId] = newChapter
+
+        def create_scene(sceneId, parent):
+            """Create a new scene and add it to the novel.
+            """
+            WARNING = ' (!) '
+
+            newScene = Scene()
+
+            if parent.desc and not parent.title.endswith(' (split)'):
+                parent.title += ' (split)'
+
+            newScene.title = parent.title
+
+            if parent.desc and not parent.desc.startswith(WARNING):
+                parent.desc = WARNING + parent.desc
+
+            newScene.desc = parent.desc
+
+            if parent.goal and not parent.goal.startswith(WARNING):
+                parent.goal = WARNING + parent.goal
+
+            newScene.goal = parent.goal
+
+            if parent.conflict and not parent.conflict.startswith(WARNING):
+                parent.conflict = WARNING + parent.conflict
+
+            newScene.conflict = parent.conflict
+
+            if parent.outcome and not parent.outcome.startswith(WARNING):
+                parent.outcome = WARNING + parent.outcome
+
+            newScene.outcome = parent.outcome
+
+            newScene.status = parent.status
+            newScene.isNotesScene = parent.isNotesScene
+            newScene.isUnused = parent.isUnused
+            newScene.isTodoScene = parent.isTodoScene
+            newScene.date = parent.date
+            newScene.time = parent.time
+            newScene.day = parent.day
+            newScene.hour = parent.hour
+            newScene.minute = parent.minute
+            newScene.lastsDays = parent.lastsDays
+            newScene.lastsHours = parent.lastsHours
+            newScene.lastsMinutes = parent.lastsMinutes
+            self.scenes[sceneId] = newScene
+
+        # Get the maximum chapter ID and scene ID.
+
+        chIdMax = 0
+        scIdMax = 0
+
+        for chId in self.srtChapters:
+
+            if int(chId) > chIdMax:
+                chIdMax = int(chId)
+
+        for scId in self.scenes:
+
+            if int(scId) > scIdMax:
+                scIdMax = int(scId)
+
+        srtChapters = []
+
+        for chId in self.srtChapters:
+            srtChapters.append(chId)
+            chapterId = chId
+            srtScenes = []
+
+            for scId in self.chapters[chId].srtScenes:
+                srtScenes.append(scId)
+
+                if not self.scenes[scId].sceneContent:
+                    continue
+
+                sceneId = scId
+                lines = self.scenes[scId].sceneContent.split('\n')
+                newLines = []
+                inScene = True
+
+                # Search scene content for dividers.
+
+                for line in lines:
+
+                    if line.startswith(self.PART_SEPARATOR):
+
+                        if inScene:
+                            self.scenes[sceneId].sceneContent = '\n'.join(newLines)
+                            newLines = []
+                            inScene = False
+
+                        self.chapters[chapterId].srtScenes = srtScenes
+                        srtScenes = []
+
+                        chIdMax += 1
+                        chapterId = str(chIdMax)
+                        create_chapter(chapterId, 'New part', line.replace(self.PART_SEPARATOR, ''), 1)
+                        srtChapters.append(chapterId)
+
+                    elif line.startswith(self.CHAPTER_SEPARATOR):
+
+                        if inScene:
+                            self.scenes[sceneId].sceneContent = '\n'.join(newLines)
+                            newLines = []
+                            inScene = False
+
+                        self.chapters[chapterId].srtScenes = srtScenes
+                        srtScenes = []
+
+                        chIdMax += 1
+                        chapterId = str(chIdMax)
+                        create_chapter(chapterId, 'New chapter', line.replace(self.CHAPTER_SEPARATOR, ''), 0)
+                        srtChapters.append(chapterId)
+
+                    elif line.startswith(self.SCENE_SEPARATOR):
+                        self.scenes[sceneId].sceneContent = '\n'.join(newLines)
+                        newLines = []
+                        scIdMax += 1
+                        sceneId = str(scIdMax)
+                        create_scene(sceneId, self.scenes[scId])
+                        srtScenes.append(sceneId)
+                        inScene = True
+
+                    elif not inScene:
+                        newLines.append(line)
+                        scIdMax += 1
+                        sceneId = str(scIdMax)
+                        create_scene(sceneId, self.scenes[scId])
+                        srtScenes.append(sceneId)
+                        inScene = True
+
+                    else:
+                        newLines.append(line)
+
+                self.scenes[sceneId].sceneContent = '\n'.join(newLines)
+
+            self.chapters[chapterId].srtScenes = srtScenes
+
+        self.srtChapters = srtChapters
 
 
 from html.parser import HTMLParser
@@ -7289,6 +7476,20 @@ class HtmlManuscript(HtmlFile):
         """
         return self.convert_to_yw(text)
 
+    def handle_starttag(self, tag, attrs):
+        """Identify scenes and chapters.
+        Extend HtmlFile.handle_starttag() by processing inline chapter and scene dividers.
+        """
+        HtmlFile.handle_starttag(self, tag, attrs)
+
+        if self._scId is not None:
+
+            if tag == 'h1':
+                self._lines.append(self.PART_SEPARATOR)
+
+            elif tag == 'h2':
+                self._lines.append(self.CHAPTER_SEPARATOR)
+
     def handle_endtag(self, tag):
         """Recognize the end of the scene section and save data.
         Overwrites HTMLparser.handle_endtag().
@@ -7318,6 +7519,12 @@ class HtmlManuscript(HtmlFile):
                 self._scId = None
 
             elif tag == 'p':
+                self._lines.append('\n')
+
+            elif tag == 'h1':
+                self._lines.append('\n')
+
+            elif tag == 'h2':
                 self._lines.append('\n')
 
         elif self._chId is not None:
@@ -7687,7 +7894,7 @@ class CsvFile(Novel):
 
 
 class CsvSceneList(CsvFile):
-    """csv file representation of an yWriter project's scenes table. 
+    """csv file representation of a yWriter project's scenes table. 
     """
 
     DESCRIPTION = 'Scene list'
@@ -7835,7 +8042,7 @@ class CsvSceneList(CsvFile):
 
 
 class CsvPlotList(CsvFile):
-    """csv file representation of an yWriter project's scenes table. 
+    """csv file representation of a yWriter project's scenes table. 
     """
 
     DESCRIPTION = 'Plot list'
@@ -7922,7 +8129,7 @@ class CsvPlotList(CsvFile):
 
 
 class CsvCharList(CsvFile):
-    """csv file representation of an yWriter project's characters table. 
+    """csv file representation of a yWriter project's characters table. 
     """
 
     DESCRIPTION = 'Character list'
@@ -7969,7 +8176,7 @@ class CsvCharList(CsvFile):
 
 
 class CsvLocList(CsvFile):
-    """csv file representation of an yWriter project's locations table. 
+    """csv file representation of a yWriter project's locations table. 
     """
 
     DESCRIPTION = 'Location list'
@@ -8004,7 +8211,7 @@ class CsvLocList(CsvFile):
 
 
 class CsvItemList(CsvFile):
-    """csv file representation of an yWriter project's items table. 
+    """csv file representation of a yWriter project's items table. 
     """
 
     DESCRIPTION = 'Item list'
