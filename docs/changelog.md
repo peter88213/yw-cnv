@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.10.0 Expand the document structure by splitting scenes.
+
+- Split scenes in manuscript and proof reading files using part, chapter and scene separators.
+
+Based on PyWriter v3.32.0
+
 ### v1.8.0 Brief synopsis
 
 - Add a brief synopsis with chapter and scene titles.

@@ -35,13 +35,16 @@ This will load yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
+-  Chapters and scenes can neither be rearranged nor deleted.
+-  You can split scenes by inserting headings or a scene divider:
+    -  *Heading 1* --› New chapter title (beginning a new section).
+    -  *Heading 2* --› New chapter title.
+    -  `* * *` --› Scene divider.
+
 You can write back the scene contents and the chapter/part headings to 
 the yWriter 7 project file with the [Export to yWriter](@help@#export-to-ywriter) 
 command. Comments right at the beginning of the scenes are written back 
 as scene titles.
-
-Chapters and scenes can neither be rearranged nor deleted. Added chapters 
-and scenes are not taken into account when writing back. 
 
 [Top of page](#top)
 

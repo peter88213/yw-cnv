@@ -84,9 +84,11 @@ text document (odt) with chapter and scene markers. File name suffix is
     markers according to yWriter 5 standard. **Do not touch lines
     containing the markers** if you want to be able to reimport the
     document into yWriter.
--   Chapters and scenes can neither be rearranged nor deleted. Added 
-    chapters and scenes are not taken into account when writing back. 
--   Back up your yWriter project and close yWriter before.
+-   Chapters and scenes can neither be rearranged nor deleted. 
+-   You can split scenes by inserting headings or a scene divider:
+    -  *Heading 1* --› New chapter title (beginning a new section).
+    -  *Heading 2* --› New chapter title.
+    -  `* * *` --› Scene divider.
 
 You can write back the scene contents to the yWriter 7 project file
 with the [Export to yWriter](#export-to-ywriter) command.

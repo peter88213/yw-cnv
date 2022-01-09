@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.9.2
+Version 1.10.0
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -89,6 +89,8 @@ class Scene():
     """
 
     # Emulate an enumeration for the scene status
+    # Since the items are used to replace text,
+    # they may contain spaces. This is why Enum cannot be used here.
 
     STATUS = [None, 'Outline', 'Draft', '1st Edit', '2nd Edit', 'Done']
     ACTION_MARKER = 'A'
@@ -142,7 +144,14 @@ class Scene():
         # xml: <ExportCondSpecific><ExportWhenRTF>
 
         self.status = None
-        # int # xml: <Status>
+        # int
+        # xml: <Status>
+        # 1 - Outline
+        # 2 - Draft
+        # 3 - 1st Edit
+        # 4 - 2nd Edit
+        # 5 - Done
+        # See also the STATUS list for conversion.
 
         self.sceneNotes = None
         # str
@@ -6074,7 +6083,7 @@ class Yw7File(Novel):
         stripped = []
 
         for line in lines:
-            stripped.append(line.lstrip().rstrip())
+            stripped.append(line.strip())
 
         return stripped
 
@@ -6998,7 +7007,7 @@ class HtmlFile(Novel, HTMLParser):
         text = text.replace('\t', ' ')
 
         while '  ' in text:
-            text = text.replace('  ', ' ').rstrip().lstrip()
+            text = text.replace('  ', ' ').strip()
 
         # Replace HTML tags by yWriter markup.
 
@@ -7188,7 +7197,7 @@ class HtmlImport(HtmlFile):
             self._scId = None
 
         else:
-            data = data.lstrip().rstrip()
+            data = data.strip()
 
             # Convert prefixed comment into scene title.
 
@@ -7204,7 +7213,7 @@ class HtmlImport(HtmlFile):
                     else:
                         scTitle = scTitle.lstrip(self.COMMENT_START)
 
-                    self.scenes[self._scId].title = scTitle.lstrip().rstrip()
+                    self.scenes[self._scId].title = scTitle.strip()
                     data = scContent
 
                 except:
@@ -7296,7 +7305,7 @@ class HtmlOutline(HtmlFile):
         """Collect data within scene sections.
         Overwrites HTMLparser.handle_data().
         """
-        self._lines.append(data.rstrip().lstrip())
+        self._lines.append(data.strip())
 
 
 
@@ -7545,7 +7554,7 @@ class HtmlManuscript(HtmlFile):
 
                         if self.SC_TITLE_BRACKET in scTitle:
                             self.scenes[self._scId].title = scTitle.split(
-                                self.SC_TITLE_BRACKET)[1].lstrip().rstrip()
+                                self.SC_TITLE_BRACKET)[1].strip()
 
                         text = scContent
 
@@ -7575,12 +7584,12 @@ class HtmlManuscript(HtmlFile):
         Override HTMLparser.handle_data().
         """
         if self._scId is not None:
-            self._lines.append(data.rstrip().lstrip())
+            self._lines.append(data.strip())
 
         elif self._chId is not None:
 
             if not self.chapters[self._chId].title:
-                self.chapters[self._chId].title = data.rstrip().lstrip()
+                self.chapters[self._chId].title = data.strip()
 
 
 
@@ -7611,7 +7620,7 @@ class HtmlSceneDesc(HtmlFile):
 
                         if self.SC_TITLE_BRACKET in scTitle:
                             self.scenes[self._scId].title = scTitle.split(
-                                self.SC_TITLE_BRACKET)[1].lstrip().rstrip()
+                                self.SC_TITLE_BRACKET)[1].strip()
 
                         text = scContent
 
@@ -7635,12 +7644,12 @@ class HtmlSceneDesc(HtmlFile):
         Override HTMLparser.handle_data().
         """
         if self._scId is not None:
-            self._lines.append(data.rstrip().lstrip())
+            self._lines.append(data.strip())
 
         elif self._chId is not None:
 
             if not self.chapters[self._chId].title:
-                self.chapters[self._chId].title = data.rstrip().lstrip()
+                self.chapters[self._chId].title = data.strip()
 
 
 
@@ -7678,7 +7687,7 @@ class HtmlChapterDesc(HtmlFile):
         Override HTMLparser.handle_data().
         """
         if self._chId is not None:
-            self._lines.append(data.rstrip().lstrip())
+            self._lines.append(data.strip())
 
 
 
@@ -7767,7 +7776,7 @@ class HtmlCharacters(HtmlFile):
         Overwrites HTMLparser.handle_data().
         """
         if self._section is not None:
-            self._lines.append(data.rstrip().lstrip())
+            self._lines.append(data.strip())
 
 
 
@@ -7817,7 +7826,7 @@ class HtmlLocations(HtmlFile):
         Overwrites HTMLparser.handle_data().
         """
         if self._lcId is not None:
-            self._lines.append(data.rstrip().lstrip())
+            self._lines.append(data.strip())
 
 
 
@@ -7866,7 +7875,7 @@ class HtmlItems(HtmlFile):
         Overwrites HTMLparser.handle_data().
         """
         if self._itId is not None:
-            self._lines.append(data.rstrip().lstrip())
+            self._lines.append(data.strip())
 
 
 import csv
@@ -7926,7 +7935,7 @@ class CsvFile(Novel):
         tempList = text.split(',')
 
         for element in tempList:
-            elements.append(element.lstrip().rstrip())
+            elements.append(element.strip())
 
         return elements
 
