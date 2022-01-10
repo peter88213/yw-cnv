@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.10.1 Update text formatting
+
+When creating odt files, make paragraphs after blank lines "Text body" without indent.
+
+Based on PyWriter v3.32.2
+
 ### v1.10.0 Expand the document structure by splitting scenes.
 
 - Split scenes in manuscript and proof reading files using part, chapter and scene separators.
