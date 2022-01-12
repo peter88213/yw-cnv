@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.10.1
+Version 1.11.5
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -8667,11 +8667,10 @@ def export_yw():
 
 
 def to_blank_lines():
-    """Replace scene dividers with blank lines
+    """Replace scene dividers with blank lines.
 
-    This will replace the three-line "* * *" scene dividers
-    with single blank lines. The style of the scene-dividing
-    lines will be changed from  _Heading 4_  to  _Heading 5_.
+    Replace the three-lines "* * *" scene dividers with single blank lines. 
+    Change the style of the scene-dividing paragraphs from  _Heading 4_  to  _Heading 5_.
     """
 
     pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
@@ -8826,3 +8825,91 @@ def to_blank_lines():
     args3[18].Value = True
 
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args3)
+
+
+def indent():
+    """Indent paragraphs that begin with '> '.
+
+    Select all paragraphs that beginnin with '> ' 
+    and changed their paragraph style to _Text body indent_.
+    """
+
+    pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
+    # pStyles = ThisComponent.StyleFamilies.getByName("ParagraphStyles")
+
+    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    # document   = ThisComponent.CurrentController.Frame
+
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    smgr = ctx.getServiceManager()
+    dispatcher = smgr.createInstanceWithContext(
+        "com.sun.star.frame.DispatchHelper", ctx)
+    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    # Assign all paragraphs beginning with '> ' the 'Text body indent' style.
+
+    args1 = []
+
+    for i in range(19):
+        args1.append(PropertyValue())
+    # dim args1(18) as new com.sun.star.beans.PropertyValue
+
+    args1[0].Name = "SearchItem.StyleFamily"
+    args1[0].Value = 2
+    args1[1].Name = "SearchItem.CellType"
+    args1[1].Value = 0
+    args1[2].Name = "SearchItem.RowDirection"
+    args1[2].Value = True
+    args1[3].Name = "SearchItem.AllTables"
+    args1[3].Value = False
+    args1[4].Name = "SearchItem.Backward"
+    args1[4].Value = False
+    args1[5].Name = "SearchItem.Pattern"
+    args1[5].Value = False
+    args1[6].Name = "SearchItem.Content"
+    args1[6].Value = False
+    args1[7].Name = "SearchItem.AsianOptions"
+    args1[7].Value = False
+    args1[8].Name = "SearchItem.AlgorithmType"
+    args1[8].Value = 1
+    args1[9].Name = "SearchItem.SearchFlags"
+    args1[9].Value = 65536
+    args1[10].Name = "SearchItem.SearchString"
+    args1[10].Value = "^> "
+    args1[11].Name = "SearchItem.ReplaceString"
+    args1[11].Value = ""
+    args1[12].Name = "SearchItem.Locale"
+    args1[12].Value = 255
+    args1[13].Name = "SearchItem.ChangedChars"
+    args1[13].Value = 2
+    args1[14].Name = "SearchItem.DeletedChars"
+    args1[14].Value = 2
+    args1[15].Name = "SearchItem.InsertedChars"
+    args1[15].Value = 2
+    args1[16].Name = "SearchItem.TransliterateFlags"
+    args1[16].Value = 1280
+    args1[17].Name = "SearchItem.Command"
+    args1[17].Value = 1
+    args1[18].Name = "Quiet"
+    args1[18].Value = True
+
+    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+
+    args2 = []
+
+    for i in range(2):
+        args2.append(PropertyValue())
+    # dim args2(18) as new com.sun.star.beans.PropertyValue
+
+    args2[0].Name = "Template"
+    args2[0].Value = pStyles.getByName("Text body indent").DisplayName
+    args2[1].Name = "Family"
+    args2[1].Value = 2
+
+    dispatcher.executeDispatch(document, ".uno:StyleApply", "", 0, args2)
+
+    # Delete the markup.
+
+    args1[17].Value = 3
+
+    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
