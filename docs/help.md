@@ -21,6 +21,7 @@
 ### "Format" menu
 
 -   [Replace scene dividers with blank lines](#replace-scene-dividers-with-blank-lines)
+-   [Indent paragraphs that start with '> '](#indent-paragraphs-that-start-with)
 
 ## HowTo
 
@@ -258,6 +259,16 @@ An outline has at least one third level heading.
 This will replace the three-line "* * *" scene dividers
 with single blank lines. The style of the scene-dividing
 lines will be changed from  _Heading 4_  to  _Heading 5_.
+
+[Top of page](#top)
+
+------------------------------------------------------------------------
+
+## Indent paragraphs that start with '> '
+
+This will select all paragraphs that start with '> '
+and change their paragraph style to _Text body indent_.
+
 
 [Top of page](#top)
 

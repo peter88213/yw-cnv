@@ -466,10 +466,10 @@ def to_blank_lines():
 
 
 def indent():
-    """Indent paragraphs that begin with '> '.
+    """Indent paragraphs that start with '> '.
 
-    Select all paragraphs that beginnin with '> ' 
-    and changed their paragraph style to _Text body indent_.
+    Select all paragraphs that start with '> ' 
+    and change their paragraph style to _Text body indent_.
     """
 
     pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')

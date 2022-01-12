@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.11.5
+Version 1.12.0
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1218,7 +1218,7 @@ class FileExport(Novel):
         return lines
 
     def get_text(self):
-        """Assemple the whole text applying the templates.
+        """Assemble the whole text applying the templates.
         Return a string to be written to the output file.
         """
         lines = self.get_fileHeader()
@@ -8828,10 +8828,10 @@ def to_blank_lines():
 
 
 def indent():
-    """Indent paragraphs that begin with '> '.
+    """Indent paragraphs that start with '> '.
 
-    Select all paragraphs that beginnin with '> ' 
-    and changed their paragraph style to _Text body indent_.
+    Select all paragraphs that start with '> ' 
+    and change their paragraph style to _Text body indent_.
     """
 
     pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
