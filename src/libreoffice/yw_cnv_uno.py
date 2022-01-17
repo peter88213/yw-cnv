@@ -1,19 +1,22 @@
-"""User interface for the converter: UNO facade
+"""Provide a converter class for universal import and export.
 
-Copyright (c) 2020 Peter Triesberger
-For further information see https://github.com/peter88213/PyWriter
+Copyright (c) 2022 Peter Triesberger
+For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 from pywriter.converter.yw7_converter import Yw7Converter
 
 
 class YwCnvUno(Yw7Converter):
-    """Converter for yWriter project files.
-    Variant with UNO UI.
+    """A converter for universal import and export.
+    Support yWriter 7 projects and most of the Novel subclasses 
+    that can be read or written by OpenOffice/LibreOffice.
+    - No message in case of success when converting from yWriter.
     """
 
     def export_from_yw(self, sourceFile, targetFile):
         """Method for conversion from yw to other.
+        Override the superclass method.
         Show only error messages.
         """
         message = self.convert(sourceFile, targetFile)

@@ -1,7 +1,7 @@
-"""User interface for the converter: UNO facade
+"""User interface for the converter: UNO facade.
 
-Copyright (c) 2020 Peter Triesberger
-For further information see https://github.com/peter88213/PyWriter
+Copyright (c) 2022 Peter Triesberger
+For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
