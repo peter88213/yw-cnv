@@ -1,8 +1,5 @@
-"""UNO tools for yWriter import/export in LibreOffice. 
+"""Provide Python wrappers for UNO widgets.
 
-Python wrappers for UNO widgets.
-
-Part of the yw-cnv project.
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)

@@ -1,4 +1,4 @@
-"""User interface for the converter: UNO facade.
+"""Provide a UNO user interface facade class.
 
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
