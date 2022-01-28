@@ -42,7 +42,7 @@ def open_yw7(suffix, newExt):
     # Set last opened yWriter project as default (if existing).
 
     scriptLocation = os.path.dirname(__file__)
-    inifile = uno.fileUrlToSystemPath(scriptLocation + '/' + INI_FILE)
+    inifile = uno.fileUrlToSystemPath('{}/{}'.format(scriptLocation, INI_FILE))
     defaultFile = None
     config = ConfigParser()
 
@@ -75,8 +75,7 @@ def open_yw7(suffix, newExt):
 
     newFile = ywFile.replace(ywExt, suffix + newExt)
     dirName, filename = os.path.split(newFile)
-    lockFile = uno.fileUrlToSystemPath(
-        dirName + '/') + '.~lock.' + filename + '#'
+    lockFile = '{}.~lock.{}#'.format(uno.fileUrlToSystemPath(dirName + '/'), filename)
 
     if not config.has_section('FILES'):
         config.add_section('FILES')
@@ -89,8 +88,7 @@ def open_yw7(suffix, newExt):
     # Check if import file is already open in LibreOffice:
 
     if os.path.isfile(lockFile):
-        msgbox('Please close "' + filename + '" first.',
-               'Import from yWriter', type_msg=ERRORBOX)
+        msgbox('Please close "{}" first.'.format(filename), 'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
@@ -465,7 +463,7 @@ def to_blank_lines():
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args3)
 
 
-def indent():
+def indent_paragraphs():
     """Indent paragraphs that start with '> '.
 
     Select all paragraphs that start with '> ' 

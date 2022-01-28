@@ -454,7 +454,7 @@
                         <value xml:lang="de">Absätze einrücken, die mit &apos;&gt; &apos; beginnen</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
-                        <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$indent?language=Python&amp;location=user:uno_packages</value>
+                        <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
                      </prop>
                      <prop oor:name="Target" oor:type="xs:string">
                         <value>_self</value>
@@ -833,7 +833,7 @@
                      <value xml:lang="de">Absätze einrücken, die mit &apos;&gt; &apos; beginnen</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
-                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$indent?language=Python&amp;location=user:uno_packages</value>
+                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$indent_paragraphs?language=Python&amp;location=user:uno_packages</value>
                   </prop>
                   <prop oor:name="Target" oor:type="xs:string">
                      <value>_self</value>

@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.12.1 Bugfix release
+
+- Make sure that a brief synopsis cannot be exported to yWriter.
+- Fix a regression where writing back to yWriter throws an exception in v1.12.0.
+
+Based on PyWriter v4.0.3
+
 ### v1.12.0 New entry in the "Format" menu
 
 - Add a macro that indents paragraphs that begin with "> ".

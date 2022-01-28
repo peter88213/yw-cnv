@@ -16,8 +16,7 @@ class UiUno(Ui):
     """UI subclass implementing a LibreOffice UNO facade."""
 
     def ask_yes_no(self, text):
-        result = msgbox(text, buttons=BUTTONS_YES_NO,
-                        type_msg=WARNINGBOX)
+        result = msgbox(text, buttons=BUTTONS_YES_NO, type_msg=WARNINGBOX)
 
         if result == YES:
             return True

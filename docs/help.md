@@ -8,6 +8,7 @@
 
 ### "Files" menu
 
+-   [Export to yWriter](#export-to-ywriter) 
 -   [Import from yWriter](#import-from-ywriter)
 -   [Import from yWriter for proof reading](#import-from-ywriter-for-proof-reading)
 -   [Brief synopsis](#brief-synopsis)
@@ -15,7 +16,6 @@
 -   [Location list](#location-list)
 -   [Item list](#item-list)
 -   [Cross reference](#cross-reference)
--   [Export to yWriter](#export-to-ywriter) 
 -   [Advanced features](help-adv)
 
 ### "Format" menu
@@ -29,6 +29,25 @@
     export](#how-to-set-up-a-work-in-progress-for-export)
 -   [How to set up an outline for
     export](#how-to-set-up-an-outline-for-export)
+
+------------------------------------------------------------------------
+
+## Export to yWriter
+
+This writes back the document's content to the yWriter project file.
+
+-   Make sure not to change a generated document's file name before
+    writing back to yWriter format.
+-   The yWriter 7 project to rewrite must exist in the same folder as
+    the document.
+-   If the document's file name has no suffix, the document is
+    considered a [Work in
+    progress](#how-to-set-up-a-work-in-progress-for-export) or an
+    [Outline](#how-to-set-up-an-outline-for-export) to be exported into
+    a newly created yWriter project. **Note:** Existing yWriter projects
+    will not be overwritten.
+
+[Top of page](#top)
 
 ------------------------------------------------------------------------
 
@@ -184,25 +203,6 @@ references are:
 -   characters per tag,
 -   locations per tag,
 -   items per tag.
-
-[Top of page](#top)
-
-------------------------------------------------------------------------
-
-## Export to yWriter
-
-This writes back the document's content to the yWriter project file.
-
--   Make sure not to change a generated document's file name before
-    writing back to yWriter format.
--   The yWriter 7 project to rewrite must exist in the same folder as
-    the document.
--   If the document's file name has no suffix, the document is
-    considered a [Work in
-    progress](#how-to-set-up-a-work-in-progress-for-export) or an
-    [Outline](#how-to-set-up-an-outline-for-export) to be exported into
-    a newly created yWriter project. **Note:** Existing yWriter projects
-    will not be overwritten.
 
 [Top of page](#top)
 
