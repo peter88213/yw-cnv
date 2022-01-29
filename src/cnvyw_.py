@@ -73,9 +73,10 @@ def open_yw7(suffix, newExt):
 
     # Store selected yWriter project as "last opened".
 
-    newFile = ywFile.replace(ywExt, suffix + newExt)
-    dirName, filename = os.path.split(newFile)
-    lockFile = '{}.~lock.{}#'.format(uno.fileUrlToSystemPath(dirName + '/'), filename)
+    newFile = ywFile.replace(ywExt, f'{suffix}{newExt}')
+    dirName, fileName = os.path.split(newFile)
+    thisDir = uno.fileUrlToSystemPath(f'{dirName}/')
+    lockFile = f'{thisDir}.~lock.{fileName}#'
 
     if not config.has_section('FILES'):
         config.add_section('FILES')
@@ -88,7 +89,7 @@ def open_yw7(suffix, newExt):
     # Check if import file is already open in LibreOffice:
 
     if os.path.isfile(lockFile):
-        msgbox('Please close "{}" first.'.format(filename), 'Import from yWriter', type_msg=ERRORBOX)
+        msgbox(f'Please close "{fileName}" first.', 'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
@@ -293,8 +294,7 @@ def export_yw():
         targetPath = uno.fileUrlToSystemPath(csvPath)
 
     else:
-        msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
-               '" not supported.', type_msg=ERRORBOX)
+        msgbox(f'ERROR: File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')
