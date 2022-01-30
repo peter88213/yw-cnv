@@ -10,6 +10,7 @@ import os
 
 from configparser import ConfigParser
 
+from pywriter.pywriter_globals import ERROR
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
@@ -294,7 +295,7 @@ def export_yw():
         targetPath = uno.fileUrlToSystemPath(csvPath)
 
     else:
-        msgbox(f'ERROR: File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
+        msgbox(f'{ERROR}File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')

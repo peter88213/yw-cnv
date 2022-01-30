@@ -30,6 +30,7 @@ class UiUno(Ui):
         self.infoHowText = message
 
         if message.startswith(ERROR):
+            message = message.split(ERROR, maxsplit=1)[1].strip()
             msgbox(message, type_msg=ERRORBOX)
 
         else:

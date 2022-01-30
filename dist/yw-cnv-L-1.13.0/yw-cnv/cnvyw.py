@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.12.2
+Version 1.13.0
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -10,6 +10,8 @@ import os
 
 from configparser import ConfigParser
 
+
+ERROR = '!'
 import re
 
 import zipfile
@@ -430,12 +432,11 @@ class Novel():
         else:
             suffix = ''
 
-        if filePath.lower().endswith((suffix + self.EXTENSION).lower()):
+        if filePath.lower().endswith(f'{suffix}{self.EXTENSION}'.lower()):
             self._filePath = filePath
             head, tail = os.path.split(os.path.realpath(filePath))
             self.projectPath = quote(head.replace('\\', '/'), '/:')
-            self.projectName = quote(tail.replace(
-                suffix + self.EXTENSION, ''))
+            self.projectName = quote(tail.replace(f'{suffix}{self.EXTENSION}', ''))
 
     def convert_to_yw(self, text):
         """Return text, converted from source format to yw7 markup.
@@ -509,7 +510,7 @@ class FileExport(Novel):
 
     def merge(self, source):
         """Copy required attributes of the source object.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         """
 
         if source.title is not None:
@@ -575,7 +576,7 @@ class FileExport(Novel):
             self.srtItems = source.srtItems
             self.items = source.items
 
-        return 'SUCCESS'
+        return 'Export data updated from novel.'
 
     def get_fileHeaderMapping(self):
         """Return a mapping dictionary for the project section. 
@@ -685,7 +686,7 @@ class FileExport(Novel):
 
             if self.scenes[scId].day is not None:
                 day = self.scenes[scId].day
-                scDate = 'Day ' + self.scenes[scId].day
+                scDate = f'Day {self.scenes[scId].day}'
 
             else:
                 day = ''
@@ -716,7 +717,7 @@ class FileExport(Novel):
                 else:
                     minute = '00'
 
-                scTime = hour.zfill(2) + ':' + minute.zfill(2)
+                scTime = f'{hour:02}:{minute:02}'
 
             else:
                 hour = ''
@@ -727,7 +728,7 @@ class FileExport(Novel):
 
         if self.scenes[scId].lastsDays is not None and self.scenes[scId].lastsDays != '0':
             lastsDays = self.scenes[scId].lastsDays
-            days = self.scenes[scId].lastsDays + 'd '
+            days = f'{self.scenes[scId].lastsDays}d '
 
         else:
             lastsDays = ''
@@ -735,7 +736,7 @@ class FileExport(Novel):
 
         if self.scenes[scId].lastsHours is not None and self.scenes[scId].lastsHours != '0':
             lastsHours = self.scenes[scId].lastsHours
-            hours = self.scenes[scId].lastsHours + 'h '
+            hours = f'{self.scenes[scId].lastsHours}h '
 
         else:
             lastsHours = ''
@@ -743,13 +744,13 @@ class FileExport(Novel):
 
         if self.scenes[scId].lastsMinutes is not None and self.scenes[scId].lastsMinutes != '0':
             lastsMinutes = self.scenes[scId].lastsMinutes
-            minutes = self.scenes[scId].lastsMinutes + 'min'
+            minutes = f'{self.scenes[scId].lastsMinutes}min'
 
         else:
             lastsMinutes = ''
             minutes = ''
 
-        duration = days + hours + minutes
+        duration = f'{days}{hours}{minutes}'
 
         sceneMapping = dict(
             ID=scId,
@@ -1160,12 +1161,12 @@ class FileExport(Novel):
 
     def write(self):
         """Create a template-based output file. 
-        Return a message string starting with 'SUCCESS' or 'ERROR'.
+        Return a message beginning with the ERROR constant in case of error.
         """
         text = self.get_text()
 
         if os.path.isfile(self.filePath):
-            os.replace(self.filePath, self.filePath + '.bak')
+            os.replace(self.filePath, f'{self.filePath}.bak')
             backedUp = True
 
         else:
@@ -1179,11 +1180,11 @@ class FileExport(Novel):
         except:
 
             if backedUp:
-                os.replace(self.filePath + '.bak', self.filePath)
+                os.replace(f'{self.filePath}.bak', self.filePath)
 
-            return 'ERROR: Cannot write "{}".'.format(os.path.normpath(self.filePath))
+            return f'{ERROR}Cannot write "{os.path.normpath(self.filePath)}".'
 
-        return 'SUCCESS: "{}" written.'.format(os.path.normpath(self.filePath))
+        return f'"{os.path.normpath(self.filePath)}" written.'
 
     def get_string(self, elements):
         """Return a string which is the concatenation of the 
@@ -1250,34 +1251,34 @@ class OdfFile(FileExport):
         try:
             self.tear_down()
             os.mkdir(self.tempDir)
-            os.mkdir(self.tempDir + '/META-INF')
+            os.mkdir(f'{self.tempDir}/META-INF')
 
         except:
-            return 'ERROR: Cannot create "{}".'.format(os.path.normpath(self.tempDir))
+            return f'{ERROR}Cannot create "{os.path.normpath(self.tempDir)}".'
 
         # Generate mimetype.
 
         try:
-            with open(self.tempDir + '/mimetype', 'w', encoding='utf-8') as f:
+            with open(f'{self.tempDir}/mimetype', 'w', encoding='utf-8') as f:
                 f.write(self._MIMETYPE)
         except:
-            return 'ERROR: Cannot write "mimetype"'
+            return f'{ERROR}Cannot write "mimetype"'
 
         # Generate settings.xml.
 
         try:
-            with open(self.tempDir + '/settings.xml', 'w', encoding='utf-8') as f:
+            with open(f'{self.tempDir}/settings.xml', 'w', encoding='utf-8') as f:
                 f.write(self._SETTINGS_XML)
         except:
-            return 'ERROR: Cannot write "settings.xml"'
+            return f'{ERROR}Cannot write "settings.xml"'
 
         # Generate META-INF\manifest.xml.
 
         try:
-            with open(self.tempDir + '/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
+            with open(f'{self.tempDir}/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
                 f.write(self._MANIFEST_XML)
         except:
-            return 'ERROR: Cannot write "manifest.xml"'
+            return f'{ERROR}Cannot write "manifest.xml"'
 
         # Generate styles.xml with system language set as document language.
 
@@ -1291,10 +1292,10 @@ class OdfFile(FileExport):
         text = template.safe_substitute(localeMapping)
 
         try:
-            with open(self.tempDir + '/styles.xml', 'w', encoding='utf-8') as f:
+            with open(f'{self.tempDir}/styles.xml', 'w', encoding='utf-8') as f:
                 f.write(text)
         except:
-            return 'ERROR: Cannot write "styles.xml"'
+            return f'{ERROR}Cannot write "styles.xml"'
 
         # Generate meta.xml with actual document metadata.
 
@@ -1303,23 +1304,20 @@ class OdfFile(FileExport):
         metaMapping = dict(
             Author=self.author,
             Title=self.title,
-            Summary='<![CDATA[' + self.desc + ']]>',
-            Date=str(dt.year) + '-' + str(dt.month).rjust(2, '0') +
-            '-' + str(dt.day).rjust(2, '0'),
-            Time=str(dt.hour).rjust(2, '0') +
-            ':' + str(dt.minute).rjust(2, '0') +
-            ':' + str(dt.second).rjust(2, '0'),
+            Summary=f'<![CDATA[{self.desc}]]>',
+            Date=f'{dt.year}-{dt.month:02}-{dt.day:02}',
+            Time=f'{dt.hour:02}:{dt.minute:02}:{dt.second:02}',
         )
         template = Template(self._META_XML)
         text = template.safe_substitute(metaMapping)
 
         try:
-            with open(self.tempDir + '/meta.xml', 'w', encoding='utf-8') as f:
+            with open(f'{self.tempDir}/meta.xml', 'w', encoding='utf-8') as f:
                 f.write(text)
         except:
-            return 'ERROR: Cannot write "meta.xml".'
+            return f'{ERROR}Cannot write "meta.xml".'
 
-        return 'SUCCESS: ODF structure generated.'
+        return 'ODF structure generated.'
 
     def write(self):
         """Extend the super class method, adding ZIP file operations."""
@@ -1329,20 +1327,20 @@ class OdfFile(FileExport):
 
         message = self.set_up()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         # Add "content.xml" to the temporary directory.
 
         self.originalPath = self._filePath
 
-        self._filePath = self.tempDir + '/content.xml'
+        self._filePath = f'{self.tempDir}/content.xml'
 
         message = super().write()
 
         self._filePath = self.originalPath
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         # Pack the contents of the temporary directory
@@ -1351,7 +1349,7 @@ class OdfFile(FileExport):
         workdir = os.getcwd()
 
         if os.path.isfile(self.filePath):
-            os.replace(self.filePath, self.filePath + '.bak')
+            os.replace(self.filePath, f'{self.filePath}.bak')
             backedUp = True
 
         else:
@@ -1366,16 +1364,16 @@ class OdfFile(FileExport):
         except:
 
             if backedUp:
-                os.replace(self.filePath + '.bak', self.filePath)
+                os.replace(f'{self.filePath}.bak', self.filePath)
 
             os.chdir(workdir)
-            return 'ERROR: Cannot generate "{}".'.format(os.path.normpath(self.filePath))
+            return f'{ERROR}Cannot generate "{os.path.normpath(self.filePath)}".'
 
         # Remove temporary data.
 
         os.chdir(workdir)
         self.tear_down()
-        return 'SUCCESS: "{}" written.'.format(os.path.normpath(self.filePath))
+        return f'"{os.path.normpath(self.filePath)}" written.'
 
 
 class OdtFile(OdfFile):
@@ -2494,18 +2492,18 @@ class OdtFile(OdfFile):
 
         message = super().set_up()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         # Generate manifest.rdf
 
         try:
-            with open(self.tempDir + '/manifest.rdf', 'w', encoding='utf-8') as f:
+            with open(f'{self.tempDir}/manifest.rdf', 'w', encoding='utf-8') as f:
                 f.write(self._MANIFEST_RDF)
         except:
-            return 'ERROR: Cannot write "manifest.rdf"'
+            return f'{ERROR}Cannot write "manifest.rdf"'
 
-        return 'SUCCESS: ODT structure generated.'
+        return 'ODT structure generated.'
 
     def convert_from_yw(self, text):
         """Convert yw7 raw markup to odt. Return an xml string.
@@ -2522,8 +2520,7 @@ class OdtFile(OdfFile):
             ['[/i]', '</text:span>'],
             ['[b]', '<text:span text:style-name="Strong_20_Emphasis">'],
             ['[/b]', '</text:span>'],
-            ['/*', '<office:annotation><dc:creator>' +
-                self.author + '</dc:creator><text:p>'],
+            ['/*', f'<office:annotation><dc:creator>{self.author}</dc:creator><text:p>'],
             ['*/', '</text:p></office:annotation>'],
         ]
 
@@ -2538,28 +2535,28 @@ class OdtFile(OdfFile):
 
             for line in lines:
                 if italics:
-                    line = '[i]' + line
+                    line = f'[i]{line}'
                     italics = False
 
                 while line.count('[i]') > line.count('[/i]'):
-                    line += '[/i]'
+                    line = f'{line}[/i]'
                     italics = True
 
                 while line.count('[/i]') > line.count('[i]'):
-                    line = '[i]' + line
+                    line = f'[i]{line}'
 
                 line = line.replace('[i][/i]', '')
 
                 if bold:
-                    line = '[b]' + line
+                    line = f'[b]{line}'
                     bold = False
 
                 while line.count('[b]') > line.count('[/b]'):
-                    line += '[/b]'
+                    line = f'{line}[/b]'
                     bold = True
 
                 while line.count('[/b]') > line.count('[b]'):
-                    line = '[b]' + line
+                    line = f'[b]{line}'
 
                 line = line.replace('[b][/b]', '')
 
@@ -2590,7 +2587,7 @@ class OdtProof(OdtFile):
     DESCRIPTION = 'Tagged manuscript for proofing'
     SUFFIX = '_proof'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -2661,7 +2658,7 @@ class OdtManuscript(OdtFile):
     DESCRIPTION = 'Editable manuscript'
     SUFFIX = '_manuscript'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -2721,7 +2718,7 @@ class OdtSceneDesc(OdtFile):
     DESCRIPTION = 'Scene descriptions'
     SUFFIX = '_scenes'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -2771,7 +2768,7 @@ class OdtChapterDesc(OdtFile):
     DESCRIPTION = 'Chapter descriptions'
     SUFFIX = '_chapters'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -2796,7 +2793,7 @@ class OdtPartDesc(OdtFile):
     DESCRIPTION = 'Part descriptions'
     SUFFIX = '_parts'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -2818,7 +2815,7 @@ class OdtBriefSynopsis(OdtFile):
     DESCRIPTION = 'Brief synopsis'
     SUFFIX = '_brf_synopsis'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -2994,7 +2991,7 @@ class OdtXref(OdtFile):
     DESCRIPTION = 'Cross reference'
     SUFFIX = '_xref'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
     sceneTemplate = '''<text:p text:style-name="yWriter_20_mark">
@@ -3219,7 +3216,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
         return lines
 
     def get_text(self):
-        """Assemple the whole text applying the templates.
+        """Assemble the whole text applying the templates.
         Return a string to be written to the output file.
         Override the superclass method.
         """
@@ -3565,7 +3562,7 @@ class OdsSceneList(OdsFile):
     # Locations
     # Items
 
-    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = f'''{OdsFile.CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
@@ -3779,7 +3776,7 @@ class OdsPlotList(OdsFile):
     # $FieldTitle3
     # $FieldTitle4
 
-    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = f'''{OdsFile.CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
@@ -3947,29 +3944,25 @@ class OdsPlotList(OdsFile):
             sceneMapping['Field1'] = '"string">\n'
 
         else:
-            sceneMapping['Field1'] = '"float" office:value="' + sceneMapping['Field1'] + \
-                '">\n      <text:p>' + sceneMapping['Field1'] + '</text:p>'
+            sceneMapping['Field1'] = f'"float" office:value="{sceneMapping["Field1"]}">\n      <text:p>{sceneMapping["Field1"]}</text:p>'
 
         if self.scenes[scId].field2 == '1' or not self.arc2:
             sceneMapping['Field2'] = '"string">\n'
 
         else:
-            sceneMapping['Field2'] = '"float" office:value="' + sceneMapping['Field2'] + \
-                '">\n      <text:p>' + sceneMapping['Field2'] + '</text:p>'
+            sceneMapping['Field2'] = f'"float" office:value="{sceneMapping["Field2"]}">\n      <text:p>{sceneMapping["Field2"]}</text:p>'
 
         if self.scenes[scId].field3 == '1' or not self.arc3:
             sceneMapping['Field3'] = '"string">\n'
 
         else:
-            sceneMapping['Field3'] = '"float" office:value="' + sceneMapping['Field3'] + \
-                '">\n      <text:p>' + sceneMapping['Field3'] + '</text:p>'
+            sceneMapping['Field3'] = f'"float" office:value="{sceneMapping["Field3"]}">\n      <text:p>{sceneMapping["Field3"]}</text:p>'
 
         if self.scenes[scId].field4 == '1' or not self.arc4:
             sceneMapping['Field4'] = '"string">\n'
 
         else:
-            sceneMapping['Field4'] = '"float" office:value="' + sceneMapping['Field4'] + \
-                '">\n      <text:p>' + sceneMapping['Field4'] + '</text:p>'
+            sceneMapping['Field4'] = f'"float" office:value="{sceneMapping["Field4"]}">\n      <text:p>{sceneMapping["Field4"]}</text:p>'
 
         return sceneMapping
 
@@ -3980,7 +3973,7 @@ class OdsCharList(OdsFile):
     DESCRIPTION = 'Character list'
     SUFFIX = '_charlist'
 
-    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = f'''{OdsFile.CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
@@ -4071,7 +4064,7 @@ class OdsLocList(OdsFile):
     DESCRIPTION = 'Location list'
     SUFFIX = '_loclist'
 
-    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = f'''{OdsFile.CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
@@ -4128,7 +4121,7 @@ class OdsItemList(OdsFile):
     DESCRIPTION = 'Item list'
     SUFFIX = '_itemlist'
 
-    fileHeader = OdsFile.CONTENT_XML_HEADER + DESCRIPTION + '''" table:style-name="ta1" table:print="false">
+    fileHeader = f'''{OdsFile.CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
@@ -4189,7 +4182,7 @@ class OdtCharacters(OdtFile):
     DESCRIPTION = 'Character descriptions'
     SUFFIX = '_characters'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4222,10 +4215,10 @@ class OdtCharacters(OdtFile):
         characterMapping = OdtFile.get_characterMapping(self, crId)
 
         if self.characters[crId].aka:
-            characterMapping['AKA'] = ' ("{}")'.format(self.characters[crId].aka)
+            characterMapping['AKA'] = f' ("{self.characters[crId].aka}")'
 
         if self.characters[crId].fullName:
-            characterMapping['FullName'] = '/{}'.format(self.characters[crId].fullName)
+            characterMapping['FullName'] = f'/{self.characters[crId].fullName}'
 
         return characterMapping
 
@@ -4239,7 +4232,7 @@ class OdtItems(OdtFile):
     DESCRIPTION = 'Item descriptions'
     SUFFIX = '_items'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4257,7 +4250,7 @@ class OdtItems(OdtFile):
         itemMapping = super().get_itemMapping(itId)
 
         if self.items[itId].aka:
-            itemMapping['AKA'] = ' ("{}")'.format(self.items[itId].aka)
+            itemMapping['AKA'] = f' ("{self.items[itId].aka}")'
 
         return itemMapping
 
@@ -4271,7 +4264,7 @@ class OdtLocations(OdtFile):
     DESCRIPTION = 'Location descriptions'
     SUFFIX = '_locations'
 
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -4289,7 +4282,7 @@ class OdtLocations(OdtFile):
         locationMapping = super().get_locationMapping(lcId)
 
         if self.locations[lcId].aka:
-            locationMapping['AKA'] = ' ("{}")'.format(self.locations[lcId].aka)
+            locationMapping['AKA'] = f' ("{self.locations[lcId].aka}")'
 
         return locationMapping
 
@@ -4402,6 +4395,7 @@ class Ui():
         """
 
 
+
 class YwCnv():
     """Base class for Novel file conversion.
 
@@ -4419,7 +4413,7 @@ class YwCnv():
         1. Make the source object read the source file.
         2. Make the target object merge the source object's instance variables.
         3. Make the target object write the target file.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
 
         Error handling:
         - Check if sourceFile and targetFile are correctly initialized.
@@ -4431,29 +4425,29 @@ class YwCnv():
         # Initial error handling.
 
         if sourceFile.filePath is None:
-            return 'ERROR: Source "{}" is not of the supported type.'.format(os.path.normpath(sourceFile.filePath))
+            return f'{ERROR}Source "{os.path.normpath(sourceFile.filePath)}" is not of the supported type.'
 
         if not os.path.isfile(sourceFile.filePath):
-            return 'ERROR: "{}" not found.'.format(os.path.normpath(sourceFile.filePath))
+            return f'{ERROR}"{os.path.normpath(sourceFile.filePath)}" not found.'
 
         if targetFile.filePath is None:
-            return 'ERROR: Target "{}" is not of the supported type.'.format(os.path.normpath(targetFile.filePath))
+            return f'{ERROR}Target "{os.path.normpath(targetFile.filePath)}" is not of the supported type.'
 
         if os.path.isfile(targetFile.filePath) and not self.confirm_overwrite(targetFile.filePath):
-            return 'ERROR: Action canceled by user.'
+            return f'{ERROR}Action canceled by user.'
 
         # Make the source object read the source file.
 
         message = sourceFile.read()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         # Make the target object merge the source object's instance variables.
 
         message = targetFile.merge(sourceFile)
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         # Make the source object write the target file.
@@ -4507,8 +4501,8 @@ class YwCnvUi(YwCnv):
 
         # Send specific information about the conversion to the UI.
 
-        self.ui.set_info_what('Input: {} "{}"\nOutput: {} "{}"'.format(sourceFile.DESCRIPTION, os.path.normpath(
-            sourceFile.filePath), targetFile.DESCRIPTION, os.path.normpath(targetFile.filePath)))
+        self.ui.set_info_what(
+            f'Input: {sourceFile.DESCRIPTION} "{os.path.normpath(sourceFile.filePath)}"\nOutput: {targetFile.DESCRIPTION} "{os.path.normpath(targetFile.filePath)}"')
 
         # Convert sourceFile into targetFile.
 
@@ -4520,11 +4514,11 @@ class YwCnvUi(YwCnv):
 
         # Save the new file pathname.
 
-        if message.startswith('SUCCESS'):
-            self.newFile = targetFile.filePath
+        if message.startswith(ERROR):
+            self.newFile = None
 
         else:
-            self.newFile = None
+            self.newFile = targetFile.filePath
 
     def create_yw7(self, sourceFile, targetFile):
         """Create targetFile from sourceFile.
@@ -4548,10 +4542,10 @@ class YwCnvUi(YwCnv):
         # Send specific information about the conversion to the UI.
 
         self.ui.set_info_what(
-            'Create a yWriter project file from {}\nNew project: "{}"'.format(sourceFile.DESCRIPTION, os.path.normpath(targetFile.filePath)))
+            f'Create a yWriter project file from {sourceFile.DESCRIPTION}\nNew project: "{os.path.normpath(targetFile.filePath)}"')
 
         if os.path.isfile(targetFile.filePath):
-            self.ui.set_info_how('ERROR: "{}" already exists.'.format(os.path.normpath(targetFile.filePath)))
+            self.ui.set_info_how(f'{ERROR}"{os.path.normpath(targetFile.filePath)}" already exists.')
 
         else:
             # Convert sourceFile into targetFile.
@@ -4564,11 +4558,11 @@ class YwCnvUi(YwCnv):
 
             # Save the new file pathname.
 
-            if message.startswith('SUCCESS'):
-                self.newFile = targetFile.filePath
+            if message.startswith(ERROR):
+                self.newFile = None
 
             else:
-                self.newFile = None
+                self.newFile = targetFile.filePath
 
     def import_to_yw(self, sourceFile, targetFile):
         """Convert from any file format to yWriter project.
@@ -4590,8 +4584,8 @@ class YwCnvUi(YwCnv):
 
         # Send specific information about the conversion to the UI.
 
-        self.ui.set_info_what('Input: {} "{}"\nOutput: {} "{}"'.format(sourceFile.DESCRIPTION, os.path.normpath(
-            sourceFile.filePath), targetFile.DESCRIPTION, os.path.normpath(targetFile.filePath)))
+        self.ui.set_info_what(
+            f'Input: {sourceFile.DESCRIPTION} "{os.path.normpath(sourceFile.filePath)}"\nOutput: {targetFile.DESCRIPTION} "{os.path.normpath(targetFile.filePath)}"')
 
         # Convert sourceFile into targetFile.
 
@@ -4607,15 +4601,15 @@ class YwCnvUi(YwCnv):
 
         # Save the new file pathname.
 
-        if message.startswith('SUCCESS'):
-            self.newFile = targetFile.filePath
+        if message.startswith(ERROR):
+            self.newFile = None
 
         else:
-            self.newFile = None
+            self.newFile = targetFile.filePath
 
     def confirm_overwrite(self, filePath):
         """Return boolean permission to overwrite the target file, overriding the superclass method."""
-        return self.ui.ask_yes_no('Overwrite existing file "{}"?'.format(os.path.normpath(filePath)))
+        return self.ui.ask_yes_no(f'Overwrite existing file "{os.path.normpath(filePath)}"?')
 
     def delete_tempfile(self, filePath):
         """Delete filePath if it is a temporary file no longer needed."""
@@ -4678,7 +4672,7 @@ class ExportSourceFactory(FileFactory):
             sourcePath -- string; path to the source file to convert.
 
         Return a tuple with three elements:
-        - A message string starting with 'SUCCESS' or 'ERROR'
+        - A message beginning with the ERROR constant in case of error
         - sourceFile: a YwFile subclass instance, or None in case of error
         - targetFile: None
         """
@@ -4688,9 +4682,9 @@ class ExportSourceFactory(FileFactory):
 
             if fileClass.EXTENSION == fileExtension:
                 sourceFile = fileClass(sourcePath, **kwargs)
-                return 'SUCCESS', sourceFile, None
+                return 'Source object created.', sourceFile, None
 
-        return 'ERROR: File type of "{}" not supported.'.format(os.path.normpath(sourcePath)), None, None
+        return f'{ERROR}File type of "{os.path.normpath(sourcePath)}" not supported.', None, None
 
 
 
@@ -4711,7 +4705,7 @@ class ExportTargetFactory(FileFactory):
             suffix -- string; an indicator for the target file type.
 
         Return a tuple with three elements:
-        - A message string starting with 'SUCCESS' or 'ERROR'
+        - A message beginning with the ERROR constant in case of error
         - sourceFile: None
         - targetFile: a FileExport subclass instance, or None in case of error 
         """
@@ -4725,11 +4719,10 @@ class ExportTargetFactory(FileFactory):
                 if suffix is None:
                     suffix = ''
 
-                targetFile = fileClass(
-                    fileName + suffix + fileClass.EXTENSION, **kwargs)
-                return 'SUCCESS', None, targetFile
+                targetFile = fileClass(f'{fileName}{suffix}{fileClass.EXTENSION}', **kwargs)
+                return 'Target object created.', None, targetFile
 
-        return 'ERROR: File type of "{}" not supported.'.format(os.path.normpath(sourcePath)), None, None
+        return f'{ERROR}File type of "{os.path.normpath(sourcePath)}" not supported.', None, None
 
 
 class ImportSourceFactory(FileFactory):
@@ -4746,7 +4739,7 @@ class ImportSourceFactory(FileFactory):
             sourcePath -- string; path to the source file to convert.
 
         Return a tuple with three elements:
-        - A message string starting with 'SUCCESS' or 'ERROR'
+        - A message beginning with the ERROR constant in case of error
         - sourceFile: a Novel subclass instance, or None in case of error
         - targetFile: None
         """
@@ -4755,11 +4748,11 @@ class ImportSourceFactory(FileFactory):
 
             if fileClass.SUFFIX is not None:
 
-                if sourcePath.endswith(fileClass.SUFFIX + fileClass.EXTENSION):
+                if sourcePath.endswith(f'{fileClass.SUFFIX }{fileClass.EXTENSION}'):
                     sourceFile = fileClass(sourcePath, **kwargs)
-                    return 'SUCCESS', sourceFile, None
+                    return 'Source object created.', sourceFile, None
 
-        return 'ERROR: This document is not meant to be written back.', None, None
+        return f'{ERROR}This document is not meant to be written back.', None, None
 
 
 
@@ -4780,7 +4773,7 @@ class ImportTargetFactory(FileFactory):
             suffix -- string; an indicator for the source file type.
 
         Return a tuple with three elements:
-        - A message string starting with 'SUCCESS' or 'ERROR'
+        - A message beginning with the ERROR constant in case of error
         - sourceFile: None
         - targetFile: a YwFile subclass instance, or None in case of error
 
@@ -4798,12 +4791,11 @@ class ImportTargetFactory(FileFactory):
 
         for fileClass in self.fileClasses:
 
-            if os.path.isfile(ywPathBasis + fileClass.EXTENSION):
-                targetFile = fileClass(
-                    ywPathBasis + fileClass.EXTENSION, **kwargs)
-                return 'SUCCESS', None, targetFile
+            if os.path.isfile(f'{ywPathBasis}{fileClass.EXTENSION}'):
+                targetFile = fileClass(f'{ywPathBasis}{fileClass.EXTENSION}', **kwargs)
+                return 'Target object created.', None, targetFile
 
-        return 'ERROR: No yWriter project to write.', None, None
+        return f'{ERROR}No yWriter project to write.', None, None
 
 
 class YwCnvFf(YwCnvUi):
@@ -4855,48 +4847,49 @@ class YwCnvFf(YwCnvUi):
         self.newFile = None
 
         if not os.path.isfile(sourcePath):
-            self.ui.set_info_how('ERROR: File "{}" not found.'.format(os.path.normpath(sourcePath)))
+            self.ui.set_info_how(f'{ERROR}File "{os.path.normpath(sourcePath)}" not found.')
             return
 
         message, sourceFile, dummy = self.exportSourceFactory.make_file_objects(sourcePath, **kwargs)
 
-        if message.startswith('SUCCESS'):
-            # The source file is a yWriter project.
-
-            message, dummy, targetFile = self.exportTargetFactory.make_file_objects(sourcePath, **kwargs)
-
-            if message.startswith('SUCCESS'):
-                self.export_from_yw(sourceFile, targetFile)
-
-            else:
-                self.ui.set_info_how(message)
-
-        else:
+        if message.startswith(ERROR):
             # The source file is not a yWriter project.
 
             message, sourceFile, dummy = self.importSourceFactory.make_file_objects(sourcePath, **kwargs)
 
-            if message.startswith('SUCCESS'):
-                kwargs['suffix'] = sourceFile.SUFFIX
-                message, dummy, targetFile = self.importTargetFactory.make_file_objects(sourcePath, **kwargs)
-
-                if message.startswith('SUCCESS'):
-                    self.import_to_yw(sourceFile, targetFile)
-
-                else:
-                    self.ui.set_info_how(message)
-
-            else:
+            if message.startswith(ERROR):
                 # A new yWriter project might be required.
 
                 message, sourceFile, targetFile = self.newProjectFactory.make_file_objects(sourcePath, **kwargs)
 
-                if message.startswith('SUCCESS'):
-                    self.create_yw7(sourceFile, targetFile)
-
-                else:
+                if message.startswith(ERROR):
                     self.ui.set_info_how(message)
 
+                else:
+                    self.create_yw7(sourceFile, targetFile)
+
+            else:
+                # Try to update an existing yWriter project.
+
+                kwargs['suffix'] = sourceFile.SUFFIX
+                message, dummy, targetFile = self.importTargetFactory.make_file_objects(sourcePath, **kwargs)
+
+                if message.startswith(ERROR):
+                    self.ui.set_info_how(message)
+
+                else:
+                    self.import_to_yw(sourceFile, targetFile)
+
+        else:
+            # The source file is a yWriter project.
+
+            message, dummy, targetFile = self.exportTargetFactory.make_file_objects(sourcePath, **kwargs)
+
+            if message.startswith(ERROR):
+                self.ui.set_info_how(message)
+
+            else:
+                self.export_from_yw(sourceFile, targetFile)
 
 import xml.etree.ElementTree as ET
 
@@ -4976,135 +4969,6 @@ class Chapter():
         return text
 
 
-
-def indent(elem, level=0):
-    """xml pretty printer
-
-    Kudos to to Fredrik Lundh. 
-    Source: http://effbot.org/zone/element-lib.htm#prettyprint
-    """
-    i = "\n" + level * "  "
-
-    if len(elem):
-
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-
-        for elem in elem:
-            indent(elem, level + 1)
-
-        if not elem.tail or not elem.tail.strip():
-            elem.tail = i
-
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
-
-
-
-class Yw7TreeWriter():
-    """Write utf-8 encoded yWriter project file.
-
-    Public methods: 
-        write_element_tree(ywProject) -- Write back the xml element tree to a yw7 file.   
-    """
-
-    def write_element_tree(self, ywProject):
-        """Write back the xml element tree to a yWriter xml file located at filePath.
-        Return a message beginning with SUCCESS or ERROR.
-        """
-
-        if os.path.isfile(ywProject.filePath):
-            os.replace(ywProject.filePath, ywProject.filePath + '.bak')
-            backedUp = True
-
-        else:
-            backedUp = False
-
-        try:
-            ywProject.tree.write(ywProject.filePath, xml_declaration=False, encoding='utf-8')
-
-        except:
-
-            if backedUp:
-                os.replace(ywProject.filePath + '.bak', ywProject.filePath)
-
-            return 'ERROR: Cannot write "{}".'.format(os.path.normpath(ywProject.filePath))
-
-        return 'SUCCESS'
-
-from html import unescape
-
-
-class Yw7Postprocessor():
-    """Postprocess utf-8 encoded yWriter project.
-    Insert the missing CDATA tags, replace xml entities by plain text.
-
-    Public methods:
-        postprocess_xml_file(filePath) -- Postprocess the xml files created by ElementTree.        
-    """
-
-    _CDATA_TAGS = ['Title', 'AuthorName', 'Bio', 'Desc',
-                   'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
-                   'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
-                   'AKA', 'ImageFile', 'FullName', 'Goals',
-                   'Notes', 'RTFFile', 'SceneContent',
-                   'Outcome', 'Goal', 'Conflict']
-    # Names of xml elements containing CDATA.
-    # ElementTree.write omits CDATA tags, so they have to be inserted afterwards.
-
-    def _format_xml(self, text):
-        '''Postprocess the xml file created by ElementTree:
-           Insert the missing CDATA tags, replace xml entities by plain text.
-        '''
-        lines = text.split('\n')
-        newlines = []
-
-        for line in lines:
-
-            for tag in self._CDATA_TAGS:
-                line = re.sub('\<' + tag + '\>', '<' +
-                              tag + '><![CDATA[', line)
-                line = re.sub('\<\/' + tag + '\>',
-                              ']]></' + tag + '>', line)
-
-            newlines.append(line)
-
-        text = '\n'.join(newlines)
-        text = text.replace('[CDATA[ \n', '[CDATA[')
-        text = text.replace('\n]]', ']]')
-        text = unescape(text)
-
-        return text
-
-    def postprocess_xml_file(self, filePath):
-        '''Postprocess the xml file created by ElementTree:
-        Put a header on top, insert the missing CDATA tags,
-        and replace xml entities by plain text.
-        Return a message beginning with SUCCESS or ERROR.
-        '''
-
-        with open(filePath, 'r', encoding='utf-8') as f:
-            text = f.read()
-
-        text = self._format_xml(text)
-        text = '<?xml version="1.0" encoding="utf-8"?>\n' + text
-
-        try:
-
-            with open(filePath, 'w', encoding='utf-8') as f:
-                f.write(text)
-
-        except:
-            return 'ERROR: Can not write "{}".'.format(os.path.normpath(filePath))
-
-        return 'SUCCESS: "{}" written.'.format(os.path.normpath(filePath))
-
-
-
 class Splitter():
 
     PART_SEPARATOR = '# '
@@ -5137,27 +5001,27 @@ class Splitter():
             if parent.title:
 
                 if len(parent.title) > self.CLIP_TITLE:
-                    title = parent.title[:self.CLIP_TITLE] + '...'
+                    title = f'{parent.title[:self.CLIP_TITLE]}...'
 
                 else:
                     title = parent.title
 
-                newScene.title = title + ' Split: ' + str(splitCount)
+                newScene.title = f'{title} Split: {splitCount}'
 
             else:
-                newScene.title = 'New scene Split: ' + str(splitCount)
+                newScene.title = f'New scene Split: {splitCount}'
 
             if parent.desc and not parent.desc.startswith(WARNING):
-                parent.desc = WARNING + parent.desc
+                parent.desc = f'{WARNING}{parent.desc}'
 
             if parent.goal and not parent.goal.startswith(WARNING):
-                parent.goal = WARNING + parent.goal
+                parent.goal = f'{WARNING}{parent.goal}'
 
             if parent.conflict and not parent.conflict.startswith(WARNING):
-                parent.conflict = WARNING + parent.conflict
+                parent.conflict = f'{WARNING}{parent.conflict}'
 
             if parent.outcome and not parent.outcome.startswith(WARNING):
-                parent.outcome = WARNING + parent.outcome
+                parent.outcome = f'{WARNING}{parent.outcome}'
 
             # Reset the parent's status to Draft, if not Outline.
 
@@ -5277,6 +5141,131 @@ class Splitter():
         ywPrj.srtChapters = srtChapters
 
 
+def indent(elem, level=0):
+    """xml pretty printer
+
+    Kudos to to Fredrik Lundh. 
+    Source: http://effbot.org/zone/element-lib.htm#prettyprint
+    """
+    i = f'\n{level * "  "}'
+
+    if len(elem):
+
+        if not elem.text or not elem.text.strip():
+            elem.text = f'{i}  '
+
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+
+        for elem in elem:
+            indent(elem, level + 1)
+
+        if not elem.tail or not elem.tail.strip():
+            elem.tail = i
+
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+
+
+
+class Yw7TreeWriter():
+    """Write utf-8 encoded yWriter project file.
+
+    Public methods: 
+        write_element_tree(ywProject) -- Write back the xml element tree to a yw7 file.   
+    """
+
+    def write_element_tree(self, ywProject):
+        """Write back the xml element tree to a yWriter xml file located at filePath.
+        Return a message beginning with the ERROR constant in case of error.
+        """
+
+        if os.path.isfile(ywProject.filePath):
+            os.replace(ywProject.filePath, f'{ywProject.filePath}.bak')
+            backedUp = True
+
+        else:
+            backedUp = False
+
+        try:
+            ywProject.tree.write(ywProject.filePath, xml_declaration=False, encoding='utf-8')
+
+        except:
+
+            if backedUp:
+                os.replace(f'{ywProject.filePath}.bak', ywProject.filePath)
+
+            return f'{ERROR}Cannot write "{os.path.normpath(ywProject.filePath)}".'
+
+        return 'yWriter XML tree written.'
+from html import unescape
+
+
+
+class Yw7Postprocessor():
+    """Postprocess utf-8 encoded yWriter project.
+    Insert the missing CDATA tags, replace xml entities by plain text.
+
+    Public methods:
+        postprocess_xml_file(filePath) -- Postprocess the xml files created by ElementTree.        
+    """
+
+    _CDATA_TAGS = ['Title', 'AuthorName', 'Bio', 'Desc',
+                   'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
+                   'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
+                   'AKA', 'ImageFile', 'FullName', 'Goals',
+                   'Notes', 'RTFFile', 'SceneContent',
+                   'Outcome', 'Goal', 'Conflict']
+    # Names of xml elements containing CDATA.
+    # ElementTree.write omits CDATA tags, so they have to be inserted afterwards.
+
+    def _format_xml(self, text):
+        '''Postprocess the xml file created by ElementTree:
+           Insert the missing CDATA tags, replace xml entities by plain text.
+        '''
+        lines = text.split('\n')
+        newlines = []
+
+        for line in lines:
+
+            for tag in self._CDATA_TAGS:
+                line = re.sub(f'\<{tag}\>', f'<{tag}><![CDATA[', line)
+                line = re.sub(f'\<\/{tag}\>', f']]></{tag}>', line)
+
+            newlines.append(line)
+
+        text = '\n'.join(newlines)
+        text = text.replace('[CDATA[ \n', '[CDATA[')
+        text = text.replace('\n]]', ']]')
+        text = unescape(text)
+
+        return text
+
+    def postprocess_xml_file(self, filePath):
+        '''Postprocess the xml file created by ElementTree:
+        Put a header on top, insert the missing CDATA tags,
+        and replace xml entities by plain text.
+        Return a message beginning with the ERROR constant in case of error.
+        '''
+
+        with open(filePath, 'r', encoding='utf-8') as f:
+            text = f.read()
+
+        text = self._format_xml(text)
+        text = f'<?xml version="1.0" encoding="utf-8"?>\n{text}'
+
+        try:
+
+            with open(filePath, 'w', encoding='utf-8') as f:
+                f.write(text)
+
+        except:
+            return f'{ERROR}Can not write "{os.path.normpath(filePath)}".'
+
+        return f'"{os.path.normpath(filePath)}" written.'
+
+
 class Yw7File(Novel):
     """yWriter 7 project file representation.
 
@@ -5322,18 +5311,18 @@ class Yw7File(Novel):
 
     def read(self):
         """Parse the yWriter xml file, fetching the Novel attributes.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Override the superclass method.
         """
 
         if self.is_locked():
-            return 'ERROR: yWriter seems to be open. Please close first.'
+            return f'{ERROR}yWriter seems to be open. Please close first.'
 
         try:
             self.tree = ET.parse(self.filePath)
 
         except:
-            return 'ERROR: Can not process "{}".'.format(os.path.normpath(self.filePath))
+            return f'{ERROR}Can not process "{os.path.normpath(self.filePath)}".'
 
         root = self.tree.getroot()
 
@@ -5723,11 +5712,11 @@ class Yw7File(Novel):
                 for scId in self.chapters[chId].srtScenes:
                     self.scenes[scId].isUnused = True
 
-        return 'SUCCESS'
+        return 'yWriter project data read in.'
 
     def merge(self, source):
         """Copy required attributes of the source object.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Override the superclass method.
         """
 
@@ -5749,7 +5738,7 @@ class Yw7File(Novel):
             message = self.read()
             # initialize data
 
-            if message.startswith('ERROR'):
+            if message.startswith(ERROR):
                 return message
 
         #--- Merge and re-order locations.
@@ -6148,12 +6137,12 @@ class Yw7File(Novel):
             sceneSplitter = Splitter()
             sceneSplitter.split_scenes(self)
 
-        return 'SUCCESS'
+        return 'yWriter project data updated or created.'
 
     def write(self):
         """Open the yWriter xml file located at filePath and 
         replace a set of attributes not being None.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Override the superclass method.
         """
 
@@ -6304,7 +6293,7 @@ class Yw7File(Novel):
             # Date/time information
 
             if (prjScn.date is not None) and (prjScn.time is not None):
-                dateTime = prjScn.date + ' ' + prjScn.time
+                dateTime = f'{prjScn.date} {prjScn.time}'
 
                 if xmlScn.find('SpecificDateTime') is not None:
                     xmlScn.find('SpecificDateTime').text = dateTime
@@ -6678,7 +6667,7 @@ class Yw7File(Novel):
         #--- Start write method.
 
         if self.is_locked():
-            return 'ERROR: yWriter seems to be open. Please close first.'
+            return f'{ERROR}yWriter seems to be open. Please close first.'
 
         TAG = 'YWRITER7'
         xmlScenes = {}
@@ -6819,7 +6808,7 @@ class Yw7File(Novel):
         self.tree = ET.ElementTree(root)
         message = self.ywTreeWriter.write_element_tree(self)
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         return self.ywPostprocessor.postprocess_xml_file(self.filePath)
@@ -6828,8 +6817,7 @@ class Yw7File(Novel):
         """Return True if a .lock file placed by yWriter exists.
         Otherwise, return False. 
         """
-        return os.path.isfile(self.filePath + '.lock')
-
+        return os.path.isfile(f'{self.filePath}.lock')
 
 from html.parser import HTMLParser
 
@@ -6839,7 +6827,7 @@ from html.parser import HTMLParser
 def read_html_file(filePath):
     """Open a html file being encoded utf-8 or ANSI.
     Return a tuple:
-    [0] = Message beginning with SUCCESS or ERROR.
+    [0] = Message beginning with the ERROR constant in case of error.
     [1] = The file content in a single string. 
     """
     try:
@@ -6852,9 +6840,9 @@ def read_html_file(filePath):
                 text = (f.read())
 
         except(FileNotFoundError):
-            return 'ERROR: "{}" not found.'.format(os.path.normpath(filePath)), None
+            return f'{ERROR}"{os.path.normpath(filePath)}" not found.', None
 
-    return 'SUCCESS', text
+    return 'HTML data read in.', text
 
 
 
@@ -6970,20 +6958,20 @@ class HtmlFile(Novel, HTMLParser):
 
     def read(self):
         """Read and parse a html file, fetching the Novel attributes.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         This is a template method for subclasses tailored to the 
         content of the respective HTML file.
         """
         result = read_html_file(self.filePath)
 
-        if result[0].startswith('ERROR'):
+        if result[0].startswith(ERROR):
             return (result[0])
 
         text = self.preprocess(result[1])
         self.feed(text)
         self.postprocess()
 
-        return 'SUCCESS'
+        return 'Created novel structure from HTML data.'
 
 
 class HtmlImport(HtmlFile):
@@ -7035,7 +7023,7 @@ class HtmlImport(HtmlFile):
                 self.scenes[self._scId] = Scene()
                 self.chapters[self._chId].srtScenes.append(self._scId)
                 self.scenes[self._scId].status = '1'
-                self.scenes[self._scId].title = 'Scene ' + str(self._scCount)
+                self.scenes[self._scId].title = f'Scene {self._scCount}'
 
         elif tag == 'div':
             self._scId = None
@@ -7061,12 +7049,10 @@ class HtmlImport(HtmlFile):
                 self.scenes[self._scId].sceneContent = ''.join(self._lines)
 
                 if self.scenes[self._scId].wordCount < self._LOW_WORDCOUNT:
-                    self.scenes[self._scId].status = Scene.STATUS.index(
-                        'Outline')
+                    self.scenes[self._scId].status = Scene.STATUS.index('Outline')
 
                 else:
-                    self.scenes[self._scId].status = Scene.STATUS.index(
-                        'Draft')
+                    self.scenes[self._scId].status = Scene.STATUS.index('Draft')
 
         elif tag in ('h1', 'h2'):
             self.chapters[self._chId].title = ''.join(self._lines)
@@ -7194,7 +7180,6 @@ class HtmlOutline(HtmlFile):
         self._lines.append(data.strip())
 
 
-
 class NewProjectFactory(FileFactory):
     """A factory class that instantiates a document object to read, 
     and a new yWriter project.
@@ -7215,15 +7200,15 @@ class NewProjectFactory(FileFactory):
             sourcePath -- string; path to the source file to convert.
 
         Return a tuple with three elements:
-        - A message string starting with 'SUCCESS' or 'ERROR'
+        - A message beginning with the ERROR constant in case of error
         - sourceFile: a Novel subclass instance
         - targetFile: a Novel subclass instance
         """
         if not self._canImport(sourcePath):
-            return 'ERROR: This document is not meant to be written back.', None, None
+            return f'{ERROR}This document is not meant to be written back.', None, None
 
         fileName, fileExtension = os.path.splitext(sourcePath)
-        targetFile = Yw7File(fileName + Yw7File.EXTENSION, **kwargs)
+        targetFile = Yw7File(f'{fileName}{Yw7File.EXTENSION}', **kwargs)
 
         if sourcePath.endswith('.html'):
 
@@ -7231,7 +7216,10 @@ class NewProjectFactory(FileFactory):
 
             result = read_html_file(sourcePath)
 
-            if result[0].startswith('SUCCESS'):
+            if result[0].startswith(ERROR):
+                return result[0], None, None
+
+            else:
 
                 if "<h3" in result[1].lower():
                     sourceFile = HtmlOutline(sourcePath, **kwargs)
@@ -7239,21 +7227,18 @@ class NewProjectFactory(FileFactory):
                 else:
                     sourceFile = HtmlImport(sourcePath, **kwargs)
 
-                return 'SUCCESS', sourceFile, targetFile
-
-            else:
-                return 'ERROR: Cannot read "{}".'.format(os.path.normpath(sourcePath)), None, None
+                return 'Source and target objects created.', sourceFile, targetFile
 
         else:
             for fileClass in self.fileClasses:
 
                 if fileClass.SUFFIX is not None:
 
-                    if sourcePath.endswith(fileClass.SUFFIX + fileClass.EXTENSION):
+                    if sourcePath.endswith(f'{fileClass.SUFFIX}{fileClass.EXTENSION}'):
                         sourceFile = fileClass(sourcePath, **kwargs)
-                        return 'SUCCESS', sourceFile, targetFile
+                        return 'Source and target objects created.', sourceFile, targetFile
 
-            return 'ERROR: File type of  "{}" not supported.'.format(os.path.normpath(sourcePath)), None, None
+            return f'{ERROR}File type of "{os.path.normpath(sourcePath)}" not supported.', None, None
 
     def _canImport(self, sourcePath):
         """Return True, if the file located at sourcepath is of an importable type.
@@ -7276,7 +7261,7 @@ class OdtExport(OdtFile):
 
     Export a non-reimportable manuscript with chapters and scenes.
     """
-    fileHeader = OdtFile.CONTENT_XML_HEADER + '''<text:p text:style-name="Title">$Title</text:p>
+    fileHeader = f'''{OdtFile.CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -7393,7 +7378,7 @@ class HtmlProof(HtmlFile):
         Overwrites HTMLparser.handle_data().
         """
         if self._prefix is not None:
-            self._lines.append(self._prefix + data)
+            self._lines.append(f'{self._prefix}{data}')
 
 
 
@@ -7788,7 +7773,7 @@ class CsvFile(Novel):
     def read(self):
         """Parse the csv file located at filePath, fetching the rows.
         Check the number of fields in each row.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Override the superclass method.
         """
         self.rows = []
@@ -7803,17 +7788,17 @@ class CsvFile(Novel):
                     # as a list of strings
 
                     if len(row) != cellsPerRow:
-                        return 'ERROR: Wrong csv structure.'
+                        return f'{ERROR}Wrong csv structure.'
 
                     self.rows.append(row)
 
         except(FileNotFoundError):
-            return 'ERROR: "{}" not found.'.format(os.path.normpath(self.filePath))
+            return f'{ERROR}"{os.path.normpath(self.filePath)}" not found.'
 
         except:
-            return 'ERROR: Can not parse "{}".'.format(os.path.normpath(self.filePath))
+            return f'{ERROR}Can not parse "{os.path.normpath(self.filePath)}".'
 
-        return 'SUCCESS'
+        return 'CSV data read in.'
 
     def get_list(self, text):
         """Split a sequence of comma separated strings into a list of strings.
@@ -7846,12 +7831,12 @@ class CsvSceneList(CsvFile):
     def read(self):
         """Parse the csv file located at filePath, 
         fetching the Scene attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Extend the superclass method.
         """
         message = super().read()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         for cells in self.rows:
@@ -7971,8 +7956,7 @@ class CsvSceneList(CsvFile):
                             self.scenes[scId].items.append(id)
                 '''
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
-
+        return 'CSV data converted to novel structure.'
 
 
 
@@ -7995,12 +7979,12 @@ class CsvPlotList(CsvFile):
     def read(self):
         """Parse the csv file located at filePath, fetching 
         the Scene attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Extend the superclass method.
         """
         message = super().read()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         tableHeader = self.rows[0]
@@ -8058,8 +8042,7 @@ class CsvPlotList(CsvFile):
                 elif tableHeader[i] != self._NOT_APPLICABLE:
                     self.scenes[scId].field4 = '1'
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
-
+        return 'CSV data converted to novel structure.'
 
 
 
@@ -8075,12 +8058,12 @@ class CsvCharList(CsvFile):
     def read(self):
         """Parse the csv file located at filePath, 
         fetching the Character attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Extend the superclass method.
         """
         message = super().read()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         for cells in self.rows:
@@ -8105,8 +8088,7 @@ class CsvCharList(CsvFile):
                 self.characters[crId].tags = self.get_list(cells[8])
                 self.characters[crId].notes = self.convert_to_yw(cells[9])
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
-
+        return 'Character data read in.'
 
 
 
@@ -8122,12 +8104,12 @@ class CsvLocList(CsvFile):
     def read(self):
         """Parse the csv file located at filePath, 
         fetching the WorldElement attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Extend the superclass method.
         """
         message = super().read()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         for cells in self.rows:
@@ -8141,7 +8123,7 @@ class CsvLocList(CsvFile):
                 self.locations[lcId].aka = cells[3]
                 self.locations[lcId].tags = self.get_list(cells[4])
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
+        return 'Location data read in.'
 
 
 
@@ -8157,12 +8139,12 @@ class CsvItemList(CsvFile):
     def read(self):
         """Parse the csv file located at filePath, 
         fetching the WorldElement attributes contained.
-        Return a message beginning with SUCCESS or ERROR.
+        Return a message beginning with the ERROR constant in case of error.
         Extend the superclass method.
         """
         message = super().read()
 
-        if message.startswith('ERROR'):
+        if message.startswith(ERROR):
             return message
 
         for cells in self.rows:
@@ -8176,7 +8158,7 @@ class CsvItemList(CsvFile):
                 self.items[itId].aka = cells[3]
                 self.items[itId].tags = self.get_list(cells[4])
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
+        return 'Item data read in.'
 
 
 class Yw7Converter(YwCnvFf):
@@ -8250,11 +8232,11 @@ class YwCnvUno(Yw7Converter):
         """
         message = self.convert(sourceFile, targetFile)
 
-        if message.startswith('SUCCESS'):
-            self.newFile = targetFile.filePath
+        if message.startswith(ERROR):
+            self.ui.set_info_how(message)
 
         else:
-            self.ui.set_info_how(message)
+            self.newFile = targetFile.filePath
 from com.sun.star.awt.MessageBoxResults import OK, YES, NO, CANCEL
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK, BUTTONS_OK_CANCEL, BUTTONS_YES_NO, BUTTONS_YES_NO_CANCEL, BUTTONS_RETRY_CANCEL, BUTTONS_ABORT_IGNORE_RETRY
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
@@ -8277,11 +8259,12 @@ class UiUno(Ui):
         """How's the converter doing?"""
         self.infoHowText = message
 
-        if message.startswith('SUCCESS'):
-            msgbox(message, type_msg=INFOBOX)
+        if message.startswith(ERROR):
+            message = message.split(ERROR, maxsplit=1)[1].strip()
+            msgbox(message, type_msg=ERRORBOX)
 
         else:
-            msgbox(message, type_msg=ERRORBOX)
+            msgbox(message, type_msg=INFOBOX)
 
 INI_FILE = 'openyw.ini'
 
@@ -8291,7 +8274,7 @@ def open_yw7(suffix, newExt):
     # Set last opened yWriter project as default (if existing).
 
     scriptLocation = os.path.dirname(__file__)
-    inifile = uno.fileUrlToSystemPath('{}/{}'.format(scriptLocation, INI_FILE))
+    inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
     defaultFile = None
     config = ConfigParser()
 
@@ -8322,9 +8305,10 @@ def open_yw7(suffix, newExt):
 
     # Store selected yWriter project as "last opened".
 
-    newFile = ywFile.replace(ywExt, suffix + newExt)
-    dirName, filename = os.path.split(newFile)
-    lockFile = '{}.~lock.{}#'.format(uno.fileUrlToSystemPath(dirName + '/'), filename)
+    newFile = ywFile.replace(ywExt, f'{suffix}{newExt}')
+    dirName, fileName = os.path.split(newFile)
+    thisDir = uno.fileUrlToSystemPath(f'{dirName}/')
+    lockFile = f'{thisDir}.~lock.{fileName}#'
 
     if not config.has_section('FILES'):
         config.add_section('FILES')
@@ -8337,7 +8321,7 @@ def open_yw7(suffix, newExt):
     # Check if import file is already open in LibreOffice:
 
     if os.path.isfile(lockFile):
-        msgbox('Please close "{}" first.'.format(filename), 'Import from yWriter', type_msg=ERRORBOX)
+        msgbox(f'Please close "{fileName}" first.', 'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
@@ -8542,8 +8526,7 @@ def export_yw():
         targetPath = uno.fileUrlToSystemPath(csvPath)
 
     else:
-        msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
-               '" not supported.', type_msg=ERRORBOX)
+        msgbox(f'{ERROR}File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')
