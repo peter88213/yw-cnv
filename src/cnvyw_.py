@@ -42,7 +42,7 @@ def open_yw7(suffix, newExt):
     # Set last opened yWriter project as default (if existing).
 
     scriptLocation = os.path.dirname(__file__)
-    inifile = uno.fileUrlToSystemPath('{}/{}'.format(scriptLocation, INI_FILE))
+    inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
     defaultFile = None
     config = ConfigParser()
 

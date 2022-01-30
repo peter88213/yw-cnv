@@ -4,6 +4,7 @@ Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
+from pywriter.pywriter_globals import ERROR
 from pywriter.converter.yw7_converter import Yw7Converter
 
 
@@ -21,8 +22,8 @@ class YwCnvUno(Yw7Converter):
         """
         message = self.convert(sourceFile, targetFile)
 
-        if message.startswith('SUCCESS'):
-            self.newFile = targetFile.filePath
+        if message.startswith(ERROR):
+            self.ui.set_info_how(message)
 
         else:
-            self.ui.set_info_how(message)
+            self.newFile = targetFile.filePath
