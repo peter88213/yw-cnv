@@ -28,8 +28,8 @@ class UiUno(Ui):
         """How's the converter doing?"""
         self.infoHowText = message
 
-        if message.startswith('SUCCESS'):
-            msgbox(message, type_msg=INFOBOX)
+        if message.startswith('ERROR'):
+            msgbox(message, type_msg=ERRORBOX)
 
         else:
-            msgbox(message, type_msg=ERRORBOX)
+            msgbox(message, type_msg=INFOBOX)
