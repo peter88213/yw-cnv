@@ -11,8 +11,8 @@ import inliner
 
 SRC = '../src/'
 BUILD = '../test/'
-SOURCE_FILE = 'cnvyw_.py'
-TARGET_FILE = BUILD + 'cnvyw.py'
+SOURCE_FILE = f'{SRC}cnvyw_.py'
+TARGET_FILE = f'{BUILD}cnvyw.py'
 
 
 def main():
