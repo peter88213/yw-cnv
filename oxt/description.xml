@@ -16,7 +16,7 @@
       </simple-license>
    </registration>
    <update-information>
-      <src xlink:href="https://raw.githubusercontent.com/peter88213/yw-cnv/master/yw-cnv-L.update.xml" />
+      <src xlink:href="https://raw.githubusercontent.com/peter88213/yw-cnv/main/yw-cnv-L.update.xml" />
    </update-information>
    <dependencies>
       <l:LibreOffice-minimal-version value="5.4" dep:name="LibreOffice 5.4 minimum, or more recent" />
