@@ -24,7 +24,7 @@ __Please note:__ _This extension can not be installed on OpenOffice. An OpenOffi
 
 ## Download and install {#download}
 
-[Download the latest release (version 1.13.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/master/dist/yw-cnv-L-1.13.0.oxt)
+[Download the latest release (version 1.13.1)](https://raw.githubusercontent.com/peter88213/yw-cnv/master/dist/yw-cnv-L-1.13.1.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).
