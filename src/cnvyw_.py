@@ -295,6 +295,7 @@ def export_yw():
     else:
         msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
                '" not supported.', type_msg=ERRORBOX)
+        return
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')

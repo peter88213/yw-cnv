@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.12.3 Bugfix release
+
+Avoid exception on trying to re-import an empty document.
+
+Based on PyWriter v4.0.4
+
 ### v1.12.2 Bugfix release
 
 - Update bugfixed library

@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.12.2
+Version 1.12.3
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1181,9 +1181,9 @@ class FileExport(Novel):
             if backedUp:
                 os.replace(self.filePath + '.bak', self.filePath)
 
-            return 'ERROR: Cannot write "{}".'.format(os.path.normpath(self.filePath))
+            return 'ERROR: Cannot write "' + os.path.normpath(self.filePath) + '".'
 
-        return 'SUCCESS: "{}" written.'.format(os.path.normpath(self.filePath))
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
 
     def get_string(self, elements):
         """Return a string which is the concatenation of the 
@@ -1253,7 +1253,7 @@ class OdfFile(FileExport):
             os.mkdir(self.tempDir + '/META-INF')
 
         except:
-            return 'ERROR: Cannot create "{}".'.format(os.path.normpath(self.tempDir))
+            return 'ERROR: Cannot create "' + os.path.normpath(self.tempDir) + '".'
 
         # Generate mimetype.
 
@@ -1369,13 +1369,13 @@ class OdfFile(FileExport):
                 os.replace(self.filePath + '.bak', self.filePath)
 
             os.chdir(workdir)
-            return 'ERROR: Cannot generate "{}".'.format(os.path.normpath(self.filePath))
+            return 'ERROR: Cannot generate "' + os.path.normpath(self.filePath) + '".'
 
         # Remove temporary data.
 
         os.chdir(workdir)
         self.tear_down()
-        return 'SUCCESS: "{}" written.'.format(os.path.normpath(self.filePath))
+        return 'SUCCESS: "' + os.path.normpath(self.filePath) + '" written.'
 
 
 class OdtFile(OdfFile):
@@ -4222,10 +4222,10 @@ class OdtCharacters(OdtFile):
         characterMapping = OdtFile.get_characterMapping(self, crId)
 
         if self.characters[crId].aka:
-            characterMapping['AKA'] = ' ("{}")'.format(self.characters[crId].aka)
+            characterMapping['AKA'] = ' ("' + self.characters[crId].aka + '")'
 
         if self.characters[crId].fullName:
-            characterMapping['FullName'] = '/{}'.format(self.characters[crId].fullName)
+            characterMapping['FullName'] = '/' + self.characters[crId].fullName
 
         return characterMapping
 
@@ -4257,7 +4257,7 @@ class OdtItems(OdtFile):
         itemMapping = super().get_itemMapping(itId)
 
         if self.items[itId].aka:
-            itemMapping['AKA'] = ' ("{}")'.format(self.items[itId].aka)
+            itemMapping['AKA'] = ' ("' + self.items[itId].aka + '")'
 
         return itemMapping
 
@@ -4289,7 +4289,7 @@ class OdtLocations(OdtFile):
         locationMapping = super().get_locationMapping(lcId)
 
         if self.locations[lcId].aka:
-            locationMapping['AKA'] = ' ("{}")'.format(self.locations[lcId].aka)
+            locationMapping['AKA'] = ' ("' + self.locations[lcId].aka + '")'
 
         return locationMapping
 
@@ -4431,13 +4431,13 @@ class YwCnv():
         # Initial error handling.
 
         if sourceFile.filePath is None:
-            return 'ERROR: Source "{}" is not of the supported type.'.format(os.path.normpath(sourceFile.filePath))
+            return 'ERROR: Source "' + os.path.normpath(sourceFile.filePath) + '" is not of the supported type.'
 
         if not os.path.isfile(sourceFile.filePath):
-            return 'ERROR: "{}" not found.'.format(os.path.normpath(sourceFile.filePath))
+            return 'ERROR: "' + os.path.normpath(sourceFile.filePath) + '" not found.'
 
         if targetFile.filePath is None:
-            return 'ERROR: Target "{}" is not of the supported type.'.format(os.path.normpath(targetFile.filePath))
+            return 'ERROR: Target "' + os.path.normpath(targetFile.filePath) + '" is not of the supported type.'
 
         if os.path.isfile(targetFile.filePath) and not self.confirm_overwrite(targetFile.filePath):
             return 'ERROR: Action canceled by user.'
@@ -4507,8 +4507,8 @@ class YwCnvUi(YwCnv):
 
         # Send specific information about the conversion to the UI.
 
-        self.ui.set_info_what('Input: {} "{}"\nOutput: {} "{}"'.format(sourceFile.DESCRIPTION, os.path.normpath(
-            sourceFile.filePath), targetFile.DESCRIPTION, os.path.normpath(targetFile.filePath)))
+        self.ui.set_info_what('Input: ' + sourceFile.DESCRIPTION + ' "' + os.path.normpath(
+            sourceFile.filePath) + '"\nOutput: ' + targetFile.DESCRIPTION + ' "' + os.path.normpath(targetFile.filePath) + '"')
 
         # Convert sourceFile into targetFile.
 
@@ -4548,10 +4548,10 @@ class YwCnvUi(YwCnv):
         # Send specific information about the conversion to the UI.
 
         self.ui.set_info_what(
-            'Create a yWriter project file from {}\nNew project: "{}"'.format(sourceFile.DESCRIPTION, os.path.normpath(targetFile.filePath)))
+            'Create a yWriter project file from ' + sourceFile.DESCRIPTION + '\nNew project: "' + os.path.normpath(targetFile.filePath) + '"')
 
         if os.path.isfile(targetFile.filePath):
-            self.ui.set_info_how('ERROR: "{}" already exists.'.format(os.path.normpath(targetFile.filePath)))
+            self.ui.set_info_how('ERROR: "' + os.path.normpath(targetFile.filePath) + '" already exists.')
 
         else:
             # Convert sourceFile into targetFile.
@@ -4590,8 +4590,8 @@ class YwCnvUi(YwCnv):
 
         # Send specific information about the conversion to the UI.
 
-        self.ui.set_info_what('Input: {} "{}"\nOutput: {} "{}"'.format(sourceFile.DESCRIPTION, os.path.normpath(
-            sourceFile.filePath), targetFile.DESCRIPTION, os.path.normpath(targetFile.filePath)))
+        self.ui.set_info_what('Input: ' + sourceFile.DESCRIPTION + ' "' + os.path.normpath(
+            sourceFile.filePath) + '"\nOutput: ' + targetFile.DESCRIPTION + ' "' + os.path.normpath(targetFile.filePath) + '"')
 
         # Convert sourceFile into targetFile.
 
@@ -4615,7 +4615,7 @@ class YwCnvUi(YwCnv):
 
     def confirm_overwrite(self, filePath):
         """Return boolean permission to overwrite the target file, overriding the superclass method."""
-        return self.ui.ask_yes_no('Overwrite existing file "{}"?'.format(os.path.normpath(filePath)))
+        return self.ui.ask_yes_no('Overwrite existing file "' + os.path.normpath(filePath) + '"?')
 
     def delete_tempfile(self, filePath):
         """Delete filePath if it is a temporary file no longer needed."""
@@ -4690,7 +4690,7 @@ class ExportSourceFactory(FileFactory):
                 sourceFile = fileClass(sourcePath, **kwargs)
                 return 'SUCCESS', sourceFile, None
 
-        return 'ERROR: File type of "{}" not supported.'.format(os.path.normpath(sourcePath)), None, None
+        return 'ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None
 
 
 
@@ -4729,7 +4729,7 @@ class ExportTargetFactory(FileFactory):
                     fileName + suffix + fileClass.EXTENSION, **kwargs)
                 return 'SUCCESS', None, targetFile
 
-        return 'ERROR: File type of "{}" not supported.'.format(os.path.normpath(sourcePath)), None, None
+        return 'ERROR: File type of "' + os.path.normpath(sourcePath) + '" not supported.', None, None
 
 
 class ImportSourceFactory(FileFactory):
@@ -4855,7 +4855,7 @@ class YwCnvFf(YwCnvUi):
         self.newFile = None
 
         if not os.path.isfile(sourcePath):
-            self.ui.set_info_how('ERROR: File "{}" not found.'.format(os.path.normpath(sourcePath)))
+            self.ui.set_info_how('ERROR: File "' + os.path.normpath(sourcePath) + '" not found.')
             return
 
         message, sourceFile, dummy = self.exportSourceFactory.make_file_objects(sourcePath, **kwargs)
@@ -5032,7 +5032,7 @@ class Yw7TreeWriter():
             if backedUp:
                 os.replace(ywProject.filePath + '.bak', ywProject.filePath)
 
-            return 'ERROR: Cannot write "{}".'.format(os.path.normpath(ywProject.filePath))
+            return 'ERROR: Cannot write "' + os.path.normpath(ywProject.filePath) + '".'
 
         return 'SUCCESS'
 
@@ -5099,9 +5099,9 @@ class Yw7Postprocessor():
                 f.write(text)
 
         except:
-            return 'ERROR: Can not write "{}".'.format(os.path.normpath(filePath))
+            return 'ERROR: Can not write "' + os.path.normpath(filePath) + '".'
 
-        return 'SUCCESS: "{}" written.'.format(os.path.normpath(filePath))
+        return 'SUCCESS: "' + os.path.normpath(filePath) + '" written.'
 
 
 
@@ -5333,7 +5333,7 @@ class Yw7File(Novel):
             self.tree = ET.parse(self.filePath)
 
         except:
-            return 'ERROR: Can not process "{}".'.format(os.path.normpath(self.filePath))
+            return 'ERROR: Can not process "' + os.path.normpath(self.filePath) + '".'
 
         root = self.tree.getroot()
 
@@ -5723,7 +5723,7 @@ class Yw7File(Novel):
                 for scId in self.chapters[chId].srtScenes:
                     self.scenes[scId].isUnused = True
 
-        return 'SUCCESS'
+        return 'SUCCESS: ' + str(len(self.scenes)) + ' Scenes read from "' + os.path.normpath(self.filePath) + '".'
 
     def merge(self, source):
         """Copy required attributes of the source object.
@@ -6844,7 +6844,7 @@ def read_html_file(filePath):
     """
     try:
         with open(filePath, 'r', encoding='utf-8') as f:
-            text = f.read()
+            text = (f.read())
     except:
         # HTML files exported by a word processor may be ANSI encoded.
         try:
@@ -6852,9 +6852,9 @@ def read_html_file(filePath):
                 text = (f.read())
 
         except(FileNotFoundError):
-            return 'ERROR: "{}" not found.'.format(os.path.normpath(filePath)), None
+            return ('ERROR: "' + os.path.normpath(filePath) + '" not found.', None)
 
-    return 'SUCCESS', text
+    return ('SUCCESS', text)
 
 
 
@@ -7242,7 +7242,7 @@ class NewProjectFactory(FileFactory):
                 return 'SUCCESS', sourceFile, targetFile
 
             else:
-                return 'ERROR: Cannot read "{}".'.format(os.path.normpath(sourcePath)), None, None
+                return 'ERROR: Cannot read "' + os.path.normpath(sourcePath) + '".', None, None
 
         else:
             for fileClass in self.fileClasses:
@@ -7253,7 +7253,7 @@ class NewProjectFactory(FileFactory):
                         sourceFile = fileClass(sourcePath, **kwargs)
                         return 'SUCCESS', sourceFile, targetFile
 
-            return 'ERROR: File type of  "{}" not supported.'.format(os.path.normpath(sourcePath)), None, None
+            return 'ERROR: File type of  "' + os.path.normpath(sourcePath) + '" not supported.', None, None
 
     def _canImport(self, sourcePath):
         """Return True, if the file located at sourcepath is of an importable type.
@@ -7808,10 +7808,10 @@ class CsvFile(Novel):
                     self.rows.append(row)
 
         except(FileNotFoundError):
-            return 'ERROR: "{}" not found.'.format(os.path.normpath(self.filePath))
+            return 'ERROR: "' + os.path.normpath(self.filePath) + '" not found.'
 
         except:
-            return 'ERROR: Can not parse "{}".'.format(os.path.normpath(self.filePath))
+            return 'ERROR: Can not parse "' + os.path.normpath(self.filePath) + '".'
 
         return 'SUCCESS'
 
@@ -7971,7 +7971,7 @@ class CsvSceneList(CsvFile):
                             self.scenes[scId].items.append(id)
                 '''
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
+        return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
 
 
@@ -8058,7 +8058,7 @@ class CsvPlotList(CsvFile):
                 elif tableHeader[i] != self._NOT_APPLICABLE:
                     self.scenes[scId].field4 = '1'
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
+        return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
 
 
@@ -8105,7 +8105,7 @@ class CsvCharList(CsvFile):
                 self.characters[crId].tags = self.get_list(cells[8])
                 self.characters[crId].notes = self.convert_to_yw(cells[9])
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
+        return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
 
 
@@ -8141,7 +8141,7 @@ class CsvLocList(CsvFile):
                 self.locations[lcId].aka = cells[3]
                 self.locations[lcId].tags = self.get_list(cells[4])
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
+        return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
 
 
@@ -8176,7 +8176,7 @@ class CsvItemList(CsvFile):
                 self.items[itId].aka = cells[3]
                 self.items[itId].tags = self.get_list(cells[4])
 
-        return 'SUCCESS: Data read from "{}".'.format(os.path.normpath(self.filePath))
+        return 'SUCCESS: Data read from "' + os.path.normpath(self.filePath) + '".'
 
 
 class Yw7Converter(YwCnvFf):
@@ -8544,6 +8544,7 @@ def export_yw():
     else:
         msgbox('ERROR: File type of "' + os.path.normpath(documentPath) +
                '" not supported.', type_msg=ERRORBOX)
+        return
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')
