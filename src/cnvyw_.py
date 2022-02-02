@@ -68,8 +68,7 @@ def open_yw7(suffix, newExt):
     ywExt = os.path.splitext(sourcePath)[1]
 
     if not ywExt in ['.yw7']:
-        msgbox('Please choose a yWriter 7 project.',
-               'Import from yWriter', type_msg=ERRORBOX)
+        msgbox('Please choose a yWriter 7 project.', 'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
@@ -295,7 +294,8 @@ def export_yw():
         targetPath = uno.fileUrlToSystemPath(csvPath)
 
     else:
-        msgbox(f'{ERROR}File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
+        msgbox(f'File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
+        return
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')

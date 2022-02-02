@@ -33,8 +33,7 @@ def msgbox(message, title='yWriter import/export', buttons=BUTTONS_OK, type_msg=
     """
     toolkit = create_instance('com.sun.star.awt.Toolkit')
     parent = toolkit.getDesktopWindow()
-    mb = toolkit.createMessageBox(
-        parent, type_msg, buttons, title, str(message))
+    mb = toolkit.createMessageBox(parent, type_msg, buttons, title, str(message))
     return mb.execute()
 
 

@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.13.1
+Version 1.13.2
 
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -4318,8 +4318,7 @@ def msgbox(message, title='yWriter import/export', buttons=BUTTONS_OK, type_msg=
     """
     toolkit = create_instance('com.sun.star.awt.Toolkit')
     parent = toolkit.getDesktopWindow()
-    mb = toolkit.createMessageBox(
-        parent, type_msg, buttons, title, str(message))
+    mb = toolkit.createMessageBox(parent, type_msg, buttons, title, str(message))
     return mb.execute()
 
 
@@ -8305,8 +8304,7 @@ def open_yw7(suffix, newExt):
     ywExt = os.path.splitext(sourcePath)[1]
 
     if not ywExt in ['.yw7']:
-        msgbox('Please choose a yWriter 7 project.',
-               'Import from yWriter', type_msg=ERRORBOX)
+        msgbox('Please choose a yWriter 7 project.', 'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
@@ -8532,7 +8530,8 @@ def export_yw():
         targetPath = uno.fileUrlToSystemPath(csvPath)
 
     else:
-        msgbox(f'{ERROR}File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
+        msgbox(f'File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
+        return
 
     converter = YwCnvUno()
     converter.ui = UiUno('Export to yWriter')
