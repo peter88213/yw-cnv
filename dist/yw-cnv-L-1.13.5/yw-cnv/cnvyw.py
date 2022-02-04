@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.13.4
+Version 1.13.5
 Requires Python 3.6+
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -440,7 +440,7 @@ class Novel():
         """
         return text
 
-    def _convert_from_yw(self, text):
+    def _convert_from_yw(self, text, quick=False):
         """Return text, converted from yw7 markup to target format.
         This is a stub to be overridden by subclass methods.
         """
@@ -578,13 +578,13 @@ class FileExport(Novel):
         """Return a mapping dictionary for the project section. 
         """
         projectTemplateMapping = dict(
-            Title=self.title,
+            Title=self._convert_from_yw(self.title, True),
             Desc=self._convert_from_yw(self.desc),
-            AuthorName=self.author,
-            FieldTitle1=self.fieldTitle1,
-            FieldTitle2=self.fieldTitle2,
-            FieldTitle3=self.fieldTitle3,
-            FieldTitle4=self.fieldTitle4,
+            AuthorName=self._convert_from_yw(self.author, True),
+            FieldTitle1=self._convert_from_yw(self.fieldTitle1, True),
+            FieldTitle2=self._convert_from_yw(self.fieldTitle2, True),
+            FieldTitle3=self._convert_from_yw(self.fieldTitle3, True),
+            FieldTitle4=self._convert_from_yw(self.fieldTitle4, True),
         )
         return projectTemplateMapping
 
@@ -597,9 +597,9 @@ class FileExport(Novel):
         chapterMapping = dict(
             ID=chId,
             ChapterNumber=chapterNumber,
-            Title=self.chapters[chId].get_title(),
+            Title=self._convert_from_yw(self.chapters[chId].get_title(), True),
             Desc=self._convert_from_yw(self.chapters[chId].desc),
-            ProjectName=self.projectName,
+            ProjectName=self._convert_from_yw(self.projectName, True),
             ProjectPath=self.projectPath,
         )
         return chapterMapping
@@ -751,7 +751,7 @@ class FileExport(Novel):
         sceneMapping = dict(
             ID=scId,
             SceneNumber=sceneNumber,
-            Title=self.scenes[scId].title,
+            Title=self._convert_from_yw(self.scenes[scId].title, True),
             Desc=self._convert_from_yw(self.scenes[scId].desc),
             WordCount=str(self.scenes[scId].wordCount),
             WordsTotal=wordsTotal,
@@ -759,10 +759,10 @@ class FileExport(Novel):
             LettersTotal=lettersTotal,
             Status=Scene.STATUS[self.scenes[scId].status],
             SceneContent=self._convert_from_yw(self.scenes[scId].sceneContent),
-            FieldTitle1=self.fieldTitle1,
-            FieldTitle2=self.fieldTitle2,
-            FieldTitle3=self.fieldTitle3,
-            FieldTitle4=self.fieldTitle4,
+            FieldTitle1=self._convert_from_yw(self.fieldTitle1, True),
+            FieldTitle2=self._convert_from_yw(self.fieldTitle2, True),
+            FieldTitle3=self._convert_from_yw(self.fieldTitle3, True),
+            FieldTitle4=self._convert_from_yw(self.fieldTitle4, True),
             Field1=self.scenes[scId].field1,
             Field2=self.scenes[scId].field2,
             Field3=self.scenes[scId].field3,
@@ -782,14 +782,14 @@ class FileExport(Novel):
             Goal=self._convert_from_yw(self.scenes[scId].goal),
             Conflict=self._convert_from_yw(self.scenes[scId].conflict),
             Outcome=self._convert_from_yw(self.scenes[scId].outcome),
-            Tags=tags,
+            Tags=self._convert_from_yw(tags, True),
             Image=self.scenes[scId].image,
             Characters=sceneChars,
             Viewpoint=viewpointChar,
             Locations=sceneLocs,
             Items=sceneItems,
             Notes=self._convert_from_yw(self.scenes[scId].sceneNotes),
-            ProjectName=self.projectName,
+            ProjectName=self._convert_from_yw(self.projectName, True),
             ProjectPath=self.projectPath,
         )
 
@@ -813,17 +813,17 @@ class FileExport(Novel):
 
         characterMapping = dict(
             ID=crId,
-            Title=self.characters[crId].title,
+            Title=self._convert_from_yw(self.characters[crId].title, True),
             Desc=self._convert_from_yw(self.characters[crId].desc),
-            Tags=tags,
+            Tags=self._convert_from_yw(tags),
             Image=self.characters[crId].image,
-            AKA=FileExport._convert_from_yw(self, self.characters[crId].aka),
+            AKA=self._convert_from_yw(self.characters[crId].aka, True),
             Notes=self._convert_from_yw(self.characters[crId].notes),
             Bio=self._convert_from_yw(self.characters[crId].bio),
             Goals=self._convert_from_yw(self.characters[crId].goals),
-            FullName=FileExport._convert_from_yw(self, self.characters[crId].fullName),
+            FullName=self._convert_from_yw(self.characters[crId].fullName, True),
             Status=characterStatus,
-            ProjectName=self.projectName,
+            ProjectName=self._convert_from_yw(self.projectName),
             ProjectPath=self.projectPath,
         )
         return characterMapping
@@ -840,12 +840,12 @@ class FileExport(Novel):
 
         locationMapping = dict(
             ID=lcId,
-            Title=self.locations[lcId].title,
+            Title=self._convert_from_yw(self.locations[lcId].title, True),
             Desc=self._convert_from_yw(self.locations[lcId].desc),
-            Tags=tags,
+            Tags=self._convert_from_yw(tags, True),
             Image=self.locations[lcId].image,
-            AKA=FileExport._convert_from_yw(self, self.locations[lcId].aka),
-            ProjectName=self.projectName,
+            AKA=self._convert_from_yw(self.locations[lcId].aka, True),
+            ProjectName=self._convert_from_yw(self.projectName, True),
             ProjectPath=self.projectPath,
         )
         return locationMapping
@@ -862,12 +862,12 @@ class FileExport(Novel):
 
         itemMapping = dict(
             ID=itId,
-            Title=self.items[itId].title,
+            Title=self._convert_from_yw(self.items[itId].title, True),
             Desc=self._convert_from_yw(self.items[itId].desc),
-            Tags=tags,
+            Tags=self._convert_from_yw(tags, True),
             Image=self.items[itId].image,
-            AKA=FileExport._convert_from_yw(self, self.items[itId].aka),
-            ProjectName=self.projectName,
+            AKA=self._convert_from_yw(self.items[itId].aka, True),
+            ProjectName=self._convert_from_yw(self.projectName, True),
             ProjectPath=self.projectPath,
         )
         return itemMapping
@@ -1192,7 +1192,7 @@ class FileExport(Novel):
         text = (', ').join(elements)
         return text
 
-    def _convert_from_yw(self, text):
+    def _convert_from_yw(self, text, quick=False):
         """Convert yw7 markup to target format.
         This is a stub to be overridden by subclass methods.
         """
@@ -2506,23 +2506,31 @@ class OdtFile(OdfFile):
 
         return 'ODT structure generated.'
 
-    def _convert_from_yw(self, text):
+    def _convert_from_yw(self, text, quick=False):
         """Convert yw7 raw markup to odt. Return an xml string.
-        """
+        """        
+        if quick:            
+            # Just clean up a one-liner without sophisticated formatting.
+            
+            try:
+                return text.replace('&', '&amp;').replace('>', '&gt;').replace('<', '&lt;')
+            
+            except AttributeError:
+                return ''
 
         ODT_REPLACEMENTS = [
-            ['&', '&amp;'],
-            ['>', '&gt;'],
-            ['<', '&lt;'],
-            ['\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'],
-            ['\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'],
-            ['\r', '\n'],
-            ['[i]', '<text:span text:style-name="Emphasis">'],
-            ['[/i]', '</text:span>'],
-            ['[b]', '<text:span text:style-name="Strong_20_Emphasis">'],
-            ['[/b]', '</text:span>'],
-            ['/*', f'<office:annotation><dc:creator>{self.author}</dc:creator><text:p>'],
-            ['*/', '</text:p></office:annotation>'],
+            ('&', '&amp;'),
+            ('>', '&gt;'),
+            ('<', '&lt;'),
+            ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+            ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
+            ('\r', '\n'),
+            ('[i]', '<text:span text:style-name="Emphasis">'),
+            ('[/i]', '</text:span>'),
+            ('[b]', '<text:span text:style-name="Strong_20_Emphasis">'),
+            ('[/b]', '</text:span>'),
+            ('/*', f'<office:annotation><dc:creator>{self.author}</dc:creator><text:p>'),
+            ('*/', '</text:p></office:annotation>'),
         ]
 
         try:
@@ -3503,17 +3511,17 @@ class OdsFile(OdfFile):
 '''
     _MIMETYPE = 'application/vnd.oasis.opendocument.spreadsheet'
 
-    def _convert_from_yw(self, text):
+    def _convert_from_yw(self, text, quick=False):
         """Convert yw7 raw markup to ods. Return an xml string.
         """
 
         ODS_REPLACEMENTS = [
-            ['&', '&amp;'],  # must be first!
-            ['"', '&quot;'],
-            ["'", '&apos;'],
-            ['>', '&gt;'],
-            ['<', '&lt;'],
-            ['\n', '</text:p>\n<text:p>'],
+            ('&', '&amp;'),  # must be first!
+            ('"', '&quot;'),
+            ("'", '&apos;'),
+            ('>', '&gt;'),
+            ('<', '&lt;'),
+            ('\n', '</text:p>\n<text:p>'),
         ]
 
         try:
