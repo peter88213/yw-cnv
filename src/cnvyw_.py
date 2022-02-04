@@ -65,7 +65,7 @@ def open_yw7(suffix, newExt):
         return
 
     sourcePath = uno.fileUrlToSystemPath(ywFile)
-    ywExt = os.path.splitext(sourcePath)[1]
+    __, ywExt = os.path.splitext(sourcePath)
 
     if not ywExt in ['.yw7']:
         msgbox('Please choose a yWriter 7 project.', 'Import from yWriter', type_msg=ERRORBOX)
