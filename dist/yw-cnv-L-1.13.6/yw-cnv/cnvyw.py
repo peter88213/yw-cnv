@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.13.5
+Version 1.13.6
 Requires Python 3.6+
 Copyright (c) 2021 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -551,7 +551,7 @@ class FileExport(Novel):
         else:
             self.fieldTitle4 = 'Field 4'
 
-        if source.srtChapters != []:
+        if source.srtChapters:
             self.srtChapters = source.srtChapters
 
         if source.scenes is not None:
@@ -560,15 +560,15 @@ class FileExport(Novel):
         if source.chapters is not None:
             self.chapters = source.chapters
 
-        if source.srtCharacters != []:
+        if source.srtCharacters:
             self.srtCharacters = source.srtCharacters
             self.characters = source.characters
 
-        if source.srtLocations != []:
+        if source.srtLocations:
             self.srtLocations = source.srtLocations
             self.locations = source.locations
 
-        if source.srtItems != []:
+        if source.srtItems:
             self.srtItems = source.srtItems
             self.items = source.items
 
@@ -899,7 +899,7 @@ class FileExport(Novel):
 
             if self.scenes[scId].isTodoScene:
 
-                if self._todoSceneTemplate != '':
+                if self._todoSceneTemplate:
                     template = Template(self._todoSceneTemplate)
 
                 else:
@@ -908,7 +908,7 @@ class FileExport(Novel):
             elif self.scenes[scId].isNotesScene:
                 # Scene is "Notes" type.
 
-                if self._notesSceneTemplate != '':
+                if self._notesSceneTemplate:
                     template = Template(self._notesSceneTemplate)
 
                 else:
@@ -916,7 +916,7 @@ class FileExport(Novel):
 
             elif self.scenes[scId].isUnused or self.chapters[chId].isUnused:
 
-                if self._unusedSceneTemplate != '':
+                if self._unusedSceneTemplate:
                     template = Template(self._unusedSceneTemplate)
 
                 else:
@@ -925,7 +925,7 @@ class FileExport(Novel):
             elif self.chapters[chId].oldType == 1:
                 # Scene is "Info" type (old file format).
 
-                if self._notesSceneTemplate != '':
+                if self._notesSceneTemplate:
                     template = Template(self._notesSceneTemplate)
 
                 else:
@@ -933,7 +933,7 @@ class FileExport(Novel):
 
             elif self.scenes[scId].doNotExport or doNotExport:
 
-                if self._notExportedSceneTemplate != '':
+                if self._notExportedSceneTemplate:
                     template = Template(self._notExportedSceneTemplate)
 
                 else:
@@ -947,13 +947,13 @@ class FileExport(Novel):
 
                 template = Template(self._sceneTemplate)
 
-                if not firstSceneInChapter and self.scenes[scId].appendToPrev and self._appendedSceneTemplate != '':
+                if not firstSceneInChapter and self.scenes[scId].appendToPrev and self._appendedSceneTemplate:
                     template = Template(self._appendedSceneTemplate)
 
             if not (firstSceneInChapter or self.scenes[scId].appendToPrev):
                 lines.append(self._sceneDivider)
 
-            if firstSceneInChapter and self._firstSceneTemplate != '':
+            if firstSceneInChapter and self._firstSceneTemplate:
                 template = Template(self._firstSceneTemplate)
 
             lines.append(template.safe_substitute(self._get_sceneMapping(
@@ -1001,33 +1001,33 @@ class FileExport(Novel):
             if self.chapters[chId].chType == 2:
                 # Chapter is "ToDo" type (implies "unused").
 
-                if self._todoChapterTemplate != '':
+                if self._todoChapterTemplate:
                     template = Template(self._todoChapterTemplate)
 
             elif self.chapters[chId].chType == 1:
                 # Chapter is "Notes" type (implies "unused").
 
-                if self._notesChapterTemplate != '':
+                if self._notesChapterTemplate:
                     template = Template(self._notesChapterTemplate)
 
             elif self.chapters[chId].isUnused:
                 # Chapter is "really" unused.
 
-                if self._unusedChapterTemplate != '':
+                if self._unusedChapterTemplate:
                     template = Template(self._unusedChapterTemplate)
 
             elif self.chapters[chId].oldType == 1:
                 # Chapter is "Info" type (old file format).
 
-                if self._notesChapterTemplate != '':
+                if self._notesChapterTemplate:
                     template = Template(self._notesChapterTemplate)
 
             elif doNotExport:
 
-                if self._notExportedChapterTemplate != '':
+                if self._notExportedChapterTemplate:
                     template = Template(self._notExportedChapterTemplate)
 
-            elif self.chapters[chId].chLevel == 1 and self._partTemplate != '':
+            elif self.chapters[chId].chLevel == 1 and self._partTemplate:
                 template = Template(self._partTemplate)
 
             else:
@@ -1050,30 +1050,30 @@ class FileExport(Novel):
 
             if self.chapters[chId].chType == 2:
 
-                if self._todoChapterEndTemplate != '':
+                if self._todoChapterEndTemplate:
                     template = Template(self._todoChapterEndTemplate)
 
             elif self.chapters[chId].chType == 1:
 
-                if self._notesChapterEndTemplate != '':
+                if self._notesChapterEndTemplate:
                     template = Template(self._notesChapterEndTemplate)
 
             elif self.chapters[chId].isUnused:
 
-                if self._unusedChapterEndTemplate != '':
+                if self._unusedChapterEndTemplate:
                     template = Template(self._unusedChapterEndTemplate)
 
             elif self.chapters[chId].oldType == 1:
 
-                if self._notesChapterEndTemplate != '':
+                if self._notesChapterEndTemplate:
                     template = Template(self._notesChapterEndTemplate)
 
             elif doNotExport:
 
-                if self._notExportedChapterEndTemplate != '':
+                if self._notExportedChapterEndTemplate:
                     template = Template(self._notExportedChapterEndTemplate)
 
-            elif self._chapterEndTemplate != '':
+            elif self._chapterEndTemplate:
                 template = Template(self._chapterEndTemplate)
 
             if template is not None:
@@ -2573,8 +2573,8 @@ class OdtFile(OdfFile):
 
             text = '\n'.join(newlines).rstrip()
 
-            for r in ODT_REPLACEMENTS:
-                text = text.replace(r[0], r[1])
+            for yw, od in ODT_REPLACEMENTS:
+                text = text.replace(yw, od)
 
             # Remove highlighting, alignment,
             # strikethrough, and underline tags.
@@ -3106,7 +3106,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 
         for tag in self._xr.scnPerTag:
 
-            if self._xr.scnPerTag[tag] != []:
+            if self._xr.scnPerTag[tag]:
                 lines.append(headerTemplate.safe_substitute(
                     self._get_tagMapping(tag)))
                 lines.extend(self._get_scenes(self._xr.scnPerTag[tag]))
@@ -3123,7 +3123,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 
         for crId in self._xr.scnPerChr:
 
-            if self._xr.scnPerChr[crId] != []:
+            if self._xr.scnPerChr[crId]:
                 lines.append(headerTemplate.safe_substitute(
                     self._get_characterMapping(crId)))
                 lines.extend(self._get_scenes(self._xr.scnPerChr[crId]))
@@ -3140,7 +3140,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 
         for lcId in self._xr.scnPerLoc:
 
-            if self._xr.scnPerLoc[lcId] != []:
+            if self._xr.scnPerLoc[lcId]:
                 lines.append(headerTemplate.safe_substitute(
                     self._get_locationMapping(lcId)))
                 lines.extend(self._get_scenes(self._xr.scnPerLoc[lcId]))
@@ -3157,7 +3157,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 
         for itId in self._xr.scnPerItm:
 
-            if self._xr.scnPerItm[itId] != []:
+            if self._xr.scnPerItm[itId]:
                 lines.append(headerTemplate.safe_substitute(
                     self._get_itemMapping(itId)))
                 lines.extend(self._get_scenes(self._xr.scnPerItm[itId]))
@@ -3174,7 +3174,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 
         for tag in self._xr.chrPerTag:
 
-            if self._xr.chrPerTag[tag] != []:
+            if self._xr.chrPerTag[tag]:
                 lines.append(headerTemplate.safe_substitute(
                     self._get_tagMapping(tag)))
 
@@ -3214,7 +3214,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 
         for tag in self._xr.itmPerTag:
 
-            if self._xr.itmPerTag[tag] != []:
+            if self._xr.itmPerTag[tag]:
                 lines.append(headerTemplate.safe_substitute(
                     self._get_tagMapping(tag)))
 
@@ -3527,8 +3527,8 @@ class OdsFile(OdfFile):
         try:
             text = text.rstrip()
 
-            for r in ODS_REPLACEMENTS:
-                text = text.replace(r[0], r[1])
+            for yw, od in ODS_REPLACEMENTS:
+                text = text.replace(yw, od)
 
         except AttributeError:
             text = ''
@@ -4690,7 +4690,7 @@ class ExportSourceFactory(FileFactory):
         - sourceFile: a YwFile subclass instance, or None in case of error
         - targetFile: None
         """
-        fileName, fileExtension = os.path.splitext(sourcePath)
+        __, fileExtension = os.path.splitext(sourcePath)
 
         for fileClass in self._fileClasses:
 
@@ -4723,7 +4723,7 @@ class ExportTargetFactory(FileFactory):
         - sourceFile: None
         - targetFile: a FileExport subclass instance, or None in case of error 
         """
-        fileName, fileExtension = os.path.splitext(sourcePath)
+        fileName, __ = os.path.splitext(sourcePath)
         suffix = kwargs['suffix']
 
         for fileClass in self._fileClasses:
@@ -4792,7 +4792,7 @@ class ImportTargetFactory(FileFactory):
         - targetFile: a YwFile subclass instance, or None in case of error
 
         """
-        fileName, fileExtension = os.path.splitext(sourcePath)
+        fileName, __ = os.path.splitext(sourcePath)
         sourceSuffix = kwargs['suffix']
 
         if sourceSuffix:
@@ -4905,6 +4905,7 @@ class YwCnvFf(YwCnvUi):
             else:
                 self.export_from_yw(sourceFile, targetFile)
 
+from html import unescape
 import xml.etree.ElementTree as ET
 
 
@@ -5163,7 +5164,7 @@ def indent(elem, level=0):
     """
     i = f'\n{level * "  "}'
 
-    if len(elem):
+    if elem:
 
         if not elem.text or not elem.text.strip():
             elem.text = f'{i}  '
@@ -5182,104 +5183,6 @@ def indent(elem, level=0):
             elem.tail = i
 
 
-
-class Yw7TreeWriter():
-    """Write utf-8 encoded yWriter project file.
-
-    Public methods: 
-        write_element_tree(ywProject) -- Write back the xml element tree to a yw7 file.   
-    """
-
-    def write_element_tree(self, ywProject):
-        """Write back the xml element tree to a yWriter xml file located at filePath.
-        Return a message beginning with the ERROR constant in case of error.
-        """
-
-        if os.path.isfile(ywProject.filePath):
-            os.replace(ywProject.filePath, f'{ywProject.filePath}.bak')
-            backedUp = True
-
-        else:
-            backedUp = False
-
-        try:
-            ywProject.tree.write(ywProject.filePath, xml_declaration=False, encoding='utf-8')
-
-        except:
-
-            if backedUp:
-                os.replace(f'{ywProject.filePath}.bak', ywProject.filePath)
-
-            return f'{ERROR}Cannot write "{os.path.normpath(ywProject.filePath)}".'
-
-        return 'yWriter XML tree written.'
-from html import unescape
-
-
-
-class Yw7Postprocessor():
-    """Postprocess utf-8 encoded yWriter project.
-    Insert the missing CDATA tags, replace xml entities by plain text.
-
-    Public methods:
-        postprocess_xml_file(filePath) -- Postprocess the xml files created by ElementTree.        
-    """
-
-    _CDATA_TAGS = ['Title', 'AuthorName', 'Bio', 'Desc',
-                   'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
-                   'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
-                   'AKA', 'ImageFile', 'FullName', 'Goals',
-                   'Notes', 'RTFFile', 'SceneContent',
-                   'Outcome', 'Goal', 'Conflict']
-    # Names of xml elements containing CDATA.
-    # ElementTree.write omits CDATA tags, so they have to be inserted afterwards.
-
-    def _format_xml(self, text):
-        '''Postprocess the xml file created by ElementTree:
-           Insert the missing CDATA tags, replace xml entities by plain text.
-        '''
-        lines = text.split('\n')
-        newlines = []
-
-        for line in lines:
-
-            for tag in self._CDATA_TAGS:
-                line = re.sub(f'\<{tag}\>', f'<{tag}><![CDATA[', line)
-                line = re.sub(f'\<\/{tag}\>', f']]></{tag}>', line)
-
-            newlines.append(line)
-
-        text = '\n'.join(newlines)
-        text = text.replace('[CDATA[ \n', '[CDATA[')
-        text = text.replace('\n]]', ']]')
-        text = unescape(text)
-
-        return text
-
-    def postprocess_xml_file(self, filePath):
-        '''Postprocess the xml file created by ElementTree:
-        Put a header on top, insert the missing CDATA tags,
-        and replace xml entities by plain text.
-        Return a message beginning with the ERROR constant in case of error.
-        '''
-
-        with open(filePath, 'r', encoding='utf-8') as f:
-            text = f.read()
-
-        text = self._format_xml(text)
-        text = f'<?xml version="1.0" encoding="utf-8"?>\n{text}'
-
-        try:
-
-            with open(filePath, 'w', encoding='utf-8') as f:
-                f.write(text)
-
-        except:
-            return f'{ERROR}Can not write "{os.path.normpath(filePath)}".'
-
-        return f'"{os.path.normpath(filePath)}" written.'
-
-
 class Yw7File(Novel):
     """yWriter 7 project file representation.
 
@@ -5290,38 +5193,27 @@ class Yw7File(Novel):
         is_locked() -- Check whether the yw7 file is locked by yWriter.
 
     Additional attributes:
-        ywTreeWriter -- strategy class to write yWriter project files.
-        ywPostprocessor -- strategy class to postprocess yWriter project files.
         tree -- xml element tree of the yWriter project
     """
 
     DESCRIPTION = 'yWriter 7 project'
     EXTENSION = '.yw7'
 
+    _CDATA_TAGS = ['Title', 'AuthorName', 'Bio', 'Desc',
+                   'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
+                   'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
+                   'AKA', 'ImageFile', 'FullName', 'Goals',
+                   'Notes', 'RTFFile', 'SceneContent',
+                   'Outcome', 'Goal', 'Conflict']
+    # Names of xml elements containing CDATA.
+    # ElementTree.write omits CDATA tags, so they have to be inserted afterwards.
+
     def __init__(self, filePath, **kwargs):
         """Initialize instance variables:
-        Extend the superclass constructor by adding.
+        Extend the superclass constructor.
         """
         super().__init__(filePath)
-
-        self.ywTreeWriter = Yw7TreeWriter()
-        self.ywPostprocessor = Yw7Postprocessor()
         self.tree = None
-
-    def _strip_spaces(self, lines):
-        """Local helper method.
-
-        Positional argument:
-            lines -- list of strings
-
-        Return lines with leading and trailing spaces removed.
-        """
-        stripped = []
-
-        for line in lines:
-            stripped.append(line.strip())
-
-        return stripped
 
     def read(self):
         """Parse the yWriter xml file, fetching the Novel attributes.
@@ -5757,7 +5649,7 @@ class Yw7File(Novel):
 
         #--- Merge and re-order locations.
 
-        if source.srtLocations != []:
+        if source.srtLocations:
             self.srtLocations = source.srtLocations
             temploc = self.locations
             self.locations = {}
@@ -5806,7 +5698,7 @@ class Yw7File(Novel):
 
         #--- Merge and re-order items.
 
-        if source.srtItems != []:
+        if source.srtItems:
             self.srtItems = source.srtItems
             tempitm = self.items
             self.items = {}
@@ -5855,7 +5747,7 @@ class Yw7File(Novel):
 
         #--- Merge and re-order characters.
 
-        if source.srtCharacters != []:
+        if source.srtCharacters:
             self.srtCharacters = source.srtCharacters
             tempchr = self.characters
             self.characters = {}
@@ -6820,18 +6712,103 @@ class Yw7File(Novel):
                 pass
 
         self.tree = ET.ElementTree(root)
-        message = self.ywTreeWriter.write_element_tree(self)
+        message = self._write_element_tree(self)
 
         if message.startswith(ERROR):
             return message
 
-        return self.ywPostprocessor.postprocess_xml_file(self.filePath)
+        return self._postprocess_xml_file(self.filePath)
 
     def is_locked(self):
         """Return True if a .lock file placed by yWriter exists.
         Otherwise, return False. 
         """
         return os.path.isfile(f'{self.filePath}.lock')
+    
+    def _write_element_tree(self, ywProject):
+        """Write back the xml element tree to a yWriter xml file located at filePath.
+        Return a message beginning with the ERROR constant in case of error.
+        """
+
+        if os.path.isfile(ywProject.filePath):
+            os.replace(ywProject.filePath, f'{ywProject.filePath}.bak')
+            backedUp = True
+
+        else:
+            backedUp = False
+
+        try:
+            ywProject.tree.write(ywProject.filePath, xml_declaration=False, encoding='utf-8')
+
+        except:
+
+            if backedUp:
+                os.replace(f'{ywProject.filePath}.bak', ywProject.filePath)
+
+            return f'{ERROR}Cannot write "{os.path.normpath(ywProject.filePath)}".'
+
+        return 'yWriter XML tree written.'
+
+    def _format_xml(self, text):
+        '''Postprocess the xml file created by ElementTree:
+           Insert the missing CDATA tags, replace xml entities by plain text.
+        '''
+        lines = text.split('\n')
+        newlines = []
+
+        for line in lines:
+
+            for tag in self._CDATA_TAGS:
+                line = re.sub(f'\<{tag}\>', f'<{tag}><![CDATA[', line)
+                line = re.sub(f'\<\/{tag}\>', f']]></{tag}>', line)
+
+            newlines.append(line)
+
+        text = '\n'.join(newlines)
+        text = text.replace('[CDATA[ \n', '[CDATA[')
+        text = text.replace('\n]]', ']]')
+        text = unescape(text)
+
+        return text
+
+    def _postprocess_xml_file(self, filePath):
+        '''Postprocess the xml file created by ElementTree:
+        Put a header on top, insert the missing CDATA tags,
+        and replace xml entities by plain text.
+        Return a message beginning with the ERROR constant in case of error.
+        '''
+
+        with open(filePath, 'r', encoding='utf-8') as f:
+            text = f.read()
+
+        text = self._format_xml(text)
+        text = f'<?xml version="1.0" encoding="utf-8"?>\n{text}'
+
+        try:
+
+            with open(filePath, 'w', encoding='utf-8') as f:
+                f.write(text)
+
+        except:
+            return f'{ERROR}Can not write "{os.path.normpath(filePath)}".'
+
+        return f'"{os.path.normpath(filePath)}" written.'
+
+    def _strip_spaces(self, lines):
+        """Local helper method.
+
+        Positional argument:
+            lines -- list of strings
+
+        Return lines with leading and trailing spaces removed.
+        """
+        stripped = []
+
+        for line in lines:
+            stripped.append(line.strip())
+
+        return stripped
+
 
 from html.parser import HTMLParser
 
@@ -6923,11 +6900,6 @@ class HtmlFile(Novel, HTMLParser):
         text = text.replace('[/i][i]', '')
         text = text.replace('[/b][b]', '')
 
-        # Convert author's comments
-
-        text = text.replace('<!--', '/*')
-        text = text.replace('-->', '*/')
-
         return text
 
     def _preprocess(self, text):
@@ -6970,6 +6942,12 @@ class HtmlFile(Novel, HTMLParser):
                     self.chapters[self._chId] = Chapter()
                     self.chapters[self._chId].srtScenes = []
                     self.srtChapters.append(self._chId)
+
+    def handle_comment(self, data):
+        
+        if self._scId is not None: 
+            self._lines.append(f'{self._COMMENT_START}{data}{self._COMMENT_END}')
+            
 
     def read(self):
         """Read and parse a html file, fetching the Novel attributes.
@@ -7088,7 +7066,7 @@ class HtmlImport(HtmlFile):
 
             # Convert prefixed comment into scene title.
 
-            if self._lines == [] and data.startswith(self._COMMENT_START):
+            if not self._lines and data.startswith(self._COMMENT_START):
 
                 try:
                     scTitle, scContent = data.split(
@@ -7222,7 +7200,7 @@ class NewProjectFactory(FileFactory):
         if not self._canImport(sourcePath):
             return f'{ERROR}This document is not meant to be written back.', None, None
 
-        fileName, fileExtension = os.path.splitext(sourcePath)
+        fileName, __ = os.path.splitext(sourcePath)
         targetFile = Yw7File(f'{fileName}{Yw7File.EXTENSION}', **kwargs)
 
         if sourcePath.endswith('.html'):
@@ -7259,7 +7237,7 @@ class NewProjectFactory(FileFactory):
         """Return True, if the file located at sourcepath is of an importable type.
         Otherwise, return False.
         """
-        fileName, fileExtension = os.path.splitext(sourcePath)
+        fileName, __ = os.path.splitext(sourcePath)
 
         for suffix in self.DO_NOT_IMPORT:
 
@@ -7425,6 +7403,25 @@ class HtmlManuscript(HtmlFile):
             elif tag == 'h2':
                 self._lines.append(Splitter.CHAPTER_SEPARATOR)
 
+    def handle_comment(self, data):
+        
+        if self._scId is not None: 
+            
+            if not self._lines:
+                # Comment is at scene start
+                
+                if self._SC_TITLE_BRACKET in data:
+                    # Comment is marked as a scene title
+                    try:   
+                        self.scenes[self._scId].title = data.split(self._SC_TITLE_BRACKET)[1].strip()
+                    except:
+                        pass
+                    
+                    return
+
+            self._lines.append(f'{self._COMMENT_START}{data.strip()}{self._COMMENT_END}')
+            
+
     def handle_endtag(self, tag):
         """Recognize the end of the scene section and save data.
         Overwrites HTMLparser.handle_endtag().
@@ -7433,22 +7430,6 @@ class HtmlManuscript(HtmlFile):
 
             if tag == 'div':
                 text = ''.join(self._lines)
-
-                if text.startswith(self._COMMENT_START):
-
-                    try:
-                        scTitle, scContent = text.split(
-                            sep=self._COMMENT_END, maxsplit=1)
-
-                        if self._SC_TITLE_BRACKET in scTitle:
-                            self.scenes[self._scId].title = scTitle.split(
-                                self._SC_TITLE_BRACKET)[1].strip()
-
-                        text = scContent
-
-                    except:
-                        pass
-
                 self.scenes[self._scId].sceneContent = text
                 self._lines = []
                 self._scId = None
@@ -7471,8 +7452,11 @@ class HtmlManuscript(HtmlFile):
         """Collect data within scene sections.
         Override HTMLparser.handle_data().
         """
+       
         if self._scId is not None:
-            self._lines.append(data.strip())
+            
+            if not data.isspace():
+                self._lines.append(data)
 
         elif self._chId is not None:
 
@@ -8316,7 +8300,7 @@ def open_yw7(suffix, newExt):
         return
 
     sourcePath = uno.fileUrlToSystemPath(ywFile)
-    ywExt = os.path.splitext(sourcePath)[1]
+    __, ywExt = os.path.splitext(sourcePath)
 
     if not ywExt in ['.yw7']:
         msgbox('Please choose a yWriter 7 project.', 'Import from yWriter', type_msg=ERRORBOX)

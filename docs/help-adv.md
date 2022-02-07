@@ -44,7 +44,7 @@ seen in the Navigator). File name suffix is `_manuscript`.
 You can write back the scene contents and the chapter/part headings to 
 the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
 command. Comments right at the beginning of the scenes are written back 
-as scene titles.
+as scene titles if surrounded by `~`.
 
 [Top of page](#top)
 
