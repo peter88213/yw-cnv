@@ -15,15 +15,15 @@ class YwCnvUno(Yw7Converter):
     - No message in case of success when converting from yWriter.
     """
 
-    def export_from_yw(self, sourceFile, targetFile):
+    def export_from_yw(self, source, target):
         """Method for conversion from yw to other.
         Override the superclass method.
         Show only error messages.
         """
-        message = self.convert(sourceFile, targetFile)
+        message = self.convert(source, target)
 
         if message.startswith(ERROR):
             self.ui.set_info_how(message)
 
         else:
-            self.newFile = targetFile.filePath
+            self.newFile = target.filePath
