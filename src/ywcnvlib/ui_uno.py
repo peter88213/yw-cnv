@@ -10,7 +10,7 @@ from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERR
 
 from pywriter.pywriter_globals import ERROR
 from pywriter.ui.ui import Ui
-from libreoffice.uno_tools import *
+from ywcnvlib.uno_tools import *
 
 
 class UiUno(Ui):

@@ -1,4 +1,4 @@
-"""The libreoffice package - Link yw-cnv to the UNO API.
+"""The ywcnvlib package - Link yw-cnv to the UNO API.
 
 Modules:
 

@@ -31,9 +31,9 @@ import uno
 from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
 from com.sun.star.beans import PropertyValue
 
-from libreoffice.uno_tools import *
-from libreoffice.yw_cnv_uno import YwCnvUno
-from libreoffice.ui_uno import UiUno
+from ywcnvlib.uno_tools import *
+from ywcnvlib.yw_cnv_uno import YwCnvUno
+from ywcnvlib.ui_uno import UiUno
 
 INI_FILE = 'openyw.ini'
 
