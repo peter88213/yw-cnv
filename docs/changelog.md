@@ -6,7 +6,8 @@
 
 ### v1.14.0 optional release
 
-- Rework the messages. 
+- Fix a bug where "To do" chapters cause an exception.
+- Rework the user interface. 
 - Refactor the code.
 
 Based on PyWriter v5.0.0
