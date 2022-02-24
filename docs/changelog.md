@@ -4,7 +4,7 @@
 
 ## Changelog
 
-### v1.14.0 optional release
+### v1.14.0
 
 - Fix a bug where "To do" chapters cause an exception.
 - Rework the user interface. 
