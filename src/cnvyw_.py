@@ -34,6 +34,12 @@ INI_FILE = 'openyw.ini'
 
 
 def open_yw7(suffix, newExt):
+    """Open a yWriter project, create a new document and load it.
+    
+    Positional arguments:
+        suffix -- str: filename suffix of the document to create.
+        newExt -- str: file extension of the document to create.   
+    """
 
     # Set last opened yWriter project as default (if existing).
     scriptLocation = os.path.dirname(__file__)
@@ -190,8 +196,7 @@ def get_itemlist():
 
 
 def export_yw():
-    '''Export the document to ayWriter 7 project.
-    '''
+    """Export the currently loaded document to a yWriter 7 project."""
 
     # Get document's filename
     document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
