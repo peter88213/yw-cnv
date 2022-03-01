@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.14.1
+
+- Refactor and reformat the code.
+
+Based on PyWriter v5.0.2
+
 ### v1.14.0
 
 - Fix a bug where "To do" chapters cause an exception.

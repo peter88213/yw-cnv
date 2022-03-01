@@ -2,15 +2,15 @@
 
 Version @release
 Requires Python 3.6+
-Copyright (c) 2021 Peter Triesberger
+Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
+import uno
+from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
+from com.sun.star.beans import PropertyValue
 import os
-
 from configparser import ConfigParser
-
-from pywriter.pywriter_globals import ERROR
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
@@ -26,11 +26,6 @@ from pywriter.ods.ods_itemlist import OdsItemList
 from pywriter.odt.odt_characters import OdtCharacters
 from pywriter.odt.odt_items import OdtItems
 from pywriter.odt.odt_locations import OdtLocations
-
-import uno
-from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERRORBOX, QUERYBOX
-from com.sun.star.beans import PropertyValue
-
 from ywcnvlib.uno_tools import *
 from ywcnvlib.yw_cnv_uno import YwCnvUno
 from ywcnvlib.ui_uno import UiUno
@@ -41,69 +36,55 @@ INI_FILE = 'openyw.ini'
 def open_yw7(suffix, newExt):
 
     # Set last opened yWriter project as default (if existing).
-
     scriptLocation = os.path.dirname(__file__)
     inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
     defaultFile = None
     config = ConfigParser()
-
     try:
         config.read(inifile)
         ywLastOpen = config.get('FILES', 'yw_last_open')
-
         if os.path.isfile(ywLastOpen):
             defaultFile = uno.systemPathToFileUrl(ywLastOpen)
-
     except:
         pass
 
     # Ask for yWriter 7 project to open:
-
     ywFile = FilePicker(path=defaultFile)
-
     if ywFile is None:
         return
 
     sourcePath = uno.fileUrlToSystemPath(ywFile)
     __, ywExt = os.path.splitext(sourcePath)
-
     if not ywExt in ['.yw7']:
         msgbox('Please choose a yWriter 7 project.', 'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
-
     newFile = ywFile.replace(ywExt, f'{suffix}{newExt}')
     dirName, fileName = os.path.split(newFile)
     thisDir = uno.fileUrlToSystemPath(f'{dirName}/')
     lockFile = f'{thisDir}.~lock.{fileName}#'
-
     if not config.has_section('FILES'):
         config.add_section('FILES')
-
     config.set('FILES', 'yw_last_open', uno.fileUrlToSystemPath(ywFile))
-
     with open(inifile, 'w') as f:
         config.write(f)
 
     # Check if import file is already open in LibreOffice:
-
     if os.path.isfile(lockFile):
         msgbox(f'Please close "{fileName}" first.', 'Import from yWriter', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
-
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
     converter = YwCnvUno()
     converter.ui = UiUno('Import from yWriter')
     kwargs = {'suffix': suffix}
     converter.run(sourcePath, **kwargs)
-
     if converter.newFile:
         desktop = XSCRIPTCONTEXT.getDesktop()
-        doc = desktop.loadComponentFromURL(newFile, "_blank", 0, ())
+        desktop.loadComponentFromURL(newFile, "_blank", 0, ())
 
 
 def import_yw():
@@ -213,7 +194,6 @@ def export_yw():
     '''
 
     # Get document's filename
-
     document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
     # document   = ThisComponent.CurrentController.Frame
 
@@ -236,7 +216,6 @@ def export_yw():
         htmlPath = documentPath.replace('.odt', '.html')
 
         # Save document in HTML format
-
         args1[0].Name = 'URL'
         # args1(0).Name = "URL"
         args1[0].Value = htmlPath
@@ -249,7 +228,6 @@ def export_yw():
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         # Save document in OpenDocument format
-
         args1[0].Value = odtPath
         # args1(0).Value = odtPath
         args1[1].Value = 'writer8'
@@ -258,15 +236,12 @@ def export_yw():
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         targetPath = uno.fileUrlToSystemPath(htmlPath)
-
     elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
         odsPath = documentPath.replace('.csv', '.ods')
         csvPath = documentPath.replace('.ods', '.csv')
 
         # Save document in csv format
-
         args1.append(PropertyValue())
-
         args1[0].Name = 'URL'
         # args1(0).Name = "URL"
         args1[0].Value = csvPath
@@ -283,7 +258,6 @@ def export_yw():
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         # Save document in OpenDocument format
-
         args1[0].Value = odsPath
         # args1(0).Value = odsPath
         args1[1].Value = 'calc8'
@@ -292,7 +266,6 @@ def export_yw():
         # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
 
         targetPath = uno.fileUrlToSystemPath(csvPath)
-
     else:
         msgbox(f'File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
         return
@@ -309,25 +282,19 @@ def to_blank_lines():
     Replace the three-lines "* * *" scene dividers with single blank lines. 
     Change the style of the scene-dividing paragraphs from  _Heading 4_  to  _Heading 5_.
     """
-
     pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
     # pStyles = ThisComponent.StyleFamilies.getByName("ParagraphStyles")
-
     document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
     # document   = ThisComponent.CurrentController.Frame
-
     ctx = XSCRIPTCONTEXT.getComponentContext()
     smgr = ctx.getServiceManager()
     dispatcher = smgr.createInstanceWithContext(
         "com.sun.star.frame.DispatchHelper", ctx)
     # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
     args1 = []
-
-    for i in range(19):
+    for __ in range(19):
         args1.append(PropertyValue())
     # dim args1(18) as new com.sun.star.beans.PropertyValue
-
     args1[0].Name = "SearchItem.StyleFamily"
     args1[0].Value = 2
     args1[1].Name = "SearchItem.CellType"
@@ -366,15 +333,11 @@ def to_blank_lines():
     args1[17].Value = 3
     args1[18].Name = "Quiet"
     args1[18].Value = True
-
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-
     args2 = []
-
-    for i in range(19):
+    for __ in range(19):
         args2.append(PropertyValue())
     # dim args2(18) as new com.sun.star.beans.PropertyValue
-
     args2[0].Name = "SearchItem.StyleFamily"
     args2[0].Value = 2
     args2[1].Name = "SearchItem.CellType"
@@ -413,15 +376,11 @@ def to_blank_lines():
     args2[17].Value = 1
     args2[18].Name = "Quiet"
     args2[18].Value = True
-
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args2)
-
     args3 = []
-
-    for i in range(19):
+    for __ in range(19):
         args3.append(PropertyValue())
     # dim args3(18) as new com.sun.star.beans.PropertyValue
-
     args3[0].Name = "SearchItem.StyleFamily"
     args3[0].Value = 2
     args3[1].Name = "SearchItem.CellType"
@@ -460,7 +419,6 @@ def to_blank_lines():
     args3[17].Value = 3
     args3[18].Name = "Quiet"
     args3[18].Value = True
-
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args3)
 
 
@@ -470,27 +428,20 @@ def indent_paragraphs():
     Select all paragraphs that start with '> ' 
     and change their paragraph style to _Text body indent_.
     """
-
     pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
     # pStyles = ThisComponent.StyleFamilies.getByName("ParagraphStyles")
-
     document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
     # document   = ThisComponent.CurrentController.Frame
-
     ctx = XSCRIPTCONTEXT.getComponentContext()
     smgr = ctx.getServiceManager()
-    dispatcher = smgr.createInstanceWithContext(
-        "com.sun.star.frame.DispatchHelper", ctx)
+    dispatcher = smgr.createInstanceWithContext("com.sun.star.frame.DispatchHelper", ctx)
     # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
+    
     # Assign all paragraphs beginning with '> ' the 'Text body indent' style.
-
     args1 = []
-
-    for i in range(19):
+    for __ in range(19):
         args1.append(PropertyValue())
     # dim args1(18) as new com.sun.star.beans.PropertyValue
-
     args1[0].Name = "SearchItem.StyleFamily"
     args1[0].Value = 2
     args1[1].Name = "SearchItem.CellType"
@@ -529,24 +480,17 @@ def indent_paragraphs():
     args1[17].Value = 1
     args1[18].Name = "Quiet"
     args1[18].Value = True
-
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
-
     args2 = []
-
-    for i in range(2):
+    for __ in range(2):
         args2.append(PropertyValue())
     # dim args2(18) as new com.sun.star.beans.PropertyValue
-
     args2[0].Name = "Template"
     args2[0].Value = pStyles.getByName("Text body indent").DisplayName
     args2[1].Name = "Family"
     args2[1].Value = 2
-
     dispatcher.executeDispatch(document, ".uno:StyleApply", "", 0, args2)
 
     # Delete the markup.
-
     args1[17].Value = 3
-
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)

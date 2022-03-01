@@ -60,15 +60,11 @@ def FilePicker(path=None, mode=0):
         .getServiceManager()
         .createInstance
     )
-
     filepicker = createUnoService("com.sun.star.ui.dialogs.OfficeFilePicker")
-
     if path:
         filepicker.setDisplayDirectory(path)
-
     filepicker.initialize((mode,))
     filepicker.appendFilter("yWriter 7 Files (.yw7)", "*.yw7")
-
     if filepicker.execute():
         return filepicker.getFiles()[0]
 
