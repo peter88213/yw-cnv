@@ -38,6 +38,10 @@ __Please note:__ _This extension can not be installed on OpenOffice. An OpenOffi
 
 This extension supports the update mechanism of LibreOffice. You can let the Extension Manager check for updates from time to time to get the latest release.
 
+## Software development
+
+[Project class library overview](lib)
+
 ## Credits
 
 [OpenOffice Extension

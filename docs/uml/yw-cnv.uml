@@ -3,7 +3,19 @@
   <packageImport xmi:type="uml:PackageImport" xmi:id="_cbsOkL8tEeuEecdtmvW-dw">
     <importedPackage xmi:type="uml:Model" href="pathmap://UML_LIBRARIES/UMLPrimitiveTypes.library.uml#_0"/>
   </packageImport>
-  <packagedElement xmi:type="uml:Package" xmi:id="_N2EEEPywEeqEK6KdQRY5bw" name="libreoffice">
+  <packagedElement xmi:type="uml:Package" xmi:id="_N2EEEPywEeqEK6KdQRY5bw" name="ywcnvlib">
+    <ownedComment xmi:type="uml:Comment" xmi:id="_ioM3QJ4gEeyF8YP9gUP_SQ" annotatedElement="_dNHGkPywEeqEK6KdQRY5bw">
+      <body>UNO user interface facade&#xD;
+providing access to the&#xD;
+UNO messagebox</body>
+    </ownedComment>
+    <ownedComment xmi:type="uml:Comment" xmi:id="_zcOOEJ4gEeyF8YP9gUP_SQ" annotatedElement="_dNHGkPywEeqEK6KdQRY5bw _p2jIMPxAEeq5hMee5ike2Q">
+      <body>Strategy classes used &#xD;
+by the cnvyw.py macro</body>
+    </ownedComment>
+    <ownedComment xmi:type="uml:Comment" xmi:id="_CM9egJ4hEeyF8YP9gUP_SQ" annotatedElement="_p2jIMPxAEeq5hMee5ike2Q">
+      <body>Show only error messages</body>
+    </ownedComment>
     <packagedElement xmi:type="uml:Class" xmi:id="_p2jIMPxAEeq5hMee5ike2Q" name="YwCnvUno">
       <generalization xmi:type="uml:Generalization" xmi:id="_2oVYoPxAEeq5hMee5ike2Q">
         <general xmi:type="uml:Class" href="../PyWriter/PyWriter.uml#_gJJ3IL4iEeuITv7MyBA5yA"/>
