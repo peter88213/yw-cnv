@@ -32,6 +32,11 @@ For more information, see the [project homepage](https://peter88213.github.io/yw
 - [Apache Ant](https://ant.apache.org/) for building the application script
 - [pandoc](https://pandoc.org/) for building the HTML help pages
 
+### Documentation tools
+
+- [Eclipse Papyrus](https://www.eclipse.org/papyrus/) Modeling environment for creating Use Case and Class diagrams
+
+
 ## Credits
 
 - [OpenOffice Extension Compiler](https://wiki.openoffice.org/wiki/Extensions_Packager#Extension_Compiler) by Bernard Marcelly.
