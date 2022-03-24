@@ -19,7 +19,7 @@ from pywriter.odt.odt_partdesc import OdtPartDesc
 from pywriter.odt.odt_brief_synopsis import OdtBriefSynopsis
 from pywriter.odt.odt_xref import OdtXref
 from pywriter.ods.ods_scenelist import OdsSceneList
-from pywriter.ods.ods_plotlist import OdsPlotList
+from pywriter.odt.odt_notes import OdtNotes
 from pywriter.ods.ods_charlist import OdsCharList
 from pywriter.ods.ods_loclist import OdsLocList
 from pywriter.ods.ods_itemlist import OdsItemList
@@ -171,10 +171,10 @@ def get_scenelist():
     open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
 
 
-def get_plotlist():
-    '''Import a plot list from yWriter 7 to a Calc document.
+def get_notes():
+    '''Import Notes chapters from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdsPlotList.SUFFIX, OdsPlotList.EXTENSION)
+    open_yw7(OdtNotes.SUFFIX, OdtNotes.EXTENSION)
 
 
 def get_charlist():

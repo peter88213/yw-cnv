@@ -351,10 +351,10 @@
                                     <value/>
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
-                                    <value xml:lang="en">Plot list</value>
+                                    <value xml:lang="en">Notes chapters</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
-                                    <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_plotlist?language=Python&amp;location=user:uno_packages</value>
+                                    <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_notes?language=Python&amp;location=user:uno_packages</value>
                                  </prop>
                                  <prop oor:name="Target" oor:type="xs:string">
                                     <value>_self</value>
@@ -774,10 +774,10 @@
                            <value/>
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
-                           <value xml:lang="en">Plot list</value>
+                           <value xml:lang="en">Notes chapters</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
-                           <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_plotlist?language=Python&amp;location=user:uno_packages</value>
+                           <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_notes?language=Python&amp;location=user:uno_packages</value>
                         </prop>
                         <prop oor:name="Target" oor:type="xs:string">
                            <value>_self</value>

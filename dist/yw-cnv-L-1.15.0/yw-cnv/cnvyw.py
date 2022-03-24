@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.14.2
+Version 1.15.0
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -566,6 +566,7 @@ class FileExport(Novel):
     _fileHeader = ''
     _partTemplate = ''
     _chapterTemplate = ''
+    _notesPartTemplate = ''
     _notesChapterTemplate = ''
     _todoChapterTemplate = ''
     _unusedChapterTemplate = ''
@@ -642,39 +643,39 @@ class FileExport(Novel):
             self.fieldTitle1 = source.fieldTitle1
         else:
             self.fieldTitle1 = 'Field 1'
-        
+
         if source.fieldTitle2 is not None:
             self.fieldTitle2 = source.fieldTitle2
         else:
             self.fieldTitle2 = 'Field 2'
-        
+
         if source.fieldTitle3 is not None:
             self.fieldTitle3 = source.fieldTitle3
         else:
             self.fieldTitle3 = 'Field 3'
-        
+
         if source.fieldTitle4 is not None:
             self.fieldTitle4 = source.fieldTitle4
         else:
             self.fieldTitle4 = 'Field 4'
-        
+
         if source.srtChapters:
             self.srtChapters = source.srtChapters
-        
+
         if source.scenes is not None:
             self.scenes = source.scenes
-        
+
         if source.chapters is not None:
             self.chapters = source.chapters
-        
+
         if source.srtCharacters:
             self.srtCharacters = source.srtCharacters
             self.characters = source.characters
-        
+
         if source.srtLocations:
             self.srtLocations = source.srtLocations
             self.locations = source.locations
-        
+
         if source.srtItems:
             self.srtItems = source.srtItems
             self.items = source.items
@@ -708,7 +709,7 @@ class FileExport(Novel):
         """
         if chapterNumber == 0:
             chapterNumber = ''
-        
+
         chapterMapping = dict(
             ID=chId,
             ChapterNumber=chapterNumber,
@@ -730,7 +731,7 @@ class FileExport(Novel):
         
         This is a template method that can be extended or overridden by subclasses.
         """
-        
+
         #--- Create a comma separated tag list.
         if sceneNumber == 0:
             sceneNumber = ''
@@ -833,7 +834,7 @@ class FileExport(Novel):
             lastsMinutes = ''
             minutes = ''
         duration = f'{days}{hours}{minutes}'
-        
+
         sceneMapping = dict(
             ID=scId,
             SceneNumber=sceneNumber,
@@ -896,7 +897,7 @@ class FileExport(Novel):
             characterStatus = Character.MAJOR_MARKER
         else:
             characterStatus = Character.MINOR_MARKER
-        
+
         characterMapping = dict(
             ID=crId,
             Title=self._convert_from_yw(self.characters[crId].title, True),
@@ -926,7 +927,7 @@ class FileExport(Novel):
             tags = self._get_string(self.locations[lcId].tags)
         else:
             tags = ''
-        
+
         locationMapping = dict(
             ID=lcId,
             Title=self._convert_from_yw(self.locations[lcId].title, True),
@@ -951,7 +952,7 @@ class FileExport(Novel):
             tags = self._get_string(self.items[itId].tags)
         else:
             tags = ''
-        
+
         itemMapping = dict(
             ID=itId,
             Title=self._convert_from_yw(self.items[itId].title, True),
@@ -1096,7 +1097,11 @@ class FileExport(Novel):
                     template = Template(self._todoChapterTemplate)
             elif self.chapters[chId].chType == 1:
                 # Chapter is "Notes" type (implies "unused").
-                if self._notesChapterTemplate:
+                if self.chapters[chId].chLevel == 1:
+                    # Chapter is "Notes Part" type.
+                    if self._notesPartTemplate:
+                        template = Template(self._notesPartTemplate)
+                elif self._notesChapterTemplate:
                     template = Template(self._notesChapterTemplate)
             elif self.chapters[chId].isUnused:
                 # Chapter is "really" unused.
@@ -1228,10 +1233,10 @@ class FileExport(Novel):
         if os.path.isfile(self.filePath):
             try:
                 os.replace(self.filePath, f'{self.filePath}.bak')
-                backedUp = True            
+                backedUp = True
             except:
                 return f'{ERROR}Cannot overwrite "{os.path.normpath(self.filePath)}".'
-            
+
         try:
             with open(self.filePath, 'w', encoding='utf-8') as f:
                 f.write(text)
@@ -2991,220 +2996,87 @@ class OdsSceneList(OdsFile):
         if self.scenes[scId].field4 == '1':
             sceneMapping['Field4'] = ''
         return sceneMapping
+from string import Template
 
 
-class OdsPlotList(OdsFile):
-    """ODS plot list representation with plot related metadata."""
-    DESCRIPTION = 'Plot list'
-    SUFFIX = '_plotlist'
-    _STORYLINE_MARKER = 'story'
-    # Field names containing this string (case insensitive)
-    # are associated to storylines
-    _NOT_APPLICABLE = 'N/A'
-    # Scene field column header for fields not being assigned to a storyline
+class OdtNotes(OdtManuscript):
+    """ODT "Notes" chapters file representation.
 
-    # Column width:
-    # co1 2.000cm
-    # co2 3.000cm
-    # co3 4.000cm
-    # co4 8.000cm
+    Export a manuscript with invisibly tagged chapters and scenes.
+    """
+    DESCRIPTION = 'Notes chapters'
+    SUFFIX = '_notes'
 
-    # Header structure:
-    # ID
-    # Plot section
-    # Plot event
-    # Plot event title
-    # Details
-    # Scene
-    # Words total
-    # $FieldTitle1
-    # $FieldTitle2
-    # $FieldTitle3
-    # $FieldTitle4
+    _partTemplate = ''
+    _chapterTemplate = ''
 
-    _fileHeader = f'''{OdsFile._CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co3" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co4" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
-    <table:table-row table:style-name="ro1">
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>ID</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Plot section</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Plot event</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Scene title</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Details</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Scene</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>Words total</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>$FieldTitle1</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>$FieldTitle2</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>$FieldTitle3</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" office:value-type="string">
-      <text:p>$FieldTitle4</text:p>
-     </table:table-cell>
-     <table:table-cell table:style-name="Heading" table:number-columns-repeated="1003"/>
-    </table:table-row>
-
+    _notesPartTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
+<text:h text:style-name="Heading_20_1" text:outline-level="1">$Title</text:h>
 '''
 
-    _notesChapterTemplate = '''   <table:table-row table:style-name="ro2">
-     <table:table-cell office:value-type="string">
-      <text:p>ChID:$ID</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-      <text:p>$Title</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-      <text:p>$Desc</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-    </table:table-row>
-
-'''
-    _sceneTemplate = '''   <table:table-row table:style-name="ro2">
-     <table:table-cell table:formula="of:=HYPERLINK(&quot;file:///$ProjectPath/${ProjectName}_manuscript.odt#ScID:$ID%7Cregion&quot;;&quot;ScID:$ID&quot;)" office:value-type="string" office:string-value="ScID:$ID">
-      <text:p>ScID:$ID</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-      <text:p>$Tags</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-      <text:p>$Title</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-      <text:p>$Notes</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="string">
-      <text:p>$SceneNumber</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type="float" office:value="$WordsTotal">
-      <text:p>$WordsTotal</text:p>
-     </table:table-cell>
-     <table:table-cell office:value-type=$Field1
-     </table:table-cell>
-     <table:table-cell office:value-type=$Field2
-     </table:table-cell>
-     <table:table-cell office:value-type=$Field3
-     </table:table-cell>
-     <table:table-cell office:value-type=$Field4
-     </table:table-cell>
-    </table:table-row>
-
+    _notesChapterTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
+<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
 '''
 
-    _fileFooter = OdsFile._CONTENT_XML_FOOTER 
+    _notesSceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
+<text:h text:style-name="Heading_20_3" text:outline-level="3">$Title</text:h>
+<text:p text:style-name="Text_20_body">$SceneContent</text:p>
+</text:section>
+'''
+    _sceneDivider = ''
 
-    def _get_fileHeaderMapping(self):
-        """Return a mapping dictionary for the project section.
+    _notesChapterEndTemplate = '''</text:section>
+'''
+
+    def _get_chapters(self):
+        """Process the chapters and nested scenes.
         
-        Special treatment of scene ratings as storylines.
-        Overrides the superclass template method.
+        Iterate through the sorted chapter list and apply the templates, 
+        substituting placeholders according to the chapter mapping dictionary.
+        For each chapter call the processing of its included scenes.
+        Skip chapters not accepted by the chapter filter.
+        Return a list of strings.
+        This is a template method that can be extended or overridden by subclasses.
         """
-        projectTemplateMapping = super()._get_fileHeaderMapping()
-        charList = []
-        for crId in self.srtCharacters:
-            charList.append(self.characters[crId].title)
-            # Collect character names to identify storylines
-        if self.fieldTitle1 in charList or self._STORYLINE_MARKER in self.fieldTitle1.lower():
-            self.arc1 = True
-        else:
-            self.arc1 = False
-            projectTemplateMapping['FieldTitle1'] = self._NOT_APPLICABLE
-        if self.fieldTitle2 in charList or self._STORYLINE_MARKER in self.fieldTitle2.lower():
-            self.arc2 = True
-        else:
-            self.arc2 = False
-            projectTemplateMapping['FieldTitle2'] = self._NOT_APPLICABLE
-        if self.fieldTitle3 in charList or self._STORYLINE_MARKER in self.fieldTitle3.lower():
-            self.arc3 = True
-        else:
-            self.arc3 = False
-            projectTemplateMapping['FieldTitle3'] = self._NOT_APPLICABLE
-        if self.fieldTitle4 in charList or self._STORYLINE_MARKER in self.fieldTitle4.lower():
-            self.arc4 = True
-        else:
-            self.arc4 = False
-            projectTemplateMapping['FieldTitle4'] = self._NOT_APPLICABLE
-        return projectTemplateMapping
+        lines = []
+        if not self._notesChapterEndTemplate:
+            return lines
 
-    def _get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
-        """Return a mapping dictionary for a scene section.
-        
-        Positional arguments:
-            scId -- str: scene ID.
-            sceneNumber -- int: scene number to be displayed.
-            wordsTotal -- int: accumulated wordcount.
-            lettersTotal -- int: accumulated lettercount.
-        
-        Special treatment of scene ratings as storylines.
-        Scene rating "1" is not applicable.
-        Extends the superclass template method.
-        """
-        sceneMapping = super()._get_sceneMapping(scId, sceneNumber, wordsTotal, lettersTotal)
+        chapterNumber = 0
+        sceneNumber = 0
+        wordsTotal = 0
+        lettersTotal = 0
+        for chId in self.srtChapters:
+            dispNumber = 0
+            if not self._chapterFilter.accept(self, chId):
+                continue
 
-        # Suppress display if the field doesn't represent a storyline,
-        # or if the field's value equals 1
+            # The order counts; be aware that "Notes" chapters are always unused.
+            doNotExport = False
+            template = None
+            if self.chapters[chId].chType == 1:
+                # Chapter is "Notes" type (implies "unused").
+                if self.chapters[chId].chLevel == 1:
+                    # Chapter is "Notes Part" type.
+                    if self._notesPartTemplate:
+                        template = Template(self._notesPartTemplate)
+                elif self._notesChapterTemplate:
+                    # Chapter is "Notes Chapter" type.
+                    template = Template(self._notesChapterTemplate)
+                    chapterNumber += 1
+                    dispNumber = chapterNumber
+                if template is not None:
+                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
 
-        if self.scenes[scId].field1 == '1' or not self.arc1:
-            sceneMapping['Field1'] = '"string">\n'
-        else:
-            sceneMapping['Field1'] = f'"float" office:value="{sceneMapping["Field1"]}">\n      <text:p>{sceneMapping["Field1"]}</text:p>'
-        if self.scenes[scId].field2 == '1' or not self.arc2:
-            sceneMapping['Field2'] = '"string">\n'
-        else:
-            sceneMapping['Field2'] = f'"float" office:value="{sceneMapping["Field2"]}">\n      <text:p>{sceneMapping["Field2"]}</text:p>'
-        if self.scenes[scId].field3 == '1' or not self.arc3:
-            sceneMapping['Field3'] = '"string">\n'
-        else:
-            sceneMapping['Field3'] = f'"float" office:value="{sceneMapping["Field3"]}">\n      <text:p>{sceneMapping["Field3"]}</text:p>'
-        if self.scenes[scId].field4 == '1' or not self.arc4:
-            sceneMapping['Field4'] = '"string">\n'
-        else:
-            sceneMapping['Field4'] = f'"float" office:value="{sceneMapping["Field4"]}">\n      <text:p>{sceneMapping["Field4"]}</text:p>'
-        return sceneMapping
+                    #--- Process scenes.
+                    sceneLines, sceneNumber, wordsTotal, lettersTotal = self._get_scenes(
+                        chId, sceneNumber, wordsTotal, lettersTotal, doNotExport)
+                    lines.extend(sceneLines)
+
+                    #--- Process chapter ending.
+                    template = Template(self._notesChapterEndTemplate)
+                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
+        return lines
 
 
 class OdsCharList(OdsFile):
@@ -3929,8 +3801,8 @@ class ExportTargetFactory(FileFactory):
                     suffix = ''
                 targetFile = fileClass(f'{fileName}{suffix}{fileClass.EXTENSION}', **kwargs)
                 return 'Target object created.', None, targetFile
-        
-        return f'{ERROR}File type of "{os.path.normpath(sourcePath)}" not supported.', None, None
+
+        return f'{ERROR}Export type "{suffix}" not supported.', None, None
 
 
 class ImportSourceFactory(FileFactory):
@@ -3956,6 +3828,7 @@ class ImportSourceFactory(FileFactory):
                 if sourcePath.endswith(f'{fileClass.SUFFIX }{fileClass.EXTENSION}'):
                     sourceFile = fileClass(sourcePath, **kwargs)
                     return 'Source object created.', sourceFile, None
+
         return f'{ERROR}This document is not meant to be written back.', None, None
 
 
@@ -4171,9 +4044,9 @@ class Splitter:
         PART_SEPARATOR -- marker indicating the beginning of a new part, splitting a scene.
         CHAPTER_SEPARATOR -- marker indicating the beginning of a new chapter, splitting a scene.
     """
-    PART_SEPARATOR = '# '
-    CHAPTER_SEPARATOR = '## '
-    _SCENE_SEPARATOR = '* * *'
+    PART_SEPARATOR = '#'
+    CHAPTER_SEPARATOR = '##'
+    SCENE_SEPARATOR = '###'
     _CLIP_TITLE = 20
     # Maximum length of newly generated scene titles.
 
@@ -4203,7 +4076,7 @@ class Splitter:
             newChapter.chType = 0
             novel.chapters[chapterId] = newChapter
 
-        def create_scene(sceneId, parent, splitCount):
+        def create_scene(sceneId, parent, splitCount, title):
             """Create a new scene and add it to the novel.
             
             Positional arguments:
@@ -4215,7 +4088,9 @@ class Splitter:
 
             # Mark metadata of split scenes.
             newScene = Scene()
-            if parent.title:
+            if title:
+                newScene.title = title
+            elif parent.title:
                 if len(parent.title) > self._CLIP_TITLE:
                     title = f'{parent.title[:self._CLIP_TITLE]}...'
                 else:
@@ -4258,8 +4133,8 @@ class Splitter:
         for scId in novel.scenes:
             if int(scId) > scIdMax:
                 scIdMax = int(scId)
-                
-        #Process chapters and scenes.
+
+        # Process chapters and scenes.
         srtChapters = []
         for chId in novel.srtChapters:
             srtChapters.append(chId)
@@ -4276,47 +4151,51 @@ class Splitter:
                 inScene = True
                 sceneSplitCount = 0
 
-                #Search scene content for dividers.
+                # Search scene content for dividers.
                 for line in lines:
-                    if line.startswith(self.PART_SEPARATOR):
-                        if inScene:
-                            novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
-                            newLines = []
-                            sceneSplitCount = 0
-                            inScene = False
-                        novel.chapters[chapterId].srtScenes = srtScenes
-                        srtScenes = []
-                        chIdMax += 1
-                        chapterId = str(chIdMax)
-                        create_chapter(chapterId, 'New part', line.replace(self.PART_SEPARATOR, ''), 1)
-                        srtChapters.append(chapterId)
-                    elif line.startswith(self.CHAPTER_SEPARATOR):
-                        if inScene:
-                            novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
-                            newLines = []
-                            sceneSplitCount = 0
-                            inScene = False
-                        novel.chapters[chapterId].srtScenes = srtScenes
-                        srtScenes = []
-                        chIdMax += 1
-                        chapterId = str(chIdMax)
-                        create_chapter(chapterId, 'New chapter', line.replace(self.CHAPTER_SEPARATOR, ''), 0)
-                        srtChapters.append(chapterId)
-                    elif line.startswith(self._SCENE_SEPARATOR):
+                    if line.startswith(self.SCENE_SEPARATOR):
+                        # Split the scene.
                         novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
                         newLines = []
                         sceneSplitCount += 1
                         scIdMax += 1
                         sceneId = str(scIdMax)
-                        create_scene(sceneId, novel.scenes[scId], sceneSplitCount)
+                        create_scene(sceneId, novel.scenes[scId], sceneSplitCount, line.strip('# '))
                         srtScenes.append(sceneId)
                         inScene = True
+                    elif line.startswith(self.CHAPTER_SEPARATOR):
+                        # Start a new chapter.
+                        if inScene:
+                            novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
+                            newLines = []
+                            sceneSplitCount = 0
+                            inScene = False
+                        novel.chapters[chapterId].srtScenes = srtScenes
+                        srtScenes = []
+                        chIdMax += 1
+                        chapterId = str(chIdMax)
+                        create_chapter(chapterId, 'New chapter', line.strip('# '), 0)
+                        srtChapters.append(chapterId)
+                    elif line.startswith(self.PART_SEPARATOR):
+                        # start a new part.
+                        if inScene:
+                            novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
+                            newLines = []
+                            sceneSplitCount = 0
+                            inScene = False
+                        novel.chapters[chapterId].srtScenes = srtScenes
+                        srtScenes = []
+                        chIdMax += 1
+                        chapterId = str(chIdMax)
+                        create_chapter(chapterId, 'New part', line.strip('# '), 1)
+                        srtChapters.append(chapterId)
                     elif not inScene:
+                        # Append a scene without heading to a new chapter or part.
                         newLines.append(line)
                         sceneSplitCount += 1
                         scIdMax += 1
                         sceneId = str(scIdMax)
-                        create_scene(sceneId, novel.scenes[scId], sceneSplitCount)
+                        create_scene(sceneId, novel.scenes[scId], sceneSplitCount, '')
                         srtScenes.append(sceneId)
                         inScene = True
                     else:
@@ -4404,19 +4283,19 @@ class Yw7File(Novel):
             lcId = loc.find('ID').text
             self.srtLocations.append(lcId)
             self.locations[lcId] = WorldElement()
-            
+
             if loc.find('Title') is not None:
                 self.locations[lcId].title = loc.find('Title').text
-            
+
             if loc.find('ImageFile') is not None:
                 self.locations[lcId].image = loc.find('ImageFile').text
-            
+
             if loc.find('Desc') is not None:
                 self.locations[lcId].desc = loc.find('Desc').text
-            
+
             if loc.find('AKA') is not None:
                 self.locations[lcId].aka = loc.find('AKA').text
-            
+
             if loc.find('Tags') is not None:
                 if loc.find('Tags').text is not None:
                     tags = loc.find('Tags').text.split(';')
@@ -4427,19 +4306,19 @@ class Yw7File(Novel):
             itId = itm.find('ID').text
             self.srtItems.append(itId)
             self.items[itId] = WorldElement()
-            
+
             if itm.find('Title') is not None:
                 self.items[itId].title = itm.find('Title').text
-            
+
             if itm.find('ImageFile') is not None:
                 self.items[itId].image = itm.find('ImageFile').text
-            
+
             if itm.find('Desc') is not None:
                 self.items[itId].desc = itm.find('Desc').text
-            
+
             if itm.find('AKA') is not None:
                 self.items[itId].aka = itm.find('AKA').text
-            
+
             if itm.find('Tags') is not None:
                 if itm.find('Tags').text is not None:
                     tags = itm.find('Tags').text.split(';')
@@ -4450,36 +4329,36 @@ class Yw7File(Novel):
             crId = crt.find('ID').text
             self.srtCharacters.append(crId)
             self.characters[crId] = Character()
-            
+
             if crt.find('Title') is not None:
                 self.characters[crId].title = crt.find('Title').text
-            
+
             if crt.find('ImageFile') is not None:
                 self.characters[crId].image = crt.find('ImageFile').text
-            
+
             if crt.find('Desc') is not None:
                 self.characters[crId].desc = crt.find('Desc').text
-            
+
             if crt.find('AKA') is not None:
                 self.characters[crId].aka = crt.find('AKA').text
-            
+
             if crt.find('Tags') is not None:
                 if crt.find('Tags').text is not None:
                     tags = crt.find('Tags').text.split(';')
                     self.characters[crId].tags = self._strip_spaces(tags)
-            
+
             if crt.find('Notes') is not None:
                 self.characters[crId].notes = crt.find('Notes').text
-            
+
             if crt.find('Bio') is not None:
                 self.characters[crId].bio = crt.find('Bio').text
-            
+
             if crt.find('Goals') is not None:
                 self.characters[crId].goals = crt.find('Goals').text
-            
+
             if crt.find('FullName') is not None:
                 self.characters[crId].fullName = crt.find('FullName').text
-            
+
             if crt.find('Major') is not None:
                 self.characters[crId].isMajor = True
             else:
@@ -4487,28 +4366,28 @@ class Yw7File(Novel):
 
         #--- Read attributes at novel level from the xml element tree.
         prj = root.find('PROJECT')
-        
+
         if prj.find('Title') is not None:
             self.title = prj.find('Title').text
-        
+
         if prj.find('AuthorName') is not None:
             self.authorName = prj.find('AuthorName').text
-        
+
         if prj.find('Bio') is not None:
             self.authorBio = prj.find('Bio').text
-        
+
         if prj.find('Desc') is not None:
             self.desc = prj.find('Desc').text
-        
+
         if prj.find('FieldTitle1') is not None:
             self.fieldTitle1 = prj.find('FieldTitle1').text
-        
+
         if prj.find('FieldTitle2') is not None:
             self.fieldTitle2 = prj.find('FieldTitle2').text
-        
+
         if prj.find('FieldTitle3') is not None:
             self.fieldTitle3 = prj.find('FieldTitle3').text
-        
+
         if prj.find('FieldTitle4') is not None:
             self.fieldTitle4 = prj.find('FieldTitle4').text
 
@@ -4519,24 +4398,24 @@ class Yw7File(Novel):
             chId = chp.find('ID').text
             self.chapters[chId] = Chapter()
             self.srtChapters.append(chId)
-            
+
             if chp.find('Title') is not None:
                 self.chapters[chId].title = chp.find('Title').text
-            
+
             if chp.find('Desc') is not None:
                 self.chapters[chId].desc = chp.find('Desc').text
-            
+
             if chp.find('SectionStart') is not None:
                 self.chapters[chId].chLevel = 1
             else:
                 self.chapters[chId].chLevel = 0
-            
+
             if chp.find('Type') is not None:
                 self.chapters[chId].oldType = int(chp.find('Type').text)
-            
+
             if chp.find('ChapterType') is not None:
                 self.chapters[chId].chType = int(chp.find('ChapterType').text)
-            
+
             if chp.find('Unused') is not None:
                 self.chapters[chId].isUnused = True
             else:
@@ -4546,17 +4425,17 @@ class Yw7File(Novel):
                 if self.chapters[chId].title.startswith('@'):
                     self.chapters[chId].suppressChapterTitle = True
             for chFields in chp.findall('Fields'):
-                
+
                 if chFields.find('Field_SuppressChapterTitle') is not None:
                     if chFields.find('Field_SuppressChapterTitle').text == '1':
                         self.chapters[chId].suppressChapterTitle = True
-                
+
                 if chFields.find('Field_IsTrash') is not None:
                     if chFields.find('Field_IsTrash').text == '1':
                         self.chapters[chId].isTrash = True
                     else:
                         self.chapters[chId].isTrash = False
-                
+
                 if chFields.find('Field_SuppressChapterBreak') is not None:
                     if chFields.find('Field_SuppressChapterBreak').text == '1':
                         self.chapters[chId].suppressChapterBreak = True
@@ -4565,24 +4444,22 @@ class Yw7File(Novel):
                 else:
                     self.chapters[chId].suppressChapterBreak = False
             self.chapters[chId].srtScenes = []
-            
             if chp.find('Scenes') is not None:
-                if not self.chapters[chId].isTrash:
-                    for scn in chp.find('Scenes').findall('ScID'):
-                        scId = scn.text
-                        self.chapters[chId].srtScenes.append(scId)
+                for scn in chp.find('Scenes').findall('ScID'):
+                    scId = scn.text
+                    self.chapters[chId].srtScenes.append(scId)
 
         #--- Read attributes at scene level from the xml element tree.
         for scn in root.iter('SCENE'):
             scId = scn.find('ID').text
             self.scenes[scId] = Scene()
-            
+
             if scn.find('Title') is not None:
                 self.scenes[scId].title = scn.find('Title').text
-            
+
             if scn.find('Desc') is not None:
                 self.scenes[scId].desc = scn.find('Desc').text
-            
+
             if scn.find('RTFFile') is not None:
                 self.scenes[scId].rtfFile = scn.find('RTFFile').text
 
@@ -4590,16 +4467,16 @@ class Yw7File(Novel):
             if scn.find('WordCount') is not None:
                 self.scenes[scId].wordCount = int(
                     scn.find('WordCount').text)
-            
+
             if scn.find('LetterCount') is not None:
                 self.scenes[scId].letterCount = int(
                     scn.find('LetterCount').text)
-            
+
             if scn.find('SceneContent') is not None:
                 sceneContent = scn.find('SceneContent').text
                 if sceneContent is not None:
                     self.scenes[scId].sceneContent = sceneContent
-            
+
             if scn.find('Unused') is not None:
                 self.scenes[scId].isUnused = True
             else:
@@ -4607,48 +4484,48 @@ class Yw7File(Novel):
             self.scenes[scId].isNotesScene = False
             self.scenes[scId].isTodoScene = False
             for scFields in scn.findall('Fields'):
-                
+
                 if scFields.find('Field_SceneType') is not None:
                     if scFields.find('Field_SceneType').text == '1':
                         self.scenes[scId].isNotesScene = True
                     if scFields.find('Field_SceneType').text == '2':
                         self.scenes[scId].isTodoScene = True
-            
+
             if scn.find('ExportCondSpecific') is None:
-                self.scenes[scId].doNotExport = False           
+                self.scenes[scId].doNotExport = False
             elif scn.find('ExportWhenRTF') is not None:
                 self.scenes[scId].doNotExport = False
             else:
                 self.scenes[scId].doNotExport = True
-            
+
             if scn.find('Status') is not None:
                 self.scenes[scId].status = int(scn.find('Status').text)
-            
+
             if scn.find('Notes') is not None:
                 self.scenes[scId].sceneNotes = scn.find('Notes').text
-            
+
             if scn.find('Tags') is not None:
                 if scn.find('Tags').text is not None:
                     tags = scn.find('Tags').text.split(';')
                     self.scenes[scId].tags = self._strip_spaces(tags)
-            
+
             if scn.find('Field1') is not None:
                 self.scenes[scId].field1 = scn.find('Field1').text
-            
+
             if scn.find('Field2') is not None:
                 self.scenes[scId].field2 = scn.find('Field2').text
-            
+
             if scn.find('Field3') is not None:
                 self.scenes[scId].field3 = scn.find('Field3').text
-            
+
             if scn.find('Field4') is not None:
                 self.scenes[scId].field4 = scn.find('Field4').text
-            
+
             if scn.find('AppendToPrev') is not None:
                 self.scenes[scId].appendToPrev = True
             else:
                 self.scenes[scId].appendToPrev = False
-            
+
             if scn.find('SpecificDateTime') is not None:
                 dateTime = scn.find('SpecificDateTime').text.split(' ')
                 for dt in dateTime:
@@ -4659,56 +4536,56 @@ class Yw7File(Novel):
             else:
                 if scn.find('Day') is not None:
                     self.scenes[scId].day = scn.find('Day').text
-                
+
                 if scn.find('Hour') is not None:
                     self.scenes[scId].hour = scn.find('Hour').text
-                
+
                 if scn.find('Minute') is not None:
                     self.scenes[scId].minute = scn.find('Minute').text
-            
+
             if scn.find('LastsDays') is not None:
                 self.scenes[scId].lastsDays = scn.find('LastsDays').text
-            
+
             if scn.find('LastsHours') is not None:
                 self.scenes[scId].lastsHours = scn.find('LastsHours').text
-            
+
             if scn.find('LastsMinutes') is not None:
                 self.scenes[scId].lastsMinutes = scn.find('LastsMinutes').text
-            
+
             if scn.find('ReactionScene') is not None:
                 self.scenes[scId].isReactionScene = True
             else:
                 self.scenes[scId].isReactionScene = False
-            
+
             if scn.find('SubPlot') is not None:
                 self.scenes[scId].isSubPlot = True
             else:
                 self.scenes[scId].isSubPlot = False
-            
+
             if scn.find('Goal') is not None:
                 self.scenes[scId].goal = scn.find('Goal').text
-            
+
             if scn.find('Conflict') is not None:
                 self.scenes[scId].conflict = scn.find('Conflict').text
-            
+
             if scn.find('Outcome') is not None:
                 self.scenes[scId].outcome = scn.find('Outcome').text
-            
+
             if scn.find('ImageFile') is not None:
                 self.scenes[scId].image = scn.find('ImageFile').text
-            
+
             if scn.find('Characters') is not None:
                 for crId in scn.find('Characters').iter('CharID'):
                     if self.scenes[scId].characters is None:
                         self.scenes[scId].characters = []
                     self.scenes[scId].characters.append(crId.text)
-            
+
             if scn.find('Locations') is not None:
                 for lcId in scn.find('Locations').iter('LocID'):
                     if self.scenes[scId].locations is None:
                         self.scenes[scId].locations = []
                     self.scenes[scId].locations.append(lcId.text)
-            
+
             if scn.find('Items') is not None:
                 for itId in scn.find('Items').iter('ItemID'):
                     if self.scenes[scId].items is None:
@@ -4752,6 +4629,7 @@ class Yw7File(Novel):
                     j += 1
                 else:
                     j = tgtLst.index(srcLst[i]) + 1
+
         if os.path.isfile(self.filePath):
             message = self.read()
             # initialize data
@@ -4990,18 +4868,17 @@ class Yw7File(Novel):
             # Existing scenes may be moved to another chapter.
             # Deletion of scenes is not considered.
             # The scene's sort order may not change.
-            if source.chapters[chId].srtScenes is not None:
 
-                # Remove scenes that have been moved to another chapter from the scene list.
-                srtScenes = []
-                for scId in self.chapters[chId].srtScenes:
-                    if scId in source.chapters[chId].srtScenes or not scId in source.scenes:
-                        srtScenes.append(scId)
-                        # The scene has not moved to another chapter or isn't imported
-                    self.chapters[chId].srtScenes = srtScenes
+            # Remove scenes that have been moved to another chapter from the scene list.
+            srtScenes = []
+            for scId in self.chapters[chId].srtScenes:
+                if scId in source.chapters[chId].srtScenes or not scId in source.scenes:
+                    # The scene has not moved to another chapter or isn't imported
+                    srtScenes.append(scId)
+            self.chapters[chId].srtScenes = srtScenes
 
-                # Add new or moved scenes to the scene list.
-                merge_lists(source.chapters[chId].srtScenes, self.chapters[chId].srtScenes)
+            # Add new or moved scenes to the scene list.
+            merge_lists(source.chapters[chId].srtScenes, self.chapters[chId].srtScenes)
 
         #--- Merge project attributes.
         if source.title:
@@ -5061,90 +4938,90 @@ class Yw7File(Novel):
                     xmlScn.find('Desc').text = prjScn.desc
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Desc').text = prjScn.desc
-                       
+
             if xmlScn.find('SceneContent') is None:
                 ET.SubElement(xmlScn, 'SceneContent').text = prjScn.sceneContent
 
             if xmlScn.find('WordCount') is None:
                 ET.SubElement(xmlScn, 'WordCount').text = str(prjScn.wordCount)
-            
+
             if xmlScn.find('LetterCount') is None:
                 ET.SubElement(xmlScn, 'LetterCount').text = str(prjScn.letterCount)
-            
+
             if prjScn.isUnused:
                 if xmlScn.find('Unused') is None:
                     ET.SubElement(xmlScn, 'Unused').text = '-1'
             elif xmlScn.find('Unused') is not None:
                 xmlScn.remove(xmlScn.find('Unused'))
-            
+
+            scFields = xmlScn.find('Fields')
             if prjScn.isNotesScene:
-                scFields = xmlScn.find('Fields')
+                if scFields is None:
+                    scFields = ET.SubElement(xmlScn, 'Fields')
                 try:
                     scFields.find('Field_SceneType').text = '1'
                 except(AttributeError):
-                    scFields = ET.SubElement(xmlScn, 'Fields')
                     ET.SubElement(scFields, 'Field_SceneType').text = '1'
-            elif xmlScn.find('Fields') is not None:
-                scFields = xmlScn.find('Fields')
+            elif scFields is not None:
                 if scFields.find('Field_SceneType') is not None:
                     if scFields.find('Field_SceneType').text == '1':
                         scFields.remove(scFields.find('Field_SceneType'))
-            
+
+            scFields = xmlScn.find('Fields')
             if prjScn.isTodoScene:
-                scFields = xmlScn.find('Fields')
+                if scFields is None:
+                    scFields = ET.SubElement(xmlScn, 'Fields')
                 try:
                     scFields.find('Field_SceneType').text = '2'
                 except(AttributeError):
-                    scFields = ET.SubElement(xmlScn, 'Fields')
                     ET.SubElement(scFields, 'Field_SceneType').text = '2'
-            elif xmlScn.find('Fields') is not None:
-                scFields = xmlScn.find('Fields')
+            elif scFields is not None:
                 if scFields.find('Field_SceneType') is not None:
                     if scFields.find('Field_SceneType').text == '2':
                         scFields.remove(scFields.find('Field_SceneType'))
-            
+
             if prjScn.status is not None:
                 try:
                     xmlScn.find('Status').text = str(prjScn.status)
                 except:
                     ET.SubElement(xmlScn, 'Status').text = str(prjScn.status)
-            
+
             if prjScn.sceneNotes is not None:
                 try:
                     xmlScn.find('Notes').text = prjScn.sceneNotes
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Notes').text = prjScn.sceneNotes
-            
+
             if prjScn.tags is not None:
                 try:
                     xmlScn.find('Tags').text = ';'.join(prjScn.tags)
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Tags').text = ';'.join(prjScn.tags)
-            
+
             if prjScn.field1 is not None:
                 try:
                     xmlScn.find('Field1').text = prjScn.field1
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Field1').text = prjScn.field1
-            
+
             if prjScn.field2 is not None:
                 try:
                     xmlScn.find('Field2').text = prjScn.field2
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Field2').text = prjScn.field2
-            
+
             if prjScn.field3 is not None:
                 try:
                     xmlScn.find('Field3').text = prjScn.field3
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Field3').text = prjScn.field3
-            
+
             if prjScn.field4 is not None:
                 try:
                     xmlScn.find('Field4').text = prjScn.field4
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Field4').text = prjScn.field4
-            
+
             if prjScn.appendToPrev:
                 if xmlScn.find('AppendToPrev') is None:
                     ET.SubElement(xmlScn, 'AppendToPrev').text = '-1'
@@ -5162,18 +5039,18 @@ class Yw7File(Novel):
 
                     if xmlScn.find('Day') is not None:
                         xmlScn.remove(xmlScn.find('Day'))
-                    
+
                     if xmlScn.find('Hour') is not None:
                         xmlScn.remove(xmlScn.find('Hour'))
-                    
+
                     if xmlScn.find('Minute') is not None:
                         xmlScn.remove(xmlScn.find('Minute'))
-            
+
             elif (prjScn.day is not None) or (prjScn.hour is not None) or (prjScn.minute is not None):
-                
+
                 if xmlScn.find('SpecificDateTime') is not None:
                     xmlScn.remove(xmlScn.find('SpecificDateTime'))
-                
+
                 if xmlScn.find('SpecificDateMode') is not None:
                     xmlScn.remove(xmlScn.find('SpecificDateMode'))
                 if prjScn.day is not None:
@@ -5191,19 +5068,19 @@ class Yw7File(Novel):
                         xmlScn.find('Minute').text = prjScn.minute
                     except(AttributeError):
                         ET.SubElement(xmlScn, 'Minute').text = prjScn.minute
-            
+
             if prjScn.lastsDays is not None:
                 try:
                     xmlScn.find('LastsDays').text = prjScn.lastsDays
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'LastsDays').text = prjScn.lastsDays
-            
+
             if prjScn.lastsHours is not None:
                 try:
                     xmlScn.find('LastsHours').text = prjScn.lastsHours
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'LastsHours').text = prjScn.lastsHours
-            
+
             if prjScn.lastsMinutes is not None:
                 try:
                     xmlScn.find('LastsMinutes').text = prjScn.lastsMinutes
@@ -5216,38 +5093,38 @@ class Yw7File(Novel):
                     ET.SubElement(xmlScn, 'ReactionScene').text = '-1'
             elif xmlScn.find('ReactionScene') is not None:
                 xmlScn.remove(xmlScn.find('ReactionScene'))
-            
+
             if prjScn.isSubPlot:
                 if xmlScn.find('SubPlot') is None:
                     ET.SubElement(xmlScn, 'SubPlot').text = '-1'
             elif xmlScn.find('SubPlot') is not None:
                 xmlScn.remove(xmlScn.find('SubPlot'))
-            
+
             if prjScn.goal is not None:
                 try:
                     xmlScn.find('Goal').text = prjScn.goal
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Goal').text = prjScn.goal
-            
+
             if prjScn.conflict is not None:
                 try:
                     xmlScn.find('Conflict').text = prjScn.conflict
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Conflict').text = prjScn.conflict
-            
+
             if prjScn.outcome is not None:
                 try:
                     xmlScn.find('Outcome').text = prjScn.outcome
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'Outcome').text = prjScn.outcome
-            
+
             if prjScn.image is not None:
                 try:
                     xmlScn.find('ImageFile').text = prjScn.image
                 except(AttributeError):
                     ET.SubElement(xmlScn, 'ImageFile').text = prjScn.image
-                    
-            # Characters/locations/items           
+
+            # Characters/locations/items
             if prjScn.characters is not None:
                 characters = xmlScn.find('Characters')
                 try:
@@ -5257,7 +5134,7 @@ class Yw7File(Novel):
                     characters = ET.SubElement(xmlScn, 'Characters')
                 for crId in prjScn.characters:
                     ET.SubElement(characters, 'CharID').text = crId
-            
+
             if prjScn.locations is not None:
                 locations = xmlScn.find('Locations')
                 try:
@@ -5267,7 +5144,7 @@ class Yw7File(Novel):
                     locations = ET.SubElement(xmlScn, 'Locations')
                 for lcId in prjScn.locations:
                     ET.SubElement(locations, 'LocID').text = lcId
-            
+
             if prjScn.items is not None:
                 items = xmlScn.find('Items')
                 try:
@@ -5287,19 +5164,19 @@ class Yw7File(Novel):
                 xmlChp.find('Title').text = prjChp.title
             except(AttributeError):
                 ET.SubElement(xmlChp, 'Title').text = prjChp.title
-            
+
             if prjChp.desc is not None:
                 try:
                     xmlChp.find('Desc').text = prjChp.desc
                 except(AttributeError):
                     ET.SubElement(xmlChp, 'Desc').text = prjChp.desc
-            
+
             if xmlChp.find('SectionStart') is not None:
                 if prjChp.chLevel == 0:
                     xmlChp.remove(xmlChp.find('SectionStart'))
             elif prjChp.chLevel == 1:
                 ET.SubElement(xmlChp, 'SectionStart').text = '-1'
-            
+
             if prjChp.oldType is not None:
                 try:
                     xmlChp.find('Type').text = str(prjChp.oldType)
@@ -5318,12 +5195,49 @@ class Yw7File(Novel):
             elif xmlChp.find('Unused') is not None:
                 xmlChp.remove(xmlChp.find('Unused'))
 
-            #--- Rebuild the chapter's scene list.
+            chFields = xmlChp.find('Fields')
+            if prjChp.suppressChapterTitle:
+                if chFields is None:
+                    chFields = ET.SubElement(xmlChp, 'Fields')
+                try:
+                    chFields.find('Field_SuppressChapterTitle').text = '1'
+                except(AttributeError):
+                    ET.SubElement(chFields, 'Field_SuppressChapterTitle').text = '1'
+            elif chFields is not None:
+                if chFields.find('Field_SuppressChapterTitle') is not None:
+                    chFields.find('Field_SuppressChapterTitle').text = '0'
 
-            if prjChp.srtScenes:
+            chFields = xmlChp.find('Fields')
+            if prjChp.suppressChapterBreak:
+                if chFields is None:
+                    chFields = ET.SubElement(xmlChp, 'Fields')
+                try:
+                    chFields.find('Field_SuppressChapterBreak').text = '1'
+                except(AttributeError):
+                    ET.SubElement(chFields, 'Field_SuppressChapterBreak').text = '1'
+            elif chFields is not None:
+                if chFields.find('Field_SuppressChapterBreak') is not None:
+                    chFields.find('Field_SuppressChapterBreak').text = '0'
+
+            chFields = xmlChp.find('Fields')
+            if prjChp.isTrash:
+                if chFields is None:
+                    chFields = ET.SubElement(xmlChp, 'Fields')
+                try:
+                    chFields.find('Field_IsTrash').text = '1'
+                except(AttributeError):
+                    ET.SubElement(chFields, 'Field_IsTrash').text = '1'
+            elif chFields is not None:
+                if chFields.find('Field_IsTrash') is not None:
+                    chFields.remove(chFields.find('Field_IsTrash'))
+
+            #--- Rebuild the chapter's scene list.
+            try:
                 xScnList = xmlChp.find('Scenes')
-                if xScnList is not None:
-                    xmlChp.remove(xScnList)
+                xmlChp.remove(xScnList)
+            except:
+                pass
+            if prjChp.srtScenes:
                 sortSc = ET.SubElement(xmlChp, 'Scenes')
                 for scId in prjChp.srtScenes:
                     ET.SubElement(sortSc, 'ScID').text = scId
@@ -5590,7 +5504,7 @@ class Yw7File(Novel):
         Otherwise, return False. 
         """
         return os.path.isfile(f'{self.filePath}.lock')
-    
+
     def _write_element_tree(self, ywProject):
         """Write back the xml element tree to a .yw7 xml file located at filePath.
         
@@ -5609,7 +5523,6 @@ class Yw7File(Novel):
             return f'{ERROR}Cannot write "{os.path.normpath(ywProject.filePath)}".'
 
         return 'yWriter XML tree written.'
-
 
     def _postprocess_xml_file(self, filePath):
         '''Postprocess an xml file created by ElementTree.
@@ -5936,7 +5849,7 @@ class HtmlImport(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._scId is not None and self._SCENE_DIVIDER in data:
             self._scId = None
@@ -6044,7 +5957,7 @@ class HtmlOutline(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         self._lines.append(data.strip())
 
@@ -6230,9 +6143,9 @@ class HtmlProof(HtmlFile):
         if tag == 'p':
             self._prefix = ''
         elif tag == 'h2':
-            self._prefix = Splitter.CHAPTER_SEPARATOR
+            self._prefix = f'{Splitter.CHAPTER_SEPARATOR} '
         elif tag == 'h1':
-            self._prefix = Splitter.PART_SEPARATOR
+            self._prefix = f'{Splitter.PART_SEPARATOR} '
 
     def handle_endtag(self, tag):
         """Recognize the paragraph's end.      
@@ -6251,7 +6164,7 @@ class HtmlProof(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._prefix is not None:
             self._lines.append(f'{self._prefix}{data}')
@@ -6284,33 +6197,16 @@ class HtmlManuscript(HtmlFile):
         """
         super().handle_starttag(tag, attrs)
         if self._scId is not None:
-            if tag == 'h1':
-                self._lines.append(Splitter.PART_SEPARATOR)
+            self._getScTitle = False
+            if tag == 'h3':
+                if self.scenes[self._scId].title is None:
+                    self._getScTitle = True
+                else:
+                    self._lines.append(f'{Splitter.SCENE_SEPARATOR} ')
             elif tag == 'h2':
-                self._lines.append(Splitter.CHAPTER_SEPARATOR)
-
-    def handle_comment(self, data):
-        """Process inline comments within scene content.
-        
-        Positional arguments:
-            data -- str: comment text. 
-        
-        Use marked comments at scene start as scene titles.
-        Overrides the superclass method.
-        """
-        if self._scId is not None: 
-            if not self._lines:
-                # Comment is at scene start
-                if self._SC_TITLE_BRACKET in data:
-                    # Comment is marked as a scene title
-                    try:   
-                        self.scenes[self._scId].title = data.split(self._SC_TITLE_BRACKET)[1].strip()
-                    except:
-                        pass
-                    return
-
-            self._lines.append(f'{self._COMMENT_START}{data.strip()}{self._COMMENT_END}')
-            
+                self._lines.append(f'{Splitter.CHAPTER_SEPARATOR} ')
+            elif tag == 'h1':
+                self._lines.append(f'{Splitter.PART_SEPARATOR} ')
 
     def handle_endtag(self, tag):
         """Recognize the end of the scene section and save data.
@@ -6332,9 +6228,33 @@ class HtmlManuscript(HtmlFile):
                 self._lines.append('\n')
             elif tag == 'h2':
                 self._lines.append('\n')
+            elif tag == 'h3' and not self._getScTitle:
+                self._lines.append('\n')
         elif self._chId is not None:
             if tag == 'div':
                 self._chId = None
+
+    def handle_comment(self, data):
+        """Process inline comments within scene content.
+        
+        Positional arguments:
+            data -- str: comment text. 
+        
+        Use marked comments at scene start as scene titles.
+        Overrides HTMLparser.handle_comment() called by the parser when a comment is encountered.
+        """
+        if self._scId is not None:
+            if not self._lines:
+                # Comment is at scene start
+                if self._SC_TITLE_BRACKET in data:
+                    # Comment is marked as a scene title
+                    try:
+                        self.scenes[self._scId].title = data.split(self._SC_TITLE_BRACKET)[1].strip()
+                    except:
+                        pass
+                    return
+
+            self._lines.append(f'{self._COMMENT_START}{data.strip()}{self._COMMENT_END}')
 
     def handle_data(self, data):
         """Collect data within scene sections.
@@ -6342,14 +6262,36 @@ class HtmlManuscript(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._scId is not None:
-            if not data.isspace():
+            if self._getScTitle:
+                self.scenes[self._scId].title = data.strip()
+            elif not data.isspace():
                 self._lines.append(data)
         elif self._chId is not None:
-            if not self.chapters[self._chId].title:
+            if self.chapters[self._chId].title is None:
                 self.chapters[self._chId].title = data.strip()
+
+
+class HtmlNotes(HtmlManuscript):
+    """HTML "Notes" chapters file representation.
+
+    Import a manuscript with invisibly tagged chapters and scenes.
+    """
+    DESCRIPTION = 'Notes chapters'
+    SUFFIX = '_notes'
+
+    def _postprocess(self):
+        """Make all chapters and scenes "Notes" type.
+        
+        Overrides the superclass method.
+        """
+        for chId in self.srtChapters:
+            self.chapters[chId].chType = 1
+            for scId in self.chapters[chId].srtScenes:
+                self.scenes[scId].isNotesScene = True
+
 
 
 class HtmlSceneDesc(HtmlFile):
@@ -6396,7 +6338,7 @@ class HtmlSceneDesc(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._scId is not None:
             self._lines.append(data.strip())
@@ -6439,7 +6381,7 @@ class HtmlChapterDesc(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._chId is not None:
             self._lines.append(data.strip())
@@ -6535,7 +6477,7 @@ class HtmlCharacters(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._section is not None:
             self._lines.append(data.strip())
@@ -6600,7 +6542,7 @@ class HtmlLocations(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._lcId is not None:
             self._lines.append(data.strip())
@@ -6665,7 +6607,7 @@ class HtmlItems(HtmlFile):
         Positional arguments:
             data -- str: text to be stored. 
         
-        Overrides HTMLparser.handle_data() called by the parser when a comment is encountered.
+        Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
         if self._itId is not None:
             self._lines.append(data.strip())
@@ -6842,73 +6784,6 @@ class CsvSceneList(CsvFile):
         return 'CSV data converted to novel structure.'
 
 
-class CsvPlotList(CsvFile):
-    """csv file representation of a yWriter project's scenes table. 
-    
-    Public methods:
-        read() -- parse the file and get the instance variables.
-    """
-    DESCRIPTION = 'Plot list'
-    SUFFIX = '_plotlist'
-    _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
-    # '1' is assigned N/A (empty table cell).
-    _NOT_APPLICABLE = 'N/A'
-    # Scene field column header for fields not being assigned to a storyline
-    _rowTitles = ['ID', 'Plot section', 'Plot event', 'Scene title', 'Details', 'Scene', 'Words total',
-                 '$FieldTitle1', '$FieldTitle2', '$FieldTitle3', '$FieldTitle4']
-
-    def read(self):
-        """Parse the file and get the instance variables.
-        
-        Parse the csv file located at filePath, fetching the Scene attributes contained.
-        Return a message beginning with the ERROR constant in case of error.
-        Extends the superclass method.
-        """
-        message = super().read()
-        if message.startswith(ERROR):
-            return message
-
-        tableHeader = self._rows[0]
-        for cells in self._rows:
-            if 'ChID:' in cells[0]:
-                chId = re.search('ChID\:([0-9]+)', cells[0]).group(1)
-                self.chapters[chId] = Chapter()
-                self.chapters[chId].title = cells[1]
-                self.chapters[chId].desc = self._convert_to_yw(cells[4])
-            if 'ScID:' in cells[0]:
-                scId = re.search('ScID\:([0-9]+)', cells[0]).group(1)
-                self.scenes[scId] = Scene()
-                self.scenes[scId].tags = self._get_list(cells[2])
-                self.scenes[scId].title = cells[3]
-                self.scenes[scId].sceneNotes = self._convert_to_yw(cells[4])
-                i = 5
-                # Don't write back sceneCount
-                i += 1
-                # Don't write back wordCount
-                i += 1
-                # Transfer scene ratings; set to 1 if deleted
-                if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field1 = cells[i]
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field1 = '1'
-                i += 1
-                if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field2 = cells[i]
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field2 = '1'
-                i += 1
-                if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field3 = cells[i]
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field3 = '1'
-                i += 1
-                if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field4 = cells[i]
-                elif tableHeader[i] != self._NOT_APPLICABLE:
-                    self.scenes[scId].field4 = '1'
-        return 'CSV data converted to novel structure.'
-
-
 class CsvCharList(CsvFile):
     """csv file representation of a yWriter project's characters table. 
     
@@ -7044,8 +6919,8 @@ class Yw7Converter(YwCnvFf):
                              OdsLocList,
                              OdsItemList,
                              OdsSceneList,
-                             OdsPlotList,
                              OdtXref,
+                             OdtNotes,
                              ]
     IMPORT_SOURCE_CLASSES = [HtmlProof,
                              HtmlManuscript,
@@ -7055,11 +6930,11 @@ class Yw7Converter(YwCnvFf):
                              HtmlCharacters,
                              HtmlItems,
                              HtmlLocations,
+                             HtmlNotes,
                              CsvCharList,
                              CsvLocList,
                              CsvItemList,
                              CsvSceneList,
-                             CsvPlotList,
                              ]
     IMPORT_TARGET_CLASSES = [Yw7File]
     CREATE_SOURCE_CLASSES = []
@@ -7261,10 +7136,10 @@ def get_scenelist():
     open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
 
 
-def get_plotlist():
-    '''Import a plot list from yWriter 7 to a Calc document.
+def get_notes():
+    '''Import Notes chapters from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdsPlotList.SUFFIX, OdsPlotList.EXTENSION)
+    open_yw7(OdtNotes.SUFFIX, OdtNotes.EXTENSION)
 
 
 def get_charlist():

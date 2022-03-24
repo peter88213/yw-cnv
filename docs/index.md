@@ -24,7 +24,7 @@ __Please note:__ _This extension can not be installed on OpenOffice. An OpenOffi
 
 ## Download and install {#download}
 
-[Download the latest release (version 1.14.2)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.14.2.oxt)
+[Download the latest release (version 1.15.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.15.0.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).
@@ -37,10 +37,6 @@ __Please note:__ _This extension can not be installed on OpenOffice. An OpenOffi
 ## Get updates
 
 This extension supports the update mechanism of LibreOffice. You can let the Extension Manager check for updates from time to time to get the latest release.
-
-## Software development
-
-[Project class library overview](lib)
 
 ## Credits
 

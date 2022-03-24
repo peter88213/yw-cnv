@@ -30,7 +30,7 @@
 <li><a href="#location-descriptions">Location descriptions</a></li>
 <li><a href="#item-descriptions">Item descriptions</a></li>
 <li><a href="#scene-list">Scene list</a></li>
-<li><a href="#plot-list">Plot list</a></li>
+<li><a href="#notes-chapters">Notes chapters</a></li>
 </ul>
 <hr />
 <h2 id="manuscript-with-chapter-and-scene-sections">Manuscript with chapter and scene sections</h2>
@@ -41,7 +41,7 @@
 <ul>
 <li><em>Heading 1</em> --› New chapter title (beginning a new section).</li>
 <li><em>Heading 2</em> --› New chapter title.</li>
-<li><code>* * *</code> --› Scene divider.</li>
+<li><code>###</code> --› Scene divider. Optionally, you can also append the scene title to the scene divider.</li>
 </ul></li>
 </ul>
 <p>You can write back the scene contents and the chapter/part headings to the yWriter 7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command. Comments right at the beginning of the scenes are written back as scene titles if surrounded by <code>~</code>.</p>
@@ -125,42 +125,18 @@
 </ul>
 <p><a href="#top">Top of page</a></p>
 <hr />
-<h2 id="plot-list">Plot list</h2>
-<p>This will generate a new OpenDocument spreadsheet (ods) listing plot related metadata that can be displayed and edited.</p>
+<h2 id="notes-chapters">Notes chapters</h2>
+<p>This will write yWriter 7 "Notes" chapters with child scenes into a new OpenDocument text document (odt) with invisible chapter and scene sections (to be seen in the Navigator). File name suffix is <code>_notes</code>.</p>
 <ul>
-<li>ID (Hyperlink to the manuscript)</li>
-<li>Plot section (Title of "Notes" chapter)</li>
-<li>Plot event (Scene tag)</li>
-<li>Scene title</li>
-<li>Details (Notes)</li>
-<li>Sequential scene number</li>
-<li>Words total</li>
-<li>Rating 1</li>
-<li>Rating 2</li>
-<li>Rating 3</li>
-<li>Rating 4</li>
-</ul>
-<p>File name suffix is <code>_plotlist</code>.</p>
-<h3 id="plotting-conventions">Plotting conventions</h3>
-<p>In yWriter, you can divide your novel into <strong>Plot Sections</strong> (e.g. acts or steps) by inserting "Notes" chapters. They will show up in blue color and won't get exported.</p>
-<p><strong>Plot-related events</strong> (e.g. "Mid Point", "Climax") can be identified by "scene tags" if you want to link them to a specific scene.</p>
-<p>You can use scene notes for <strong>plot-specific explanations</strong>.</p>
-<p>If you want to <strong>visualize character arcs</strong>, you can use the project's rating names by changing them to the names of up to four main characters. Then you can quantify the state of these four characters and put them into the scenes. It's easy then to let OpenOffice Calc show a diagram for the scene ratings over scene count or word count.</p>
+<li>Comments right at the beginning of the scenes are written back as scene titles if surrounded by <code>~</code>.</li>
+<li>Chapters and scenes can neither be rearranged nor deleted.</li>
+<li>Scenes can be split by inserting headings or a scene divider:
 <ul>
-<li>Only rating field names corresponding to character names or containing the string "story", e.g. "A-Story", "BStoryline" (up to 10 case insensitive characters) appear in the plot list.</li>
-<li>Only ratings greater than 1 appear in the plot list, i.e. 1 means "a rating is not set for this chapter".</li>
-<li>Recommended ratings:
-<ul>
-<li>1 = N/A</li>
-<li>2 = unhappy</li>
-<li>3 = dissatisfied</li>
-<li>4 = vague</li>
-<li>5 = satisfied</li>
-<li>6 = happy</li>
+<li><em>Heading 1</em> --› New chapter title (beginning a new section).</li>
+<li><em>Heading 2</em> --› New chapter title.</li>
+<li><code>###</code> --› Scene divider. Optionally, you can append the scene title to the scene divider.</li>
 </ul></li>
-<li>Ratings deleted while editing the plotlist will be converted to 1 on writing back.</li>
 </ul>
-<p>You can write back the table contents to the yWriter 7 project file with the <a href="help.html#export-to-ywriter">Export to yWriter</a> command.</p>
 <p><a href="#top">Top of page</a></p>
 <hr />
 </body>
