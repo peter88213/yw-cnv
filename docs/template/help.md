@@ -108,7 +108,8 @@ text document (odt) with chapter and scene markers. File name suffix is
 -   You can split scenes by inserting headings or a scene divider:
     -  *Heading 1* --› New chapter title (beginning a new section).
     -  *Heading 2* --› New chapter title.
-    -  `* * *` --› Scene divider.
+    -  `###` --› Scene divider. Optionally, you can append the 
+       scene title to the scene divider.
 
 You can write back the scene contents to the yWriter 7 project file
 with the [Export to yWriter](#export-to-ywriter) command.
