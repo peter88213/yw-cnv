@@ -4,6 +4,15 @@
 
 ## Changelog
 
+### v1.16.0
+
+- New document types for "Notes" chapters import and export.
+- Drop support for the "Plot List" document types.
+- Change the way how scenes are split: Scene divider is "###". 
+  Optionally, the scene title may be appended.
+
+Based on PyWriter v5.2.0
+
 ### v1.14.2 Optional update
 
 - Clean up ODF templates to make the code and generated documents more compact.
