@@ -22,6 +22,7 @@
 
 -   [Replace scene dividers with blank lines](#replace-scene-dividers-with-blank-lines)
 -   [Indent paragraphs that start with '> '](#indent-paragraphs-that-start-with)
+-   [Replace list strokes with bullets](#replace-list-strokes-with-bullets)
 
 ## HowTo
 
@@ -76,8 +77,9 @@ text document (odt).
     as "chapter" headings.
 -   Scene titles appear as navigable comments pinned to the beginning of
     the scene.
--   Usually, scenes are separated by blank lines. The first line is not
-    indented.
+-   Scenes are separated by `* * *`. The first line is not
+    indented. You can replace the scene separators by blank lines with 
+    the menu command **Format >  Replace scene dividers with blank lines**.
 -   Starting from the second paragraph, paragraphs begin with
     indentation of the first line.
 -   Scenes marked "attach to previous scene" in yWriter appear like
@@ -267,8 +269,18 @@ lines will be changed from  _Heading 4_  to  _Heading 5_.
 
 ## Indent paragraphs that start with '> '
 
-This will select all paragraphs that start with '> '
+This will select all paragraphs that start with "> "
 and change their paragraph style to _Text body indent_.
+
+
+[Top of page](#top)
+
+------------------------------------------------------------------------
+
+## Replace list strokes with bullets
+
+This will select all paragraphs that start with "- "
+and apply a list paragraph style.
 
 
 [Top of page](#top)

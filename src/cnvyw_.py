@@ -296,6 +296,14 @@ def to_blank_lines():
     dispatcher = smgr.createInstanceWithContext(
         "com.sun.star.frame.DispatchHelper", ctx)
     # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    #--- Save cursor position.
+    oViewCursor = XSCRIPTCONTEXT.getDocument().CurrentController.getViewCursor()
+    # oViewCursor = ThisComponent.CurrentController().getViewCursor()
+    oSaveCursor = XSCRIPTCONTEXT.getDocument().Text.createTextCursorByRange(oViewCursor)
+    # oSaveCursor = ThisComponent.Text.createTextCursorByRange(oViewCursor)
+
+    #--- Replace "Heading 4" by "Heading 5".
     args1 = []
     for __ in range(19):
         args1.append(PropertyValue())
@@ -339,6 +347,8 @@ def to_blank_lines():
     args1[18].Name = "Quiet"
     args1[18].Value = True
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+
+    #--- Find all "Heading 5".
     args2 = []
     for __ in range(19):
         args2.append(PropertyValue())
@@ -382,6 +392,8 @@ def to_blank_lines():
     args2[18].Name = "Quiet"
     args2[18].Value = True
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args2)
+
+    #--- Delete scene dividers.
     args3 = []
     for __ in range(19):
         args3.append(PropertyValue())
@@ -426,6 +438,15 @@ def to_blank_lines():
     args3[18].Value = True
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args3)
 
+    #--- Reset search options with a dummy search.
+    args3[9].Value = 65536
+    args3[10].Value = "#"
+    args3[17].Value = 1
+    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args3)
+
+    #--- Restore cursor position.
+    oViewCursor.gotoRange(oSaveCursor, False)
+
 
 def indent_paragraphs():
     """Indent paragraphs that start with '> '.
@@ -441,8 +462,14 @@ def indent_paragraphs():
     smgr = ctx.getServiceManager()
     dispatcher = smgr.createInstanceWithContext("com.sun.star.frame.DispatchHelper", ctx)
     # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-    
-    # Assign all paragraphs beginning with '> ' the 'Text body indent' style.
+
+    #--- Save cursor position.
+    oViewCursor = XSCRIPTCONTEXT.getDocument().CurrentController.getViewCursor()
+    # oViewCursor = ThisComponent.CurrentController().getViewCursor()
+    oSaveCursor = XSCRIPTCONTEXT.getDocument().Text.createTextCursorByRange(oViewCursor)
+    # oSaveCursor = ThisComponent.Text.createTextCursorByRange(oViewCursor)
+
+    #--- Assign all paragraphs beginning with '> ' the 'Text body indent' style.
     args1 = []
     for __ in range(19):
         args1.append(PropertyValue())
@@ -486,16 +513,113 @@ def indent_paragraphs():
     args1[18].Name = "Quiet"
     args1[18].Value = True
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+
     args2 = []
     for __ in range(2):
         args2.append(PropertyValue())
-    # dim args2(18) as new com.sun.star.beans.PropertyValue
+    # dim args2(1) as new com.sun.star.beans.PropertyValue
     args2[0].Name = "Template"
     args2[0].Value = pStyles.getByName("Text body indent").DisplayName
     args2[1].Name = "Family"
     args2[1].Value = 2
     dispatcher.executeDispatch(document, ".uno:StyleApply", "", 0, args2)
 
-    # Delete the markup.
+    #--- Delete the markup.
     args1[17].Value = 3
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+
+    #--- Reset search options with a dummy search.
+    args1[8].Value = 0
+    args1[10].Value = "#"
+    args1[17].Value = 1
+    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+
+    #--- Restore cursor position.
+    oViewCursor.gotoRange(oSaveCursor, False)
+
+
+def replace_bullets():
+    """Replace list strokes with bullets.
+
+    Select all paragraphs that start with '- ' 
+    and apply a list paragraph style.
+    """
+    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
+    # document   = ThisComponent.CurrentController.Frame
+    ctx = XSCRIPTCONTEXT.getComponentContext()
+    smgr = ctx.getServiceManager()
+    dispatcher = smgr.createInstanceWithContext("com.sun.star.frame.DispatchHelper", ctx)
+    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
+
+    #--- Save cursor position.
+    oViewCursor = XSCRIPTCONTEXT.getDocument().CurrentController.getViewCursor()
+    # oViewCursor = ThisComponent.CurrentController().getViewCursor()
+    oSaveCursor = XSCRIPTCONTEXT.getDocument().Text.createTextCursorByRange(oViewCursor)
+    # oSaveCursor = ThisComponent.Text.createTextCursorByRange(oViewCursor)
+
+    #--- Find all list strokes.
+    args1 = []
+    for __ in range(19):
+        args1.append(PropertyValue())
+    # dim args1(18) as new com.sun.star.beans.PropertyValue
+    args1[0].Name = "SearchItem.StyleFamily"
+    args1[0].Value = 2
+    args1[1].Name = "SearchItem.CellType"
+    args1[1].Value = 0
+    args1[2].Name = "SearchItem.RowDirection"
+    args1[2].Value = True
+    args1[3].Name = "SearchItem.AllTables"
+    args1[3].Value = False
+    args1[4].Name = "SearchItem.Backward"
+    args1[4].Value = False
+    args1[5].Name = "SearchItem.Pattern"
+    args1[5].Value = False
+    args1[6].Name = "SearchItem.Content"
+    args1[6].Value = False
+    args1[7].Name = "SearchItem.AsianOptions"
+    args1[7].Value = False
+    args1[8].Name = "SearchItem.AlgorithmType"
+    args1[8].Value = 1
+    args1[9].Name = "SearchItem.SearchFlags"
+    args1[9].Value = 65536
+    args1[10].Name = "SearchItem.SearchString"
+    args1[10].Value = "^- "
+    args1[11].Name = "SearchItem.ReplaceString"
+    args1[11].Value = ""
+    args1[12].Name = "SearchItem.Locale"
+    args1[12].Value = 255
+    args1[13].Name = "SearchItem.ChangedChars"
+    args1[13].Value = 2
+    args1[14].Name = "SearchItem.DeletedChars"
+    args1[14].Value = 2
+    args1[15].Name = "SearchItem.InsertedChars"
+    args1[15].Value = 2
+    args1[16].Name = "SearchItem.TransliterateFlags"
+    args1[16].Value = 1280
+    args1[17].Name = "SearchItem.Command"
+    args1[17].Value = 1
+    args1[18].Name = "Quiet"
+    args1[18].Value = True
+    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+
+    #--- Apply list bullets to search result.
+    args2 = []
+    for __ in range(1):
+        args2.append(PropertyValue())
+    # dim args2(0) as new com.sun.star.beans.PropertyValue
+    args2[0].Name = "On"
+    args2[0].Value = True
+    dispatcher.executeDispatch(document, ".uno:DefaultBullet", "", 0, args2)
+
+    #--- Delete list strokes.
+    dispatcher.executeDispatch(document, ".uno:Delete", "", 0, [])
+    # dispatcher.executeDispatch(document, ".uno:Delete", "", 0, Array())
+
+    #--- Reset search options with a dummy search.
+    args1[8].Value = 0
+    args1[10].Value = "#"
+    args1[17].Value = 1
+    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+
+    #--- Restore cursor position.
+    oViewCursor.gotoRange(oSaveCursor, False)
