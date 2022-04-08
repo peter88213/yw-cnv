@@ -24,7 +24,7 @@ __Please note:__ _This extension can not be installed on OpenOffice. An OpenOffi
 
 ## Download and install {#download}
 
-[Download the latest release (version 1.18.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.18.0.oxt)
+[Download the latest release (version 1.18.1)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.18.1.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).
@@ -45,6 +45,8 @@ Compiler](https://wiki.openoffice.org/wiki/Extensions_Packager#Extension_Compile
 by Bernard Marcelly.
 
 Frederik Lundh published the [xml pretty print algorithm](http://effbot.org/zone/element-lib.htm#prettyprint).
+
+Andrew D. Pitonyak published useful Macro code examples in [OpenOffice.org Macros Explained](https://www.pitonyak.org/OOME_3_0.pdf).
 
 ## License
 

@@ -46,6 +46,8 @@ by Bernard Marcelly.
 
 Frederik Lundh published the [xml pretty print algorithm](http://effbot.org/zone/element-lib.htm#prettyprint).
 
+Andrew D. Pitonyak published useful Macro code examples in [OpenOffice.org Macros Explained](https://www.pitonyak.org/OOME_3_0.pdf).
+
 ## License
 
 This extension is distributed under the [MIT

@@ -513,20 +513,20 @@ def indent_paragraphs():
     args1[18].Name = "Quiet"
     args1[18].Value = True
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+    if is_anything_selected(XSCRIPTCONTEXT.getDocument()):
+        args2 = []
+        for __ in range(2):
+            args2.append(PropertyValue())
+        # dim args2(1) as new com.sun.star.beans.PropertyValue
+        args2[0].Name = "Template"
+        args2[0].Value = pStyles.getByName("Text body indent").DisplayName
+        args2[1].Name = "Family"
+        args2[1].Value = 2
+        dispatcher.executeDispatch(document, ".uno:StyleApply", "", 0, args2)
 
-    args2 = []
-    for __ in range(2):
-        args2.append(PropertyValue())
-    # dim args2(1) as new com.sun.star.beans.PropertyValue
-    args2[0].Name = "Template"
-    args2[0].Value = pStyles.getByName("Text body indent").DisplayName
-    args2[1].Name = "Family"
-    args2[1].Value = 2
-    dispatcher.executeDispatch(document, ".uno:StyleApply", "", 0, args2)
-
-    #--- Delete the markup.
-    args1[17].Value = 3
-    dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+        #--- Delete the markup.
+        args1[17].Value = 3
+        dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
 
     #--- Reset search options with a dummy search.
     args1[8].Value = 0
@@ -601,19 +601,19 @@ def replace_bullets():
     args1[18].Name = "Quiet"
     args1[18].Value = True
     dispatcher.executeDispatch(document, ".uno:ExecuteSearch", "", 0, args1)
+    if is_anything_selected(XSCRIPTCONTEXT.getDocument()):
+        #--- Apply list bullets to search result.
+        args2 = []
+        for __ in range(1):
+            args2.append(PropertyValue())
+        # dim args2(0) as new com.sun.star.beans.PropertyValue
+        args2[0].Name = "On"
+        args2[0].Value = True
+        dispatcher.executeDispatch(document, ".uno:DefaultBullet", "", 0, args2)
 
-    #--- Apply list bullets to search result.
-    args2 = []
-    for __ in range(1):
-        args2.append(PropertyValue())
-    # dim args2(0) as new com.sun.star.beans.PropertyValue
-    args2[0].Name = "On"
-    args2[0].Value = True
-    dispatcher.executeDispatch(document, ".uno:DefaultBullet", "", 0, args2)
-
-    #--- Delete list strokes.
-    dispatcher.executeDispatch(document, ".uno:Delete", "", 0, [])
-    # dispatcher.executeDispatch(document, ".uno:Delete", "", 0, Array())
+        #--- Delete list strokes.
+        dispatcher.executeDispatch(document, ".uno:Delete", "", 0, [])
+        # dispatcher.executeDispatch(document, ".uno:Delete", "", 0, Array())
 
     #--- Reset search options with a dummy search.
     args1[8].Value = 0
@@ -623,3 +623,41 @@ def replace_bullets():
 
     #--- Restore cursor position.
     oViewCursor.gotoRange(oSaveCursor, False)
+
+
+def is_anything_selected(oDoc):
+    """Return True if anything is selected.
+    
+    Positional arguments:
+        oDoc -- ThisComponent
+    
+    Code example by Andrew D. Pitonyak
+    OpenOffice.org Macros Explained
+    OOME Third Edition
+    """
+    # Assume nothing is selected
+    IsAnythingSelected = False
+    if oDoc is None:
+        return False
+
+    # The current selection in the current controller.
+    # If there is no current controller, it returns NULL.
+    oSelections = oDoc.getCurrentSelection()
+    if oSelections is None:
+        return False
+
+    if oSelections.getCount() == 0:
+        return False
+
+    if oSelections.getCount() > 1:
+        # There is more than one selection so return True
+        IsAnythingSelected = True
+    else:
+        # There is only one selection so obtain the first selection
+        oSel = oSelections.getByIndex(0)
+        # Create a text cursor that covers the range and then see if it is
+        # collapsed.
+        oCursor = oDoc.Text.createTextCursorByRange(oSel)
+        if not oCursor.isCollapsed():
+            IsAnythingSelected = True
+    return IsAnythingSelected
