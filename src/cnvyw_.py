@@ -452,7 +452,7 @@ def indent_paragraphs():
     """Indent paragraphs that start with '> '.
 
     Select all paragraphs that start with '> ' 
-    and change their paragraph style to _Text body indent_.
+    and change their paragraph style to _Quotations_.
     """
     pStyles = XSCRIPTCONTEXT.getDocument().StyleFamilies.getByName('ParagraphStyles')
     # pStyles = ThisComponent.StyleFamilies.getByName("ParagraphStyles")
@@ -469,7 +469,7 @@ def indent_paragraphs():
     oSaveCursor = XSCRIPTCONTEXT.getDocument().Text.createTextCursorByRange(oViewCursor)
     # oSaveCursor = ThisComponent.Text.createTextCursorByRange(oViewCursor)
 
-    #--- Assign all paragraphs beginning with '> ' the 'Text body indent' style.
+    #--- Assign all paragraphs beginning with '> ' the 'Quotations' style.
     args1 = []
     for __ in range(19):
         args1.append(PropertyValue())
@@ -519,7 +519,7 @@ def indent_paragraphs():
             args2.append(PropertyValue())
         # dim args2(1) as new com.sun.star.beans.PropertyValue
         args2[0].Name = "Template"
-        args2[0].Value = pStyles.getByName("Text body indent").DisplayName
+        args2[0].Value = pStyles.getByName("Quotations").DisplayName
         args2[1].Name = "Family"
         args2[1].Value = 2
         dispatcher.executeDispatch(document, ".uno:StyleApply", "", 0, args2)

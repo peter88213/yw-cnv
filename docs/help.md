@@ -270,8 +270,10 @@ lines will be changed from  _Heading 4_  to  _Heading 5_.
 ## Indent paragraphs that start with '> '
 
 This will select all paragraphs that start with "> "
-and change their paragraph style to _Text body indent_.
+and change their paragraph style to _Quotations_.
 
+Note: When exporting to yWriter, _Quotations_ style paragraphs will
+automatically marked with "> " at the beginning.
 
 [Top of page](#top)
 
@@ -282,6 +284,8 @@ and change their paragraph style to _Text body indent_.
 This will select all paragraphs that start with "- "
 and apply a list paragraph style.
 
+Note: When exporting to yWriter, Lists will
+automatically marked with "- " list strokes.
 
 [Top of page](#top)
 
