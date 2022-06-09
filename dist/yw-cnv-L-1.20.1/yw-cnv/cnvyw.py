@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.20.0
+Version 1.20.1
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -326,6 +326,84 @@ class Scene:
 from urllib.parse import quote
 
 
+class Chapter:
+    """yWriter chapter representation.
+    
+    Public instance variables:
+        title -- str: chapter title (may be the heading).
+        desc -- str: chapter description in a single string.
+        chLevel -- int: chapter level (part/chapter).
+        oldType -- int: chapter type (Chapter/Other).
+        chType -- int: chapter type yWriter 7.0.7.2+ (Normal/Notes/Todo).
+        isUnused -- bool: True, if the chapter is marked "Unused".
+        suppressChapterTitle -- bool: uppress chapter title when exporting.
+        isTrash -- bool: True, if the chapter is the project's trash bin.
+        suppressChapterBreak -- bool: Suppress chapter break when exporting.
+        srtScenes -- list of str: the chapter's sorted scene IDs.        
+    """
+
+    def __init__(self):
+        """Initialize instance variables."""
+        self.title = None
+        # str
+        # xml: <Title>
+
+        self.desc = None
+        # str
+        # xml: <Desc>
+
+        self.chLevel = None
+        # int
+        # xml: <SectionStart>
+        # 0 = chapter level
+        # 1 = section level ("this chapter begins a section")
+
+        self.oldType = None
+        # int
+        # xml: <Type>
+        # 0 = chapter type (marked "Chapter")
+        # 1 = other type (marked "Other")
+        # Applies to projects created by a yWriter version prior to 7.0.7.2.
+
+        self.chType = None
+        # int
+        # xml: <ChapterType>
+        # 0 = Normal
+        # 1 = Notes
+        # 2 = Todo
+        # Applies to projects created by yWriter version 7.0.7.2+.
+
+        self.isUnused = None
+        # bool
+        # xml: <Unused> -1
+
+        self.suppressChapterTitle = None
+        # bool
+        # xml: <Fields><Field_SuppressChapterTitle> 1
+        # True: Chapter heading not to be displayed in written document.
+        # False: Chapter heading to be displayed in written document.
+
+        self.isTrash = None
+        # bool
+        # xml: <Fields><Field_IsTrash> 1
+        # True: This chapter is the yw7 project's "trash bin".
+        # False: This chapter is not a "trash bin".
+
+        self.suppressChapterBreak = None
+        # bool
+        # xml: <Fields><Field_SuppressChapterBreak> 0
+
+        self.srtScenes = []
+        # list of str
+        # xml: <Scenes><ScID>
+        # The chapter's scene IDs. The order of its elements
+        # corresponds to the chapter's order of the scenes.
+
+        self.kwVar = {}
+        # dictionary
+        # Optional key/value instance variables for customization.
+
+
 class Novel:
     """Abstract yWriter project file representation.
 
@@ -362,6 +440,11 @@ class Novel:
     EXTENSION = None
     SUFFIX = None
     # To be extended by subclass methods.
+
+    CHAPTER_CLASS = Chapter
+    SCENE_CLASS = Scene
+    CHARACTER_CLASS = Character
+    WE_CLASS = WorldElement
 
     def __init__(self, filePath, **kwargs):
         """Initialize instance variables.
@@ -3992,84 +4075,6 @@ from html import unescape
 import xml.etree.ElementTree as ET
 
 
-class Chapter:
-    """yWriter chapter representation.
-    
-    Public instance variables:
-        title -- str: chapter title (may be the heading).
-        desc -- str: chapter description in a single string.
-        chLevel -- int: chapter level (part/chapter).
-        oldType -- int: chapter type (Chapter/Other).
-        chType -- int: chapter type yWriter 7.0.7.2+ (Normal/Notes/Todo).
-        isUnused -- bool: True, if the chapter is marked "Unused".
-        suppressChapterTitle -- bool: uppress chapter title when exporting.
-        isTrash -- bool: True, if the chapter is the project's trash bin.
-        suppressChapterBreak -- bool: Suppress chapter break when exporting.
-        srtScenes -- list of str: the chapter's sorted scene IDs.        
-    """
-
-    def __init__(self):
-        """Initialize instance variables."""
-        self.title = None
-        # str
-        # xml: <Title>
-
-        self.desc = None
-        # str
-        # xml: <Desc>
-
-        self.chLevel = None
-        # int
-        # xml: <SectionStart>
-        # 0 = chapter level
-        # 1 = section level ("this chapter begins a section")
-
-        self.oldType = None
-        # int
-        # xml: <Type>
-        # 0 = chapter type (marked "Chapter")
-        # 1 = other type (marked "Other")
-        # Applies to projects created by a yWriter version prior to 7.0.7.2.
-
-        self.chType = None
-        # int
-        # xml: <ChapterType>
-        # 0 = Normal
-        # 1 = Notes
-        # 2 = Todo
-        # Applies to projects created by yWriter version 7.0.7.2+.
-
-        self.isUnused = None
-        # bool
-        # xml: <Unused> -1
-
-        self.suppressChapterTitle = None
-        # bool
-        # xml: <Fields><Field_SuppressChapterTitle> 1
-        # True: Chapter heading not to be displayed in written document.
-        # False: Chapter heading to be displayed in written document.
-
-        self.isTrash = None
-        # bool
-        # xml: <Fields><Field_IsTrash> 1
-        # True: This chapter is the yw7 project's "trash bin".
-        # False: This chapter is not a "trash bin".
-
-        self.suppressChapterBreak = None
-        # bool
-        # xml: <Fields><Field_SuppressChapterBreak> 0
-
-        self.srtScenes = []
-        # list of str
-        # xml: <Scenes><ScID>
-        # The chapter's scene IDs. The order of its elements
-        # corresponds to the chapter's order of the scenes.
-
-        self.kwVar = {}
-        # dictionary
-        # Optional key/value instance variables for customization.
-
-
 class Splitter:
     """Helper class for scene and chapter splitting.
     
@@ -4108,7 +4113,7 @@ class Splitter:
                 desc -- str: description of the chapter to create.
                 level -- int: chapter level (part/chapter).           
             """
-            newChapter = Chapter()
+            newChapter = novel.CHAPTER_CLASS()
             newChapter.title = title
             newChapter.desc = desc
             newChapter.chLevel = level
@@ -4126,7 +4131,7 @@ class Splitter:
             WARNING = ' (!) '
 
             # Mark metadata of split scenes.
-            newScene = Scene()
+            newScene = novel.SCENE_CLASS()
             if title:
                 newScene.title = title
             elif parent.title:
@@ -4273,6 +4278,7 @@ class Yw7File(Novel):
         merge(source) -- update instance variables from a source instance.
         write() -- write instance variables to the yWriter xml file.
         is_locked() -- check whether the yw7 file is locked by yWriter.
+        remove_custom_fields() -- Remove custom fields from the yWriter file.
 
     Public instance variables:
         tree -- xml element tree of the yWriter project
@@ -4288,6 +4294,14 @@ class Yw7File(Novel):
     # Names of xml elements containing CDATA.
     # ElementTree.write omits CDATA tags, so they have to be inserted afterwards.
 
+    _PRJ_KWVAR = ()
+    _CHP_KWVAR = ()
+    _SCN_KWVAR = ()
+    _CRT_KWVAR = ()
+    _LOC_KWVAR = ()
+    _ITM_KWVAR = ()
+    # Keyword variables for custom fields in the .yw7 XML file.
+
     def __init__(self, filePath, **kwargs):
         """Initialize instance variables.
         
@@ -4301,6 +4315,10 @@ class Yw7File(Novel):
         """
         super().__init__(filePath)
         self.tree = None
+
+        #--- Initialize custom keyword variables.
+        for field in self._PRJ_KWVAR:
+            self.kwVar[field] = None
 
     def read(self):
         """Parse the yWriter xml file and get the instance variables.
@@ -4318,10 +4336,12 @@ class Yw7File(Novel):
         root = self.tree.getroot()
 
         #--- Read locations from the xml element tree.
+        self.srtLocations = []
+        # This is necessary for re-reading.
         for loc in root.iter('LOCATION'):
             lcId = loc.find('ID').text
             self.srtLocations.append(lcId)
-            self.locations[lcId] = WorldElement()
+            self.locations[lcId] = self.WE_CLASS()
 
             if loc.find('Title') is not None:
                 self.locations[lcId].title = loc.find('Title').text
@@ -4340,11 +4360,24 @@ class Yw7File(Novel):
                     tags = loc.find('Tags').text.split(';')
                     self.locations[lcId].tags = self._strip_spaces(tags)
 
+            #--- Initialize custom keyword variables.
+            for fieldName in self._LOC_KWVAR:
+                self.locations[lcId].kwVar[fieldName] = None
+
+            #--- Read location custom fields.
+            for lcFields in loc.findall('Fields'):
+                for fieldName in self._LOC_KWVAR:
+                    field = lcFields.find(fieldName)
+                    if field is not None:
+                        self.locations[lcId].kwVar[fieldName] = field.text
+
         #--- Read items from the xml element tree.
+        self.srtItems = []
+        # This is necessary for re-reading.
         for itm in root.iter('ITEM'):
             itId = itm.find('ID').text
             self.srtItems.append(itId)
-            self.items[itId] = WorldElement()
+            self.items[itId] = self.WE_CLASS()
 
             if itm.find('Title') is not None:
                 self.items[itId].title = itm.find('Title').text
@@ -4363,11 +4396,24 @@ class Yw7File(Novel):
                     tags = itm.find('Tags').text.split(';')
                     self.items[itId].tags = self._strip_spaces(tags)
 
+            #--- Initialize custom keyword variables.
+            for fieldName in self._ITM_KWVAR:
+                self.items[itId].kwVar[fieldName] = None
+
+            #--- Read item custom fields.
+            for itFields in itm.findall('Fields'):
+                for fieldName in self._ITM_KWVAR:
+                    field = itFields.find(fieldName)
+                    if field is not None:
+                        self.items[itId].kwVar[fieldName] = field.text
+
         #--- Read characters from the xml element tree.
+        self.srtCharacters = []
+        # This is necessary for re-reading.
         for crt in root.iter('CHARACTER'):
             crId = crt.find('ID').text
             self.srtCharacters.append(crId)
-            self.characters[crId] = Character()
+            self.characters[crId] = self.CHARACTER_CLASS()
 
             if crt.find('Title') is not None:
                 self.characters[crId].title = crt.find('Title').text
@@ -4403,6 +4449,17 @@ class Yw7File(Novel):
             else:
                 self.characters[crId].isMajor = False
 
+            #--- Initialize custom keyword variables.
+            for fieldName in self._CRT_KWVAR:
+                self.characters[crId].kwVar[fieldName] = None
+
+            #--- Read character custom fields.
+            for crFields in crt.findall('Fields'):
+                for fieldName in self._CRT_KWVAR:
+                    field = crFields.find(fieldName)
+                    if field is not None:
+                        self.characters[crId].kwVar[fieldName] = field.text
+
         #--- Read attributes at novel level from the xml element tree.
         prj = root.find('PROJECT')
 
@@ -4430,12 +4487,23 @@ class Yw7File(Novel):
         if prj.find('FieldTitle4') is not None:
             self.fieldTitle4 = prj.find('FieldTitle4').text
 
+        #--- Initialize custom keyword variables.
+        for fieldName in self._PRJ_KWVAR:
+            self.kwVar[fieldName] = None
+
+        #--- Read project custom fields.
+        for prjFields in prj.findall('Fields'):
+            for fieldName in self._PRJ_KWVAR:
+                field = prjFields.find(fieldName)
+                if field is not None:
+                    self.kwVar[fieldName] = field.text
+
         #--- Read attributes at chapter level from the xml element tree.
         self.srtChapters = []
         # This is necessary for re-reading.
         for chp in root.iter('CHAPTER'):
             chId = chp.find('ID').text
-            self.chapters[chId] = Chapter()
+            self.chapters[chId] = self.CHAPTER_CLASS()
             self.srtChapters.append(chId)
 
             if chp.find('Title') is not None:
@@ -4463,25 +4531,31 @@ class Yw7File(Novel):
             if self.chapters[chId].title is not None:
                 if self.chapters[chId].title.startswith('@'):
                     self.chapters[chId].suppressChapterTitle = True
-            for chFields in chp.findall('Fields'):
 
+            #--- Initialize custom keyword variables.
+            for fieldName in self._CHP_KWVAR:
+                self.chapters[chId].kwVar[fieldName] = None
+
+            #--- Read chapter fields.
+            for chFields in chp.findall('Fields'):
                 if chFields.find('Field_SuppressChapterTitle') is not None:
                     if chFields.find('Field_SuppressChapterTitle').text == '1':
                         self.chapters[chId].suppressChapterTitle = True
-
+                self.chapters[chId].isTrash = False
                 if chFields.find('Field_IsTrash') is not None:
                     if chFields.find('Field_IsTrash').text == '1':
                         self.chapters[chId].isTrash = True
-                    else:
-                        self.chapters[chId].isTrash = False
-
+                self.chapters[chId].suppressChapterBreak = False
                 if chFields.find('Field_SuppressChapterBreak') is not None:
                     if chFields.find('Field_SuppressChapterBreak').text == '1':
                         self.chapters[chId].suppressChapterBreak = True
-                    else:
-                        self.chapters[chId].suppressChapterBreak = False
-                else:
-                    self.chapters[chId].suppressChapterBreak = False
+
+                #--- Read chapter custom fields.
+                for fieldName in self._CHP_KWVAR:
+                    field = chFields.find(fieldName)
+                    if field is not None:
+                        self.chapters[chId].kwVar[fieldName] = field.text
+
             self.chapters[chId].srtScenes = []
             if chp.find('Scenes') is not None:
                 for scn in chp.find('Scenes').findall('ScID'):
@@ -4491,7 +4565,7 @@ class Yw7File(Novel):
         #--- Read attributes at scene level from the xml element tree.
         for scn in root.iter('SCENE'):
             scId = scn.find('ID').text
-            self.scenes[scId] = Scene()
+            self.scenes[scId] = self.SCENE_CLASS()
 
             if scn.find('Title') is not None:
                 self.scenes[scId].title = scn.find('Title').text
@@ -4522,13 +4596,25 @@ class Yw7File(Novel):
                 self.scenes[scId].isUnused = False
             self.scenes[scId].isNotesScene = False
             self.scenes[scId].isTodoScene = False
-            for scFields in scn.findall('Fields'):
 
+            #--- Initialize custom keyword variables.
+            for fieldName in self._SCN_KWVAR:
+                self.scenes[scId].kwVar[fieldName] = None
+
+            #--- Read scene fields.
+            for scFields in scn.findall('Fields'):
+                self.scenes[scId].isTodoScene = False
                 if scFields.find('Field_SceneType') is not None:
                     if scFields.find('Field_SceneType').text == '1':
                         self.scenes[scId].isNotesScene = True
                     if scFields.find('Field_SceneType').text == '2':
                         self.scenes[scId].isTodoScene = True
+
+                #--- Read scene custom fields.
+                for fieldName in self._SCN_KWVAR:
+                    field = scFields.find(fieldName)
+                    if field is not None:
+                        self.scenes[scId].kwVar[fieldName] = field.text
 
             if scn.find('ExportCondSpecific') is None:
                 self.scenes[scId].doNotExport = False
@@ -4683,10 +4769,10 @@ class Yw7File(Novel):
             for lcId in source.srtLocations:
 
                 # Build a new self.locations dictionary sorted like the source.
-                self.locations[lcId] = WorldElement()
+                self.locations[lcId] = self.WE_CLASS()
                 if not lcId in temploc:
                     # A new location has been added
-                    temploc[lcId] = WorldElement()
+                    temploc[lcId] = self.WE_CLASS()
                 if source.locations[lcId].title:
                     # avoids deleting the title, if it is empty by accident
                     self.locations[lcId].title = source.locations[lcId].title
@@ -4708,6 +4794,11 @@ class Yw7File(Novel):
                     self.locations[lcId].tags = source.locations[lcId].tags
                 else:
                     self.locations[lcId].tags = temploc[lcId].tags
+                for fieldName in self._LOC_KWVAR:
+                    try:
+                        self.locations[lcId].kwVar[fieldName] = source.locations[lcId].kwVar[fieldName]
+                    except:
+                        self.locations[lcId].kwVar[fieldName] = temploc[lcId].kwVar[fieldName]
 
         #--- Merge and re-order items.
         if source.srtItems:
@@ -4717,10 +4808,10 @@ class Yw7File(Novel):
             for itId in source.srtItems:
 
                 # Build a new self.items dictionary sorted like the source.
-                self.items[itId] = WorldElement()
+                self.items[itId] = self.WE_CLASS()
                 if not itId in tempitm:
                     # A new item has been added
-                    tempitm[itId] = WorldElement()
+                    tempitm[itId] = self.WE_CLASS()
                 if source.items[itId].title:
                     # avoids deleting the title, if it is empty by accident
                     self.items[itId].title = source.items[itId].title
@@ -4742,6 +4833,11 @@ class Yw7File(Novel):
                     self.items[itId].tags = source.items[itId].tags
                 else:
                     self.items[itId].tags = tempitm[itId].tags
+                for fieldName in self._ITM_KWVAR:
+                    try:
+                        self.items[itId].kwVar[fieldName] = source.items[itId].kwVar[fieldName]
+                    except:
+                        self.items[itId].kwVar[fieldName] = tempitm[itId].kwVar[fieldName]
 
         #--- Merge and re-order characters.
         if source.srtCharacters:
@@ -4751,10 +4847,10 @@ class Yw7File(Novel):
             for crId in source.srtCharacters:
 
                 # Build a new self.characters dictionary sorted like the source.
-                self.characters[crId] = Character()
+                self.characters[crId] = self.CHARACTER_CLASS()
                 if not crId in tempchr:
                     # A new character has been added
-                    tempchr[crId] = Character()
+                    tempchr[crId] = self.CHARACTER_CLASS()
                 if source.characters[crId].title:
                     # avoids deleting the title, if it is empty by accident
                     self.characters[crId].title = source.characters[crId].title
@@ -4796,12 +4892,17 @@ class Yw7File(Novel):
                     self.characters[crId].isMajor = source.characters[crId].isMajor
                 else:
                     self.characters[crId].isMajor = tempchr[crId].isMajor
+                for fieldName in self._CRT_KWVAR:
+                    try:
+                        self.characters[crId].kwVar[fieldName] = source.characters[crId].kwVar[fieldName]
+                    except:
+                        self.characters[crId].kwVar[fieldName] = tempchr[crId].kwVar[fieldName]
 
         #--- Merge scenes.
         sourceHasSceneContent = False
         for scId in source.scenes:
             if not scId in self.scenes:
-                self.scenes[scId] = Scene()
+                self.scenes[scId] = self.SCENE_CLASS()
             if source.scenes[scId].title:
                 # avoids deleting the title, if it is empty by accident
                 self.scenes[scId].title = source.scenes[scId].title
@@ -4877,11 +4978,16 @@ class Yw7File(Novel):
                 for itId in source.scenes[scId].items:
                     if itId in self.items:
                         self.scenes[scId].items.append(itId)
+            for fieldName in self._SCN_KWVAR:
+                try:
+                    self.scenes[scId].kwVar[fieldName] = source.scenes[scId].kwVar[fieldName]
+                except:
+                    pass
 
         #--- Merge chapters.
         for chId in source.chapters:
             if not chId in self.chapters:
-                self.chapters[chId] = Chapter()
+                self.chapters[chId] = self.CHAPTER_CLASS()
             if source.chapters[chId].title:
                 # avoids deleting the title, if it is empty by accident
                 self.chapters[chId].title = source.chapters[chId].title
@@ -4901,6 +5007,11 @@ class Yw7File(Novel):
                 self.chapters[chId].suppressChapterBreak = source.chapters[chId].suppressChapterBreak
             if source.chapters[chId].isTrash is not None:
                 self.chapters[chId].isTrash = source.chapters[chId].isTrash
+            for fieldName in self._CHP_KWVAR:
+                try:
+                    self.chapters[chId].kwVar[fieldName] = source.chapters[chId].kwVar[fieldName]
+                except:
+                    pass
 
             #--- Merge the chapter's scene list.
             # New scenes may be added.
@@ -4937,6 +5048,11 @@ class Yw7File(Novel):
             self.fieldTitle3 = source.fieldTitle3
         if source.fieldTitle4 is not None:
             self.fieldTitle4 = source.fieldTitle4
+        for fieldName in self._PRJ_KWVAR:
+            try:
+                self.kwVar[fieldName] = source.kwVar[fieldName]
+            except:
+                pass
 
         # Add new chapters to the chapter list.
         # Deletion of chapters is not considered.
@@ -5013,6 +5129,7 @@ class Yw7File(Novel):
             elif xmlScn.find('Unused') is not None:
                 xmlScn.remove(xmlScn.find('Unused'))
 
+            #--- Write scene fields.
             scFields = xmlScn.find('Fields')
             if prjScn.isNotesScene:
                 if scFields is None:
@@ -5026,7 +5143,6 @@ class Yw7File(Novel):
                     if scFields.find('Field_SceneType').text == '1':
                         scFields.remove(scFields.find('Field_SceneType'))
 
-            scFields = xmlScn.find('Fields')
             if prjScn.isTodoScene:
                 if scFields is None:
                     scFields = ET.SubElement(xmlScn, 'Fields')
@@ -5038,6 +5154,21 @@ class Yw7File(Novel):
                 if scFields.find('Field_SceneType') is not None:
                     if scFields.find('Field_SceneType').text == '2':
                         scFields.remove(scFields.find('Field_SceneType'))
+
+            #--- Write scene custom fields.
+            for field in self._SCN_KWVAR:
+                if field in self.scenes[scId].kwVar and self.scenes[scId].kwVar[field]:
+                    if scFields is None:
+                        scFields = ET.SubElement(xmlScn, 'Fields')
+                    try:
+                        scFields.find(field).text = self.scenes[scId].kwVar[field]
+                    except(AttributeError):
+                        ET.SubElement(scFields, field).text = self.scenes[scId].kwVar[field]
+                elif scFields is not None:
+                    try:
+                        scFields.remove(scFields.find(field))
+                    except:
+                        pass
 
             if prjScn.status is not None:
                 try:
@@ -5254,6 +5385,7 @@ class Yw7File(Novel):
             elif xmlChp.find('Unused') is not None:
                 xmlChp.remove(xmlChp.find('Unused'))
 
+            #--- Write chapter fields.
             chFields = xmlChp.find('Fields')
             if prjChp.suppressChapterTitle:
                 if chFields is None:
@@ -5266,7 +5398,6 @@ class Yw7File(Novel):
                 if chFields.find('Field_SuppressChapterTitle') is not None:
                     chFields.find('Field_SuppressChapterTitle').text = '0'
 
-            chFields = xmlChp.find('Fields')
             if prjChp.suppressChapterBreak:
                 if chFields is None:
                     chFields = ET.SubElement(xmlChp, 'Fields')
@@ -5278,7 +5409,6 @@ class Yw7File(Novel):
                 if chFields.find('Field_SuppressChapterBreak') is not None:
                     chFields.find('Field_SuppressChapterBreak').text = '0'
 
-            chFields = xmlChp.find('Fields')
             if prjChp.isTrash:
                 if chFields is None:
                     chFields = ET.SubElement(xmlChp, 'Fields')
@@ -5289,6 +5419,21 @@ class Yw7File(Novel):
             elif chFields is not None:
                 if chFields.find('Field_IsTrash') is not None:
                     chFields.remove(chFields.find('Field_IsTrash'))
+
+            #--- Write chapter custom fields.
+            for field in self._CHP_KWVAR:
+                if field in self.chapters[chId].kwVar and self.chapters[chId].kwVar[field]:
+                    if chFields is None:
+                        chFields = ET.SubElement(xmlChp, 'Fields')
+                    try:
+                        chFields.find(field).text = self.chapters[chId].kwVar[field]
+                    except(AttributeError):
+                        ET.SubElement(chFields, field).text = self.chapters[chId].kwVar[field]
+                elif chFields is not None:
+                    try:
+                        chFields.remove(chFields.find(field))
+                    except:
+                        pass
 
             #--- Rebuild the chapter's scene list.
             try:
@@ -5303,7 +5448,6 @@ class Yw7File(Novel):
 
         def build_location_subtree(xmlLoc, prjLoc, sortOrder):
             ET.SubElement(xmlLoc, 'ID').text = lcId
-
             if prjLoc.title is not None:
                 ET.SubElement(xmlLoc, 'Title').text = prjLoc.title
 
@@ -5320,6 +5464,22 @@ class Yw7File(Novel):
                 ET.SubElement(xmlLoc, 'Tags').text = ';'.join(prjLoc.tags)
 
             ET.SubElement(xmlLoc, 'SortOrder').text = str(sortOrder)
+
+            #--- Write location custom fields.
+            lcFields = xmlLoc.find('Fields')
+            for field in self._LOC_KWVAR:
+                if field in self.locations[lcId].kwVar and self.locations[lcId].kwVar[field]:
+                    if lcFields is None:
+                        lcFields = ET.SubElement(xmlLoc, 'Fields')
+                    try:
+                        lcFields.find(field).text = self.locations[lcId].kwVar[field]
+                    except(AttributeError):
+                        ET.SubElement(lcFields, field).text = self.locations[lcId].kwVar[field]
+                elif lcFields is not None:
+                    try:
+                        lcFields.remove(lcFields.find(field))
+                    except:
+                        pass
 
         def build_item_subtree(xmlItm, prjItm, sortOrder):
             ET.SubElement(xmlItm, 'ID').text = itId
@@ -5340,6 +5500,22 @@ class Yw7File(Novel):
                 ET.SubElement(xmlItm, 'Tags').text = ';'.join(prjItm.tags)
 
             ET.SubElement(xmlItm, 'SortOrder').text = str(sortOrder)
+
+            #--- Write item custom fields.
+            itFields = xmlItm.find('Fields')
+            for field in self._ITM_KWVAR:
+                if field in self.items[itId].kwVar and self.items[itId].kwVar[field]:
+                    if itFields is None:
+                        itFields = ET.SubElement(xmlItm, 'Fields')
+                    try:
+                        itFields.find(field).text = self.items[itId].kwVar[field]
+                    except(AttributeError):
+                        ET.SubElement(itFields, field).text = self.items[itId].kwVar[field]
+                elif itFields is not None:
+                    try:
+                        itFields.remove(itFields.find(field))
+                    except:
+                        pass
 
         def build_character_subtree(xmlCrt, prjCrt, sortOrder):
             ET.SubElement(xmlCrt, 'ID').text = crId
@@ -5375,6 +5551,22 @@ class Yw7File(Novel):
 
             if prjCrt.isMajor:
                 ET.SubElement(xmlCrt, 'Major').text = '-1'
+
+             #--- Write character custom fields.
+            crFields = xmlCrt.find('Fields')
+            for field in self._CRT_KWVAR:
+                if field in self.characters[crId].kwVar and self.characters[crId].kwVar[field]:
+                    if crFields is None:
+                        crFields = ET.SubElement(xmlCrt, 'Fields')
+                    try:
+                        crFields.find(field).text = self.characters[crId].kwVar[field]
+                    except(AttributeError):
+                        ET.SubElement(crFields, field).text = self.characters[crId].kwVar[field]
+                elif crFields is not None:
+                    try:
+                        crFields.remove(crFields.find(field))
+                    except:
+                        pass
 
         def build_project_subtree(xmlPrj):
             VER = '7'
@@ -5430,6 +5622,23 @@ class Yw7File(Novel):
                     xmlPrj.find('FieldTitle4').text = self.fieldTitle4
                 except(AttributeError):
                     ET.SubElement(xmlPrj, 'FieldTitle4').text = self.fieldTitle4
+
+            #--- Write project custom fields.
+            prjFields = xmlPrj.find('Fields')
+            for field in self._PRJ_KWVAR:
+                setting = self.kwVar[field]
+                if setting:
+                    if prjFields is None:
+                        prjFields = ET.SubElement(xmlPrj, 'Fields')
+                    try:
+                        prjFields.find(field).text = setting
+                    except(AttributeError):
+                        ET.SubElement(prjFields, field).text = setting
+                else:
+                    try:
+                        prjFields.remove(prjFields.find(field))
+                    except:
+                        pass
 
         TAG = 'YWRITER7'
         xmlScenes = {}
@@ -5534,7 +5743,6 @@ class Yw7File(Novel):
                 ET.SubElement(xmlChapters[chId], 'ID').text = chId
             build_chapter_subtree(xmlChapters[chId], self.chapters[chId], sortOrder)
             chapters.append(xmlChapters[chId])
-        indent(root)
 
         # Modify the scene contents of an existing xml element tree.
         for scn in root.iter('SCENE'):
@@ -5547,6 +5755,7 @@ class Yw7File(Novel):
                 scn.remove(scn.find('RTFFile'))
             except:
                 pass
+        indent(root)
         self.tree = ET.ElementTree(root)
 
     def _write_element_tree(self, ywProject):
@@ -5614,6 +5823,30 @@ class Yw7File(Novel):
         for line in lines:
             stripped.append(line.strip())
         return stripped
+
+    def reset_custom_variables(self):
+        """Set custom keyword variables to an empty string.
+        
+        Thus the write() method will remove the associated custom fields
+        from the .yw7 XML file. 
+        Return True, if a keyword variable has changed (i.e information is lost).
+        """
+        hasChanged = False
+        for field in self._PRJ_KWVAR:
+            if self.kwVar[field]:
+                self.kwVar[field] = ''
+                hasChanged = True
+        for chId in self.chapters:
+            for field in self._CHP_KWVAR:
+                if self.chapters[chId].kwVar[field]:
+                    self.chapters[chId].kwVar[field] = ''
+                    hasChanged = True
+        for scId in self.scenes:
+            for field in self._SCN_KWVAR:
+                if self.scenes[scId].kwVar[field]:
+                    self.scenes[scId].kwVar[field] = ''
+                    hasChanged = True
+        return hasChanged
 
 from html.parser import HTMLParser
 
@@ -5757,11 +5990,11 @@ class HtmlFile(Novel, HTMLParser):
             if attrs[0][0] == 'id':
                 if attrs[0][1].startswith('ScID'):
                     self._scId = re.search('[0-9]+', attrs[0][1]).group()
-                    self.scenes[self._scId] = Scene()
+                    self.scenes[self._scId] = self.SCENE_CLASS()
                     self.chapters[self._chId].srtScenes.append(self._scId)
                 elif attrs[0][1].startswith('ChID'):
                     self._chId = re.search('[0-9]+', attrs[0][1]).group()
-                    self.chapters[self._chId] = Chapter()
+                    self.chapters[self._chId] = self.CHAPTER_CLASS()
                     self.chapters[self._chId].srtScenes = []
                     self.srtChapters.append(self._chId)
 
@@ -5839,10 +6072,11 @@ class HtmlImport(HtmlFile):
             self._lines = []
             self._chCount += 1
             self._chId = str(self._chCount)
-            self.chapters[self._chId] = Chapter()
+            self.chapters[self._chId] = self.CHAPTER_CLASS()
             self.chapters[self._chId].srtScenes = []
             self.srtChapters.append(self._chId)
             self.chapters[self._chId].oldType = '0'
+            self.chapters[self._chId].chType = '0'
             if tag == 'h1':
                 self.chapters[self._chId].chLevel = 1
             else:
@@ -5852,7 +6086,7 @@ class HtmlImport(HtmlFile):
                 self._lines = []
                 self._scCount += 1
                 self._scId = str(self._scCount)
-                self.scenes[self._scId] = Scene()
+                self.scenes[self._scId] = self.SCENE_CLASS()
                 self.chapters[self._chId].srtScenes.append(self._scId)
                 self.scenes[self._scId].status = '1'
                 self.scenes[self._scId].title = f'Scene {self._scCount}'
@@ -5880,9 +6114,9 @@ class HtmlImport(HtmlFile):
             if self._scId is not None:
                 self.scenes[self._scId].sceneContent = ''.join(self._lines)
                 if self.scenes[self._scId].wordCount < self._LOW_WORDCOUNT:
-                    self.scenes[self._scId].status = Scene.STATUS.index('Outline')
+                    self.scenes[self._scId].status = self.SCENE_CLASS.STATUS.index('Outline')
                 else:
-                    self.scenes[self._scId].status = Scene.STATUS.index('Draft')
+                    self.scenes[self._scId].status = self.SCENE_CLASS.STATUS.index('Draft')
         elif tag in ('h1', 'h2'):
             self.chapters[self._chId].title = ''.join(self._lines)
             self._lines = []
@@ -5947,10 +6181,11 @@ class HtmlOutline(HtmlFile):
             self._lines = []
             self._chCount += 1
             self._chId = str(self._chCount)
-            self.chapters[self._chId] = Chapter()
+            self.chapters[self._chId] = self.CHAPTER_CLASS()
             self.chapters[self._chId].srtScenes = []
             self.srtChapters.append(self._chId)
             self.chapters[self._chId].oldType = '0'
+            self.chapters[self._chId].chType = '0'
             if tag == 'h1':
                 self.chapters[self._chId].chLevel = 1
             else:
@@ -5959,10 +6194,10 @@ class HtmlOutline(HtmlFile):
             self._lines = []
             self._scCount += 1
             self._scId = str(self._scCount)
-            self.scenes[self._scId] = Scene()
+            self.scenes[self._scId] = self.SCENE_CLASS()
             self.chapters[self._chId].srtScenes.append(self._scId)
             self.scenes[self._scId].sceneContent = ''
-            self.scenes[self._scId].status = Scene.STATUS.index('Outline')
+            self.scenes[self._scId].status = self.SCENE_CLASS.STATUS.index('Outline')
         elif tag == 'div':
             self._scId = None
             self._chId = None
@@ -6161,7 +6396,7 @@ class HtmlProof(HtmlFile):
         for line in self._lines:
             if '[ScID' in line:
                 scId = re.search('[0-9]+', line).group()
-                self.scenes[scId] = Scene()
+                self.scenes[scId] = self.SCENE_CLASS()
                 self.chapters[chId].srtScenes.append(scId)
                 inScene = True
             elif '[/ScID' in line:
@@ -6170,7 +6405,7 @@ class HtmlProof(HtmlFile):
                 inScene = False
             elif '[ChID' in line:
                 chId = re.search('[0-9]+', line).group()
-                self.chapters[chId] = Chapter()
+                self.chapters[chId] = self.CHAPTER_CLASS()
                 self.srtChapters.append(chId)
             elif '[/ChID' in line:
                 pass
@@ -6490,7 +6725,7 @@ class HtmlCharacters(HtmlFile):
                 if attrs[0][1].startswith('CrID_desc'):
                     self._crId = re.search('[0-9]+', attrs[0][1]).group()
                     self.srtCharacters.append(self._crId)
-                    self.characters[self._crId] = Character()
+                    self.characters[self._crId] = self.CHARACTER_CLASS()
                     self._section = 'desc'
                 elif attrs[0][1].startswith('CrID_bio'):
                     self._section = 'bio'
@@ -6575,7 +6810,7 @@ class HtmlLocations(HtmlFile):
                 if attrs[0][1].startswith('LcID'):
                     self._lcId = re.search('[0-9]+', attrs[0][1]).group()
                     self.srtLocations.append(self._lcId)
-                    self.locations[self._lcId] = WorldElement()
+                    self.locations[self._lcId] = self.WE_CLASS()
 
     def handle_endtag(self, tag):
         """Recognize the end of the location section and save data.
@@ -6640,7 +6875,7 @@ class HtmlItems(HtmlFile):
                 if attrs[0][1].startswith('ItID'):
                     self._itId = re.search('[0-9]+', attrs[0][1]).group()
                     self.srtItems.append(self._itId)
-                    self.items[self._itId] = WorldElement()
+                    self.items[self._itId] = self.WE_CLASS()
 
     def handle_endtag(self, tag):
         """Recognize the end of the item section and save data.
@@ -6775,7 +7010,7 @@ class CsvSceneList(CsvFile):
             i = 0
             if 'ScID:' in cells[i]:
                 scId = re.search('ScID\:([0-9]+)', cells[0]).group(1)
-                self.scenes[scId] = Scene()
+                self.scenes[scId] = self.SCENE_CLASS()
                 i += 1
                 self.scenes[scId].title = cells[i]
                 i += 1
@@ -6785,7 +7020,7 @@ class CsvSceneList(CsvFile):
                 i += 1
                 self.scenes[scId].sceneNotes = self._convert_to_yw(cells[i])
                 i += 1
-                if Scene.REACTION_MARKER.lower() in cells[i].lower():
+                if self.SCENE_CLASS.REACTION_MARKER.lower() in cells[i].lower():
                     self.scenes[scId].isReactionScene = True
                 else:
                     self.scenes[scId].isReactionScene = False
@@ -6827,7 +7062,7 @@ class CsvSceneList(CsvFile):
                 # Don't write back scene letters total
                 i += 1
                 try:
-                    self.scenes[scId].status = Scene.STATUS.index(cells[i])
+                    self.scenes[scId].status = self.SCENE_CLASS.STATUS.index(cells[i])
                 except ValueError:
                     pass
                     # Scene status remains None and will be ignored when
@@ -6866,14 +7101,14 @@ class CsvCharList(CsvFile):
             if 'CrID:' in cells[0]:
                 crId = re.search('CrID\:([0-9]+)', cells[0]).group(1)
                 self.srtCharacters.append(crId)
-                self.characters[crId] = Character()
+                self.characters[crId] = self.CHARACTER_CLASS()
                 self.characters[crId].title = cells[1]
                 self.characters[crId].fullName = cells[2]
                 self.characters[crId].aka = cells[3]
                 self.characters[crId].desc = self._convert_to_yw(cells[4])
                 self.characters[crId].bio = cells[5]
                 self.characters[crId].goals = cells[6]
-                if Character.MAJOR_MARKER in cells[7]:
+                if self.CHARACTER_CLASS.MAJOR_MARKER in cells[7]:
                     self.characters[crId].isMajor = True
                 else:
                     self.characters[crId].isMajor = False
@@ -6907,7 +7142,7 @@ class CsvLocList(CsvFile):
             if 'LcID:' in cells[0]:
                 lcId = re.search('LcID\:([0-9]+)', cells[0]).group(1)
                 self.srtLocations.append(lcId)
-                self.locations[lcId] = WorldElement()
+                self.locations[lcId] = self.WE_CLASS()
                 self.locations[lcId].title = cells[1]
                 self.locations[lcId].desc = self._convert_to_yw(cells[2])
                 self.locations[lcId].aka = cells[3]
@@ -6940,7 +7175,7 @@ class CsvItemList(CsvFile):
             if 'ItID:' in cells[0]:
                 itId = re.search('ItID\:([0-9]+)', cells[0]).group(1)
                 self.srtItems.append(itId)
-                self.items[itId] = WorldElement()
+                self.items[itId] = self.WE_CLASS()
                 self.items[itId].title = cells[1]
                 self.items[itId].desc = self._convert_to_yw(cells[2])
                 self.items[itId].aka = cells[3]
