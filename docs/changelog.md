@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.22.0 Optional update
+
+When splitting scenes, process title and description of new
+chapters/scenes, separated by "|".
+
+Based on PyWriter v5.12.0
+
 ### v1.20.1 Optional update
 
 When generating chapters from an outline or work in progress, add 
