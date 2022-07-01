@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.22.1 Improved word counting
+
+- Fix word counting considering comments, hyphens, and dashes.
+
+Based on PyWriter v5.12.3
+
 ### v1.22.0 Optional update
 
 When splitting scenes, process title and description of new

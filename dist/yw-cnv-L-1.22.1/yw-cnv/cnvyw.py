@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.22.0
+Version 1.22.1
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -314,11 +314,13 @@ class Scene:
     def sceneContent(self, text):
         """Set sceneContent updating word count and letter count."""
         self._sceneContent = text
-        text = re.sub('\[.+?\]|\.|\,| -', '', self._sceneContent)
-        # Remove yWriter raw markup for word count
+        text = re.sub('--|—|–', ' ', text)
+        # Make dashes separate words
+        text = re.sub('\[.+?\]|\/\*.+?\*\/|\.|\,|-', '', text)
+        # Remove comments and yWriter raw markup for word count; make hyphens join words
         wordList = text.split()
         self.wordCount = len(wordList)
-        text = re.sub('\[.+?\]', '', self._sceneContent)
+        text = re.sub('\[.+?\]|\/\*.+?\*\/', '', self._sceneContent)
         # Remove yWriter raw markup for letter count
         text = text.replace('\n', '')
         text = text.replace('\r', '')
@@ -1414,7 +1416,7 @@ class OdfFile(FileExport):
         Prepare the temporary directory containing the internal structure of an ODF file except 'content.xml'.
         Return a message beginning with the ERROR constant in case of error.
         """
-        
+
         #--- Create and open a temporary directory for the files to zip.
         try:
             self._tear_down()
@@ -1513,9 +1515,9 @@ class OdfFile(FileExport):
                 for file in self._ODF_COMPONENTS:
                     odfTarget.write(file, compress_type=zipfile.ZIP_DEFLATED)
         except:
+            os.chdir(workdir)
             if backedUp:
                 os.replace(f'{self.filePath}.bak', self.filePath)
-            os.chdir(workdir)
             return f'{ERROR}Cannot generate "{os.path.normpath(self.filePath)}".'
 
         #--- Remove temporary data.
