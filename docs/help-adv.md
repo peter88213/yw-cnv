@@ -35,8 +35,17 @@ This will load yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
--  Chapters and scenes can neither be rearranged nor deleted.
--  You can split scenes by inserting headings or a scene divider:
+-   Only "normal" chapters and scenes are imported. Chapters and
+    scenes marked "unused", "todo" or "notes" are not imported.
+-   Scenes beginning with `<HTML>` or `<TEX>` are not imported.
+-   Comments within scenes are written back as scene titles 
+    if surrounded by `~`.
+-   Comments in the text bracketed with slashes and asterisks (like
+    `/* this is a comment */`) are converted to author's comments.
+-   Interspersed HTML, TEX, or RTF commands are taken over unchanged.
+-   Gobal variables and project variables are not resolved.
+-   Chapters and scenes can neither be rearranged nor deleted.
+-   You can split scenes by inserting headings or a scene divider:
     -  *Heading 1* --› New chapter title (beginning a new section).
     -  *Heading 2* --› New chapter title.
     -  `###` --› Scene divider. Optionally, you can also append the 
@@ -44,7 +53,7 @@ seen in the Navigator). File name suffix is `_manuscript`.
 
 You can write back the scene contents and the chapter/part headings to 
 the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
-command. 
+command.
 
 -   Comments within scenes are written back as scene titles
     if surrounded by `~`.

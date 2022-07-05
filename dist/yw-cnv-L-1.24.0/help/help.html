@@ -60,8 +60,9 @@
 <li>Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.</li>
 <li>Only "normal" chapters and scenes are imported. Chapters and scenes marked "unused", "todo" or "notes" are not imported.</li>
 <li>Only scenes that are intended for RTF export in yWriter will be imported.</li>
+<li>Scenes beginning with <code>&lt;HTML&gt;</code> or <code>&lt;TEX&gt;</code> are not imported.</li>
 <li>Comments in the text bracketed with slashes and asterisks (like <code>/* this is a comment */</code>) are converted to author's comments.</li>
-<li>Interspersed HTML, TEX, or RTF commands are taken over unchanged.</li>
+<li>Interspersed HTML, TEX, or RTF commands are removed.</li>
 <li>Gobal variables and project variables are not resolved.</li>
 <li>Chapter titles appear as first level heading if the chapter is marked as beginning of a new section in yWriter. Such headings are considered as "part" headings.</li>
 <li>Chapter titles appear as second level heading if the chapter is not marked as beginning of a new section. Such headings are considered as "chapter" headings.</li>
@@ -78,7 +79,9 @@
 <li>The proof read document is placed in the same folder as the yWriter project.</li>
 <li>Document's filename: <code>&lt;yW project name&gt;_proof.odt</code>.</li>
 <li>Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.</li>
-<li>All chapters and scenes will be exported, whether "used" or "unused".</li>
+<li>Scenes beginning with <code>&lt;HTML&gt;</code> or <code>&lt;TEX&gt;</code> are not imported.</li>
+<li>All other chapters and scenes are imported, whether "used" or "unused".</li>
+<li>Interspersed HTML, TEX, or RTF commands are taken over unchanged.</li>
 <li>The document contains chapter <code>[ChID:x]</code> and scene <code>[ScID:y]</code> markers according to yWriter 5 standard. <strong>Do not touch lines containing the markers</strong> if you want to be able to reimport the document into yWriter.</li>
 <li>Chapters and scenes can neither be rearranged nor deleted.</li>
 <li>You can split scenes by inserting headings or a scene divider:
@@ -96,8 +99,9 @@
 <ul>
 <li>The document is placed in the same folder as the yWriter project.</li>
 <li>Document's <strong>filename</strong>: <code>&lt;yW project name_brf_synopsis&gt;.odt</code>.</li>
-<li>Only "normal" chapters and scenes are exported. Chapters and scenes marked "unused", "todo" or "notes" are not exported.</li>
-<li>Only scenes that are intended for RTF export in yWriter will be exported.</li>
+<li>Only "normal" chapters and scenes are imported. Chapters and scenes marked "unused", "todo" or "notes" are not imported.</li>
+<li>Only scenes that are intended for RTF export in yWriter will be imported.</li>
+<li>Titles of scenes beginning with <code>&lt;HTML&gt;</code> or <code>&lt;TEX&gt;</code> are not imported.</li>
 <li>Chapter titles appear as first level heading if the chapter is marked as beginning of a new section in yWriter. Such headings are considered as "part" headings.</li>
 <li>Chapter titles appear as second level heading if the chapter is not marked as beginning of a new section. Such headings are considered as "chapter" headings.</li>
 <li>Scene titles appear as plain paragraphs.</li>

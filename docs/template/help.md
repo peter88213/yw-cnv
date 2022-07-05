@@ -65,9 +65,10 @@ text document (odt).
     scenes marked "unused", "todo" or "notes" are not imported.
 -   Only scenes that are intended for RTF export in yWriter will be
     imported.
+-   Scenes beginning with `<HTML>` or `<TEX>` are not imported.
 -   Comments in the text bracketed with slashes and asterisks (like
     `/* this is a comment */`) are converted to author's comments.
--   Interspersed HTML, TEX, or RTF commands are taken over unchanged.
+-   Interspersed HTML, TEX, or RTF commands are removed.
 -   Gobal variables and project variables are not resolved.
 -   Chapter titles appear as first level heading if the chapter is
     marked as beginning of a new section in yWriter. Such headings are
@@ -100,8 +101,10 @@ text document (odt) with chapter and scene markers. File name suffix is
 -   Document's filename: `<yW project name>_proof.odt`.
 -   Text markup: Bold and italics are supported. Other highlighting such
     as underline and strikethrough are lost.
--   All chapters and scenes will be exported, whether "used" or
+-   Scenes beginning with `<HTML>` or `<TEX>` are not imported.
+-   All other chapters and scenes are imported, whether "used" or
     "unused".
+-   Interspersed HTML, TEX, or RTF commands are taken over unchanged.
 -   The document contains chapter `[ChID:x]` and scene `[ScID:y]`
     markers according to yWriter 5 standard. **Do not touch lines
     containing the markers** if you want to be able to reimport the
@@ -127,10 +130,11 @@ This will load a brief synopsis with chapter and scenes titles into a new
 
 -   The document is placed in the same folder as the yWriter project.
 -   Document's **filename**: `<yW project name_brf_synopsis>.odt`.
--   Only "normal" chapters and scenes are exported. Chapters and
-    scenes marked "unused", "todo" or "notes" are not exported.
+-   Only "normal" chapters and scenes are imported. Chapters and
+    scenes marked "unused", "todo" or "notes" are not imported.
 -   Only scenes that are intended for RTF export in yWriter will be
-    exported.
+    imported.
+-   Titles of scenes beginning with `<HTML>` or `<TEX>` are not imported.
 -   Chapter titles appear as first level heading if the chapter is
     marked as beginning of a new section in yWriter. Such headings are
     considered as "part" headings.
