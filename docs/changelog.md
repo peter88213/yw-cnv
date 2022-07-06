@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.26.1 Bugfix release
+
+- Import from yWriter: Fix quotations at scene start.
+- Fix and refactor inline code removal.
+
+Based on PyWriter v5.16.1
+
 ### v1.26.0 Consider quotations
 
 When importing chapters and scenes from yWriter, set style of paragraphs 
