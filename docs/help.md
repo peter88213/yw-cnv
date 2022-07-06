@@ -85,6 +85,7 @@ text document (odt).
     indentation of the first line.
 -   Scenes marked "attach to previous scene" in yWriter appear like
     continuous paragraphs.
+-   Paragraphs starting with `> ` are formatted as quotations.
 
 [Top of page](#top)
 

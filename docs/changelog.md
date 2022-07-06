@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.26.0 Consider quotations
+
+When importing chapters and scenes from yWriter, set style of paragraphs 
+that start with "> " to "Quotations".
+
+Based on PyWriter v5.16.0
+
 ### v1.24.0 Consider inline raw code
 
 When exporting chapters and scenes to odt,
