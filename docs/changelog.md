@@ -21,7 +21,7 @@ Based on PyWriter v5.16.0
 ### v1.24.0 Consider inline raw code
 
 When exporting chapters and scenes to odt,
-- ignore scenes beginning with <HTML> or <TEX>,
+- ignore scenes beginning with `<HTML>` or `<TEX>`,
 - remove inline raw code.
 
 Based on PyWriter v5.14.0
