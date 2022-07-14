@@ -27,3 +27,8 @@ class UiUno(Ui):
             msgbox(message, type_msg=ERRORBOX)
         else:
             msgbox(message, type_msg=INFOBOX)
+
+    def show_warning(self, message):
+        """Display a warning message box."""
+        msgbox(message, buttons=BUTTONS_OK, type_msg=WARNINGBOX)
+
