@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="yw-cnv" basedir=".">
-	<property name="version" value="1.27.4" />
+	<property name="version" value="1.27.5" />
 	<property name="test-app" value="cnvyw" />
 	
 	<property name="application" value="${ant.project.name}" />
@@ -85,10 +85,6 @@
 		<copy file="${test-path}/${test-app}.py" todir="${dist-path}/${release-L}/${application}" />
 		<replace encoding="utf-8" file="${dist-path}/${release-L}/${application}/${test-app}.py" token="@release" value="${version}" />
 
-		<copy todir="${dist-path}/${release-L}/${application}/locale"> 
-			<fileset dir="../../PyWriter/i18n/locale" />
-		</copy>
-		
 		<copy todir="${dist-path}/${release-L}/${application}/locale"> 
 			<fileset dir="../i18n/locale" />
 		</copy>

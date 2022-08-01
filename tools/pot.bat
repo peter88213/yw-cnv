@@ -1,1 +1,1 @@
-.\pygettext.py -d yw-cnv --output-dir=..\i18n\ -o yw-cnv.pot --no-location ..\src\cnvyw_.py
+.\pygettext.py -d pywriter --output-dir=..\i18n\ -o pywriter.pot --no-location ..\test\cnvyw.py

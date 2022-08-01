@@ -14,10 +14,81 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 
+msgid "File written"
+msgstr "Datei gespeichert"
+
+msgid "Cannot write file"
+msgstr "Kann Datei nicht schreiben"
+
+msgid "Cannot create file"
+msgstr "Kann Datei nicht erzeugen"
+
+msgid "Cannot create directory"
+msgstr "Kann Verzeichnis nicht erzeugen"
+
+msgid "Cannot overwrite file"
+msgstr "Kann Datei nicht überschreiben"
+
+msgid "File is write protected"
+msgstr "Datei ist schreibgeschützt"
+
+msgid "yWriter seems to be open. Please close first"
+msgstr "yWriter scheint offen zu sein. Bitte schließen!"
+
+msgid "Can not process file"
+msgstr "Kann Datei nicht verarbeiten"
+
+msgid "File not found"
+msgstr "Datei nicht gefunden"
+
+msgid "File already exists"
+msgstr "Datei existiert bereits"
+
+msgid "This document is not meant to be written back"
+msgstr "Dieses Dokument ist nicht zum Zurückschreiben gedacht"
+
+msgid "File type is not supported"
+msgstr "Dateityp wird nicht unterstützt"
+
+msgid "Target is not of the supported type"
+msgstr "Ziel ist kein unterstützter Typ"
+
+msgid "Action canceled by user"
+msgstr "Vorgang vom Benutzer abgebrochen"
+
+msgid "Export type is not supported"
+msgstr "Exporttyp nicht unterstützt"
+
+msgid "No yWriter project to write"
+msgstr "Kein yWriter-Projekt zu schreiben"
+
+msgid "Wrong csv structure"
+msgstr "Falsche csv-Struktur"
+
+msgid "Cannot parse File"
+msgstr "Kann Datei nicht parsen"
+
+msgid "Overwrite existing file"
+msgstr "Datei überschreiben"
+
+msgid "WARNING"
+msgstr "WARNUNG"
+
+msgid "Quit"
+msgstr "Beenden"
+
+msgid "Open"
+msgstr "Öffnen"
 
 msgid "Please choose a yWriter 7 project"
 msgstr "Bitte ein yWriter-Projekt wählen"
 
 msgid "Please close document first"
 msgstr "Bitte zuerst das Dokument schließen"
+
+msgid "Import from yWriter"
+msgstr "Aus yWriter importieren"
+
+msgid "Export to yWriter"
+msgstr "Zu yWriter exportieren"
 

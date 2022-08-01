@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.27.4
+Version 1.27.5
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -96,31 +96,7 @@ except:
     def _(message):
         return message
 
-# Translate messages.
-MSG_FILE_WRITTEN = _('File written')
-MSG_CANNOT_WRITE_FILE = _('Cannot write file')
-MSG_CANNOT_CREATE_FILE = _('Cannot create file')
-MSG_CANNOT_CREATE_DIR = _('Cannot create directory')
-MSG_CANNOT_OVERWRITE = _('Cannot overwrite file')
-MSG_WRITE_PROTECTED = _('File is write protected')
-MSG_YWRITER_OPEN = _('yWriter seems to be open. Please close first')
-MSG_CANNOT_PROCESS = _('Can not process file')
-MSG_FILE_NOT_FOUND = _('File not found')
-MSG_ALREADY_EXISTS = _('File already exists')
-MSG_WRITE_NOT_BACK = _('This document is not meant to be written back')
-MSG_UNSUPPORTED_TYPE = _('File type is not supported')
-MSG_UNSUPPORTED_TARGET = _('Target is not of the supported type')
-MSG_USER_CANCEL = _('Action canceled by user')
-MSG_UNSUPPORTED_EXPORT = _('Export type is not supported')
-MSG_NO_PROJECT = _('No yWriter project to write')
-MSG_WRONG_CSV_STRUCTURE = _('Wrong csv structure')
-MSG_CANNOT_PARSE = _('Cannot parse File')
-
-MSG_ASK_OVERWRITE = _('Overwrite existing file')
-MSG_WARNING = _('WARNING')
-MSG_BTN_QUIT = _('Quit')
-MSG_BTN_OPEN = _('Open')
-del _
+__all__ = ['ERROR', '_', 'LOCALE_PATH', 'CURRENT_LOCALE']
 
 
 def open_document(document):
@@ -233,16 +209,16 @@ class YwCnv:
         - The success message comes from target.write(), if called.       
         """
         if source.filePath is None:
-            return f'{ERROR}{MSG_UNSUPPORTED_TYPE}: "{os.path.normpath(source.filePath)}".'
+            return f'{ERROR}{_("File type is not supported")}: "{os.path.normpath(source.filePath)}".'
 
         if not os.path.isfile(source.filePath):
-            return f'{ERROR}{MSG_FILE_NOT_FOUND}: "{os.path.normpath(source.filePath)}".'
+            return f'{ERROR}{_("File not found")}: "{os.path.normpath(source.filePath)}".'
 
         if target.filePath is None:
-            return f'{ERROR}{MSG_UNSUPPORTED_TARGET}: "{os.path.normpath(target.filePath)}".'
+            return f'{ERROR}{_("File type is not supported")}: "{os.path.normpath(target.filePath)}".'
 
         if os.path.isfile(target.filePath) and not self._confirm_overwrite(target.filePath):
-            return f'{ERROR}{MSG_USER_CANCEL}.'
+            return f'{ERROR}{_("Action canceled by user")}.'
 
         message = source.read()
         if message.startswith(ERROR):
@@ -331,7 +307,7 @@ class YwCnvUi(YwCnv):
         self.ui.set_info_what(
             f'Create a yWriter project file from {source.DESCRIPTION}\nNew project: "{os.path.normpath(target.filePath)}"')
         if os.path.isfile(target.filePath):
-            self.ui.set_info_how(f'{ERROR}{MSG_ALREADY_EXISTS}: "{os.path.normpath(target.filePath)}".')
+            self.ui.set_info_how(f'{ERROR}{_("File already exists")}: "{os.path.normpath(target.filePath)}".')
         else:
             message = self.convert(source, target)
             self.ui.set_info_how(message)
@@ -377,7 +353,7 @@ class YwCnvUi(YwCnv):
         
         Overrides the superclass method.
         """
-        return self.ui.ask_yes_no(f'{MSG_ASK_OVERWRITE}: "{os.path.normpath(filePath)}"?')
+        return self.ui.ask_yes_no(f'{_("Overwrite existing file")}: "{os.path.normpath(filePath)}"?')
 
     def _delete_tempfile(self, filePath):
         """Delete filePath if it is a temporary file no longer needed."""
@@ -441,7 +417,7 @@ class ExportSourceFactory(FileFactory):
                 sourceFile = fileClass(sourcePath, **kwargs)
                 return 'Source object created.', sourceFile, None
 
-        return f'{ERROR}{MSG_UNSUPPORTED_TYPE}: "{os.path.normpath(sourcePath)}".', None, None
+        return f'{ERROR}{_("File type is not supported")}: "{os.path.normpath(sourcePath)}".', None, None
 
 
 class ExportTargetFactory(FileFactory):
@@ -477,7 +453,7 @@ class ExportTargetFactory(FileFactory):
                 targetFile = fileClass(f'{fileName}{suffix}{fileClass.EXTENSION}', **kwargs)
                 return 'Target object created.', None, targetFile
 
-        return f'{ERROR}{MSG_UNSUPPORTED_EXPORT}: "{suffix}".', None, None
+        return f'{ERROR}{_("Export type is not supported")}: "{suffix}".', None, None
 
 
 class ImportSourceFactory(FileFactory):
@@ -504,7 +480,7 @@ class ImportSourceFactory(FileFactory):
                     sourceFile = fileClass(sourcePath, **kwargs)
                     return 'Source object created.', sourceFile, None
 
-        return f'{ERROR}{MSG_WRITE_NOT_BACK}.', None, None
+        return f'{ERROR}{_("This document is not meant to be written back")}.', None, None
 
 
 class ImportTargetFactory(FileFactory):
@@ -544,7 +520,7 @@ class ImportTargetFactory(FileFactory):
                 targetFile = fileClass(f'{ywPathBasis}{fileClass.EXTENSION}', **kwargs)
                 return 'Target object created.', None, targetFile
 
-        return f'{ERROR}{MSG_NO_PROJECT}.', None, None
+        return f'{ERROR}{_("No yWriter project to write")}.', None, None
 
 
 class YwCnvFf(YwCnvUi):
@@ -598,7 +574,7 @@ class YwCnvFf(YwCnvUi):
         """
         self.newFile = None
         if not os.path.isfile(sourcePath):
-            self.ui.set_info_how(f'{ERROR}{MSG_FILE_NOT_FOUND}: "{os.path.normpath(sourcePath)}".')
+            self.ui.set_info_how(f'{ERROR}{_("File not found")}: "{os.path.normpath(sourcePath)}".')
             return
 
         message, source, __ = self.exportSourceFactory.make_file_objects(sourcePath, **kwargs)
@@ -1516,11 +1492,11 @@ class Yw7File(Novel):
         Overrides the superclass method.
         """
         if self.is_locked():
-            return f'{ERROR}{MSG_YWRITER_OPEN}.'
+            return f'{ERROR}{_("yWriter seems to be open. Please close first")}.'
         try:
             self.tree = ET.parse(self.filePath)
         except:
-            return f'{ERROR}{MSG_CANNOT_PROCESS}: "{os.path.normpath(self.filePath)}".'
+            return f'{ERROR}{_("Can not process file")}: "{os.path.normpath(self.filePath)}".'
 
         root = self.tree.getroot()
 
@@ -2265,7 +2241,7 @@ class Yw7File(Novel):
         Overrides the superclass method.
         """
         if self.is_locked():
-            return f'{ERROR}{MSG_YWRITER_OPEN}.'
+            return f'{ERROR}{_("yWriter seems to be open. Please close first")}.'
 
         self._build_element_tree()
         message = self._write_element_tree(self)
@@ -2962,7 +2938,7 @@ class Yw7File(Novel):
         except:
             if backedUp:
                 os.replace(f'{ywProject.filePath}.bak', ywProject.filePath)
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "{os.path.normpath(ywProject.filePath)}".'
+            return f'{ERROR}{_("Cannot write file")}: "{os.path.normpath(ywProject.filePath)}".'
 
         return 'yWriter XML tree written.'
 
@@ -2996,9 +2972,9 @@ class Yw7File(Novel):
             with open(filePath, 'w', encoding='utf-8') as f:
                 f.write(text)
         except:
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "{os.path.normpath(filePath)}".'
+            return f'{ERROR}{_("Cannot write file")}: "{os.path.normpath(filePath)}".'
 
-        return f'{MSG_FILE_WRITTEN}: "{os.path.normpath(filePath)}".'
+        return f'{_("File written")}: "{os.path.normpath(filePath)}".'
 
     def _strip_spaces(self, lines):
         """Local helper method.
@@ -3056,7 +3032,7 @@ def read_html_file(filePath):
             with open(filePath, 'r') as f:
                 content = (f.read())
         except(FileNotFoundError):
-            return f'{ERROR}{MSG_FILE_NOT_FOUND}: "{os.path.normpath(filePath)}".', None
+            return f'{ERROR}{_("File not found")}: "{os.path.normpath(filePath)}".', None
 
     return 'HTML data read in.', content
 
@@ -3456,7 +3432,7 @@ class NewProjectFactory(FileFactory):
         - targetFile: a Novel subclass instance
         """
         if not self._canImport(sourcePath):
-            return f'{ERROR}{MSG_WRITE_NOT_BACK}.', None, None
+            return f'{ERROR}{_("This document is not meant to be written back")}.', None, None
 
         fileName, __ = os.path.splitext(sourcePath)
         targetFile = Yw7File(f'{fileName}{Yw7File.EXTENSION}', **kwargs)
@@ -3479,7 +3455,7 @@ class NewProjectFactory(FileFactory):
                         sourceFile = fileClass(sourcePath, **kwargs)
                         return 'Source and target objects created.', sourceFile, targetFile
 
-            return f'{ERROR}{MSG_UNSUPPORTED_TYPE}: "{os.path.normpath(sourcePath)}".', None, None
+            return f'{ERROR}{_("File type is not supported")}: "{os.path.normpath(sourcePath)}".', None, None
 
     def _canImport(self, sourcePath):
         """Check whether the source file can be imported to yWriter.
@@ -4220,7 +4196,7 @@ class FileExport(Novel):
                 os.replace(self.filePath, f'{self.filePath}.bak')
                 backedUp = True
             except:
-                return f'{ERROR}{MSG_CANNOT_OVERWRITE}: "{os.path.normpath(self.filePath)}".'
+                return f'{ERROR}{_("Cannot overwrite file")}: "{os.path.normpath(self.filePath)}".'
 
         try:
             with open(self.filePath, 'w', encoding='utf-8') as f:
@@ -4228,9 +4204,9 @@ class FileExport(Novel):
         except:
             if backedUp:
                 os.replace(f'{self.filePath}.bak', self.filePath)
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "{os.path.normpath(self.filePath)}".'
+            return f'{ERROR}{_("Cannot write file")}: "{os.path.normpath(self.filePath)}".'
 
-        return f'{MSG_FILE_WRITTEN}: "{os.path.normpath(self.filePath)}".'
+        return f'{_("File written")}: "{os.path.normpath(self.filePath)}".'
 
     def _get_string(self, elements):
         """Join strings from a list.
@@ -4322,28 +4298,28 @@ class OdfFile(FileExport):
             os.mkdir(self._tempDir)
             os.mkdir(f'{self._tempDir}/META-INF')
         except:
-            return f'{ERROR}{MSG_CANNOT_CREATE_DIR}: "{os.path.normpath(self._tempDir)}".'
+            return f'{ERROR}{_("Cannot create directory")}: "{os.path.normpath(self._tempDir)}".'
 
         #--- Generate mimetype.
         try:
             with open(f'{self._tempDir}/mimetype', 'w', encoding='utf-8') as f:
                 f.write(self._MIMETYPE)
         except:
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "mimetype"'
+            return f'{ERROR}{_("Cannot write file")}: "mimetype"'
 
         #--- Generate settings.xml.
         try:
             with open(f'{self._tempDir}/settings.xml', 'w', encoding='utf-8') as f:
                 f.write(self._SETTINGS_XML)
         except:
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "settings.xml"'
+            return f'{ERROR}{_("Cannot write file")}: "settings.xml"'
 
         #--- Generate META-INF\manifest.xml.
         try:
             with open(f'{self._tempDir}/META-INF/manifest.xml', 'w', encoding='utf-8') as f:
                 f.write(self._MANIFEST_XML)
         except:
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "manifest.xml"'
+            return f'{ERROR}{_("Cannot write file")}: "manifest.xml"'
 
         #--- Generate styles.xml with system language set as document language.
         lng, ctr = locale.getdefaultlocale()[0].split('_')
@@ -4357,7 +4333,7 @@ class OdfFile(FileExport):
             with open(f'{self._tempDir}/styles.xml', 'w', encoding='utf-8') as f:
                 f.write(text)
         except:
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "styles.xml"'
+            return f'{ERROR}{_("Cannot write file")}: "styles.xml"'
 
         #--- Generate meta.xml with actual document metadata.
         metaMapping = dict(
@@ -4372,7 +4348,7 @@ class OdfFile(FileExport):
             with open(f'{self._tempDir}/meta.xml', 'w', encoding='utf-8') as f:
                 f.write(text)
         except:
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "meta.xml".'
+            return f'{ERROR}{_("Cannot write file")}: "meta.xml".'
 
         return 'ODF structure generated.'
 
@@ -4406,7 +4382,7 @@ class OdfFile(FileExport):
                 os.replace(self.filePath, f'{self.filePath}.bak')
                 backedUp = True
             except:
-                return f'{ERROR}{MSG_CANNOT_OVERWRITE}: "{os.path.normpath(self.filePath)}".'
+                return f'{ERROR}{_("Cannot overwrite file")}: "{os.path.normpath(self.filePath)}".'
 
         try:
             with zipfile.ZipFile(self.filePath, 'w') as odfTarget:
@@ -4417,12 +4393,12 @@ class OdfFile(FileExport):
             os.chdir(workdir)
             if backedUp:
                 os.replace(f'{self.filePath}.bak', self.filePath)
-            return f'{ERROR}{MSG_CANNOT_CREATE_FILE}: "{os.path.normpath(self.filePath)}".'
+            return f'{ERROR}{_("Cannot create file")}: "{os.path.normpath(self.filePath)}".'
 
         #--- Remove temporary data.
         os.chdir(workdir)
         self._tear_down()
-        return f'{MSG_FILE_WRITTEN}: "{os.path.normpath(self.filePath)}".'
+        return f'{_("File written")}: "{os.path.normpath(self.filePath)}".'
 
 
 class OdtFile(OdfFile):
@@ -4801,7 +4777,7 @@ class OdtFile(OdfFile):
             with open(f'{self._tempDir}/manifest.rdf', 'w', encoding='utf-8') as f:
                 f.write(self._MANIFEST_RDF)
         except:
-            return f'{ERROR}{MSG_CANNOT_WRITE_FILE}: "manifest.rdf"'
+            return f'{ERROR}{_("Cannot write file")}: "manifest.rdf"'
 
         return 'ODT structure generated.'
 
@@ -7081,14 +7057,14 @@ class CsvFile(Novel):
                 reader = csv.reader(f, delimiter=self._SEPARATOR)
                 for row in reader:
                     if len(row) != cellsPerRow:
-                        return f'{ERROR}{MSG_WRONG_CSV_STRUCTURE}.'
+                        return f'{ERROR}{_("Wrong csv structure")}.'
 
                     self._rows.append(row)
         except(FileNotFoundError):
-            return f'{ERROR}{MSG_FILE_NOT_FOUND}: "{os.path.normpath(self.filePath)}".'
+            return f'{ERROR}{_("File not found")}: "{os.path.normpath(self.filePath)}".'
 
         except:
-            return f'{ERROR}{MSG_CANNOT_PARSE}: "{os.path.normpath(self.filePath)}".'
+            return f'{ERROR}{_("Cannot parse File")}: "{os.path.normpath(self.filePath)}".'
 
         return 'CSV data read in.'
 
@@ -7424,17 +7400,6 @@ class UiUno(Ui):
 
 INI_FILE = 'openyw.ini'
 
-try:
-    t = gettext.translation('yw-cnv', LOCALE_PATH, languages=[CURRENT_LOCALE])
-    _ = t.gettext
-except:
-
-    def _(message):
-        return message
-
-MSG_CHOOSE_YW = _('Please choose a yWriter 7 project')
-MSG_PLEASE_CLOSE = _('Please close document first')
-
 
 def open_yw7(suffix, newExt):
     """Open a yWriter project, create a new document and load it.
@@ -7465,7 +7430,7 @@ def open_yw7(suffix, newExt):
     sourcePath = uno.fileUrlToSystemPath(ywFile)
     __, ywExt = os.path.splitext(sourcePath)
     if not ywExt in ['.yw7']:
-        msgbox(f'{MSG_CHOOSE_YW}.', type_msg=ERRORBOX)
+        msgbox(f'{_("Please choose a yWriter 7 project")}.', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
@@ -7481,14 +7446,14 @@ def open_yw7(suffix, newExt):
 
     # Check if import file is already open in LibreOffice:
     if os.path.isfile(lockFile):
-        msgbox(f'{MSG_PLEASE_CLOSE}t: "{fileName}".', type_msg=ERRORBOX)
+        msgbox(f'{_("Please close document first")}t: "{fileName}".', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
     converter = YwCnvUno()
-    converter.ui = UiUno('Import from yWriter')
+    converter.ui = UiUno(_('Import from yWriter'))
     kwargs = {'suffix': suffix}
     converter.run(sourcePath, **kwargs)
     if converter.newFile:
@@ -7675,11 +7640,11 @@ def export_yw():
 
         targetPath = uno.fileUrlToSystemPath(csvPath)
     else:
-        msgbox(f'{MSG_UNSUPPORTED_TYPE}: "{os.path.normpath(documentPath)}".', type_msg=ERRORBOX)
+        msgbox(f'{_("File type is not supported")}: "{os.path.normpath(documentPath)}".', type_msg=ERRORBOX)
         return
 
     converter = YwCnvUno()
-    converter.ui = UiUno('Export to yWriter')
+    converter.ui = UiUno(_('Export to yWriter'))
     kwargs = {'suffix': None}
     converter.run(targetPath, **kwargs)
 

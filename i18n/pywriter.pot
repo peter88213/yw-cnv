@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2022-08-01 14:41+0200\n"
+"POT-Creation-Date: 2022-08-01 20:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -15,9 +15,9 @@ msgstr ""
 "Generated-By: pygettext.py 1.5\n"
 
 
-msgid "Please choose a yWriter 7 project"
+msgid "Import from yWriter"
 msgstr ""
 
-msgid "Please close document first"
+msgid "Export to yWriter"
 msgstr ""
 

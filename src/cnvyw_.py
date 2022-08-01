@@ -34,17 +34,6 @@ from pywriter.odt.odt_locations import OdtLocations
 
 INI_FILE = 'openyw.ini'
 
-try:
-    t = gettext.translation('yw-cnv', LOCALE_PATH, languages=[CURRENT_LOCALE])
-    _ = t.gettext
-except:
-
-    def _(message):
-        return message
-
-MSG_CHOOSE_YW = _('Please choose a yWriter 7 project')
-MSG_PLEASE_CLOSE = _('Please close document first')
-
 
 def open_yw7(suffix, newExt):
     """Open a yWriter project, create a new document and load it.
@@ -75,7 +64,7 @@ def open_yw7(suffix, newExt):
     sourcePath = uno.fileUrlToSystemPath(ywFile)
     __, ywExt = os.path.splitext(sourcePath)
     if not ywExt in ['.yw7']:
-        msgbox(f'{MSG_CHOOSE_YW}.', type_msg=ERRORBOX)
+        msgbox(f'{_("Please choose a yWriter 7 project")}.', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
@@ -91,14 +80,14 @@ def open_yw7(suffix, newExt):
 
     # Check if import file is already open in LibreOffice:
     if os.path.isfile(lockFile):
-        msgbox(f'{MSG_PLEASE_CLOSE}t: "{fileName}".', type_msg=ERRORBOX)
+        msgbox(f'{_("Please close document first")}t: "{fileName}".', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
     workdir = os.path.dirname(sourcePath)
     os.chdir(workdir)
     converter = YwCnvUno()
-    converter.ui = UiUno('Import from yWriter')
+    converter.ui = UiUno(_('Import from yWriter'))
     kwargs = {'suffix': suffix}
     converter.run(sourcePath, **kwargs)
     if converter.newFile:
@@ -285,11 +274,11 @@ def export_yw():
 
         targetPath = uno.fileUrlToSystemPath(csvPath)
     else:
-        msgbox(f'{MSG_UNSUPPORTED_TYPE}: "{os.path.normpath(documentPath)}".', type_msg=ERRORBOX)
+        msgbox(f'{_("File type is not supported")}: "{os.path.normpath(documentPath)}".', type_msg=ERRORBOX)
         return
 
     converter = YwCnvUno()
-    converter.ui = UiUno('Export to yWriter')
+    converter.ui = UiUno(_('Export to yWriter'))
     kwargs = {'suffix': None}
     converter.run(targetPath, **kwargs)
 
