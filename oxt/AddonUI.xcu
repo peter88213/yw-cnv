@@ -222,6 +222,7 @@
                            </prop>
                            <prop oor:name="Title" oor:type="xs:string">
                               <value xml:lang="en">Advanced features</value>
+                              <value xml:lang="de">Für Fortgeschrittene</value>
                            </prop>
                            <node oor:name="Submenu">
                               <node oor:name="N020" oor:op="replace">
@@ -230,6 +231,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Manuscript with chapter and scene sections</value>
+                                    <value xml:lang="de">Manuskript mit Kapitel- und Szenenbereichen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
@@ -244,6 +246,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Scene descriptions</value>
+                                    <value xml:lang="de">Szenebeschreibungen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
@@ -258,6 +261,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Chapter descriptions</value>
+                                    <value xml:lang="de">Kapitelbeschreibungen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_chapterdesc?language=Python&amp;location=user:uno_packages</value>
@@ -272,6 +276,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Part descriptions</value>
+                                    <value xml:lang="de">Teilebeschreibungen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_partdesc?language=Python&amp;location=user:uno_packages</value>
@@ -291,6 +296,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Character descriptions</value>
+                                    <value xml:lang="de">Figurenbeschreibungen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_chardesc?language=Python&amp;location=user:uno_packages</value>
@@ -305,6 +311,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Location descriptions</value>
+                                    <value xml:lang="de">Schauplatzbeschreibungen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_locdesc?language=Python&amp;location=user:uno_packages</value>
@@ -319,6 +326,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Item descriptions</value>
+                                    <value xml:lang="de">Gegenständebeschreibungen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_itemdesc?language=Python&amp;location=user:uno_packages</value>
@@ -338,6 +346,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Scene list</value>
+                                    <value xml:lang="de">Szenenliste</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
@@ -352,6 +361,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Notes chapters</value>
+                                    <value xml:lang="de">Notizen-Kapitel</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_notes?language=Python&amp;location=user:uno_packages</value>
@@ -371,6 +381,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Help</value>
+                                    <value xml:lang="de">Hilfe</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
@@ -644,6 +655,7 @@
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
                      <value xml:lang="en">Advanced features</value>
+                     <value xml:lang="de">Für Fortgeschrittene</value>
                   </prop>
                   <node oor:name="Submenu">
                      <node oor:name="N018" oor:op="replace">
@@ -652,6 +664,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Manuscript with chapter and scene sections</value>
+                           <value xml:lang="de">Manuskript mit Kapitel- und Szenenbereichen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
@@ -666,6 +679,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Scene descriptions</value>
+                           <value xml:lang="de">Szenebeschreibungen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
@@ -680,6 +694,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Chapter descriptions</value>
+                           <value xml:lang="de">Kapitelbeschreibungen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_chapterdesc?language=Python&amp;location=user:uno_packages</value>
@@ -694,6 +709,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Part descriptions</value>
+                           <value xml:lang="de">Teilebeschreibungen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_partdesc?language=Python&amp;location=user:uno_packages</value>
@@ -713,6 +729,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Character descriptions</value>
+                           <value xml:lang="de">Figurenbeschreibungen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_chardesc?language=Python&amp;location=user:uno_packages</value>
@@ -727,6 +744,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Location descriptions</value>
+                           <value xml:lang="de">Schauplatzbeschreibungen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_locdesc?language=Python&amp;location=user:uno_packages</value>
@@ -741,6 +759,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Item descriptions</value>
+                           <value xml:lang="de">Gegenständebeschreibungen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_itemdesc?language=Python&amp;location=user:uno_packages</value>
@@ -760,6 +779,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Scene list</value>
+                           <value xml:lang="de">Szenenliste</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
@@ -774,6 +794,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Notes chapters</value>
+                           <value xml:lang="de">Notizen-Kapitel</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_notes?language=Python&amp;location=user:uno_packages</value>
@@ -793,6 +814,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Help</value>
+                           <value xml:lang="de">Hilfe</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_adv_help?language=Python&amp;location=user:uno_packages</value>
