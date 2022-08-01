@@ -11,6 +11,11 @@ from com.sun.star.awt.MessageBoxType import MESSAGEBOX, INFOBOX, WARNINGBOX, ERR
 from com.sun.star.beans import PropertyValue
 import os
 from configparser import ConfigParser
+from ywcnvlib.uno_tools import *
+from ywcnvlib.yw_cnv_uno import YwCnvUno
+from ywcnvlib.ui_uno import UiUno
+
+from pywriter.pywriter_globals import *
 from pywriter.odt.odt_proof import OdtProof
 from pywriter.odt.odt_manuscript import OdtManuscript
 from pywriter.odt.odt_scenedesc import OdtSceneDesc
@@ -26,11 +31,19 @@ from pywriter.ods.ods_itemlist import OdsItemList
 from pywriter.odt.odt_characters import OdtCharacters
 from pywriter.odt.odt_items import OdtItems
 from pywriter.odt.odt_locations import OdtLocations
-from ywcnvlib.uno_tools import *
-from ywcnvlib.yw_cnv_uno import YwCnvUno
-from ywcnvlib.ui_uno import UiUno
 
 INI_FILE = 'openyw.ini'
+
+try:
+    t = gettext.translation('yw-cnv', LOCALE_PATH, languages=[CURRENT_LOCALE])
+    _ = t.gettext
+except:
+
+    def _(message):
+        return message
+
+MSG_CHOOSE_YW = _('Please choose a yWriter 7 project')
+MSG_PLEASE_CLOSE = _('Please close document first')
 
 
 def open_yw7(suffix, newExt):
@@ -62,7 +75,7 @@ def open_yw7(suffix, newExt):
     sourcePath = uno.fileUrlToSystemPath(ywFile)
     __, ywExt = os.path.splitext(sourcePath)
     if not ywExt in ['.yw7']:
-        msgbox('Please choose a yWriter 7 project.', 'Import from yWriter', type_msg=ERRORBOX)
+        msgbox(f'{MSG_CHOOSE_YW}.', type_msg=ERRORBOX)
         return
 
     # Store selected yWriter project as "last opened".
@@ -78,7 +91,7 @@ def open_yw7(suffix, newExt):
 
     # Check if import file is already open in LibreOffice:
     if os.path.isfile(lockFile):
-        msgbox(f'Please close "{fileName}" first.', 'Import from yWriter', type_msg=ERRORBOX)
+        msgbox(f'{MSG_PLEASE_CLOSE}t: "{fileName}".', type_msg=ERRORBOX)
         return
 
     # Open yWriter project and convert data.
@@ -272,7 +285,7 @@ def export_yw():
 
         targetPath = uno.fileUrlToSystemPath(csvPath)
     else:
-        msgbox(f'File type of "{os.path.normpath(documentPath)}" not supported.', type_msg=ERRORBOX)
+        msgbox(f'{MSG_UNSUPPORTED_TYPE}: "{os.path.normpath(documentPath)}".', type_msg=ERRORBOX)
         return
 
     converter = YwCnvUno()
