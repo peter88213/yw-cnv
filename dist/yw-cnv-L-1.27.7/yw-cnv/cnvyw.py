@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.27.6
+Version 1.27.7
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1198,7 +1198,7 @@ class Novel:
         
         This is a stub to be overridden by subclass methods.
         """
-        return text
+        return text.rstrip()
 
     def _convert_from_yw(self, text, quick=False):
         """Return text, converted from yw7 markup to target format.
@@ -1211,7 +1211,7 @@ class Novel:
         
         This is a stub to be overridden by subclass methods.
         """
-        return text
+        return text.rstrip()
 
 
 class Splitter:
@@ -7117,7 +7117,7 @@ class CsvSceneList(CsvFile):
                 scId = re.search('ScID\:([0-9]+)', cells[0]).group(1)
                 self.scenes[scId] = self.SCENE_CLASS()
                 i += 1
-                self.scenes[scId].title = cells[i]
+                self.scenes[scId].title = self._convert_to_yw(cells[i])
                 i += 1
                 self.scenes[scId].desc = self._convert_to_yw(cells[i])
                 i += 1
@@ -7130,11 +7130,11 @@ class CsvSceneList(CsvFile):
                 else:
                     self.scenes[scId].isReactionScene = False
                 i += 1
-                self.scenes[scId].goal = cells[i]
+                self.scenes[scId].goal = self._convert_to_yw(cells[i])
                 i += 1
-                self.scenes[scId].conflict = cells[i]
+                self.scenes[scId].conflict = self._convert_to_yw(cells[i])
                 i += 1
-                self.scenes[scId].outcome = cells[i]
+                self.scenes[scId].outcome = self._convert_to_yw(cells[i])
                 i += 1
                 # Don't write back sceneCount
                 i += 1
@@ -7143,22 +7143,22 @@ class CsvSceneList(CsvFile):
 
                 # Transfer scene ratings; set to 1 if deleted
                 if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field1 = cells[i]
+                    self.scenes[scId].field1 = self._convert_to_yw(cells[i])
                 else:
                     self.scenes[scId].field1 = '1'
                 i += 1
                 if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field2 = cells[i]
+                    self.scenes[scId].field2 = self._convert_to_yw(cells[i])
                 else:
                     self.scenes[scId].field2 = '1'
                 i += 1
                 if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field3 = cells[i]
+                    self.scenes[scId].field3 = self._convert_to_yw(cells[i])
                 else:
                     self.scenes[scId].field3 = '1'
                 i += 1
                 if cells[i] in self._SCENE_RATINGS:
-                    self.scenes[scId].field4 = cells[i]
+                    self.scenes[scId].field4 = self._convert_to_yw(cells[i])
                 else:
                     self.scenes[scId].field4 = '1'
                 i += 1
@@ -7211,8 +7211,8 @@ class CsvCharList(CsvFile):
                 self.characters[crId].fullName = cells[2]
                 self.characters[crId].aka = cells[3]
                 self.characters[crId].desc = self._convert_to_yw(cells[4])
-                self.characters[crId].bio = cells[5]
-                self.characters[crId].goals = cells[6]
+                self.characters[crId].bio = self._convert_to_yw(cells[5])
+                self.characters[crId].goals = self._convert_to_yw(cells[6])
                 if self.CHARACTER_CLASS.MAJOR_MARKER in cells[7]:
                     self.characters[crId].isMajor = True
                 else:
@@ -7248,9 +7248,9 @@ class CsvLocList(CsvFile):
                 lcId = re.search('LcID\:([0-9]+)', cells[0]).group(1)
                 self.srtLocations.append(lcId)
                 self.locations[lcId] = self.WE_CLASS()
-                self.locations[lcId].title = cells[1]
+                self.locations[lcId].title = self._convert_to_yw(cells[1])
                 self.locations[lcId].desc = self._convert_to_yw(cells[2])
-                self.locations[lcId].aka = cells[3]
+                self.locations[lcId].aka = self._convert_to_yw(cells[3])
                 self.locations[lcId].tags = self._get_list(cells[4])
         return 'Location data read in.'
 
@@ -7281,9 +7281,9 @@ class CsvItemList(CsvFile):
                 itId = re.search('ItID\:([0-9]+)', cells[0]).group(1)
                 self.srtItems.append(itId)
                 self.items[itId] = self.WE_CLASS()
-                self.items[itId].title = cells[1]
+                self.items[itId].title = self._convert_to_yw(cells[1])
                 self.items[itId].desc = self._convert_to_yw(cells[2])
-                self.items[itId].aka = cells[3]
+                self.items[itId].aka = self._convert_to_yw(cells[3])
                 self.items[itId].tags = self._get_list(cells[4])
         return 'Item data read in.'
 
