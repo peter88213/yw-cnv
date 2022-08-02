@@ -13,6 +13,7 @@
 	<property name="source-path" location="../src" />
 	<property name="test-path" location="../test" />
 	<property name="dist-path" location="../dist" />
+	<property name="build-path" location="../build" />
 
 	<target name="build" description="inline all library modules">
 		
@@ -34,30 +35,28 @@
 
 		<mkdir dir="${dist-path}/${release-L}/help" />
 		
-		<copy file="${docs-path}/template/help.md" overwrite="True" todir="./help" />
-		<replace encoding="utf-8" file="./help/help.md" token="@help-adv@" value="help-adv.html" />
+        <!-- Build the html help files -->
+        
+        <mkdir dir="${build-path}" />
 		
-		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="./help" />
-		<replace encoding="utf-8" file="./help/help-adv.md" token="@help@" value="help.html" />
+		<copy file="${docs-path}/template/help.md" overwrite="True" todir="${build-path}" />
+		<replace encoding="utf-8" file="${build-path}/help.md" token="@help-adv@" value="help-adv.html" />
+		
+		<copy file="${docs-path}/template/help-adv.md" overwrite="True" todir="${build-path}" />
+		<replace encoding="utf-8" file="${build-path}/help-adv.md" token="@help@" value="help.html" />
 		
 		<exec executable="cmd">
 			<arg value="/c"/>
-			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help.md"/>
-		</exec>
-		
-		<concat destfile="${dist-path}/${release-L}/help/help.html">
-			<filelist dir="./help" files="header.txt, body.html, footer.txt" />
-		</concat>
+			<arg value="pandoc -o ${dist-path}/${release-L}/help/help.html -fMarkdown-smart --template ${docs-path}/template/template.html ${build-path}/help.md"/>
+		</exec>	
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/help/help.html" token="&lt;title&gt;&lt;/title&gt;" value="&lt;title&gt;yWriter import/export help&lt;/title&gt;" />
 		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help.html" />
 		
 		<exec executable="cmd">
 			<arg value="/c"/>
-			<arg value="pandoc -o ./help/body.html -fMarkdown-smart .\help\help-adv.md"/>
+			<arg value="pandoc -o ${dist-path}/${release-L}/help/help-adv.html -fMarkdown-smart --template ${docs-path}/template/template.html ${build-path}/help-adv.md"/>
 		</exec>
-		
-		<concat destfile="${dist-path}/${release-L}/help/help-adv.html">
-			<filelist dir="./help" files="header.txt, body.html, footer.txt" />
-		</concat>
+		<replace encoding="utf-8" file="${dist-path}/${release-L}/help/help-adv.html" token="&lt;title&gt;&lt;/title&gt;" value="&lt;title&gt;yWriter import/export help&lt;/title&gt;" />
 		<fixcrlf encoding="utf-8" eol="lf" file="${dist-path}/${release-L}/help/help-adv.html" />
 		
 		<delete file="./help/help.md" />
@@ -65,9 +64,11 @@
 		<delete file="./help/body.html" />
 		
 		<copy todir="${dist-path}/${release-L}/help"> 
-			<fileset dir="../i18n/help" />
+			<fileset dir="../i18n/help/html" />
 		</copy>
 		
+        <!-- ODF components -->
+        
 		<copy todir="${dist-path}/${release-L}/META-INF"> 
 			<fileset dir="${oxt-path}/META-INF" />
 		</copy>
@@ -118,6 +119,7 @@
 
 	<target name="clean" description="clean up">		
 		<delete file="${test-path}/${test-app}.py" />
+		<delete dir="${build-path}" />
 	</target>
 	
 </project>
