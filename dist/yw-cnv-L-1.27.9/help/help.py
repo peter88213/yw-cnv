@@ -8,14 +8,22 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 import os
 import webbrowser
+import locale
 
-
-def show_help():
+def open_helppage(name):
+    """Open a localized help page, if any.
+    
+    Otherwise open the standard help page.
+    """   
+    lang = locale.getdefaultlocale()[0][:2]
     scriptLocation = os.path.dirname(__file__)
-    helpFile = f'{scriptLocation}/help.html'
+    helpFile = f'{scriptLocation}/{name}-{lang}.html'
+    if not os.path.isfile(helpFile.replace('file:///','')):
+        helpFile = f'{scriptLocation}/{name}.html'
     webbrowser.open(helpFile)
+    
+def show_help():
+    open_helppage('help')
 
 def show_adv_help():
-    scriptLocation = os.path.dirname(__file__)
-    helpFile = f'{scriptLocation}/help-adv.html'
-    webbrowser.open(helpFile)
+    open_helppage('help-adv')
