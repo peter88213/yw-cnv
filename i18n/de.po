@@ -80,6 +80,18 @@ msgstr "Beenden"
 msgid "Open"
 msgstr "Öffnen"
 
+msgid "Overwrite existing file \"{}\"?"
+msgstr "Bestehende Datei \"{}\" überschreiben?"
+
+msgid "Input: {0} \"{1}\"\nOutput: {2} \"{3}\""
+msgstr "Quelle: {0} \"{1}\"\nZiel: {2} \"{3}\""
+
+msgid "Work in progress"
+msgstr "Manuskript in Arbeit"
+
+msgid "yWriter 7 project"
+msgstr "yWriter 7-Projekt"
+
 msgid "Please choose a yWriter 7 project"
 msgstr "Bitte ein yWriter-Projekt wählen"
 

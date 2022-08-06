@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.27.9
+Version 1.27.10
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -87,16 +87,16 @@ oPackageInfoProvider = CTX.getByName("/singletons/com.sun.star.deployment.Packag
 sPackageLocation = oPackageInfoProvider.getPackageLocation("org.peter88213.yw-cnv")
 packagePath = parse.unquote(sPackageLocation).replace('file:///', '')
 LOCALE_PATH = f'{packagePath}/yw-cnv/locale/'
-CURRENT_LOCALE = locale.getdefaultlocale()[0]
+CURRENT_LANGUAGE = locale.getdefaultlocale()[0][:2]
 try:
-    t = gettext.translation('pywriter', LOCALE_PATH, languages=[CURRENT_LOCALE])
+    t = gettext.translation('pywriter', LOCALE_PATH, languages=[CURRENT_LANGUAGE])
     _ = t.gettext
 except:
 
     def _(message):
         return message
 
-__all__ = ['ERROR', '_', 'LOCALE_PATH', 'CURRENT_LOCALE']
+__all__ = ['ERROR', '_', 'LOCALE_PATH', 'CURRENT_LANGUAGE']
 
 
 def open_document(document):
@@ -278,7 +278,7 @@ class YwCnvUi(YwCnv):
         - If the conversion fails, newFile is set to None.
         """
         self.ui.set_info_what(
-            f'Input: {source.DESCRIPTION} "{os.path.normpath(source.filePath)}"\nOutput: {target.DESCRIPTION} "{os.path.normpath(target.filePath)}"')
+            _('Input: {0} "{1}"\nOutput: {2} "{3}"').format(source.DESCRIPTION, os.path.normpath(source.filePath), target.DESCRIPTION, os.path.normpath(target.filePath)))
         message = self.convert(source, target)
         self.ui.set_info_how(message)
         if message.startswith(ERROR):
@@ -305,7 +305,7 @@ class YwCnvUi(YwCnv):
         - If the conversion fails, newFile is set to None.
         """
         self.ui.set_info_what(
-            f'Create a yWriter project file from {source.DESCRIPTION}\nNew project: "{os.path.normpath(target.filePath)}"')
+            _('Create a yWriter project file from {0}\nNew project: "{1}"').format(source.DESCRIPTION, os.path.normpath(target.filePath)))
         if os.path.isfile(target.filePath):
             self.ui.set_info_how(f'{ERROR}{_("File already exists")}: "{os.path.normpath(target.filePath)}".')
         else:
@@ -334,7 +334,7 @@ class YwCnvUi(YwCnv):
         - If the conversion fails, newFile is set to None.
         """
         self.ui.set_info_what(
-            f'Input: {source.DESCRIPTION} "{os.path.normpath(source.filePath)}"\nOutput: {target.DESCRIPTION} "{os.path.normpath(target.filePath)}"')
+            _('Input: {0} "{1}"\nOutput: {2} "{3}"').format(source.DESCRIPTION, os.path.normpath(source.filePath), target.DESCRIPTION, os.path.normpath(target.filePath)))
         message = self.convert(source, target)
         self.ui.set_info_how(message)
         self._delete_tempfile(source.filePath)
@@ -353,7 +353,7 @@ class YwCnvUi(YwCnv):
         
         Overrides the superclass method.
         """
-        return self.ui.ask_yes_no(f'{_("Overwrite existing file")}: "{os.path.normpath(filePath)}"?')
+        return self.ui.ask_yes_no(_('Overwrite existing file "{}"?').format(os.path.normpath(filePath)))
 
     def _delete_tempfile(self, filePath):
         """Delete filePath if it is a temporary file no longer needed."""
@@ -1025,7 +1025,7 @@ class Novel:
         projectPath -- str: URL-coded path to the project directory. 
         filePath -- str: path to the file (property with getter and setter). 
     """
-    DESCRIPTION = 'Novel'
+    DESCRIPTION = _('Novel')
     EXTENSION = None
     SUFFIX = None
     # To be extended by subclass methods.
@@ -1447,7 +1447,7 @@ class Yw7File(Novel):
         tree -- xml element tree of the yWriter project
         scenesSplit -- bool: True, if a scene or chapter is split during merging.
     """
-    DESCRIPTION = 'yWriter 7 project'
+    DESCRIPTION = _('yWriter 7 project')
     EXTENSION = '.yw7'
     _CDATA_TAGS = ['Title', 'AuthorName', 'Bio', 'Desc',
                    'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
@@ -3092,7 +3092,7 @@ class HtmlFile(Novel, HTMLParser):
         text = text.replace('\r', ' ')
         text = text.replace('\t', ' ')
         while '  ' in text:
-            text = text.replace('  ', ' ').strip()
+            text = text.replace('  ', ' ')
 
         #--- Replace HTML tags by yWriter markup.
         text = text.replace('<i>', '[i]')
@@ -3196,7 +3196,7 @@ class HtmlImport(HtmlFile):
 
     Import untagged chapters and scenes.
     """
-    DESCRIPTION = 'Work in progress'
+    DESCRIPTION = _('Work in progress')
     SUFFIX = ''
     _SCENE_DIVIDER = '* * *'
     _LOW_WORDCOUNT = 10
@@ -3277,7 +3277,7 @@ class HtmlImport(HtmlFile):
         if tag == 'p':
             self._lines.append('\n')
             if self._scId is not None:
-                self.scenes[self._scId].sceneContent = ''.join(self._lines)
+                self.scenes[self._scId].sceneContent = ''.join(self._lines).rstrip()
                 if self.scenes[self._scId].wordCount < self._LOW_WORDCOUNT:
                     self.scenes[self._scId].status = self.SCENE_CLASS.STATUS.index('Outline')
                 else:
@@ -3322,7 +3322,7 @@ class HtmlOutline(HtmlFile):
 
     Import an outline without chapter and scene tags.
     """
-    DESCRIPTION = 'Novel outline'
+    DESCRIPTION = _('Novel outline')
     SUFFIX = ''
 
     def __init__(self, filePath, **kwargs):
@@ -4853,7 +4853,7 @@ class OdtProof(OdtFile):
 
     Export a manuscript with visibly tagged chapters and scenes.
     """
-    DESCRIPTION = 'Tagged manuscript for proofing'
+    DESCRIPTION = _('Tagged manuscript for proofing')
     SUFFIX = '_proof'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -4923,7 +4923,7 @@ class OdtManuscript(OdtFile):
 
     Export a manuscript with invisibly tagged chapters and scenes.
     """
-    DESCRIPTION = 'Editable manuscript'
+    DESCRIPTION = _('Editable manuscript')
     SUFFIX = '_manuscript'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -4986,7 +4986,7 @@ class OdtSceneDesc(OdtFile):
 
     Export a full synopsis with invisibly tagged scene descriptions.
     """
-    DESCRIPTION = 'Scene descriptions'
+    DESCRIPTION = _('Scene descriptions')
     SUFFIX = '_scenes'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5035,7 +5035,7 @@ class OdtChapterDesc(OdtFile):
 
     Export a synopsis with invisibly tagged chapter descriptions.
     """
-    DESCRIPTION = 'Chapter descriptions'
+    DESCRIPTION = _('Chapter descriptions')
     SUFFIX = '_chapters'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5059,7 +5059,7 @@ class OdtPartDesc(OdtFile):
 
     Export a synopsis with invisibly tagged part descriptions.
     """
-    DESCRIPTION = 'Part descriptions'
+    DESCRIPTION = _('Part descriptions')
     SUFFIX = '_parts'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5080,7 +5080,7 @@ class OdtBriefSynopsis(OdtFile):
 
     Export a brief synopsis with chapter titles and scene titles.
     """
-    DESCRIPTION = 'Brief synopsis'
+    DESCRIPTION = _('Brief synopsis')
     SUFFIX = '_brf_synopsis'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5104,6 +5104,7 @@ class OdtExport(OdtFile):
 
     Export a non-reimportable manuscript with chapters and scenes.
     """
+    DESCRIPTION = _('manuscript')
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
@@ -5186,7 +5187,7 @@ class OdtCharacters(OdtFile):
 
     Export a character sheet with invisibly tagged descriptions.
     """
-    DESCRIPTION = 'Character descriptions'
+    DESCRIPTION = _('Character descriptions')
     SUFFIX = '_characters'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5238,7 +5239,7 @@ class OdtItems(OdtFile):
 
     Export a item sheet with invisibly tagged descriptions.
     """
-    DESCRIPTION = 'Item descriptions'
+    DESCRIPTION = _('Item descriptions')
     SUFFIX = '_items'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5273,7 +5274,7 @@ class OdtLocations(OdtFile):
 
     Export a location sheet with invisibly tagged descriptions.
     """
-    DESCRIPTION = 'Location descriptions'
+    DESCRIPTION = _('Location descriptions')
     SUFFIX = '_locations'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5446,7 +5447,7 @@ class CrossReferences:
 
 class OdtXref(OdtFile):
     """OpenDocument xml cross reference file representation."""
-    DESCRIPTION = 'Cross reference'
+    DESCRIPTION = _('Cross reference')
     SUFFIX = '_xref'
 
     _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
@@ -5676,7 +5677,7 @@ class OdtNotes(OdtManuscript):
 
     Export a manuscript with invisibly tagged chapters and scenes.
     """
-    DESCRIPTION = 'Notes chapters'
+    DESCRIPTION = _('Notes chapters')
     SUFFIX = '_notes'
 
     _partTemplate = ''
@@ -6039,9 +6040,9 @@ class OdsFile(OdfFile):
 class OdsCharList(OdsFile):
     """ODS character list representation."""
 
-    DESCRIPTION = 'Character list'
+    DESCRIPTION = _('Character list')
     SUFFIX = '_charlist'
-    
+
     _fileHeader = f'''{OdsFile._CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
     <table:table-column table:style-name="co1" table:default-cell-style-name="Default"/>
     <table:table-column table:style-name="co2" table:default-cell-style-name="Default"/>
@@ -6128,7 +6129,7 @@ class OdsCharList(OdsFile):
 
 class OdsLocList(OdsFile):
     """ODS location list representation."""
-    DESCRIPTION = 'Location list'
+    DESCRIPTION = _('Location list')
     SUFFIX = '_loclist'
 
     _fileHeader = f'''{OdsFile._CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
@@ -6179,13 +6180,13 @@ class OdsLocList(OdsFile):
     </table:table-row>
 
 '''
-    _fileFooter = OdsFile._CONTENT_XML_FOOTER 
+    _fileFooter = OdsFile._CONTENT_XML_FOOTER
 
 
 class OdsItemList(OdsFile):
     """ODS item list representation."""
 
-    DESCRIPTION = 'Item list'
+    DESCRIPTION = _('Item list')
     SUFFIX = '_itemlist'
 
     _fileHeader = f'''{OdsFile._CONTENT_XML_HEADER}{DESCRIPTION}" table:style-name="ta1" table:print="false">
@@ -6237,13 +6238,13 @@ class OdsItemList(OdsFile):
 
 '''
 
-    _fileFooter = OdsFile._CONTENT_XML_FOOTER 
+    _fileFooter = OdsFile._CONTENT_XML_FOOTER
 
 
 class OdsSceneList(OdsFile):
     """ODS scene list representation."""
 
-    DESCRIPTION = 'Scene list'
+    DESCRIPTION = _('Scene list')
     SUFFIX = '_scenelist'
 
     # Column width:
@@ -6435,7 +6436,7 @@ class OdsSceneList(OdsFile):
 
 '''
 
-    _fileFooter = OdsFile._CONTENT_XML_FOOTER 
+    _fileFooter = OdsFile._CONTENT_XML_FOOTER
 
     def _get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
         """Return a mapping dictionary for a scene section.
@@ -6466,7 +6467,7 @@ class HtmlProof(HtmlFile):
 
     Import a manuscript with visibly tagged chapters and scenes.
     """
-    DESCRIPTION = 'Tagged manuscript for proofing'
+    DESCRIPTION = _('Tagged manuscript for proofing')
     SUFFIX = '_proof'
 
     def __init__(self, filePath, **kwargs):
@@ -6566,7 +6567,7 @@ class HtmlManuscript(HtmlFile):
 
     Import a manuscript with invisibly tagged chapters and scenes.
     """
-    DESCRIPTION = 'Editable manuscript'
+    DESCRIPTION = _('Editable manuscript')
     SUFFIX = '_manuscript'
 
     def _preprocess(self, text):
@@ -6614,7 +6615,7 @@ class HtmlManuscript(HtmlFile):
         if self._scId is not None:
             if tag == 'div':
                 text = ''.join(self._lines)
-                self.scenes[self._scId].sceneContent = text
+                self.scenes[self._scId].sceneContent = text.rstrip()
                 self._lines = []
                 self._scId = None
             elif tag == 'p':
@@ -6677,7 +6678,7 @@ class HtmlNotes(HtmlManuscript):
 
     Import a manuscript with invisibly tagged chapters and scenes.
     """
-    DESCRIPTION = 'Notes chapters'
+    DESCRIPTION = _('Notes chapters')
     SUFFIX = '_notes'
 
     def _postprocess(self):
@@ -6697,7 +6698,7 @@ class HtmlSceneDesc(HtmlFile):
 
     Import a full synopsis with invisibly tagged scene descriptions.
     """
-    DESCRIPTION = 'Scene descriptions'
+    DESCRIPTION = _('Scene descriptions')
     SUFFIX = '_scenes'
 
     def handle_endtag(self, tag):
@@ -6721,7 +6722,7 @@ class HtmlSceneDesc(HtmlFile):
                         text = scContent
                     except:
                         pass
-                self.scenes[self._scId].desc = text
+                self.scenes[self._scId].desc = text.rstrip()
                 self._lines = []
                 self._scId = None
             elif tag == 'p':
@@ -6750,7 +6751,7 @@ class HtmlChapterDesc(HtmlFile):
 
     Import a brief synopsis with invisibly tagged chapter descriptions.
     """
-    DESCRIPTION = 'Chapter descriptions'
+    DESCRIPTION = _('Chapter descriptions')
     SUFFIX = '_chapters'
 
     def handle_endtag(self, tag):
@@ -6763,7 +6764,7 @@ class HtmlChapterDesc(HtmlFile):
         """
         if self._chId is not None:
             if tag == 'div':
-                self.chapters[self._chId].desc = ''.join(self._lines)
+                self.chapters[self._chId].desc = ''.join(self._lines).rstrip()
                 self._lines = []
                 self._chId = None
             elif tag == 'p':
@@ -6791,7 +6792,7 @@ class HtmlPartDesc(HtmlChapterDesc):
     Parts are chapters marked in yWriter as beginning of a new section.
     Import a synopsis with invisibly tagged part descriptions.
     """
-    DESCRIPTION = 'Part descriptions'
+    DESCRIPTION = _('Part descriptions')
     SUFFIX = '_parts'
 
 
@@ -6800,7 +6801,7 @@ class HtmlCharacters(HtmlFile):
 
     Import a character sheet with invisibly tagged descriptions.
     """
-    DESCRIPTION = 'Character descriptions'
+    DESCRIPTION = _('Character descriptions')
     SUFFIX = '_characters'
 
     def __init__(self, filePath, **kwargs):
@@ -6851,15 +6852,15 @@ class HtmlCharacters(HtmlFile):
         if self._crId is not None:
             if tag == 'div':
                 if self._section == 'desc':
-                    self.characters[self._crId].desc = ''.join(self._lines)
+                    self.characters[self._crId].desc = ''.join(self._lines).rstrip()
                     self._lines = []
                     self._section = None
                 elif self._section == 'bio':
-                    self.characters[self._crId].bio = ''.join(self._lines)
+                    self.characters[self._crId].bio = ''.join(self._lines).rstrip()
                     self._lines = []
                     self._section = None
                 elif self._section == 'goals':
-                    self.characters[self._crId].goals = ''.join(self._lines)
+                    self.characters[self._crId].goals = ''.join(self._lines).rstrip()
                     self._lines = []
                     self._section = None
                 elif self._section == 'notes':
@@ -6886,7 +6887,7 @@ class HtmlLocations(HtmlFile):
 
     Import a location sheet with invisibly tagged descriptions.
     """
-    DESCRIPTION = 'Location descriptions'
+    DESCRIPTION = _('Location descriptions')
     SUFFIX = '_locations'
 
     def __init__(self, filePath, **kwargs):
@@ -6928,7 +6929,7 @@ class HtmlLocations(HtmlFile):
         """
         if self._lcId is not None:
             if tag == 'div':
-                self.locations[self._lcId].desc = ''.join(self._lines)
+                self.locations[self._lcId].desc = ''.join(self._lines).rstrip()
                 self._lines = []
                 self._lcId = None
             elif tag == 'p':
@@ -6951,7 +6952,7 @@ class HtmlItems(HtmlFile):
 
     Import a item sheet with invisibly tagged descriptions.
     """
-    DESCRIPTION = 'Item descriptions'
+    DESCRIPTION = _('Item descriptions')
     SUFFIX = '_items'
 
     def __init__(self, filePath, **kwargs):
@@ -6993,7 +6994,7 @@ class HtmlItems(HtmlFile):
         """
         if self._itId is not None:
             if tag == 'div':
-                self.items[self._itId].desc = ''.join(self._lines)
+                self.items[self._itId].desc = ''.join(self._lines).rstrip()
                 self._lines = []
                 self._itId = None
             elif tag == 'p':
@@ -7091,7 +7092,7 @@ class CsvSceneList(CsvFile):
     Public methods:
         read() -- parse the file and get the instance variables.
     """
-    DESCRIPTION = 'Scene list'
+    DESCRIPTION = _('Scene list')
     SUFFIX = '_scenelist'
     _SCENE_RATINGS = ['2', '3', '4', '5', '6', '7', '8', '9', '10']
     # '1' is assigned N/A (empty table cell).
@@ -7187,7 +7188,7 @@ class CsvCharList(CsvFile):
     Public methods:
         read() -- parse the file and get the instance variables.
     """
-    DESCRIPTION = 'Character list'
+    DESCRIPTION = _('Character list')
     SUFFIX = '_charlist'
     _rowTitles = ['ID', 'Name', 'Full name', 'Aka', 'Description', 'Bio', 'Goals', 'Importance', 'Tags', 'Notes']
 
@@ -7228,7 +7229,7 @@ class CsvLocList(CsvFile):
     Public methods:
         read() -- parse the file and get the instance variables.
     """
-    DESCRIPTION = 'Location list'
+    DESCRIPTION = _('Location list')
     SUFFIX = '_loclist'
     _rowTitles = ['ID', 'Name', 'Description', 'Aka', 'Tags']
 
@@ -7261,7 +7262,7 @@ class CsvItemList(CsvFile):
     Public methods:
         read() -- parse the file and get the instance variables.
     """
-    DESCRIPTION = 'Item list'
+    DESCRIPTION = _('Item list')
     SUFFIX = '_itemlist'
     _rowTitles = ['ID', 'Name', 'Description', 'Aka', 'Tags']
 
