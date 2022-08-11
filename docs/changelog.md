@@ -10,6 +10,7 @@
 - Improved ODT export.
 - Add internationalization according to GNU coding standards.
 - Provide extended German localization.
+- Consider project names containing a reserved suffix.
 
 Based on PyWriter v5.20.0
 

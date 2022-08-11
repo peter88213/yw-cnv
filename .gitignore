@@ -2,3 +2,4 @@
 /test/cnvyw.py
 /build/
 *.pyc
+*.bak

@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.27.10
+Version 1.27.11
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -343,7 +343,7 @@ class YwCnvUi(YwCnv):
         else:
             self.newFile = target.filePath
             if target.scenesSplit:
-                self.ui.show_warning('New scenes created during conversion.')
+                self.ui.show_warning(_('New scenes created during conversion.'))
 
     def _confirm_overwrite(self, filePath):
         """Return boolean permission to overwrite the target file.
@@ -510,7 +510,13 @@ class ImportTargetFactory(FileFactory):
         fileName, __ = os.path.splitext(sourcePath)
         sourceSuffix = kwargs['suffix']
         if sourceSuffix:
-            ywPathBasis = fileName.split(sourceSuffix)[0]
+            # Remove the suffix from the source file name.
+            # This should also work if the file name already contains the suffix,
+            # e.g. "test_notes_notes.odt".
+            e = fileName.split(sourceSuffix)
+            if len(e) > 1:
+                e.pop()
+            ywPathBasis = ''.join(e)
         else:
             ywPathBasis = fileName
 
@@ -1287,7 +1293,7 @@ class Splitter:
                     title = parent.title
                 newScene.title = f'{title} Split: {splitCount}'
             else:
-                newScene.title = f'New scene Split: {splitCount}'
+                newScene.title = f'_("New Scene") Split: {splitCount}'
             if desc:
                 newScene.desc = desc
             if parent.desc and not parent.desc.startswith(WARNING):
@@ -1375,7 +1381,7 @@ class Splitter:
                         chIdMax += 1
                         chapterId = str(chIdMax)
                         if not title:
-                            title = 'New chapter'
+                            title = _('New Chapter')
                         create_chapter(chapterId, title, desc, 0)
                         srtChapters.append(chapterId)
                         scenesSplit = True
@@ -1391,7 +1397,7 @@ class Splitter:
                         chIdMax += 1
                         chapterId = str(chIdMax)
                         if not title:
-                            title = 'New part'
+                            title = _('New Part')
                         create_chapter(chapterId, title, desc, 1)
                         srtChapters.append(chapterId)
                     elif not inScene:

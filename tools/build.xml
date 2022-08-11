@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="yw-cnv" basedir=".">
-	<property name="version" value="1.27.10" />
+	<property name="version" value="1.27.11" />
 	<property name="test-app" value="cnvyw" />
 	
 	<property name="application" value="${ant.project.name}" />
@@ -14,14 +14,18 @@
 	<property name="test-path" location="../test" />
 	<property name="dist-path" location="../dist" />
 	<property name="build-path" location="../build" />
+	<property name="i18n-path" location="../i18n" />
 
 	<target name="build" description="inline all library modules">
-		
-		<mkdir dir="${test-path}" />
-		<delete file="${test-path}/${test-app}.py" />
-			<exec executable="python" failonerror="true">
-			    <arg value="${source-path}/build_${test-app}.py"/>
-			</exec>
+		<delete file="${test-path}/${test-app}.pyw" />
+		<exec executable="python" failonerror="true">
+		    <arg value="${source-path}/make_pot.py"/>
+		    <arg value="${version}"/>
+		</exec>
+		<exec executable="python" failonerror="true">
+		    <arg value="${source-path}/translate_de.py"/>
+		    <arg value="${version}"/>
+		</exec>
 	</target>
 
 	<target name="dist" description="Generate the extension">		
@@ -64,7 +68,7 @@
 		<delete file="./help/body.html" />
 		
 		<copy todir="${dist-path}/${release-L}/help"> 
-			<fileset dir="../i18n/help/html" />
+			<fileset dir="${i18n-path}/help/html" />
 		</copy>
 		
         <!-- ODF components -->
@@ -91,7 +95,7 @@
 		<replace encoding="utf-8" file="${dist-path}/${release-L}/${application}/${test-app}.py" token="@release" value="${version}" />
 
 		<copy todir="${dist-path}/${release-L}/${application}/locale"> 
-			<fileset dir="../i18n/locale" />
+			<fileset dir="${i18n-path}/locale" />
 		</copy>
 		
 		<copy file="${oxt-path}/AddonUI.xcu" todir="${dist-path}/${release-L}" />

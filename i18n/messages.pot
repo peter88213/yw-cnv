@@ -1,138 +1,68 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR ORGANIZATION
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# yw-cnv Dictionary
+# Copyright (C) 2022 Peter Triesberger
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2022-08-06 22:27:26\n"
+"Project-Id-Version: 1.27.11\n"
+"POT-Creation-Date: 2022-08-11 16:28:12\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: LANGUAGE\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Generated-By: PyWriter gettext.py 0.1\n"
+"Generated-By: PyWriter pgettext.py 0.3\n"
 
 
 msgid "Action canceled by user"
 msgstr ""
 
-msgid "Item list"
-msgstr ""
-
-msgid "Scene descriptions"
-msgstr ""
-
-msgid "Cannot write file"
-msgstr ""
-
-msgid "Input: {0} \"{1}\"\nOutput: {2} \"{3}\""
-msgstr ""
-
-msgid "Character list"
-msgstr ""
-
-msgid "manuscript"
-msgstr ""
-
-msgid "Novel"
-msgstr ""
-
-msgid "File written"
-msgstr ""
-
-msgid "File already exists"
-msgstr ""
-
-msgid "Editable manuscript"
-msgstr ""
-
-msgid "Location list"
-msgstr ""
-
-msgid "Work in progress"
-msgstr ""
-
-msgid "Please choose a yWriter 7 project"
-msgstr ""
-
-msgid "Part descriptions"
-msgstr ""
-
 msgid "Brief synopsis"
-msgstr ""
-
-msgid "Cross reference"
-msgstr ""
-
-msgid "Scene list"
-msgstr ""
-
-msgid "Item descriptions"
-msgstr ""
-
-msgid "Cannot parse File"
-msgstr ""
-
-msgid "Novel outline"
-msgstr ""
-
-msgid "Tagged manuscript for proofing"
-msgstr ""
-
-msgid "Cannot create file"
-msgstr ""
-
-msgid "This document is not meant to be written back"
-msgstr ""
-
-msgid "Create a yWriter project file from {0}\nNew project: \"{1}\""
-msgstr ""
-
-msgid "Notes chapters"
 msgstr ""
 
 msgid "Can not process file"
 msgstr ""
 
+msgid "Cannot create directory"
+msgstr ""
+
+msgid "Cannot create file"
+msgstr ""
+
 msgid "Cannot overwrite file"
+msgstr ""
+
+msgid "Cannot parse File"
+msgstr ""
+
+msgid "Cannot write file"
 msgstr ""
 
 msgid "Chapter descriptions"
 msgstr ""
 
-msgid "Please close document first"
+msgid "Character descriptions"
 msgstr ""
 
-msgid "Cannot create directory"
+msgid "Character list"
 msgstr ""
 
-msgid "yWriter seems to be open. Please close first"
+msgid "Create a yWriter project file from {0}\nNew project: \"{1}\""
 msgstr ""
 
-msgid "Overwrite existing file \"{}\"?"
+msgid "Cross reference"
 msgstr ""
 
-msgid "Wrong csv structure"
+msgid "Editable manuscript"
 msgstr ""
 
 msgid "Export to yWriter"
 msgstr ""
 
-msgid "No yWriter project to write"
-msgstr ""
-
-msgid "Character descriptions"
-msgstr ""
-
 msgid "Export type is not supported"
 msgstr ""
 
-msgid "yWriter 7 project"
-msgstr ""
-
-msgid "Import from yWriter"
+msgid "File already exists"
 msgstr ""
 
 msgid "File not found"
@@ -141,5 +71,86 @@ msgstr ""
 msgid "File type is not supported"
 msgstr ""
 
+msgid "File written"
+msgstr ""
+
+msgid "Import from yWriter"
+msgstr ""
+
+msgid "Input: {0} \"{1}\"\nOutput: {2} \"{3}\""
+msgstr ""
+
+msgid "Item descriptions"
+msgstr ""
+
+msgid "Item list"
+msgstr ""
+
 msgid "Location descriptions"
+msgstr ""
+
+msgid "Location list"
+msgstr ""
+
+msgid "New Chapter"
+msgstr ""
+
+msgid "New Part"
+msgstr ""
+
+msgid "New Scene"
+msgstr ""
+
+msgid "New scenes created during conversion."
+msgstr ""
+
+msgid "No yWriter project to write"
+msgstr ""
+
+msgid "Notes chapters"
+msgstr ""
+
+msgid "Novel"
+msgstr ""
+
+msgid "Novel outline"
+msgstr ""
+
+msgid "Overwrite existing file \"{}\"?"
+msgstr ""
+
+msgid "Part descriptions"
+msgstr ""
+
+msgid "Please choose a yWriter 7 project"
+msgstr ""
+
+msgid "Please close document first"
+msgstr ""
+
+msgid "Scene descriptions"
+msgstr ""
+
+msgid "Scene list"
+msgstr ""
+
+msgid "Tagged manuscript for proofing"
+msgstr ""
+
+msgid "This document is not meant to be written back"
+msgstr ""
+
+msgid "Work in progress"
+msgstr ""
+
+msgid "Wrong csv structure"
+msgstr ""
+
+msgid "manuscript"
+msgstr ""
+
+msgid "yWriter 7 project"
+msgstr ""
+
+msgid "yWriter seems to be open. Please close first"
 msgstr ""
