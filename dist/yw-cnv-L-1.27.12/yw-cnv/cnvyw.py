@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.27.11
+Version 1.27.12
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3523,6 +3523,7 @@ class FileExport(Novel):
     _partTemplate = ''
     _chapterTemplate = ''
     _notesPartTemplate = ''
+    _todoPartTemplate = ''
     _notesChapterTemplate = ''
     _todoChapterTemplate = ''
     _unusedChapterTemplate = ''
@@ -4059,8 +4060,12 @@ class FileExport(Novel):
             if sceneCount > 0 and notExportCount == sceneCount:
                 doNotExport = True
             if self.chapters[chId].chType == 2:
-                # Chapter is "ToDo" type (implies "unused").
-                if self._todoChapterTemplate:
+                # Chapter is "Todo" type (implies "unused").
+                if self.chapters[chId].chLevel == 1:
+                    # Chapter is "Todo Part" type.
+                    if self._todoPartTemplate:
+                        template = Template(self._todoPartTemplate)
+                elif self._todoChapterTemplate:
                     template = Template(self._todoChapterTemplate)
             elif self.chapters[chId].chType == 1:
                 # Chapter is "Notes" type (implies "unused").
@@ -5756,6 +5761,87 @@ class OdtNotes(OdtManuscript):
                     template = Template(self._notesChapterEndTemplate)
                     lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
         return lines
+from string import Template
+
+
+class OdtTodo(OdtManuscript):
+    """ODT "Todo" chapters file representation.
+
+    Export a manuscript with invisibly tagged chapters and scenes.
+    """
+    DESCRIPTION = _('Todo chapters')
+    SUFFIX = '_todo'
+
+    _partTemplate = ''
+    _chapterTemplate = ''
+
+    _todoPartTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
+<text:h text:style-name="Heading_20_1" text:outline-level="1">$Title</text:h>
+'''
+
+    _todoChapterTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
+<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
+'''
+
+    _todoSceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
+<text:h text:style-name="Heading_20_3" text:outline-level="3">$Title</text:h>
+<text:p text:style-name="Text_20_body">$SceneContent</text:p>
+</text:section>
+'''
+    _sceneDivider = ''
+
+    _todoChapterEndTemplate = '''</text:section>
+'''
+
+    def _get_chapters(self):
+        """Process the chapters and nested scenes.
+        
+        Iterate through the sorted chapter list and apply the templates, 
+        substituting placeholders according to the chapter mapping dictionary.
+        For each chapter call the processing of its included scenes.
+        Skip chapters not accepted by the chapter filter.
+        Return a list of strings.
+        This is a template method that can be extended or overridden by subclasses.
+        """
+        lines = []
+        if not self._todoChapterEndTemplate:
+            return lines
+
+        chapterNumber = 0
+        sceneNumber = 0
+        wordsTotal = 0
+        lettersTotal = 0
+        for chId in self.srtChapters:
+            dispNumber = 0
+            if not self._chapterFilter.accept(self, chId):
+                continue
+
+            # The order counts; be aware that "Todo" chapters are always unused.
+            doNotExport = False
+            template = None
+            if self.chapters[chId].chType == 2:
+                # Chapter is "Todo" type (implies "unused").
+                if self.chapters[chId].chLevel == 1:
+                    # Chapter is "Todo Part" type.
+                    if self._todoPartTemplate:
+                        template = Template(self._todoPartTemplate)
+                elif self._todoChapterTemplate:
+                    # Chapter is "Todo Chapter" type.
+                    template = Template(self._todoChapterTemplate)
+                    chapterNumber += 1
+                    dispNumber = chapterNumber
+                if template is not None:
+                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
+
+                    #--- Process scenes.
+                    sceneLines, sceneNumber, wordsTotal, lettersTotal = self._get_scenes(
+                        chId, sceneNumber, wordsTotal, lettersTotal, doNotExport)
+                    lines.extend(sceneLines)
+
+                    #--- Process chapter ending.
+                    template = Template(self._todoChapterEndTemplate)
+                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
+        return lines
 
 
 class OdsFile(OdfFile):
@@ -6699,6 +6785,26 @@ class HtmlNotes(HtmlManuscript):
 
 
 
+class HtmlTodo(HtmlManuscript):
+    """HTML "Todo" chapters file representation.
+
+    Import a manuscript with invisibly tagged chapters and scenes.
+    """
+    DESCRIPTION = _('Todo chapters')
+    SUFFIX = '_todo'
+
+    def _postprocess(self):
+        """Make all chapters and scenes "Todo" type.
+        
+        Overrides the superclass method.
+        """
+        for chId in self.srtChapters:
+            self.chapters[chId].chType = 2
+            for scId in self.chapters[chId].srtScenes:
+                self.scenes[scId].isTodoScene = True
+
+
+
 class HtmlSceneDesc(HtmlFile):
     """HTML scene summaries file representation.
 
@@ -7325,6 +7431,7 @@ class Yw7Converter(YwCnvFf):
                              OdsSceneList,
                              OdtXref,
                              OdtNotes,
+                             OdtTodo,
                              ]
     IMPORT_SOURCE_CLASSES = [HtmlProof,
                              HtmlManuscript,
@@ -7335,6 +7442,7 @@ class Yw7Converter(YwCnvFf):
                              HtmlItems,
                              HtmlLocations,
                              HtmlNotes,
+                             HtmlTodo,
                              CsvCharList,
                              CsvLocList,
                              CsvItemList,
@@ -7550,6 +7658,12 @@ def get_notes():
     '''Import Notes chapters from yWriter 7 to a Writer document.
     '''
     open_yw7(OdtNotes.SUFFIX, OdtNotes.EXTENSION)
+
+
+def get_todo():
+    '''Import Todo chapters from yWriter 7 to a Writer document.
+    '''
+    open_yw7(OdtTodo.SUFFIX, OdtTodo.EXTENSION)
 
 
 def get_charlist():
