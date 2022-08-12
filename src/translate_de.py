@@ -44,6 +44,8 @@ def main(version='unknown'):
     if translations.main('de', app=APP_NAME, appVersion=version):
         print(f'Writing "{MO_PATH}" ...')
         msgfmt.make(PO_PATH, MO_PATH)
+    else:
+        sys.exit(1)
 
 
 if __name__ == '__main__':
