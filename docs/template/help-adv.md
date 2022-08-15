@@ -26,6 +26,7 @@ out the features with a test project first.
 -   [Item descriptions](#item-descriptions)
 -   [Scene list](#scene-list)
 -   [Notes chapters](#notes-chapters)
+-   [Todo chapters](#todo-chapters)
 
 ------------------------------------------------------------------------
 
@@ -212,6 +213,25 @@ The following columns can be written back to the yWriter project:
 This will write yWriter 7 "Notes" chapters with child scenes into a new 
 OpenDocument text document (odt) with invisible chapter and scene 
 sections (to be seen in the Navigator). File name suffix is `_notes`.
+
+-  Comments within scenes are written back as scene titles
+   if surrounded by `~`.
+-  Chapters and scenes can neither be rearranged nor deleted.
+-  Scenes can be split by inserting headings or a scene divider:
+    -  *Heading 1* --› New chapter title (beginning a new section).
+    -  *Heading 2* --› New chapter title.
+    -  `###` --› Scene divider. Optionally, you can append the 
+       scene title to the scene divider.
+
+[Top of page](#top)
+
+------------------------------------------------------------------------
+
+## Todo chapters
+
+This will write yWriter 7 "Todo" chapters with child scenes into a new 
+OpenDocument text document (odt) with invisible chapter and scene 
+sections (to be seen in the Navigator). File name suffix is `_todo`.
 
 -  Comments within scenes are written back as scene titles
    if surrounded by `~`.

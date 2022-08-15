@@ -21,58 +21,58 @@
 <h2 id="befehlsreferenz">Befehlsreferenz</h2>
 <h3 id="files-menu">"Files" menu</h3>
 <ul>
-<li><a href="#export-to-ywriter">Zu yWriter exportieren</a></li>
-<li><a href="#import-from-ywriter">Von yWriter importieren</a></li>
-<li><a href="#import-from-ywriter-for-proof-reading">Von yWriter zum Korrekturlesen importieren</a></li>
-<li><a href="#brief-synopsis">Kurze Zusammenfassung</a></li>
-<li><a href="#character-list">Figurenliste</a></li>
-<li><a href="#location-list">Schauplatzliste</a></li>
-<li><a href="#item-list">Gegenständeliste</a></li>
-<li><a href="#cross-reference">Querverweise</a></li>
+<li><a href="#zu-ywriter-exportieren">Zu yWriter exportieren</a></li>
+<li><a href="#von-ywriter-importieren">Von yWriter importieren</a></li>
+<li><a href="#von-ywriter-zum-korrekturlesen-importieren">Von yWriter zum Korrekturlesen importieren</a></li>
+<li><a href="#kurze-zusammenfassung">Kurze Zusammenfassung</a></li>
+<li><a href="#figurenliste">Figurenliste</a></li>
+<li><a href="#schauplatzliste">Schauplatzliste</a></li>
+<li><a href="#gegenstandsliste">Gegenstandsliste</a></li>
+<li><a href="#querverweise">Querverweise</a></li>
 <li><a href="help-adv-de.html">Für Fortgeschrittene</a></li>
 </ul>
 <h3 id="format-menu">"Format" menu</h3>
 <ul>
-<li><a href="#replace-scene-dividers-with-blank-lines">Szenentrenner durch Leerzeilen ersetzen</a></li>
-<li><a href="#indent-paragraphs-that-start-with">Absätze einrücken, die mit '&gt;' beginnen'</a></li>
-<li><a href="#replace-list-strokes-with-bullets">Aufzählungsstriche ersetzen</a></li>
+<li><a href="#szenentrenner-durch-leerzeilen-ersetzen">Szenentrenner durch Leerzeilen ersetzen</a></li>
+<li><a href="#absätze-einrücken-die-mit-beginnen">Absätze einrücken, die mit '&gt; ' beginnen'</a></li>
+<li><a href="#aufzählungsstriche-ersetzen">Aufzählungsstriche ersetzen</a></li>
 </ul>
-<h2 id="howto">HowTo</h2>
+<h2 id="so-gehts">So geht's</h2>
 <ul>
-<li><a href="#how-to-set-up-a-work-in-progress-for-export">How to set up a work in progress for export</a></li>
-<li><a href="#how-to-set-up-an-outline-for-export">How to set up an outline for export</a></li>
+<li><a href="#ein-manuskript-zum-export-vorbereiten">Ein Manuskript zum Export vorbereiten</a></li>
+<li><a href="#eine-gliederung-zum-export-vorbereiten">Eine Gliederung zum Export vorbereiten</a></li>
 </ul>
 <hr />
 <h2 id="zu-ywriter-exportieren">Zu yWriter exportieren</h2>
-<p>This writes back the document's content to the yWriter project file.</p>
+<p>Dadurch wird der Inhalt des Dokuments in die yWriter-Projektdatei zurückgeschrieben.</p>
 <ul>
-<li>Make sure not to change a generated document's file name before writing back to yWriter format.</li>
-<li>The yWriter 7 project to rewrite must exist in the same folder as the document.</li>
-<li>If the document's file name has no suffix, the document is considered a <a href="#how-to-set-up-a-work-in-progress-for-export">Work in progress</a> or an <a href="#how-to-set-up-an-outline-for-export">Outline</a> to be exported into a newly created yWriter project. <strong>Note:</strong> Existing yWriter projects will not be overwritten.</li>
+<li>Stellen Sie sicher, dass Sie den Dateinamen eines generierten Dokuments vor dem Zurückschreiben in das yWriter-Formanicht ändern.</li>
+<li>Das zu überschreibende yWriter 7 Projekt muss sich im selben Ordner befinden wie das Dokument.</li>
+<li>Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als <a href="#how-to-set-up-a-work-in-progress-for-export">Manuskript in Arbeit</a> oder eine <a href="#how-to-set-up-an-outline-for-export">Gliederung</a> zum Exportieren in ein neu zu erstellendes yWriter-Projekt. <strong>Hinweis:</strong> Bestehende yWriter-Projekte werden nicht überschrieben.</li>
 </ul>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="von-ywriter-importieren">Von yWriter importieren</h2>
-<p>This will load yWriter 7 chapters and scenes into a new OpenDocument text document (odt).</p>
+<p>Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokument (odt) importiert.</p>
 <ul>
-<li>The document is placed in the same folder as the yWriter project.</li>
-<li>Document's <strong>filename</strong>: <code>&lt;yW project name&gt;.odt</code>.</li>
-<li>Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.</li>
-<li>Only "normal" chapters and scenes are imported. Chapters and scenes marked "unused", "todo" or "notes" are not imported.</li>
-<li>Only scenes that are intended for RTF export in yWriter will be imported.</li>
-<li>Scenes beginning with <code>&lt;HTML&gt;</code> or <code>&lt;TEX&gt;</code> are not imported.</li>
-<li>Comments in the text bracketed with slashes and asterisks (like <code>/* this is a comment */</code>) are converted to author's comments.</li>
-<li>Interspersed HTML, TEX, or RTF commands are removed.</li>
-<li>Gobal variables and project variables are not resolved.</li>
-<li>Chapter titles appear as first level heading if the chapter is marked as beginning of a new section in yWriter. Such headings are considered as "part" headings.</li>
-<li>Chapter titles appear as second level heading if the chapter is not marked as beginning of a new section. Such headings are considered as "chapter" headings.</li>
-<li>Scene titles appear as navigable comments pinned to the beginning of the scene.</li>
-<li>Scenes are separated by <code>* * *</code>. The first line is not indented. You can replace the scene separators by blank lines with the menu command <strong>Format &gt; Szenentrenner durch Leerzeilen ersetzen</strong>.</li>
-<li>Starting from the second paragraph, paragraphs begin with indentation of the first line.</li>
-<li>Scenes marked "attach to previous scene" in yWriter appear like continuous paragraphs.</li>
-<li>Paragraphs starting with <code>&gt;</code> are formatted as quotations.</li>
+<li>Das Dokument wird im selben Ordner wie das yWriter-Projekt abgelegt.</li>
+<li>Der <strong>Dateiname</strong> des Dokuments: <code>&lt;yW-Projektname&gt;.odt</code>.</li>
+<li>Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.</li>
+<li>Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.</li>
+<li>Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.</li>
+<li>Szenen, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
+<li>Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. <code>/* this is a comment */</code>), werden in Autorenkommentare umgewandelt.</li>
+<li>Eingestreute HTML-, TEX- oder RTF-Befehle werden entfernt.</li>
+<li>Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.</li>
+<li>Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.</li>
+<li>Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.</li>
+<li>Szenentitel erscheinen als navigierbare Kommentare, die an den Anfang der Szene gepinnt sind.</li>
+<li>Szenen werden durch <code>* * *</code> getrennt. Die erste Zeile wird nicht eingerückt. Mit dem Menübefehl <strong>Format &gt; Szenentrenner durch Leerzeilen ersetzen</strong> können Sie die Szenentrenner durch Leerzeilen ersetzen.</li>
+<li>Ab dem zweiten Absatz beginnen Absätze mit der Einrückung der ersten Zeile.</li>
+<li>Szenen, die in yWriter mit "an vorherige Szene anhängen" gekennzeichnet sind, erscheinen wie durchgehende Absätze.</li>
+<li>Absätze, die mit <code>&gt;</code> beginnen, werden als Zitate formatiert.</li>
 </ul>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="von-ywriter-zum-korrekturlesen-importieren">Von yWriter zum Korrekturlesen importieren</h2>
 <p>This will load yWriter 7 chapters and scenes into a new OpenDocument text document (odt) with chapter and scene markers. File name suffix is <code>_proof</code>.</p>
@@ -93,7 +93,7 @@
 </ul></li>
 </ul>
 <p>You can write back the scene contents to the yWriter 7 project file with the <a href="#export-to-ywriter">Zu yWriter exportieren</a> command.</p>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="kurze-zusammenfassung">Kurze Zusammenfassung</h2>
 <p>This will load a brief synopsis with chapter and scenes titles into a new OpenDocument text document (odt).</p>
@@ -107,25 +107,25 @@
 <li>Chapter titles appear as second level heading if the chapter is not marked as beginning of a new section. Such headings are considered as "chapter" headings.</li>
 <li>Scene titles appear as plain paragraphs.</li>
 </ul>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="figurenliste">Figurenliste</h2>
 <p>This will generate a new OpenDocument spreadsheet (ods) containing a character list that can be edited in Office Calc and written back to yWriter format. File name suffix is <code>_charlist</code>.</p>
 <p>You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.</p>
 <p>You can write back the edited table to the yWriter 7 project file with the <a href="#export-to-ywriter">Zu yWriter exportieren</a> command.</p>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="schauplatzliste">Schauplatzliste</h2>
 <p>This will generate a new OpenDocument spreadsheet (ods) containing a location list that can be edited in Office Calc and written back to yWriter format. File name suffix is <code>_loclist</code>.</p>
 <p>You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.</p>
 <p>You can write back the edited table to the yWriter 7 project file with the <a href="#export-to-ywriter">Zu yWriter exportieren</a> command.</p>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
-<h2 id="gegenständeliste">Gegenständeliste</h2>
+<h2 id="gegenstandsliste">Gegenstandsliste</h2>
 <p>This will generate a new OpenDocument spreadsheet (ods) containing an item list that can be edited in Office Calc and written back to yWriter format. File name suffix is <code>_itemlist</code>.</p>
 <p>You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.</p>
 <p>You can write back the edited table to the yWriter 7 project file with the <a href="#export-to-ywriter">Zu yWriter exportieren</a> command.</p>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="querverweise">Querverweise</h2>
 <p>This will generate a new OpenDocument text document (odt) containing navigable cross references. File name suffix is <code>_xref</code>. The cross references are:</p>
@@ -138,16 +138,16 @@
 <li>locations per tag,</li>
 <li>items per tag.</li>
 </ul>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
-<h2 id="how-to-set-up-a-work-in-progress-for-export">How to set up a work in progress for export</h2>
+<h2 id="ein-manuskript-zum-export-vorbereiten">Ein Manuskript zum Export vorbereiten</h2>
 <p>Generate a new yWriter 7 project from a work in progress:</p>
 <ul>
 <li>The new yWriter project is placed in the same folder as the document.</li>
 <li>yWriter project's filename: <code>&lt;document name&gt;.yw7</code>.</li>
 <li>Existing yWriter 7 projects will not be overwritten.</li>
 </ul>
-<h3 id="how-to-format-a-work-in-progress">How to format a work in progress:</h3>
+<h3 id="formatierung-des-manuskripts">Formatierung des Manuskripts:</h3>
 <p>A work in progress has no third level heading.</p>
 <ul>
 <li><em>Heading 1</em> --› New chapter title (beginning a new section).</li>
@@ -156,16 +156,16 @@
 <li>Comments right at the scene beginning are considered scene titles.</li>
 <li>All other text is considered scene content.</li>
 </ul>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
-<h2 id="how-to-set-up-an-outline-for-export">How to set up an outline for export</h2>
+<h2 id="eine-gliederung-zum-export-vorbereiten">Eine Gliederung zum Export vorbereiten</h2>
 <p>Generate a new yWriter 7 project from an outline:</p>
 <ul>
 <li>The new yWriter project is placed in the same folder as the document.</li>
 <li>yWriter project's filename: <code>&lt;document name&gt;.yw7</code>.</li>
 <li>Existing yWriter 7 projects will not be overwritten.</li>
 </ul>
-<h3 id="how-to-format-an-outline">How to format an outline:</h3>
+<h3 id="formatierung-der-gliederung">Formatierung der Gliederung:</h3>
 <p>An outline has at least one third level heading.</p>
 <ul>
 <li><em>Heading 1</em> --› New chapter title (beginning a new section).</li>
@@ -173,21 +173,21 @@
 <li><em>Heading 3</em> --› New scene title.</li>
 <li>All other text is considered to be chapter/scene description.</li>
 </ul>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="szenentrenner-durch-leerzeilen-ersetzen">Szenentrenner durch Leerzeilen ersetzen</h2>
 <p>This will replace the three-line "* * *" scene dividers with single blank lines. The style of the scene-dividing lines will be changed from <em>Heading 4</em> to <em>Heading 5</em>.</p>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="absätze-einrücken-die-mit-beginnen">Absätze einrücken, die mit '&gt;' beginnen'</h2>
 <p>This will select all paragraphs that start with "&gt; " and change their paragraph style to <em>Quotations</em>.</p>
 <p>Note: When exporting to yWriter, <em>Quotations</em> style paragraphs will automatically marked with "&gt; " at the beginning.</p>
-<p><a href="#top">Top of page</a></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="aufzählungsstriche-ersetzen">Aufzählungsstriche ersetzen</h2>
 <p>This will select all paragraphs that start with "- " and apply a list paragraph style.</p>
-<p>Note: When exporting to yWriter, Lists will automatically marked with "- " list strokes.</p>
-<p><a href="#top">Top of page</a></p>
+<p>Note: When exporting to yWriter, Lists will automatically marked with "-" list strokes.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 </body>
 </html>

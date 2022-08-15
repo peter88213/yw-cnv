@@ -9,31 +9,28 @@ Haupt-Hilfeseite
 
 ### "Files" menu
 
--   [Zu yWriter exportieren](#export-to-ywriter)
--   [Von yWriter importieren](#import-from-ywriter)
+-   [Zu yWriter exportieren](#zu-ywriter-exportieren)
+-   [Von yWriter importieren](#von-ywriter-importieren)
 -   [Von yWriter zum Korrekturlesen
-    importieren](#import-from-ywriter-for-proof-reading)
--   [Kurze Zusammenfassung](#brief-synopsis)
--   [Figurenliste](#character-list)
--   [Schauplatzliste](#location-list)
--   [Gegenständeliste](#item-list)
--   [Querverweise](#cross-reference)
+    importieren](#von-ywriter-zum-korrekturlesen-importieren)
+-   [Kurze Zusammenfassung](#kurze-zusammenfassung)
+-   [Figurenliste](#figurenliste)
+-   [Schauplatzliste](#schauplatzliste)
+-   [Gegenstandsliste](#gegenstandsliste)
+-   [Querverweise](#querverweise)
 -   [Für Fortgeschrittene](help-adv-de.html)
 
 ### "Format" menu
 
 -   [Szenentrenner durch Leerzeilen
-    ersetzen](#replace-scene-dividers-with-blank-lines)
--   [Absätze einrücken, die mit '&gt;'
-    beginnen'](#indent-paragraphs-that-start-with)
--   [Aufzählungsstriche ersetzen](#replace-list-strokes-with-bullets)
+    ersetzen](#szenentrenner-durch-leerzeilen-ersetzen)
+-   [Absätze einrücken, die mit '> ' beginnen'](#absätze-einrücken-die-mit-beginnen)
+-   [Aufzählungsstriche ersetzen](#aufzählungsstriche-ersetzen)
 
-## HowTo
+## So geht's
 
--   [How to set up a work in progress for
-    export](#how-to-set-up-a-work-in-progress-for-export)
--   [How to set up an outline for
-    export](#how-to-set-up-an-outline-for-export)
+-   [Ein Manuskript zum Export vorbereiten](#ein-manuskript-zum-export-vorbereiten)
+-   [Eine Gliederung zum Export vorbereiten](#eine-gliederung-zum-export-vorbereiten)
 
 ------------------------------------------------------------------------
 
@@ -139,7 +136,7 @@ You can write back the edited table to the yWriter 7 project file with the [Zu y
 
 ------------------------------------------------------------------------
 
-## Gegenständeliste
+## Gegenstandsliste
 
 This will generate a new OpenDocument spreadsheet (ods) containing an item list that can be edited in Office Calc and written back to yWriter format. File name suffix is `_itemlist`.
 
@@ -167,7 +164,7 @@ This will generate a new OpenDocument text document (odt) containing navigable c
 
 ------------------------------------------------------------------------
 
-## How to set up a work in progress for export
+## Ein Manuskript zum Export vorbereiten
 
 Generate a new yWriter 7 project from a work in progress:
 
@@ -175,7 +172,7 @@ Generate a new yWriter 7 project from a work in progress:
 -   yWriter project's filename: `<document name>.yw7`.
 -   Existing yWriter 7 projects will not be overwritten.
 
-### How to format a work in progress:
+### Formatierung des Manuskripts:
 
 A work in progress has no third level heading.
 
@@ -189,7 +186,7 @@ A work in progress has no third level heading.
 
 ------------------------------------------------------------------------
 
-## How to set up an outline for export
+## Eine Gliederung zum Export vorbereiten
 
 Generate a new yWriter 7 project from an outline:
 
@@ -197,7 +194,7 @@ Generate a new yWriter 7 project from an outline:
 -   yWriter project's filename: `<document name>.yw7`.
 -   Existing yWriter 7 projects will not be overwritten.
 
-### How to format an outline:
+### Formatierung der Gliederung:
 
 An outline has at least one third level heading.
 

@@ -12,15 +12,16 @@ Diese Funktionen sind nur für erfahrene OpenOffice/LibreOffice-Benutzer gedacht
 Übersetzt mit www.DeepL.com/Translator (kostenlose Version)
 ## Command reference
 
--   [Manuskript mit Kapitel- und Szenenbereichen](#manuscript-with-chapter-and-scene-sections)
--   [Szenebeschreibungen](#scene-descriptions)
--   [Kapitelbeschreibungen](#chapter-descriptions)
--   [Teilebeschreibungen](#part-descriptions)
--   [Figurenbeschreibungen](#character-descriptions)
--   [Schauplatzbeschreibungen](#location-descriptions)
--   [Gegenständebeschreibungen](#item-descriptions)
--   [Szenenliste](#scene-list)
--   [Notizen-Kapitel](#notes-chapters)
+-   [Manuskript mit Kapitel- und Szenenbereichen](#manuskript-mit-kapitel--und-szenenbereichen)
+-   [Szenebeschreibungen](#szenebeschreibungen)
+-   [Kapitelbeschreibungen](#kapitelbeschreibungen)
+-   [Teilebeschreibungen](#teilebeschreibungen)
+-   [Figurenbeschreibungen](#figurenbeschreibungen)
+-   [Schauplatzbeschreibungen](#schauplatzbeschreibungen)
+-   [Gegenstandsbeschreibungen](#gegenstandsbeschreibungen)
+-   [Szenenliste](#szenenliste)
+-   [Notizen-Kapitel](#notizen-kapitel)
+-   [Planungs-Kapitel](#planungs-kapitel)
 
 ------------------------------------------------------------------------
 
@@ -106,7 +107,7 @@ You can write back the descriptions to the yWriter 7 project file with the [Expo
 
 ------------------------------------------------------------------------
 
-## Gegenständebeschreibungen
+## Gegenstandsbeschreibungen
 
 This will generate a new OpenDocument text document (odt) containing item descriptions that can be edited in Office Writer and written back to yWriter format. File name suffix is `_items`.
 
@@ -179,6 +180,25 @@ This will write yWriter 7 "Notes" chapters with child scenes into a new OpenDocu
     -   *Heading 2* --› New chapter title.
     -   `###` --› Scene divider. Optionally, you can append the scene
         title to the scene divider.
+
+[Zum Seitenbeginn](#top)
+
+------------------------------------------------------------------------
+
+## Planungs-Kapitel
+
+This will write yWriter 7 "Todo" chapters with child scenes into a new 
+OpenDocument text document (odt) with invisible chapter and scene 
+sections (to be seen in the Navigator). File name suffix is `_todo`.
+
+-  Comments within scenes are written back as scene titles
+   if surrounded by `~`.
+-  Chapters and scenes can neither be rearranged nor deleted.
+-  Scenes can be split by inserting headings or a scene divider:
+    -  *Heading 1* --› New chapter title (beginning a new section).
+    -  *Heading 2* --› New chapter title.
+    -  `###` --› Scene divider. Optionally, you can append the 
+       scene title to the scene divider.
 
 [Zum Seitenbeginn](#top)
 
