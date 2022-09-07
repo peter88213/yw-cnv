@@ -47,7 +47,7 @@ msgid "Character list"
 msgstr "Figurenliste"
 
 msgid "Create a yWriter project file from {0}\nNew project: \"{1}\""
-msgstr "Erzeuge eine yWriter-Projektdatei aus {0}.n\nNeues Projekt: \"{1}\""
+msgstr "Erzeuge eine yWriter-Projektdatei aus {0}\nNeues Projekt: \"{1}\""
 
 msgid "Cross reference"
 msgstr "Querverweise"
@@ -101,7 +101,7 @@ msgid "New Scene"
 msgstr "Neue Szene"
 
 msgid "New scenes created during conversion."
-msgstr "Während der Konvertierung wurden neue Szenen erzeugt"
+msgstr "Während der Konvertierung wurden neue Szenen erzeugt."
 
 msgid "No yWriter project to write"
 msgstr "Kein yWriter-Projekt zu schreiben"
