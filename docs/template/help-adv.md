@@ -32,7 +32,7 @@ out the features with a test project first.
 
 ## Manuscript with chapter and scene sections
 
-This will load yWriter 7 chapters and scenes into a new OpenDocument
+This will write yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
@@ -182,6 +182,8 @@ This will generate a new OpenDocument spreadsheet (ods) listing the following:
 Only "normal" scenes that would be exported as RTF in yWriter get a 
 row in the scene list. Scenes of the "Unused", "Notes", or "ToDo" 
 type are omitted.
+
+Scenes beginning with `<HTML>` or `<TEX>` are omitted.
 
 File name suffix is `_scenelist`.
 
