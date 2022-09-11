@@ -41,7 +41,7 @@ msgid "Chapter descriptions"
 msgstr "Kapitelbeschreibungen"
 
 msgid "Character descriptions"
-msgstr "Figurenbeschreibung"
+msgstr "Figurenbeschreibungen"
 
 msgid "Character list"
 msgstr "Figurenliste"
