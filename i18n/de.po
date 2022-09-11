@@ -38,7 +38,7 @@ msgid "Cannot write file"
 msgstr "Kann Datei nicht schreiben"
 
 msgid "Chapter descriptions"
-msgstr "Kapitelbeschreibung"
+msgstr "Kapitelbeschreibungen"
 
 msgid "Character descriptions"
 msgstr "Figurenbeschreibung"
