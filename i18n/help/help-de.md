@@ -3,7 +3,7 @@ Haupt-Hilfeseite
 
 ------------------------------------------------------------------------
 
-# yWriter import/export
+# yWriter Import/Export
 
 ## Befehlsreferenz
 

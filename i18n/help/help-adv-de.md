@@ -3,14 +3,13 @@
 
 ------------------------------------------------------------------------
 
-# yWriter import/export: für Fortgeschrittene
+# yWriter Import/Export: für Fortgeschrittene
 
 ## Warnung!
 
 Diese Funktionen sind nur für erfahrene OpenOffice/LibreOffice-Benutzer gedacht. Wenn Sie mit **Calc** und dem Konzept der **Bereiche in Writer** nicht vertraut sind, verwenden Sie die erweiterten Funktionen bitte nicht. Es besteht die Gefahr, dass das Projekt beim Zurückschreiben beschädigt wird, wenn Sie die Bereichsgrenzen in den ODT-Textdokumenten nicht einhalten oder die IDs in den ODS-Tabellen durcheinander bringen. Probieren Sie die Funktionen unbedingt zuerst mit einem Testprojekt aus.
 
-Übersetzt mit www.DeepL.com/Translator (kostenlose Version)
-## Command reference
+## Befehlsreferenz
 
 -   [Manuskript mit Kapitel- und Szenenbereichen](#manuskript-mit-kapitel--und-szenenbereichen)
 -   [Szenebeschreibungen](#szenebeschreibungen)

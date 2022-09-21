@@ -10,7 +10,7 @@
 - Improved spreadsheet export.
 - Improved ODT export.
 - Add internationalization according to GNU coding standards.
-- Provide extended German localization.
+- Provide a full German localization.
 - Consider project names containing a reserved suffix.
 - Fix a bug where scene titles are not imported from work in progress as specified.
 
