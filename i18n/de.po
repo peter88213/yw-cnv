@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.27.12\n"
-"POT-Creation-Date: 2022-08-12 12:06:26\n"
-"PO-Revision-Date: 2022-08-12 12:06:26\n"
+"Project-Id-Version: 1.27.13\n"
+"POT-Creation-Date: 2022-09-21 21:29:35\n"
+"PO-Revision-Date: 2022-09-21 21:29:35\n"
 "Last-Translator: Peter Triesberger\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -15,6 +15,9 @@ msgstr ""
 
 msgid "Action canceled by user"
 msgstr "Vorgang vom Benutzer abgebrochen"
+
+msgid "Bio"
+msgstr "Biographie"
 
 msgid "Brief synopsis"
 msgstr "Kurzzusammenfassung"
@@ -52,6 +55,9 @@ msgstr "Erzeuge eine yWriter-Projektdatei aus {0}\nNeues Projekt: \"{1}\""
 msgid "Cross reference"
 msgstr "Querverweise"
 
+msgid "Description"
+msgstr "Beschreibung"
+
 msgid "Editable manuscript"
 msgstr "Manuskript zum Bearbeiten"
 
@@ -72,6 +78,9 @@ msgstr "Dateityp wird nicht unterstützt"
 
 msgid "File written"
 msgstr "Datei gespeichert"
+
+msgid "Goals"
+msgstr "Ziele"
 
 msgid "Import from yWriter"
 msgstr "Aus yWriter importieren"
@@ -105,6 +114,9 @@ msgstr "Während der Konvertierung wurden neue Szenen erzeugt."
 
 msgid "No yWriter project to write"
 msgstr "Kein yWriter-Projekt zu schreiben"
+
+msgid "Notes"
+msgstr "Notizen"
 
 msgid "Notes chapters"
 msgstr "Notizen-Kapitel"

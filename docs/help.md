@@ -54,7 +54,7 @@ This writes back the document's content to the yWriter project file.
 
 ## Import from yWriter
 
-This will load yWriter 7 chapters and scenes into a new OpenDocument
+This will write yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt).
 
 -   The document is placed in the same folder as the yWriter project.
@@ -87,13 +87,14 @@ text document (odt).
     continuous paragraphs.
 -   Paragraphs starting with `> ` are formatted as quotations.
 
+
 [Top of page](#top)
 
 ------------------------------------------------------------------------
 
 ## Import from yWriter for proof reading
 
-This will load yWriter 7 chapters and scenes into a new OpenDocument
+This will write yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with chapter and scene markers. File name suffix is
 `_proof`.
 
@@ -112,9 +113,9 @@ text document (odt) with chapter and scene markers. File name suffix is
     document into yWriter.
 -   Chapters and scenes can neither be rearranged nor deleted. 
 -   You can split scenes by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can append the 
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
 
 You can write back the scene contents to the yWriter 7 project file
@@ -126,13 +127,9 @@ with the [Export to yWriter](#export-to-ywriter) command.
 
 ## Brief synopsis
 
-This will load a brief synopsis with chapter and scenes titles into a new
- OpenDocument text document (odt).
-
--   The document is placed in the same folder as the yWriter project.
--   Document's **filename**: `<yW project name_brf_synopsis>.odt`.
--   Only "normal" chapters and scenes are imported. Chapters and
-    scenes marked "unused", "todo" or "notes" are not imported.
+This will write a brief synopsis with chapter and scenes titles into a new 
+OpenDocument text document.  File name suffix is `_brf_synopsis`.
+ 
 -   Only scenes that are intended for RTF export in yWriter will be
     imported.
 -   Titles of scenes beginning with `<HTML>` or `<TEX>` are not imported.
@@ -229,9 +226,9 @@ Generate a new yWriter 7 project from a work in progress:
 
 A work in progress has no third level heading.
 
--   *Heading 1* --› New chapter title (beginning a new section).
--   *Heading 2* --› New chapter title.
--   `* * *` --› Scene divider (not needed for the first scenes in a
+-   *Heading 1* → New chapter title (beginning a new section).
+-   *Heading 2* → New chapter title.
+-   `* * *` → Scene divider (not needed for the first scenes in a
     chapter).
 -   Comments right at the scene beginning are considered scene titles.
 -   All other text is considered scene content.
@@ -253,9 +250,9 @@ Generate a new yWriter 7 project from an outline:
 
 An outline has at least one third level heading.
 
--   *Heading 1* --› New chapter title (beginning a new section).
--   *Heading 2* --› New chapter title.
--   *Heading 3* --› New scene title.
+-   *Heading 1* → New chapter title (beginning a new section).
+-   *Heading 2* → New chapter title.
+-   *Heading 3* → New scene title.
 -   All other text is considered to be chapter/scene description.
 
 [Top of page](#top)

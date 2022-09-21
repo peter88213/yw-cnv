@@ -37,17 +37,14 @@ Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument 
 - Gobal- und Projektvariablen werden nicht aufgelöst.
 - Kapitel und Szenen können weder neu geordnet noch gelöscht werden.
 - Sie können Szenen durch Einfügen von Überschriften oder einem Szenentrenner aufteilen:
-    - *Überschrift 1* --> Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
-    - *Überschrift 2* --> Neuer Kapiteltitel.
-    - `###` --> Szenentrenner. Optional können Sie den Szenentitel auch an den Szenentrenner anhängen.
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
+    - *Überschrift 2* → Neuer Kapiteltitel.
+    - `###` → Szenentrenner. Optional können Sie den Szenentitel auch an den Szenentrenner anhängen.
 
 
+Mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) können Sie den Szeneninhalt und die Kapitel-/Abschnittsüberschriften in die yWriter 7 Projektdatei zurückschreiben.
 
-
-Übersetzt mit www.DeepL.com/Translator (kostenlose Version)
-You can write back the scene contents and the chapter/part headings to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command.
-
--   Comments within scenes are written back as scene titles if surrounded by `~`.
+-   Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, wenn sie von `~` umgeben sind.
 
 [Zum Seitenbeginn](#top)
 
@@ -55,9 +52,9 @@ You can write back the scene contents and the chapter/part headings to the yWrit
 
 ## Szenebeschreibungen
 
-This will generate a new OpenDocument text document (odt) containing a **full synopsis** with chapter titles and scene descriptions that can be edited and written back to yWriter format. File name suffix is `_scenes`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **vollständige Zusammenfassung** mit Kapitelüberschriften und Szenenbeschreibungen enthält, die bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_scenes`.
 
-You can write back the scene descriptions and the chapter/part headings to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command. Comments right at the beginning of the scene descriptions are written back as scene titles.
+Sie können die Szenenbeschreibungen und die Kapitel-/Teilüberschriften mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben. Kommentare direkt am Anfang der Szenenbeschreibungen werden als Szenentitel zurückgeschrieben.
 
 [Zum Seitenbeginn](#top)
 
@@ -65,11 +62,12 @@ You can write back the scene descriptions and the chapter/part headings to the y
 
 ## Kapitelbeschreibungen
 
-This will generate a new OpenDocument text document (odt) containing a **brief synopsis** with chapter titles and chapter descriptions that can be edited and written back to yWriter format. File name suffix is `_chapters`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **Kurzzusammenfassung** mit Kapitelüberschriften und -beschreibungen enthält, die bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist `_chapters`.
 
-**Note:** Doesn't apply to chapters marked `This chapter begins a new section` in yWriter.
+**Anmerkung:** Gilt nicht für Kapitel, die in yWriter mit `Dieses Kapitel beginnt einen neuen Abschnitt` gekennzeichnet sind.
 
-You can write back the headings and descriptions to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command.
+Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+
 
 [Zum Seitenbeginn](#top)
 
@@ -77,11 +75,11 @@ You can write back the headings and descriptions to the yWriter 7 project file w
 
 ## Teilebeschreibungen
 
-This will generate a new OpenDocument text document (odt) containing a **very brief synopsis** with part titles and part descriptions that can be edited and written back to yWriter format. File name suffix is `_parts`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **sehr kurze Zusammenfassung** mit Teiltiteln und Teilbeschreibungen enthält, die bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist `_parts`.
 
-**Note:** Applies only to chapters marked `This chapter  begins a new section` in yWriter.
+**Hinweis:** Gilt nur für Kapitel, die in yWriter mit `Dieses Kapitel beginnt einen neuen Abschnitt` gekennzeichnet sind.
 
-You can write back the headings and descriptions to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command.
+Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -89,9 +87,9 @@ You can write back the headings and descriptions to the yWriter 7 project file w
 
 ## Figurenbeschreibungen
 
-This will generate a new OpenDocument text document (odt) containing character descriptions, bio, goals, and notes that can be edited in Office Writer and written back to yWriter format. File name suffix is `_characters`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Figurenbeschreibungen, Lebenslauf, Zielen und Notizen, das in Office Writer bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_characters`.
 
-You can write back the descriptions to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command.
+Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -99,9 +97,9 @@ You can write back the descriptions to the yWriter 7 project file with the [Expo
 
 ## Schauplatzbeschreibungen
 
-This will generate a new OpenDocument text document (odt) containing location descriptions that can be edited in Office Writer and written back to yWriter format. File name suffix is `_locations`.
+Dies erzeugt ein neues OpenDocument Textdokument (odt) mit Schauplatzbeschreibungen, die in Office Writer bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist `_locations`.
 
-You can write back the descriptions to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command.
+Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -109,9 +107,9 @@ You can write back the descriptions to the yWriter 7 project file with the [Expo
 
 ## Gegenstandsbeschreibungen
 
-This will generate a new OpenDocument text document (odt) containing item descriptions that can be edited in Office Writer and written back to yWriter format. File name suffix is `_items`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Gegenstandsbeschreibungen, die in Office Writer bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist `_items`.
 
-You can write back the descriptions to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command.
+Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -119,51 +117,54 @@ You can write back the descriptions to the yWriter 7 project file with the [Expo
 
 ## Szenenliste
 
-This will generate a new OpenDocument spreadsheet (ods) listing the following:
+Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das Folgendes enthält:
 
--   Hyperlink to the manuscript's scene section
--   Scene title
--   Scene description
+-   Hyperlink zum Szenenbereich des Manuskripts
+-   Szenentitel
+-   Szenenbeschreibung
 -   Tags
--   Scene notes
+-   Szenen-Notizen
 -   A/R
--   Goal
--   Conflict
--   Outcome
--   Sequential scene number
--   Words total
--   Rating 1
--   Rating 2
--   Rating 3
--   Rating 4
--   Word count
--   Letter count
+-   Ziel
+-   Konflikt
+-   Ausgang
+-   Aufeinanderfolgende Szenennummern
+-   Gesamtwortzahl
+-   Bewertung 1
+-   Bewertung 2
+-   Bewertung 3
+-   Bewertung 4
+-   Wortzahl
+-   Zeichenzahl
 -   Status
--   Characters
--   Locations
--   Items
+-   Figuren
+-   Schauplätze
+-   Gegenstände
 
-Only "normal" scenes that would be exported as RTF in yWriter get a row in the scene list. Scenes of the "Unused", "Notes", or "ToDo" type are omitted.
+Nur "normale" Szenen, die in yWriter als RTF exportiert werden würden, erhalten eine Zeile in der Szenenliste. Szenen vom Typ "Unused", "Notes" oder "ToDo" werden ausgelassen.
 
-File name suffix is `_scenelist`.
+Das Suffix des Dateinamens ist `_scenelist`.
 
-You can write back the table contents to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) command.
+Sie können den Tabelleninhalt mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
-The following columns can be written back to the yWriter project:
+Die folgenden Spalten können in das yWriter-Projekt zurückgeschrieben werden:
 
 -   Title
--   Description
--   Tags (comma-separated)
--   Scene notes
+-   Beschreibung
+-   Tags (durch Kommas getrennt)
+-   Szenen-Notizen
 -   A/R (action/reaction scene)
--   Goal
--   Conflict
--   Outcome
--   Rating 1
--   Rating 2
--   Rating 3
--   Rating 4
--   Status ('Outline', 'Draft', '1st Edit', '2nd Edit', 'Done')
+-   Ziel
+-   Konflikt
+-   Ausgang
+-   Bewertung 1
+-   Bewertung 2
+-   Bewertung 3
+-   Bewertung 4
+-   Status ('Gliederung', 'Entwurf', '1. Überarbeitung', '2. Überarbeitung', 'Fertig')
+
+*Hinweis: In der Tabelle erscheinen die Spaltentitel in englischer Sprache. 
+Das ist für das Zurückschreiben ins yWriter-Format notwendig.*
 
 [Zum Seitenbeginn](#top)
 
@@ -171,15 +172,16 @@ The following columns can be written back to the yWriter project:
 
 ## Notizen-Kapitel
 
-This will write yWriter 7 "Notes" chapters with child scenes into a new OpenDocument text document (odt) with invisible chapter and scene sections (to be seen in the Navigator). File name suffix is `_notes`.
+Dies schreibt yWriter 7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenenabschnitten (zu sehen im Navigator). Das Suffix des Dateinamens ist `_notes`.
 
--   Comments within scenes are written back as scene titles if surrounded by `~`.
--   Chapters and scenes can neither be rearranged nor deleted.
--   Scenes can be split by inserting headings or a scene divider:
-    -   *Heading 1* --› New chapter title (beginning a new section).
-    -   *Heading 2* --› New chapter title.
-    -   `###` --› Scene divider. Optionally, you can append the scene
-        title to the scene divider.
+- Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, 
+  wenn sie von `~` umgeben sind.
+- Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
+- Szenen können durch Einfügen von Überschriften oder einem Szenentrenner geteilt werden:
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
+    - *Überschrift 2* → Neuer Kapiteltitel.
+    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den
+      Titel an den Szenentrenner anhängen.
 
 [Zum Seitenbeginn](#top)
 
@@ -187,18 +189,18 @@ This will write yWriter 7 "Notes" chapters with child scenes into a new OpenDocu
 
 ## Planungs-Kapitel
 
-This will write yWriter 7 "Todo" chapters with child scenes into a new 
-OpenDocument text document (odt) with invisible chapter and scene 
-sections (to be seen in the Navigator). File name suffix is `_todo`.
+Dies schreibt yWriter 7 "Todo"-Kapitel mit untergeordneten Szenen in ein neues 
+OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenen 
+Abschnitten (die im Navigator zu sehen sind). Die Dateinamenserweiterung ist `_todo`.
 
--  Comments within scenes are written back as scene titles
-   if surrounded by `~`.
--  Chapters and scenes can neither be rearranged nor deleted.
--  Scenes can be split by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can append the 
-       scene title to the scene divider.
+- Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben,
+  wenn sie von `~` umgeben sind.
+- Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
+- Szenen können durch Einfügen von Überschriften oder einem Szenentrenner geteilt werden:
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
+    - *Überschrift 2* → Neuer Kapiteltitel.
+    - `###` → Szenentrenner. Optional können Sie den 
+       Szenentitel an den Szenentrenner anhängen.
 
 [Zum Seitenbeginn](#top)
 

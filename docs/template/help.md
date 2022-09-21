@@ -113,9 +113,9 @@ text document (odt) with chapter and scene markers. File name suffix is
     document into yWriter.
 -   Chapters and scenes can neither be rearranged nor deleted. 
 -   You can split scenes by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can append the 
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
 
 You can write back the scene contents to the yWriter 7 project file
@@ -226,9 +226,9 @@ Generate a new yWriter 7 project from a work in progress:
 
 A work in progress has no third level heading.
 
--   *Heading 1* --› New chapter title (beginning a new section).
--   *Heading 2* --› New chapter title.
--   `* * *` --› Scene divider (not needed for the first scenes in a
+-   *Heading 1* → New chapter title (beginning a new section).
+-   *Heading 2* → New chapter title.
+-   `* * *` → Scene divider (not needed for the first scenes in a
     chapter).
 -   Comments right at the scene beginning are considered scene titles.
 -   All other text is considered scene content.
@@ -250,9 +250,9 @@ Generate a new yWriter 7 project from an outline:
 
 An outline has at least one third level heading.
 
--   *Heading 1* --› New chapter title (beginning a new section).
--   *Heading 2* --› New chapter title.
--   *Heading 3* --› New scene title.
+-   *Heading 1* → New chapter title (beginning a new section).
+-   *Heading 2* → New chapter title.
+-   *Heading 3* → New scene title.
 -   All other text is considered to be chapter/scene description.
 
 [Top of page](#top)

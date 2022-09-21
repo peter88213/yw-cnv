@@ -47,9 +47,9 @@ seen in the Navigator). File name suffix is `_manuscript`.
 -   Gobal variables and project variables are not resolved.
 -   Chapters and scenes can neither be rearranged nor deleted.
 -   You can split scenes by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can also append the 
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can also append the 
        scene title to the scene divider.
 
 You can write back the scene contents and the chapter/part headings to 
@@ -220,9 +220,9 @@ sections (to be seen in the Navigator). File name suffix is `_notes`.
    if surrounded by `~`.
 -  Chapters and scenes can neither be rearranged nor deleted.
 -  Scenes can be split by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can append the 
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
 
 [Top of page](#top)
@@ -239,9 +239,9 @@ sections (to be seen in the Navigator). File name suffix is `_todo`.
    if surrounded by `~`.
 -  Chapters and scenes can neither be rearranged nor deleted.
 -  Scenes can be split by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can append the 
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
 
 [Top of page](#top)

@@ -40,7 +40,7 @@ Dadurch wird der Inhalt des Dokuments in die yWriter-Projektdatei zurückgeschri
 
 -   Stellen Sie sicher, dass Sie den Dateinamen eines generierten Dokuments vor dem Zurückschreiben in das yWriter-Formanicht ändern.
 -   Das zu überschreibende yWriter 7 Projekt muss sich im selben Ordner befinden wie das Dokument.
--   Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als [Manuskript in Arbeit](#how-to-set-up-a-work-in-progress-for-export) oder eine [Gliederung](#how-to-set-up-an-outline-for-export) zum Exportieren in ein neu zu erstellendes yWriter-Projekt. **Hinweis:** Bestehende  yWriter-Projekte werden nicht überschrieben.
+-   Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als [Manuskript in Arbeit](#ein-manuskript-zum-export-vorbereiten) oder eine [Gliederung](#eine-gliederung-zum-export-vorbereiten) zum Exportieren in ein neu zu erstellendes yWriter-Projekt. **Hinweis:** Bestehende  yWriter-Projekte werden nicht überschrieben.
 
 [Zum Seitenbeginn](#top)
 
@@ -56,7 +56,7 @@ Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokum
 - Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
 - Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.
 - Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
-- Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* this is a comment */`), werden in Autorenkommentare umgewandelt.
+- Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* das ist ein Kommentar */`), werden in Autorenkommentare umgewandelt.
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden entfernt.
 - Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.
 - Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
@@ -73,22 +73,22 @@ Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokum
 
 ## Von yWriter zum Korrekturlesen importieren
 
-This will load yWriter 7 chapters and scenes into a new OpenDocument text document (odt) with chapter and scene markers. File name suffix is `_proof`.
+Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit Kapitel- und Szenenmarkierungen. Das Suffix des Dateinamens ist `_proof`.
 
--   The proof read document is placed in the same folder as the yWriter  project.
--   Document's filename: `<yW project name>_proof.odt`.
--   Text markup: Bold and italics are supported. Other highlighting such as underline and strikethrough are lost.
--   Scenes beginning with `<HTML>` or `<TEX>` are not imported.
--   All other chapters and scenes are imported, whether "used" or "unused".
--   Interspersed HTML, TEX, or RTF commands are taken over unchanged.
--   The document contains chapter `[ChID:x]` and scene `[ScID:y]` markers according to yWriter 5 standard. **Do not touch lines containing the markers** if you want to be able to reimport the document into yWriter.
--   Chapters and scenes can neither be rearranged nor deleted.
--   You can split scenes by inserting headings or a scene divider:
-    -   *Heading 1* --› New chapter title (beginning a new section).
-    -   *Heading 2* --› New chapter title.
-    -   `###` --› Scene divider. Optionally, you can append the scene title to the scene divider.
+- Das Probedokument wird im selben Ordner wie das yWriter-Projekt abgelegt.
+- Der Dateiname des Dokuments: `<yW Projektname>_proof.odt`.
+- Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.
+- Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
+- Alle anderen Kapitel und Szenen werden importiert, egal ob "benutzt" oder "unbenutzt".
+- Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
+- Das Dokument enthält Kapitel `[ChID:x]` und Szenen `[ScID:y]` Markierungen entsprechend dem yWriter 5 Standard. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yWriter importieren wollen.
+- Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
+- Sie können Szenen aufteilen, indem Sie Überschriften oder einen Szenentrenner einfügen:
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
+    - *Überschrift 2* → Neuer Kapiteltitel.
+    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen.
 
-You can write back the scene contents to the yWriter 7 project file with the [Zu yWriter exportieren](#export-to-ywriter) command.
+Sie können den Inhalt der Szene mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -96,17 +96,17 @@ You can write back the scene contents to the yWriter 7 project file with the [Zu
 
 ## Kurze Zusammenfassung
 
-This will load a brief synopsis with chapter and scenes titles into a
-new OpenDocument text document (odt).
+Dies lädt eine kurze Zusammenfassung mit Kapitel- und Szenenüberschriften in ein
+neues OpenDocument-Textdokument (odt).
 
--   The document is placed in the same folder as the yWriter project.
--   Document's **filename**: `<yW project name_brf_synopsis>.odt`.
--   Only "normal" chapters and scenes are imported. Chapters and scenes marked "unused", "todo" or "notes" are not imported.
--   Only scenes that are intended for RTF export in yWriter will be imported.
--   Titles of scenes beginning with `<HTML>` or `<TEX>` are not imported.
--   Chapter titles appear as first level heading if the chapter is marked as beginning of a new section in yWriter. Such headings are considered as "part" headings.
--   Chapter titles appear as second level heading if the chapter is not  marked as beginning of a new section. Such headings are considered as "chapter" headings.
--   Scene titles appear as plain paragraphs.
+- Das Dokument wird im selben Ordner wie das yWriter-Projekt abgelegt.
+- Der **Dateiname** des Dokuments: `<yW-Projektname_brf_synopsis>.odt`.
+- Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
+- Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.
+- Titel von Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
+- Kapitelüberschriften erscheinen als Überschrift der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
+- Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.
+- Szenentitel erscheinen als einfache Absätze.
 
 [Zum Seitenbeginn](#top)
 
@@ -114,11 +114,11 @@ new OpenDocument text document (odt).
 
 ## Figurenliste
 
-This will generate a new OpenDocument spreadsheet (ods) containing a character list that can be edited in Office Calc and written back to yWriter format. File name suffix is `_charlist`.
+Damit wird ein neues OpenDocument Tabellenblatt (ods) erzeugt, das eine Figurenliste enthält, die in Office Calc bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_charlist`.
 
-You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.
+Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.
 
-You can write back the edited table to the yWriter 7 project file with the [Zu yWriter exportieren](#export-to-ywriter) command.
+Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -126,11 +126,11 @@ You can write back the edited table to the yWriter 7 project file with the [Zu y
 
 ## Schauplatzliste
 
-This will generate a new OpenDocument spreadsheet (ods) containing a location list that can be edited in Office Calc and written back to yWriter format. File name suffix is `_loclist`.
+Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das eine Schauplatzliste enthält, die in Office Calc bearbeitet und in das yWriter Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_loclist`.
 
-You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.
+Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.
 
-You can write back the edited table to the yWriter 7 project file with the [Zu yWriter exportieren](#export-to-ywriter) command.
+Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -138,11 +138,11 @@ You can write back the edited table to the yWriter 7 project file with the [Zu y
 
 ## Gegenstandsliste
 
-This will generate a new OpenDocument spreadsheet (ods) containing an item list that can be edited in Office Calc and written back to yWriter format. File name suffix is `_itemlist`.
+Dies erzeugt ein neues OpenDocument Spreadsheet (ods), das eine Gegenstandsliste enthält, die in Office Calc bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_itemlist`.
 
-You may change the sort order of the rows. You may also add or remove rows. New entities must get a unique ID.
+Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.
 
-You can write back the edited table to the yWriter 7 project file with the [Zu yWriter exportieren](#export-to-ywriter) command.
+Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -150,15 +150,15 @@ You can write back the edited table to the yWriter 7 project file with the [Zu y
 
 ## Querverweise
 
-This will generate a new OpenDocument text document (odt) containing navigable cross references. File name suffix is `_xref`. The cross references are:
+Dadurch wird ein neues OpenDocument-Textdokument (odt) erzeugt, das navigierbare Querverweise enthält. Das Suffix des Dateinamens ist `_xref`. Die Querverweise sind:
 
--   Scenes per character,
--   scenes per location,
--   scenes per item,
--   scenes per tag,
--   characters per tag,
--   locations per tag,
--   items per tag.
+- Szenen pro Figur,
+- Szenen pro Schauplatz,
+- Szenen pro Gegenstand,
+- Szenen pro Tag,
+- Figuren pro Tag,
+- Schauplätze pro Tag,
+- Gegenstände pro Tag.
 
 [Zum Seitenbeginn](#top)
 
@@ -166,21 +166,21 @@ This will generate a new OpenDocument text document (odt) containing navigable c
 
 ## Ein Manuskript zum Export vorbereiten
 
-Generate a new yWriter 7 project from a work in progress:
+Erzeugt ein neues yWriter 7-Projekt aus einem in Arbeit befindlichen Dokument:
 
--   The new yWriter project is placed in the same folder as the document.
--   yWriter project's filename: `<document name>.yw7`.
--   Existing yWriter 7 projects will not be overwritten.
+- Das neue yWriter-Projekt wird in demselben Ordner wie das Dokument abgelegt.
+- Dateiname des yWriter-Projekts: `<Dokumentname>.yw7`.
+- Bestehende yWriter 7-Projekte werden nicht überschrieben.
 
 ### Formatierung des Manuskripts:
 
-A work in progress has no third level heading.
+Ein in Arbeit befindliches Dokument hat keine Überschrift auf der dritten Ebene.
 
--   *Heading 1* --› New chapter title (beginning a new section).
--   *Heading 2* --› New chapter title.
--   `* * *` --› Scene divider (not needed for the first scenes in a chapter).
--   Comments right at the scene beginning are considered scene titles.
--   All other text is considered scene content.
+- *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
+- *Überschrift 2* → Neuer Kapiteltitel.
+- `* * *` → Szenentrenner (nicht erforderlich für die ersten Szenen eines Kapitels).
+- Kommentare direkt am Anfang einer Szene gelten als Szenentitel.
+- Alle anderen Texte gelten als Szeneninhalt.
 
 [Zum Seitenbeginn](#top)
 
@@ -188,20 +188,20 @@ A work in progress has no third level heading.
 
 ## Eine Gliederung zum Export vorbereiten
 
-Generate a new yWriter 7 project from an outline:
+Erzeugt ein neues yWriter 7-Projekt aus einer Gliederung:
 
--   The new yWriter project is placed in the same folder as the document.
--   yWriter project's filename: `<document name>.yw7`.
--   Existing yWriter 7 projects will not be overwritten.
+- Das neue yWriter-Projekt wird in demselben Ordner wie das Dokument abgelegt.
+- Dateiname des yWriter-Projekts: `<Dokumentname>.yw7`.
+- Bestehende yWriter 7-Projekte werden nicht überschrieben.
 
 ### Formatierung der Gliederung:
 
-An outline has at least one third level heading.
+Eine Gliederung hat mindestens eine Überschrift auf der dritten Ebene.
 
--   *Heading 1* --› New chapter title (beginning a new section).
--   *Heading 2* --› New chapter title.
--   *Heading 3* --› New scene title.
--   All other text is considered to be chapter/scene description.
+- *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
+- *Überschrift 2* → Neue Kapitelüberschrift.
+- *Überschrift 3* → Neuer Szenentitel.
+- Alle anderen Texte werden als Kapitel-/Szenenbeschreibung betrachtet.
 
 [Zum Seitenbeginn](#top)
 
@@ -209,7 +209,7 @@ An outline has at least one third level heading.
 
 ## Szenentrenner durch Leerzeilen ersetzen
 
-This will replace the three-line "\* \* \*" scene dividers with single blank lines. The style of the scene-dividing lines will be changed from *Heading 4* to *Heading 5*.
+Dadurch werden die dreizeiligen "\* \* \*"-Szenentrennlinien durch einzelne Leerzeilen ersetzt. Der Stil der szenenunterteilenden Zeilen wird von *Überschrift 4* auf *Überschrift 5* geändert.
 
 [Zum Seitenbeginn](#top)
 
@@ -217,9 +217,9 @@ This will replace the three-line "\* \* \*" scene dividers with single blank lin
 
 ## Absätze einrücken, die mit '&gt;' beginnen'
 
-This will select all paragraphs that start with "&gt; " and change their paragraph style to *Quotations*.
+Dadurch werden alle Absätze ausgewählt, die mit "&gt; " beginnen, und ihr Absatzstil wird in *Quotations* geändert.
 
-Note: When exporting to yWriter, *Quotations* style paragraphs will automatically marked with "&gt; " at the beginning.
+Hinweis: Beim Export in yWriter werden Absätze im Stil *Quotations* automatisch mit "&gt; " am Anfang markiert.
 
 [Zum Seitenbeginn](#top)
 
@@ -227,9 +227,9 @@ Note: When exporting to yWriter, *Quotations* style paragraphs will automaticall
 
 ## Aufzählungsstriche ersetzen
 
-This will select all paragraphs that start with "- " and apply a list paragraph style.
+Dadurch werden alle Absätze, die mit "-" beginnen, ausgewählt und mit einem Listenabsatzstil versehen.
 
-Note: When exporting to yWriter, Lists will automatically marked with "-" list strokes.
+Hinweis: Beim Export in yWriter werden Listen automatisch mit "-"-Listenstrichen markiert.
 
 [Zum Seitenbeginn](#top)
 

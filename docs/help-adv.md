@@ -26,12 +26,13 @@ out the features with a test project first.
 -   [Item descriptions](#item-descriptions)
 -   [Scene list](#scene-list)
 -   [Notes chapters](#notes-chapters)
+-   [Todo chapters](#todo-chapters)
 
 ------------------------------------------------------------------------
 
 ## Manuscript with chapter and scene sections
 
-This will load yWriter 7 chapters and scenes into a new OpenDocument
+This will write yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
@@ -46,9 +47,9 @@ seen in the Navigator). File name suffix is `_manuscript`.
 -   Gobal variables and project variables are not resolved.
 -   Chapters and scenes can neither be rearranged nor deleted.
 -   You can split scenes by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can also append the 
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can also append the 
        scene title to the scene divider.
 
 You can write back the scene contents and the chapter/part headings to 
@@ -182,6 +183,8 @@ Only "normal" scenes that would be exported as RTF in yWriter get a
 row in the scene list. Scenes of the "Unused", "Notes", or "ToDo" 
 type are omitted.
 
+Scenes beginning with `<HTML>` or `<TEX>` are omitted.
+
 File name suffix is `_scenelist`.
 
 You can write back the table contents to the yWriter 7 project file with
@@ -217,9 +220,28 @@ sections (to be seen in the Navigator). File name suffix is `_notes`.
    if surrounded by `~`.
 -  Chapters and scenes can neither be rearranged nor deleted.
 -  Scenes can be split by inserting headings or a scene divider:
-    -  *Heading 1* --› New chapter title (beginning a new section).
-    -  *Heading 2* --› New chapter title.
-    -  `###` --› Scene divider. Optionally, you can append the 
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can append the 
+       scene title to the scene divider.
+
+[Top of page](#top)
+
+------------------------------------------------------------------------
+
+## Todo chapters
+
+This will write yWriter 7 "Todo" chapters with child scenes into a new 
+OpenDocument text document (odt) with invisible chapter and scene 
+sections (to be seen in the Navigator). File name suffix is `_todo`.
+
+-  Comments within scenes are written back as scene titles
+   if surrounded by `~`.
+-  Chapters and scenes can neither be rearranged nor deleted.
+-  Scenes can be split by inserting headings or a scene divider:
+    -  *Heading 1* → New chapter title (beginning a new section).
+    -  *Heading 2* → New chapter title.
+    -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
 
 [Top of page](#top)

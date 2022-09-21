@@ -4,7 +4,7 @@
 
 ## Changelog
 
-### v1.28.0 Optional update
+### v1.28.0
 
 - New document types for "ToDo" chapters import and export.
 - Improved spreadsheet export.
@@ -13,7 +13,7 @@
 - Provide extended German localization.
 - Consider project names containing a reserved suffix.
 
-Based on PyWriter v5.22.0
+Based on PyWriter v7.4.7
 
 ### v1.26.3 Minor update
 
