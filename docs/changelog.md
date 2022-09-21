@@ -12,8 +12,9 @@
 - Add internationalization according to GNU coding standards.
 - Provide extended German localization.
 - Consider project names containing a reserved suffix.
+- Fix a bug where scene titles are not imported from work in progress as specified.
 
-Based on PyWriter v7.4.7
+Based on PyWriter v7.4.8
 
 ### v1.26.3 Minor update
 

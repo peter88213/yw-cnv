@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.27.13
+Version 1.28.0
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3504,6 +3504,26 @@ class HtmlImport(HtmlFile):
         elif tag == 'title':
             self.title = ''.join(self._lines)
 
+    def handle_comment(self, data):
+        """Process inline comments within scene content.
+        
+        Positional arguments:
+            data -- str: comment text. 
+        
+        Use marked comments at scene start as scene titles.
+        Overrides HTMLparser.handle_comment() called by the parser when a comment is encountered.
+        """
+        if self._scId is not None:
+            if not self._lines:
+                # Comment is at scene start
+                try:
+                    self.scenes[self._scId].title = data.strip()
+                except:
+                    pass
+                return
+
+            self._lines.append(f'{self._COMMENT_START}{data.strip()}{self._COMMENT_END}')
+
     def handle_data(self, data):
         """Collect data within scene sections.
 
@@ -3516,20 +3536,6 @@ class HtmlImport(HtmlFile):
             self._scId = None
         else:
             data = data.strip()
-
-            # Convert prefixed comment into scene title.
-            if not self._lines and data.startswith(self._COMMENT_START):
-                try:
-                    scTitle, scContent = data.split(
-                        sep=self._COMMENT_END, maxsplit=1)
-                    if self._SC_TITLE_BRACKET in scTitle:
-                        scTitle = scTitle.split(self._SC_TITLE_BRACKET)[1]
-                    else:
-                        scTitle = scTitle.lstrip(self._COMMENT_START)
-                    self.scenes[self._scId].title = scTitle.strip()
-                    data = scContent
-                except:
-                    pass
             self._lines.append(data)
 
 

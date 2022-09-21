@@ -53,7 +53,7 @@ seen in the Navigator). File name suffix is `_manuscript`.
        scene title to the scene divider.
 
 You can write back the scene contents and the chapter/part headings to 
-the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
+the yWriter 7 project file with the [Export to yWriter](@help@#export-to-ywriter) 
 command.
 
 -   Comments within scenes are written back as scene titles
@@ -71,7 +71,7 @@ edited and written back to yWriter format. File name suffix is
 `_scenes`.
 
 You can write back the scene descriptions and the chapter/part headings 
-to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
+to the yWriter 7 project file with the [Export to yWriter](@help@#export-to-ywriter) 
 command. Comments right at the beginning of the scene descriptions are 
 written back as scene titles.
 
@@ -90,7 +90,7 @@ be edited and written back to yWriter format. File name suffix is
 `This chapter begins a new section` in yWriter.
 
 You can write back the headings and descriptions to the yWriter 7 project 
-file with the [Export to yWriter](help#export-to-ywriter) command.
+file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
 
@@ -107,7 +107,7 @@ be edited and written back to yWriter format. File name suffix is
 `This chapter  begins a new section` in yWriter.
 
 You can write back the headings and descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
 
@@ -121,7 +121,7 @@ Writer and written back to yWriter format. File name suffix is
 `_characters`.
 
 You can write back the descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
 
@@ -134,7 +134,7 @@ location descriptions that can be edited in Office Writer and written
 back to yWriter format. File name suffix is `_locations`.
 
 You can write back the descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
 
@@ -147,7 +147,7 @@ item descriptions that can be edited in Office Writer and written back
 to yWriter format. File name suffix is `_items`.
 
 You can write back the descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+file with the [Export to yWriter](@help@#export-to-ywriter) command.
 
 [Top of page](#top)
 
@@ -188,7 +188,7 @@ Scenes beginning with `<HTML>` or `<TEX>` are omitted.
 File name suffix is `_scenelist`.
 
 You can write back the table contents to the yWriter 7 project file with
-the [Export to yWriter](help#export-to-ywriter) command.
+the [Export to yWriter](@help@#export-to-ywriter) command.
 
 The following columns can be written back to the yWriter project:
 
