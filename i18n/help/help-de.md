@@ -7,7 +7,7 @@ Haupt-Hilfeseite
 
 ## Befehlsreferenz
 
-### "Files" menu
+### "Datei"-Menü
 
 -   [Zu yWriter exportieren](#zu-ywriter-exportieren)
 -   [Von yWriter importieren](#von-ywriter-importieren)
@@ -20,7 +20,7 @@ Haupt-Hilfeseite
 -   [Querverweise](#querverweise)
 -   [Für Fortgeschrittene](help-adv-de.html)
 
-### "Format" menu
+### "Format"-Menü
 
 -   [Szenentrenner durch Leerzeilen
     ersetzen](#szenentrenner-durch-leerzeilen-ersetzen)
