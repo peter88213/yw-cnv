@@ -12,6 +12,7 @@
 - Generate an **item list** that can be edited in Office Calc and written back to yWriter format.
 - Generate an OpenDocument text file containing navigable **cross references** , such as scenes per character, characters per tag, etc.
 - Generate a new yWriter 7 project from a **work in progress** or an **outline** .
+- The extension is ready for internationalization with GNU gettext. A German localization with help pages in German is provided. 
 
 You can find more information on the [help pages](help).
 
