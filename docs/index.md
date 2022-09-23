@@ -12,7 +12,7 @@
 - Generate an **item list** that can be edited in Office Calc and written back to yWriter format.
 - Generate an OpenDocument text file containing navigable **cross references** , such as scenes per character, characters per tag, etc.
 - Generate a new yWriter 7 project from a **work in progress** or an **outline** .
-- The extension is ready for internationalization with GNU gettext. A German localization with help pages in German is provided.
+- The extension is ready for internationalization with GNU gettext. A German localization with help pages in German is provided. 
 
 You can find more information on the [help pages](help).
 
@@ -25,7 +25,7 @@ __Please note:__ _This extension can not be installed on OpenOffice. An OpenOffi
 
 ## Download and install {#download}
 
-[Download the latest release (version 1.28.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.28.0.oxt)
+[Download the latest release (version 1.29.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.29.0.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).
