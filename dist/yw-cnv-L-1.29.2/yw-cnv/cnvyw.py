@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.29.0
+Version 1.29.2
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1535,6 +1535,11 @@ class Yw7File(Novel):
                    'Outcome', 'Goal', 'Conflict']
     # Names of xml elements containing CDATA.
     # ElementTree.write omits CDATA tags, so they have to be inserted afterwards.
+
+    _PRJ_KWVAR = (
+        'Field_LanguageCode',
+        'Field_CountryCode',
+        )
 
     def __init__(self, filePath, **kwargs):
         """Initialize instance variables.
@@ -3230,6 +3235,26 @@ class Yw7File(Novel):
                 for scId in self.chapters[chId].srtScenes:
                     self.scenes[scId].scType = self.chapters[chId].chType
 
+    def check_locale(self):
+        """Check the document's locale (language code and country code).
+        
+        If a reasonable looking locale is set, return True, 
+        otherwise set the system locale and return False.        
+        """
+        try:
+            docLng = self.kwVar['Field_LanguageCode']
+            if len(docLng) == 2:
+                docCtr = self.kwVar['Field_CountryCode']
+                if len(docCtr) == 2:
+                    return True
+
+        except:
+            pass
+        sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
+        self.kwVar['Field_LanguageCode'] = sysLng
+        self.kwVar['Field_CountryCode'] = sysCtr
+        return False
+
 from html.parser import HTMLParser
 
 
@@ -3858,6 +3883,9 @@ class FileExport(Novel):
         if source.srtPrjNotes:
             self.srtPrjNotes = source.srtPrjNotes
             self.projectNotes = source.projectNotes
+
+        if source.kwVar:
+            self.kwVar = source.kwVar
 
         return 'Export data updated from novel.'
 
@@ -4564,12 +4592,22 @@ class OdfFile(FileExport):
         except:
             return f'{ERROR}{_("Cannot write file")}: "manifest.xml"'
 
-        #--- Generate styles.xml with system language set as document language.
-        lng, ctr = locale.getdefaultlocale()[0].split('_')
+        #--- Generate styles.xml.
+        # If no reasonable looking language/country is set, use the system language/country.
+        sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
         localeMapping = dict(
-            Language=lng,
-            Country=ctr,
+            Language=sysLng,
+            Country=sysCtr,
         )
+        try:
+            docLng = self.kwVar['Field_LanguageCode']
+            if len(docLng) == 2:
+                docCtr = self.kwVar['Field_CountryCode']
+                if len(docCtr) == 2:
+                    localeMapping['Language'] = docLng
+                    localeMapping['Country'] = docCtr
+        except:
+            pass
         template = Template(self._STYLES_XML)
         text = template.safe_substitute(localeMapping)
         try:
