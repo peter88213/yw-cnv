@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.29.3
+Version 1.29.4
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3238,22 +3238,30 @@ class Yw7File(Novel):
     def check_locale(self):
         """Check the document's locale (language code and country code).
         
-        If a reasonable looking locale is set, return True, 
-        otherwise set the system locale and return False.        
+        If the locale is missing, set the system locale.  
+        If the locale doesn't look plausible, set "no language".        
         """
         try:
+            # Plausibility check: code must have two characters.
             docLng = self.kwVar['Field_LanguageCode']
             if len(docLng) == 2:
                 docCtr = self.kwVar['Field_CountryCode']
                 if len(docCtr) == 2:
-                    return True
+                    return
+                    # keep the setting
 
         except:
-            pass
-        sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
-        self.kwVar['Field_LanguageCode'] = sysLng
-        self.kwVar['Field_CountryCode'] = sysCtr
-        return False
+            # Language or country field doesn't exist.
+            sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
+            self.kwVar['Field_LanguageCode'] = sysLng
+            self.kwVar['Field_CountryCode'] = sysCtr
+            return
+
+        else:
+            # Existing language or country field looks not plausible
+            self.kwVar['Field_LanguageCode'] = 'zxx'
+            self.kwVar['Field_CountryCode'] = 'none'
+            return
 
 from html.parser import HTMLParser
 
@@ -4620,16 +4628,17 @@ class OdfFile(FileExport):
             return f'{ERROR}{_("Cannot write file")}: "manifest.xml"'
 
         #--- Generate styles.xml.
-        # If no reasonable looking language/country is set, use the system language/country.
+        # If no language/country is set, use the system language/country.
+        # If the language/country are set, but don't look reasonable, use "no language" settings.
         sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
         localeMapping = dict(
-            Language=sysLng,
-            Country=sysCtr,
+            Language='zxx',
+            Country='none',
         )
         try:
-            docLng = self.kwVar['Field_LanguageCode']
+            docLng = self.kwVar.get('Field_LanguageCode', sysLng)
             if len(docLng) == 2:
-                docCtr = self.kwVar['Field_CountryCode']
+                docCtr = self.kwVar.get('Field_CountryCode', sysCtr)
                 if len(docCtr) == 2:
                     localeMapping['Language'] = docLng
                     localeMapping['Country'] = docCtr
