@@ -4,6 +4,14 @@
 
 ## Changelog
 
+### v1.29.4 
+
+- Change the German wording: Szene --> Abschnitt.
+- Process the document's language and country (if any) when exporting ODF.
+- Support "no document language" settings.
+
+Based on PyWriter v7.10.2
+
 ### v1.28.0
 
 - New document types for "ToDo" chapters import and export.
