@@ -39,6 +39,7 @@ Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument 
     - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
     - *Überschrift 2* → Neuer Kapiteltitel.
     - `###` → Szenentrenner. Optional können Sie den Szenentitel auch an den Szenentrenner anhängen.
+- Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 
 Mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) können Sie den Szeneninhalt und die Kapitel-/Abschnittsüberschriften in die yWriter 7 Projektdatei zurückschreiben.
@@ -181,6 +182,7 @@ Dies schreibt yWriter 7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neue
     - *Überschrift 2* → Neuer Kapiteltitel.
     - `###` → Szenentrenner. Optional können Sie den Szenentitel an den
       Titel an den Szenentrenner anhängen.
+- Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)
 
@@ -200,6 +202,7 @@ Abschnitten (die im Navigator zu sehen sind). Die Dateinamenserweiterung ist `_t
     - *Überschrift 2* → Neuer Kapiteltitel.
     - `###` → Szenentrenner. Optional können Sie den 
        Szenentitel an den Szenentrenner anhängen.
+- Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)
 

@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.29.5 Improvements
+
+- When exporting a work in progress to yWriter, process lists and quotation paragraphs.
+- When importing from yWriter, paragraphs that start with "> " are formatted as "Quotations".
+
+Based on PyWriter v7.10.3
+
 ### v1.29.4 
 
 - Change the German wording: Szene --> Abschnitt.

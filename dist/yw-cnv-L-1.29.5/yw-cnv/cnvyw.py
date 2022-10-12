@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.29.4
+Version 1.29.5
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1163,6 +1163,11 @@ class Novel(BasicElement):
         # The order of the elements does not matter (the novel's order of the scenes is defined by
         # the order of the chapters and the order of the scenes within the chapters)
 
+        self.languages = []
+        # list of str
+        # List of non-document languages occurring as scene markup.
+        # Format: ll-CC, where ll is the language code, and CC is the country code.
+
         self.srtChapters = []
         # list of str
         # The novel's chapter IDs. The order of its elements corresponds to the novel's order of the chapters.
@@ -1297,7 +1302,7 @@ class Novel(BasicElement):
 class Splitter:
     """Helper class for scene and chapter splitting.
     
-    When importing scenes to yWriter, they may contain manuallyinserted scene and chapter dividers.
+    When importing scenes to yWriter, they may contain manually inserted scene and chapter dividers.
     The Splitter class updates a Novel instance by splitting such scenes and creating new chapters and scenes. 
     
     Public methods:
@@ -3320,6 +3325,9 @@ class HtmlFile(Novel, HTMLParser):
         self._lines = []
         self._scId = None
         self._chId = None
+        self._newline = False
+        self._language = ''
+        self._doNothing = False
 
     def _convert_to_yw(self, text):
         """Convert html formatting tags to yWriter 7 raw markup.
@@ -3330,13 +3338,6 @@ class HtmlFile(Novel, HTMLParser):
         Return a yw7 markup string.
         Overrides the superclass method.
         """
-
-        #--- Clean up polluted HTML code.
-        text = re.sub('</*font.*?>', '', text)
-        text = re.sub('</*span.*?>', '', text)
-        text = re.sub('</*FONT.*?>', '', text)
-        text = re.sub('</*SPAN.*?>', '', text)
-
         #--- Put everything in one line.
         text = text.replace('\n', ' ')
         text = text.replace('\r', ' ')
@@ -3344,45 +3345,32 @@ class HtmlFile(Novel, HTMLParser):
         while '  ' in text:
             text = text.replace('  ', ' ')
 
-        #--- Replace HTML tags by yWriter markup.
-        text = text.replace('<i>', '[i]')
-        text = text.replace('<I>', '[i]')
-        text = text.replace('</i>', '[/i]')
-        text = text.replace('</I>', '[/i]')
-        text = text.replace('</em>', '[/i]')
-        text = text.replace('</EM>', '[/i]')
-        text = text.replace('<b>', '[b]')
-        text = text.replace('<B>', '[b]')
-        text = text.replace('</b>', '[/b]')
-        text = text.replace('</B>', '[/b]')
-        text = text.replace('</strong>', '[/b]')
-        text = text.replace('</STRONG>', '[/b]')
-        text = re.sub('<em.*?>', '[i]', text)
-        text = re.sub('<EM.*?>', '[i]', text)
-        text = re.sub('<strong.*?>', '[b]', text)
-        text = re.sub('<STRONG.*?>', '[b]', text)
+        return text
 
+    def _cleanup_scene(self, text):
+        """Clean up yWriter markup.
+        
+        Positional arguments:
+            text -- string to clean up.
+        
+        Return a yw7 markup string.
+        """
         #--- Remove orphaned tags.
         text = text.replace('[/b][b]', '')
         text = text.replace('[/i][i]', '')
         text = text.replace('[/b][b]', '')
+
+        #--- Remove misplaced formatting tags.
+        # text = re.sub('\[\/*[b|i]\]', '', text)
         return text
 
     def _preprocess(self, text):
-        """Clean up the HTML code and strip yWriter 7 raw markup.
+        """Process HTML text before parsing.
         
         Positional arguments:
             text -- str: HTML text to be processed.
-        
-        This prevents accidentally applied formatting from being transferred to the yWriter metadata.
-        If rich text is applicable, such as in scenes, overwrite this method in a subclass.
-        Return a string.
         """
-        text = self._convert_to_yw(text)
-
-        #--- Remove misplaced formatting tags.
-        text = re.sub('\[\/*[b|i]\]', '', text)
-        return text
+        return self._convert_to_yw(text)
 
     def _postprocess(self):
         """Process the plain text after parsing.
@@ -3465,14 +3453,6 @@ class HtmlImport(HtmlFile):
         self._chCount = 0
         self._scCount = 0
 
-    def _preprocess(self, text):
-        """Process the html text before parsing.
-        
-        Convert html formatting tags to yWriter 7 raw markup.
-        Overrides the superclass method.
-        """
-        return self._convert_to_yw(text)
-
     def handle_starttag(self, tag, attrs):
         """Recognize the paragraph's beginning.
         
@@ -3482,7 +3462,28 @@ class HtmlImport(HtmlFile):
         
         Overrides the superclass method.
         """
-        if tag in ('h1', 'h2'):
+        if tag == 'p':
+            if self._scId is None and self._chId is not None:
+                self._lines = []
+                self._scCount += 1
+                self._scId = str(self._scCount)
+                self.scenes[self._scId] = self.SCENE_CLASS()
+                self.chapters[self._chId].srtScenes.append(self._scId)
+                self.scenes[self._scId].status = '1'
+                self.scenes[self._scId].title = f'Scene {self._scCount}'
+        elif tag == 'br':
+            self._newline = True
+        elif tag == 'em' or tag == 'i':
+            self._lines.append('[i]')
+        elif tag == 'strong' or tag == 'b':
+            self._lines.append('[b]')
+        elif tag == 'span':
+            if attrs[0][0].lower() == 'lang':
+                self._language = attrs[0][1]
+                if not self._language in self.languages:
+                    self.languages.append(self._language)
+                # self._lines.append(f'[lang={self._language}]')
+        elif tag in ('h1', 'h2'):
             self._scId = None
             self._lines = []
             self._chCount += 1
@@ -3495,15 +3496,6 @@ class HtmlImport(HtmlFile):
                 self.chapters[self._chId].chLevel = 1
             else:
                 self.chapters[self._chId].chLevel = 0
-        elif tag == 'p':
-            if self._scId is None and self._chId is not None:
-                self._lines = []
-                self._scCount += 1
-                self._scId = str(self._scCount)
-                self.scenes[self._scId] = self.SCENE_CLASS()
-                self.chapters[self._chId].srtScenes.append(self._scId)
-                self.scenes[self._scId].status = '1'
-                self.scenes[self._scId].title = f'Scene {self._scCount}'
         elif tag == 'div':
             self._scId = None
             self._chId = None
@@ -3524,6 +3516,12 @@ class HtmlImport(HtmlFile):
                     except:
                         pass
                     break
+        elif tag == 'li':
+                self._lines.append(f'{self._BULLET} ')
+        elif tag == 'ul':
+                self._doNothing = True
+        elif tag == 'blockquote':
+            self._lines.append(f'{self._INDENT} ')
 
     def handle_endtag(self, tag):
         """Recognize the paragraph's end.
@@ -3533,14 +3531,25 @@ class HtmlImport(HtmlFile):
 
         Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
         """
-        if tag == 'p':
+        if tag in ('p', 'blockquote'):
             self._lines.append('\n')
+            self._newline = True
             if self._scId is not None:
-                self.scenes[self._scId].sceneContent = ''.join(self._lines).rstrip()
+                sceneText = ''.join(self._lines).rstrip()
+                sceneText = self._cleanup_scene(sceneText)
+                self.scenes[self._scId].sceneContent = sceneText
                 if self.scenes[self._scId].wordCount < self._LOW_WORDCOUNT:
                     self.scenes[self._scId].status = self.SCENE_CLASS.STATUS.index('Outline')
                 else:
                     self.scenes[self._scId].status = self.SCENE_CLASS.STATUS.index('Draft')
+        elif tag == 'em' or tag == 'i':
+            self._lines.append('[/i]')
+        elif tag == 'strong' or tag == 'b':
+            self._lines.append('[/b]')
+        elif tag == 'span':
+            if self._language:
+                # self._lines.append(f'[/lang={self._language}]')
+                self._language = ''
         elif tag in ('h1', 'h2'):
             self.chapters[self._chId].title = ''.join(self._lines)
             self._lines = []
@@ -3575,10 +3584,14 @@ class HtmlImport(HtmlFile):
         
         Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
-        if self._scId is not None and self._SCENE_DIVIDER in data:
+        if self._doNothing:
+            self._doNothing = False
+        elif self._scId is not None and self._SCENE_DIVIDER in data:
             self._scId = None
         else:
-            data = data.strip()
+            if self._newline:
+                data = data.rstrip()
+                self._newline = False
             self._lines.append(data)
 
 
@@ -5099,6 +5112,42 @@ class OdtFile(OdfFile):
         return 'ODT structure generated.'
 
     def _convert_from_yw(self, text, quick=False):
+        """Return text without markup, converted to target format.
+        
+        Positional arguments:
+            text -- string to convert.
+        
+        Optional arguments:
+            quick -- bool: if True, apply a conversion mode for one-liners without formatting.
+        
+        Overrides the superclass method.
+        """
+        if text:
+            text = text.replace('&', '&amp;').replace('>', '&gt;').replace('<', '&lt;')
+            if quick:
+                # Just clean up a one-liner without sophisticated formatting.
+                return text
+
+            # Apply odt linebreaks.
+            ODT_REPLACEMENTS = [
+                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
+                ('\r', '\n'),
+            ]
+            for yw, od in ODT_REPLACEMENTS:
+                text = text.replace(yw, od)
+        else:
+            text = ''
+        return text
+
+
+class OdtFormatted(OdtFile):
+    """ODT file representation.
+
+    Provide methods for processing chapters with formatted text.
+    """
+
+    def _convert_from_yw(self, text, quick=False):
         """Return text, converted from yw7 markup to target format.
         
         Positional arguments:
@@ -5164,8 +5213,30 @@ class OdtFile(OdfFile):
             text = ''
         return text
 
+    def _get_text(self):
+        """Call all processing methods.
+        
+        Return a string to be written to the output file.
+        Overrides the superclass method.
+        """
+        lines = self._get_fileHeader()
+        lines.extend(self._get_chapters())
+        lines.append(self._fileFooter)
+        text = ''.join(lines)
 
-class OdtProof(OdtFile):
+        # Set style of paragraphs that start with "> " to "Quotations".
+        # This is done here to include the scene openings.
+        if '&gt; ' in text:
+            quotMarks = ('"First_20_line_20_indent">&gt; ',
+                         '"Text_20_body">&gt; ',
+                         )
+            for quotMark in quotMarks:
+                text = text.replace(quotMark, '"Quotations">')
+            text = re.sub('"Text_20_body"\>(\<office\:annotation\>.+?\<\/office\:annotation\>)\&gt\; ', '"Quotations">\\1', text)
+        return text
+
+
+class OdtProof(OdtFormatted):
     """ODT proof reading file representation.
 
     Export a manuscript with visibly tagged chapters and scenes.
@@ -5173,7 +5244,7 @@ class OdtProof(OdtFile):
     DESCRIPTION = _('Tagged manuscript for proofing')
     SUFFIX = '_proof'
 
-    _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
+    _fileHeader = f'''{OdtFormatted._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5232,10 +5303,10 @@ class OdtProof(OdtFile):
     _todoChapterEndTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">[/ChID (ToDo)]</text:p>
 '''
 
-    _fileFooter = OdtFile._CONTENT_XML_FOOTER
+    _fileFooter = OdtFormatted._CONTENT_XML_FOOTER
 
 
-class OdtManuscript(OdtFile):
+class OdtManuscript(OdtFormatted):
     """ODT manuscript file representation.
 
     Export a manuscript with invisibly tagged chapters and scenes.
@@ -5243,7 +5314,7 @@ class OdtManuscript(OdtFile):
     DESCRIPTION = _('Editable manuscript')
     SUFFIX = '_manuscript'
 
-    _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
+    _fileHeader = f'''{OdtFormatted._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5280,7 +5351,7 @@ class OdtManuscript(OdtFile):
     _chapterEndTemplate = '''</text:section>
 '''
 
-    _fileFooter = OdtFile._CONTENT_XML_FOOTER
+    _fileFooter = OdtFormatted._CONTENT_XML_FOOTER
 
     def _get_chapterMapping(self, chId, chapterNumber):
         """Return a mapping dictionary for a chapter section.
@@ -5296,6 +5367,7 @@ class OdtManuscript(OdtFile):
         if self.chapters[chId].suppressChapterTitle:
             chapterMapping['Title'] = ''
         return chapterMapping
+
 
 
 class OdtSceneDesc(OdtFile):
@@ -5416,13 +5488,13 @@ class OdtBriefSynopsis(OdtFile):
     _fileFooter = OdtFile._CONTENT_XML_FOOTER
 
 
-class OdtExport(OdtFile):
+class OdtExport(OdtFormatted):
     """ODT novel file representation.
 
     Export a non-reimportable manuscript with chapters and scenes.
     """
     DESCRIPTION = _('manuscript')
-    _fileHeader = f'''{OdtFile._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
+    _fileHeader = f'''{OdtFormatted._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5442,7 +5514,7 @@ class OdtExport(OdtFile):
 '''
 
     _sceneDivider = '<text:p text:style-name="Heading_20_4">* * *</text:p>\n'
-    _fileFooter = OdtFile._CONTENT_XML_FOOTER
+    _fileFooter = OdtFormatted._CONTENT_XML_FOOTER
 
     def _get_chapterMapping(self, chId, chapterNumber):
         """Return a mapping dictionary for a chapter section.
@@ -5474,28 +5546,6 @@ class OdtExport(OdtFile):
             text = self._remove_inline_code(text)
         text = super()._convert_from_yw(text, quick)
         return(text)
-
-    def _get_text(self):
-        """Call all processing methods.
-        
-        Return a string to be written to the output file.
-        Overrides the superclass method.
-        """
-        lines = self._get_fileHeader()
-        lines.extend(self._get_chapters())
-        lines.append(self._fileFooter)
-        text = ''.join(lines)
-
-        # Set style of paragraphs that start with "> " to "Quotations".
-        # This is done here to include the scene openings.
-        if '&gt; ' in text:
-            quotMarks = ('"First_20_line_20_indent">&gt; ',
-                         '"Text_20_body">&gt; ',
-                         )
-            for quotMark in quotMarks:
-                text = text.replace(quotMark, '"Quotations">')
-            text = re.sub('"Text_20_body"\>(\<office\:annotation\>.+?\<\/office\:annotation\>)\&gt\; ', '"Quotations">\\1', text)
-        return text
 
 
 
@@ -6881,42 +6931,6 @@ class HtmlProof(HtmlFile):
         super().__init__(filePath)
         self._prefix = None
 
-    def _preprocess(self, text):
-        """Process the html text before parsing.
-        
-        Convert html formatting tags to yWriter 7 raw markup.
-        Overrides the superclass method.
-        """
-        return self._convert_to_yw(text)
-
-    def _postprocess(self):
-        """Parse the converted text to identify chapters and scenes.
-        
-        Overrides the superclass method.
-        """
-        sceneText = []
-        scId = ''
-        chId = ''
-        inScene = False
-        for line in self._lines:
-            if '[ScID' in line:
-                scId = re.search('[0-9]+', line).group()
-                self.scenes[scId] = self.SCENE_CLASS()
-                self.chapters[chId].srtScenes.append(scId)
-                inScene = True
-            elif '[/ScID' in line:
-                self.scenes[scId].sceneContent = '\n'.join(sceneText)
-                sceneText = []
-                inScene = False
-            elif '[ChID' in line:
-                chId = re.search('[0-9]+', line).group()
-                self.chapters[chId] = self.CHAPTER_CLASS()
-                self.srtChapters.append(chId)
-            elif '[/ChID' in line:
-                pass
-            elif inScene:
-                sceneText.append(line)
-
     def handle_starttag(self, tag, attrs):
         """Recognize the paragraph's beginning.
         
@@ -6926,8 +6940,18 @@ class HtmlProof(HtmlFile):
         
         Overrides the superclass method.
         """
-        if tag == 'p' and self._prefix is None:
+        if tag == 'p':
             self._prefix = ''
+        elif tag == 'em' or tag == 'i':
+            self._lines.append('[i]')
+        elif tag == 'strong' or tag == 'b':
+            self._lines.append('[b]')
+        elif tag == 'span':
+            if attrs[0][0].lower() == 'lang':
+                self._language = attrs[0][1]
+                if not self._language in self.languages:
+                    self.languages.append(self._language)
+                # self._lines.append(f'[lang={self._language}]')
         elif tag == 'h2':
             self._prefix = f'{Splitter.CHAPTER_SEPARATOR} '
         elif tag == 'h1':
@@ -6946,6 +6970,9 @@ class HtmlProof(HtmlFile):
                     except:
                         pass
                     break
+        elif tag in ('br', 'ul'):
+            self._doNothing = True
+            # avoid inserting an unwanted blank
 
     def handle_endtag(self, tag):
         """Recognize the paragraph's end.      
@@ -6956,17 +6983,46 @@ class HtmlProof(HtmlFile):
         Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
         """
         if tag in ['p', 'h2', 'h1', 'blockquote']:
-            self._prefix = None
+            self._newline = True
+            self._prefix = ''
+        elif tag == 'em' or tag == 'i':
+            self._lines.append('[/i]')
+        elif tag == 'strong' or tag == 'b':
+            self._lines.append('[/b]')
+        elif tag == 'span':
+            if self._language:
+                # self._lines.append(f'[/lang={self._language}]')
+                self._language = ''
 
     def handle_data(self, data):
-        """Copy the scene paragraphs.      
+        """Parse the paragraphs and build the document structure.      
 
         Positional arguments:
-            data -- str: text to be stored. 
+            data -- str: text to be parsed. 
         
         Overrides HTMLparser.handle_data() called by the parser to process arbitrary data.
         """
-        if self._prefix is not None:
+        if self._doNothing:
+            self._doNothing = False
+        elif '[ScID' in data:
+            self._scId = re.search('[0-9]+', data).group()
+            self.scenes[self._scId] = self.SCENE_CLASS()
+            self.chapters[self._chId].srtScenes.append(self._scId)
+            self._lines = []
+        elif '[/ScID' in data:
+            text = ''.join(self._lines)
+            self.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
+            self._scId = None
+        elif '[ChID' in data:
+            self._chId = re.search('[0-9]+', data).group()
+            self.chapters[self._chId] = self.CHAPTER_CLASS()
+            self.srtChapters.append(self._chId)
+        elif '[/ChID' in data:
+            self._chId = None
+        elif self._scId is not None:
+            if self._newline:
+                self._newline = False
+                data = f'{data.rstrip()}\n'
             self._lines.append(f'{self._prefix}{data}')
 
 
@@ -6977,14 +7033,6 @@ class HtmlManuscript(HtmlFile):
     """
     DESCRIPTION = _('Editable manuscript')
     SUFFIX = '_manuscript'
-
-    def _preprocess(self, text):
-        """Process the html text before parsing.
-        
-        Convert html formatting tags to yWriter 7 raw markup.
-        Overrides the superclass method.
-        """
-        return self._convert_to_yw(text)
 
     def handle_starttag(self, tag, attrs):
         """Identify scenes and chapters.
@@ -6998,7 +7046,17 @@ class HtmlManuscript(HtmlFile):
         super().handle_starttag(tag, attrs)
         if self._scId is not None:
             self._getScTitle = False
-            if tag == 'h3':
+            if tag == 'em' or tag == 'i':
+                self._lines.append('[i]')
+            elif tag == 'strong' or tag == 'b':
+                self._lines.append('[b]')
+            elif tag == 'span':
+                if attrs[0][0].lower() == 'lang':
+                    self._language = attrs[0][1]
+                    if not self._language in self.languages:
+                        self.languages.append(self._language)
+                    # self._lines.append(f'[lang={self._language}]')
+            elif tag == 'h3':
                 if self.scenes[self._scId].title is None:
                     self._getScTitle = True
                 else:
@@ -7031,13 +7089,21 @@ class HtmlManuscript(HtmlFile):
         Overrides HTMLparser.handle_endtag() called by the HTML parser to handle the end tag of an element.
         """
         if self._scId is not None:
-            if tag == 'div':
+            if tag == 'p':
+                self._lines.append('\n')
+            elif tag == 'em' or tag == 'i':
+                self._lines.append('[/i]')
+            elif tag == 'strong' or tag == 'b':
+                self._lines.append('[/b]')
+            elif tag == 'span':
+                if self._language:
+                    # self._lines.append(f'[/lang={self._language}]')
+                    self._language = ''
+            elif tag == 'div':
                 text = ''.join(self._lines)
-                self.scenes[self._scId].sceneContent = text.rstrip()
+                self.scenes[self._scId].sceneContent = self._cleanup_scene(text).rstrip()
                 self._lines = []
                 self._scId = None
-            elif tag == 'p':
-                self._lines.append('\n')
             elif tag == 'h1':
                 self._lines.append('\n')
             elif tag == 'h2':

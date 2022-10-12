@@ -117,6 +117,7 @@ text document (odt) with chapter and scene markers. File name suffix is
     -  *Heading 2* → New chapter title.
     -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
+-   Paragraphs starting with `> ` are formatted as quotations.
 
 You can write back the scene contents to the yWriter 7 project file
 with the [Export to yWriter](#export-to-ywriter) command.

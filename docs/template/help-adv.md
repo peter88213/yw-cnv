@@ -51,6 +51,7 @@ seen in the Navigator). File name suffix is `_manuscript`.
     -  *Heading 2* → New chapter title.
     -  `###` → Scene divider. Optionally, you can also append the 
        scene title to the scene divider.
+-   Paragraphs starting with `> ` are formatted as quotations.
 
 You can write back the scene contents and the chapter/part headings to 
 the yWriter 7 project file with the [Export to yWriter](@help@#export-to-ywriter) 
@@ -224,6 +225,7 @@ sections (to be seen in the Navigator). File name suffix is `_notes`.
     -  *Heading 2* → New chapter title.
     -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
+-  Paragraphs starting with `> ` are formatted as quotations.
 
 [Top of page](#top)
 
@@ -243,6 +245,7 @@ sections (to be seen in the Navigator). File name suffix is `_todo`.
     -  *Heading 2* → New chapter title.
     -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider.
+-  Paragraphs starting with `> ` are formatted as quotations.
 
 [Top of page](#top)
 
