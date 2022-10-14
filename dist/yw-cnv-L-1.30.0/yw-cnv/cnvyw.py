@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.29.5
+Version 1.30.0
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -75,6 +75,7 @@ def FilePicker(path=None, mode=0):
         return filepicker.getFiles()[0]
 
 
+import re
 import sys
 import gettext
 import locale
@@ -147,7 +148,25 @@ def list_to_string(elements, divider=';'):
         return ''
 
 
-__all__ = ['ERROR', '_', 'LOCALE_PATH', 'CURRENT_LANGUAGE', 'string_to_list', 'list_to_string']
+LANGUAGE_TAG = re.compile('\[lang=(.*?)\]')
+
+
+def get_languages(text):
+    """Return a generator object with the language codes appearing in text.
+    
+    Example:
+    - language markup: 'Standard text [lang=en-AU]Australian text[/lang=en-AU].'
+    - language code: 'en-AU'
+    """
+    if text:
+        m = LANGUAGE_TAG.search(text)
+        while m:
+            text = text[m.span()[1]:]
+            yield m.group(1)
+            m = LANGUAGE_TAG.search(text)
+
+
+__all__ = ['ERROR', '_', 'LOCALE_PATH', 'CURRENT_LANGUAGE', 'string_to_list', 'list_to_string', 'get_languages']
 
 
 def open_document(document):
@@ -654,7 +673,6 @@ class YwCnvFf(YwCnvUi):
                 self.ui.set_info_how(message)
             else:
                 self.export_from_yw(source, target)
-import re
 from html import unescape
 import xml.etree.ElementTree as ET
 from urllib.parse import quote
@@ -1067,9 +1085,10 @@ class Novel(BasicElement):
     of the information included in an yWriter project file).
 
     Public methods:
-        read() -- parse the file and get the instance variables.
-        merge(source) -- update instance variables from a source instance.
-        write() -- write instance variables to the file.
+        read() -- Parse the file and get the instance variables.
+        merge(source) -- Update instance variables from a source instance.
+        write() -- Write instance variables to the file.
+        get_languages() -- Determine the languages used in the document.
 
     Public instance variables:
         authorName -- str: author's name.
@@ -1163,7 +1182,7 @@ class Novel(BasicElement):
         # The order of the elements does not matter (the novel's order of the scenes is defined by
         # the order of the chapters and the order of the scenes within the chapters)
 
-        self.languages = []
+        self.languages = None
         # list of str
         # List of non-document languages occurring as scene markup.
         # Format: ll-CC, where ll is the language code, and CC is the country code.
@@ -1297,6 +1316,35 @@ class Novel(BasicElement):
         This is a stub to be overridden by subclass methods.
         """
         return text.rstrip()
+
+    def get_languages(self):
+        """Determine the languages used in the document.
+        
+        Populate the self.languages list with all language codes found in the scene contents.        
+        Example:
+        - language markup: 'Standard text [lang=en-AU]Australian text[/lang=en-AU].'
+        - language code: 'en-AU'
+        """
+        self.languages = []
+        for scId in self.scenes:
+            text = self.scenes[scId].sceneContent
+            if text:
+                for language in get_languages(text):
+                    if not language in self.languages:
+                        self.languages.append(language)
+
+
+def create_id(elements):
+    """Return an unused ID for a new element.
+    
+    Positional arguments:
+        elements -- list or dictionary containing all existing IDs
+    """
+    i = 1
+    while str(i) in elements:
+        i += 1
+    return str(i)
+
 
 
 class Splitter:
@@ -2407,6 +2455,8 @@ class Yw7File(Novel):
         if self.is_locked():
             return f'{ERROR}{_("yWriter seems to be open. Please close first")}.'
 
+        if self.languages is None:
+            self.get_languages()
         self._build_element_tree()
         message = self._write_element_tree(self)
         if message.startswith(ERROR):
@@ -2844,6 +2894,18 @@ class Yw7File(Novel):
 
             ET.SubElement(xmlPnt, 'SortOrder').text = str(sortOrder)
 
+        def add_projectvariable(title, desc, tags):
+            # Note:
+            # prjVars, projectvars are caller's variables
+            pvId = create_id(prjVars)
+            prjVars.append(pvId)
+            # side effect
+            projectvar = ET.SubElement(projectvars, 'PROJECTVAR')
+            ET.SubElement(projectvar, 'ID').text = pvId
+            ET.SubElement(projectvar, 'Title').text = title
+            ET.SubElement(projectvar, 'Desc').text = desc
+            ET.SubElement(projectvar, 'Tags').text = tags
+
         def build_item_subtree(xmlItm, prjItm, sortOrder):
             if prjItm.title is not None:
                 ET.SubElement(xmlItm, 'Title').text = prjItm.title
@@ -3092,6 +3154,36 @@ class Yw7File(Novel):
                 ET.SubElement(xmlPnt, 'ID').text = pnId
                 build_prjNote_subtree(xmlPnt, self.projectNotes[pnId], sortOrder)
 
+        #--- Process project variables.
+        if self.languages:
+            projectvars = root.find('PROJECTVARS')
+            if projectvars is None:
+                projectvars = ET.SubElement(root, 'PROJECTVARS')
+            prjVars = []
+            # list of all project variable IDs
+            languages = self.languages.copy()
+            for projectvar in projectvars.findall('PROJECTVAR'):
+                prjVars.append(projectvar.find('ID').text)
+                title = projectvar.find('Title').text
+
+                # Collect language codes.
+                if title.startswith('lang='):
+                    try:
+                        __, langCode = title.split('=')
+                        languages.remove(langCode)
+                    except:
+                        pass
+
+            # Define project variables for the missing language code tags.
+            for langCode in languages:
+                add_projectvariable(f'lang={langCode}',
+                                    f'<HTM <SPAN LANG="{langCode}"> /HTM>',
+                                    '0')
+                add_projectvariable(f'/lang={langCode}',
+                                    f'<HTM </SPAN> /HTM>',
+                                    '0')
+                # adding new IDs to the prjVars list
+
         #--- Process scenes.
 
         # Save the original XML scene subtrees
@@ -3139,6 +3231,7 @@ class Yw7File(Novel):
                 scn.remove(scn.find('RTFFile'))
             except:
                 pass
+
         indent(root)
         self.tree = ET.ElementTree(root)
 
@@ -3347,23 +3440,6 @@ class HtmlFile(Novel, HTMLParser):
 
         return text
 
-    def _cleanup_scene(self, text):
-        """Clean up yWriter markup.
-        
-        Positional arguments:
-            text -- string to clean up.
-        
-        Return a yw7 markup string.
-        """
-        #--- Remove orphaned tags.
-        text = text.replace('[/b][b]', '')
-        text = text.replace('[/i][i]', '')
-        text = text.replace('[/b][b]', '')
-
-        #--- Remove misplaced formatting tags.
-        # text = re.sub('\[\/*[b|i]\]', '', text)
-        return text
-
     def _preprocess(self, text):
         """Process HTML text before parsing.
         
@@ -3429,7 +3505,45 @@ class HtmlFile(Novel, HTMLParser):
         return 'Created novel structure from HTML data.'
 
 
-class HtmlImport(HtmlFile):
+class HtmlFormatted(HtmlFile):
+    """HTML file representation.
+
+    Provide methods and data for processing chapters with formatted text.
+    """
+    _COMMENT_START = '/*'
+    _COMMENT_END = '*/'
+    _SC_TITLE_BRACKET = '~'
+    _BULLET = '-'
+    _INDENT = '>'
+
+    def __init__(self, filePath, **kwargs):
+        """Add instance variables.
+
+        Extends the superclass constructor.
+        """
+        super().__init__(filePath)
+        self.languages = []
+
+    def _cleanup_scene(self, text):
+        """Clean up yWriter markup.
+        
+        Positional arguments:
+            text -- string to clean up.
+        
+        Return a yw7 markup string.
+        """
+        #--- Remove orphaned tags.
+        text = text.replace('[/b][b]', '')
+        text = text.replace('[/i][i]', '')
+        text = text.replace('[/b][b]', '')
+
+        #--- Remove misplaced formatting tags.
+        # text = re.sub('\[\/*[b|i]\]', '', text)
+        return text
+
+
+
+class HtmlImport(HtmlFormatted):
     """HTML 'work in progress' file representation.
 
     Import untagged chapters and scenes.
@@ -3482,7 +3596,7 @@ class HtmlImport(HtmlFile):
                 self._language = attrs[0][1]
                 if not self._language in self.languages:
                     self.languages.append(self._language)
-                # self._lines.append(f'[lang={self._language}]')
+                self._lines.append(f'[lang={self._language}]')
         elif tag in ('h1', 'h2'):
             self._scId = None
             self._lines = []
@@ -3548,7 +3662,7 @@ class HtmlImport(HtmlFile):
             self._lines.append('[/b]')
         elif tag == 'span':
             if self._language:
-                # self._lines.append(f'[/lang={self._language}]')
+                self._lines.append(f'[/lang={self._language}]')
                 self._language = ''
         elif tag in ('h1', 'h2'):
             self.chapters[self._chId].title = ''.join(self._lines)
@@ -3766,6 +3880,7 @@ class NewProjectFactory(FileFactory):
                 return False
 
         return True
+from string import Template
 import zipfile
 import tempfile
 from shutil import rmtree
@@ -3934,6 +4049,9 @@ class FileExport(Novel):
 
         if source.kwVar:
             self.kwVar = source.kwVar
+
+        if source.languages is not None:
+            self.languages = source.languages
 
         return 'Export data updated from novel.'
 
@@ -5144,8 +5262,25 @@ class OdtFile(OdfFile):
 class OdtFormatted(OdtFile):
     """ODT file representation.
 
+    Public methods:
+        write() -- Determine the languages used in the document before writing.
+    
     Provide methods for processing chapters with formatted text.
     """
+    _CONTENT_XML_HEADER = '''<?xml version="1.0" encoding="UTF-8"?>
+
+<office:document-content xmlns:office="urn:oasis:names:tc:opendocument:xmlns:office:1.0" xmlns:style="urn:oasis:names:tc:opendocument:xmlns:style:1.0" xmlns:text="urn:oasis:names:tc:opendocument:xmlns:text:1.0" xmlns:table="urn:oasis:names:tc:opendocument:xmlns:table:1.0" xmlns:draw="urn:oasis:names:tc:opendocument:xmlns:drawing:1.0" xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:meta="urn:oasis:names:tc:opendocument:xmlns:meta:1.0" xmlns:number="urn:oasis:names:tc:opendocument:xmlns:datastyle:1.0" xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0" xmlns:chart="urn:oasis:names:tc:opendocument:xmlns:chart:1.0" xmlns:dr3d="urn:oasis:names:tc:opendocument:xmlns:dr3d:1.0" xmlns:math="http://www.w3.org/1998/Math/MathML" xmlns:form="urn:oasis:names:tc:opendocument:xmlns:form:1.0" xmlns:script="urn:oasis:names:tc:opendocument:xmlns:script:1.0" xmlns:ooo="http://openoffice.org/2004/office" xmlns:ooow="http://openoffice.org/2004/writer" xmlns:oooc="http://openoffice.org/2004/calc" xmlns:dom="http://www.w3.org/2001/xml-events" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:rpt="http://openoffice.org/2005/report" xmlns:of="urn:oasis:names:tc:opendocument:xmlns:of:1.2" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:grddl="http://www.w3.org/2003/g/data-view#" xmlns:tableooo="http://openoffice.org/2009/table" xmlns:field="urn:openoffice:names:experimental:ooo-ms-interop:xmlns:field:1.0" office:version="1.2">
+ <office:scripts/>
+ <office:font-face-decls>
+  <style:font-face style:name="StarSymbol" svg:font-family="StarSymbol" style:font-charset="x-symbol"/>
+  <style:font-face style:name="Consolas" svg:font-family="Consolas" style:font-adornments="Standard" style:font-family-generic="modern" style:font-pitch="fixed"/>
+  <style:font-face style:name="Courier New" svg:font-family="&apos;Courier New&apos;" style:font-adornments="Standard" style:font-family-generic="modern" style:font-pitch="fixed"/>
+ </office:font-face-decls>
+ $automaticStyles
+ <office:body>
+  <office:text text:use-soft-page-breaks="true">
+
+'''
 
     def _convert_from_yw(self, text, quick=False):
         """Return text, converted from yw7 markup to target format.
@@ -5164,35 +5299,8 @@ class OdtFormatted(OdtFile):
                 # Just clean up a one-liner without sophisticated formatting.
                 return text
 
-            # process italics and bold markup reaching across linebreaks
-            italics = False
-            bold = False
-            newlines = []
-            lines = text.split('\n')
-            for line in lines:
-                if italics:
-                    line = f'[i]{line}'
-                    italics = False
-                while line.count('[i]') > line.count('[/i]'):
-                    line = f'{line}[/i]'
-                    italics = True
-                while line.count('[/i]') > line.count('[i]'):
-                    line = f'[i]{line}'
-                line = line.replace('[i][/i]', '')
-                if bold:
-                    line = f'[b]{line}'
-                    bold = False
-                while line.count('[b]') > line.count('[/b]'):
-                    line = f'{line}[/b]'
-                    bold = True
-                while line.count('[/b]') > line.count('[b]'):
-                    line = f'[b]{line}'
-                line = line.replace('[b][/b]', '')
-                newlines.append(line)
-            text = '\n'.join(newlines).rstrip()
-
-            # Apply odt formating.
-            ODT_REPLACEMENTS = [
+            tags = ['i', 'b']
+            odtReplacements = [
                 ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
                 ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
                 ('\r', '\n'),
@@ -5203,12 +5311,45 @@ class OdtFormatted(OdtFile):
                 ('/*', f'<office:annotation><dc:creator>{self.authorName}</dc:creator><text:p>'),
                 ('*/', '</text:p></office:annotation>'),
             ]
-            for yw, od in ODT_REPLACEMENTS:
+            for i, language in enumerate(self.languages, 1):
+                tags.append(f'lang={language}')
+                odtReplacements.append((f'[lang={language}]', f'<text:span text:style-name="T{i}">'))
+                odtReplacements.append((f'[/lang={language}]', '</text:span>'))
+
+            #--- Process markup reaching across linebreaks.
+            newlines = []
+            lines = text.split('\n')
+            isOpen = {}
+            opening = {}
+            closing = {}
+            for tag in tags:
+                isOpen[tag] = False
+                opening[tag] = f'[{tag}]'
+                closing[tag] = f'[/{tag}]'
+            for line in lines:
+                for tag in tags:
+                    if isOpen[tag]:
+                        if line.startswith('&gt; '):
+                            line = f"&gt; {opening[tag]}{line.lstrip('&gt; ')}"
+                        else:
+                            line = f'{opening[tag]}{line}'
+                        isOpen[tag] = False
+                    while line.count(opening[tag]) > line.count(closing[tag]):
+                        line = f'{line}{closing[tag]}'
+                        isOpen[tag] = True
+                    while line.count(closing[tag]) > line.count(opening[tag]):
+                        line = f'{opening[tag]}{line}'
+                    line = line.replace(f'{opening[tag]}{closing[tag]}', '')
+                newlines.append(line)
+            text = '\n'.join(newlines).rstrip()
+
+            #--- Apply odt formating.
+            for yw, od in odtReplacements:
                 text = text.replace(yw, od)
 
             # Remove highlighting, alignment,
             # strikethrough, and underline tags.
-                text = re.sub('\[\/*[h|c|r|s|u]\d*\]', '', text)
+            text = re.sub('\[\/*[h|c|r|s|u]\d*\]', '', text)
         else:
             text = ''
         return text
@@ -5235,6 +5376,43 @@ class OdtFormatted(OdtFile):
             text = re.sub('"Text_20_body"\>(\<office\:annotation\>.+?\<\/office\:annotation\>)\&gt\; ', '"Quotations">\\1', text)
         return text
 
+    def _get_fileHeaderMapping(self):
+        """Return a mapping dictionary for the project section.
+        
+        Add "automatic-styles" items to the "content.xml" header, if required.
+        
+        Extends the superclass method.
+        """
+        styleMapping = {}
+        if self.languages:
+            lines = ['<office:automatic-styles>']
+            for i, language in enumerate(self.languages, 1):
+                try:
+                    lngCode, ctrCode = language.split('-')
+                except:
+                    lngCode = 'zxx'
+                    ctrCode = 'none'
+                lines.append(f'''  <style:style style:name="T{i}" style:family="text">
+   <style:text-properties fo:language="{lngCode}" fo:country="{ctrCode}" style:language-asian="{lngCode}" style:country-asian="{ctrCode}" style:language-complex="{lngCode}" style:country-complex="{ctrCode}"/>
+  </style:style>''')
+            lines.append(' </office:automatic-styles>')
+            styleMapping['automaticStyles'] = '\n'.join(lines)
+        else:
+            styleMapping['automaticStyles'] = '<office:automatic-styles/>'
+        template = Template(self._CONTENT_XML_HEADER)
+        projectTemplateMapping = super()._get_fileHeaderMapping()
+        projectTemplateMapping['ContentHeader'] = template.safe_substitute(styleMapping)
+        return projectTemplateMapping
+
+    def write(self):
+        """Determine the languages used in the document before writing.
+        
+        Extends the superclass method.
+        """
+        if self.languages is None:
+            self.get_languages()
+        return super().write()
+
 
 class OdtProof(OdtFormatted):
     """ODT proof reading file representation.
@@ -5244,7 +5422,7 @@ class OdtProof(OdtFormatted):
     DESCRIPTION = _('Tagged manuscript for proofing')
     SUFFIX = '_proof'
 
-    _fileHeader = f'''{OdtFormatted._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
+    _fileHeader = f'''$ContentHeader<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5314,7 +5492,7 @@ class OdtManuscript(OdtFormatted):
     DESCRIPTION = _('Editable manuscript')
     SUFFIX = '_manuscript'
 
-    _fileHeader = f'''{OdtFormatted._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
+    _fileHeader = f'''$ContentHeader<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -5494,7 +5672,7 @@ class OdtExport(OdtFormatted):
     Export a non-reimportable manuscript with chapters and scenes.
     """
     DESCRIPTION = _('manuscript')
-    _fileHeader = f'''{OdtFormatted._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
+    _fileHeader = f'''$ContentHeader<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
@@ -6910,26 +7088,13 @@ class OdsSceneList(OdsFile):
         return sceneMapping
 
 
-class HtmlProof(HtmlFile):
+class HtmlProof(HtmlFormatted):
     """HTML proof reading file representation.
 
     Import a manuscript with visibly tagged chapters and scenes.
     """
     DESCRIPTION = _('Tagged manuscript for proofing')
     SUFFIX = '_proof'
-
-    def __init__(self, filePath, **kwargs):
-        """Initialize local instance variables for parsing.
-
-        Positional arguments:
-            filePath -- str: path to the file represented by the Novel instance.
-            
-        The HTML parser works like a state machine. 
-        A prefix for chapter and scene recognition must be saved between the transitions.         
-        Extends the superclass constructor.
-        """
-        super().__init__(filePath)
-        self._prefix = None
 
     def handle_starttag(self, tag, attrs):
         """Recognize the paragraph's beginning.
@@ -6940,9 +7105,7 @@ class HtmlProof(HtmlFile):
         
         Overrides the superclass method.
         """
-        if tag == 'p':
-            self._prefix = ''
-        elif tag == 'em' or tag == 'i':
+        if tag == 'em' or tag == 'i':
             self._lines.append('[i]')
         elif tag == 'strong' or tag == 'b':
             self._lines.append('[b]')
@@ -6951,15 +7114,15 @@ class HtmlProof(HtmlFile):
                 self._language = attrs[0][1]
                 if not self._language in self.languages:
                     self.languages.append(self._language)
-                # self._lines.append(f'[lang={self._language}]')
+                self._lines.append(f'[lang={self._language}]')
         elif tag == 'h2':
-            self._prefix = f'{Splitter.CHAPTER_SEPARATOR} '
+            self._lines.append(f'{Splitter.CHAPTER_SEPARATOR} ')
         elif tag == 'h1':
-            self._prefix = f'{Splitter.PART_SEPARATOR} '
+            self._lines.append(f'{Splitter.PART_SEPARATOR} ')
         elif tag == 'li':
-            self._prefix = f'{self._BULLET} '
+            self._lines.append(f'{self._BULLET} ')
         elif tag == 'blockquote':
-            self._prefix = f'{self._INDENT} '
+            self._lines.append(f'{self._INDENT} ')
         elif tag == 'body':
             for attr in attrs:
                 if attr[0].lower() == 'lang':
@@ -6984,14 +7147,13 @@ class HtmlProof(HtmlFile):
         """
         if tag in ['p', 'h2', 'h1', 'blockquote']:
             self._newline = True
-            self._prefix = ''
         elif tag == 'em' or tag == 'i':
             self._lines.append('[/i]')
         elif tag == 'strong' or tag == 'b':
             self._lines.append('[/b]')
         elif tag == 'span':
             if self._language:
-                # self._lines.append(f'[/lang={self._language}]')
+                self._lines.append(f'[/lang={self._language}]')
                 self._language = ''
 
     def handle_data(self, data):
@@ -7023,10 +7185,10 @@ class HtmlProof(HtmlFile):
             if self._newline:
                 self._newline = False
                 data = f'{data.rstrip()}\n'
-            self._lines.append(f'{self._prefix}{data}')
+            self._lines.append(data)
 
 
-class HtmlManuscript(HtmlFile):
+class HtmlManuscript(HtmlFormatted):
     """HTML manuscript file representation.
 
     Import a manuscript with invisibly tagged chapters and scenes.
@@ -7055,7 +7217,7 @@ class HtmlManuscript(HtmlFile):
                     self._language = attrs[0][1]
                     if not self._language in self.languages:
                         self.languages.append(self._language)
-                    # self._lines.append(f'[lang={self._language}]')
+                    self._lines.append(f'[lang={self._language}]')
             elif tag == 'h3':
                 if self.scenes[self._scId].title is None:
                     self._getScTitle = True
@@ -7097,7 +7259,7 @@ class HtmlManuscript(HtmlFile):
                 self._lines.append('[/b]')
             elif tag == 'span':
                 if self._language:
-                    # self._lines.append(f'[/lang={self._language}]')
+                    self._lines.append(f'[/lang={self._language}]')
                     self._language = ''
             elif tag == 'div':
                 text = ''.join(self._lines)
