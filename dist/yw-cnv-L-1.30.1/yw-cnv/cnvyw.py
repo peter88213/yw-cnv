@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.30.0
+Version 1.30.1
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1089,6 +1089,7 @@ class Novel(BasicElement):
         merge(source) -- Update instance variables from a source instance.
         write() -- Write instance variables to the file.
         get_languages() -- Determine the languages used in the document.
+        check_locale() -- Check the document's locale (language code and country code).
 
     Public instance variables:
         authorName -- str: author's name.
@@ -1244,6 +1245,9 @@ class Novel(BasicElement):
         # str
         # URL-coded path to the project directory.
 
+        self.languageCode = None
+        self.countryCode = None
+
         self.filePath = filePath
 
     @property
@@ -1332,6 +1336,33 @@ class Novel(BasicElement):
                 for language in get_languages(text):
                     if not language in self.languages:
                         self.languages.append(language)
+
+    def check_locale(self):
+        """Check the document's locale (language code and country code).
+        
+        If the locale is missing, set the system locale.  
+        If the locale doesn't look plausible, set "no language".        
+        """
+        if not self.languageCode or not self.countryCode:
+            # Language or country isn't set.
+            sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
+            self.languageCode = sysLng
+            self.countryCode = sysCtr
+            return
+
+        try:
+            # Plausibility check: code must have two characters.
+            if len(self.languageCode) == 2:
+                if len(self.countryCode) == 2:
+                    return
+                    # keep the setting
+        except:
+            # code isn't a string
+            pass
+        # Existing language or country field looks not plausible
+        self.languageCode = 'zxx'
+        self.countryCode = 'none'
+
 
 
 def create_id(elements):
@@ -1659,6 +1690,12 @@ class Yw7File(Novel):
                     if field is not None:
                         self.kwVar[fieldName] = field.text
 
+            # This is for projects written with v7.6 - v7.10:
+            if self.kwVar['Field_LanguageCode']:
+                self.languageCode = self.kwVar['Field_LanguageCode']
+            if self.kwVar['Field_CountryCode']:
+                self.countryCode = self.kwVar['Field_CountryCode']
+
         def read_locations(root):
             #--- Read locations from the xml element tree.
             self.srtLocations = []
@@ -1812,6 +1849,31 @@ class Yw7File(Novel):
                         field = pnFields.find(fieldName)
                         if field is not None:
                             self.projectNotes[pnId].kwVar[fieldName] = field.text
+            except:
+                pass
+
+        def read_projectvars(root):
+            #--- Read relevant project variables from the xml element tree.
+            try:
+                for projectvar in root.find('PROJECTVARS'):
+                    if projectvar.find('Title') is not None:
+                        title = projectvar.find('Title').text
+                        if title == 'Language':
+                            if projectvar.find('Desc') is not None:
+                                self.languageCode = projectvar.find('Desc').text
+
+                        elif title == 'Country':
+                            if projectvar.find('Desc') is not None:
+                                self.countryCode = projectvar.find('Desc').text
+
+                        elif title.startswith('lang='):
+                            try:
+                                __, langCode = title.split('=')
+                                if self.languages is None:
+                                    self.languages = []
+                                self.languages.append(langCode)
+                            except:
+                                pass
             except:
                 pass
 
@@ -2082,6 +2144,7 @@ class Yw7File(Novel):
         read_locations(root)
         read_items(root)
         read_characters(root)
+        read_projectvars(root)
         read_projectnotes(root)
         read_scenes(root)
         read_chapters(root)
@@ -2287,32 +2350,43 @@ class Yw7File(Novel):
         for scId in source.scenes:
             if not scId in self.scenes:
                 self.scenes[scId] = self.SCENE_CLASS()
+
             if source.scenes[scId].title:
                 # avoids deleting the title, if it is empty by accident
                 self.scenes[scId].title = source.scenes[scId].title
             if source.scenes[scId].desc is not None:
                 self.scenes[scId].desc = source.scenes[scId].desc
+
             if source.scenes[scId].sceneContent is not None:
                 self.scenes[scId].sceneContent = source.scenes[scId].sceneContent
                 sourceHasSceneContent = True
             if source.scenes[scId].scType is not None:
                 self.scenes[scId].scType = source.scenes[scId].scType
+
             if source.scenes[scId].status is not None:
                 self.scenes[scId].status = source.scenes[scId].status
+
             if source.scenes[scId].notes is not None:
                 self.scenes[scId].notes = source.scenes[scId].notes
+
             if source.scenes[scId].tags is not None:
                 self.scenes[scId].tags = source.scenes[scId].tags
+
             if source.scenes[scId].field1 is not None:
                 self.scenes[scId].field1 = source.scenes[scId].field1
+
             if source.scenes[scId].field2 is not None:
                 self.scenes[scId].field2 = source.scenes[scId].field2
+
             if source.scenes[scId].field3 is not None:
                 self.scenes[scId].field3 = source.scenes[scId].field3
+
             if source.scenes[scId].field4 is not None:
                 self.scenes[scId].field4 = source.scenes[scId].field4
+
             if source.scenes[scId].appendToPrev is not None:
                 self.scenes[scId].appendToPrev = source.scenes[scId].appendToPrev
+
             if source.scenes[scId].date or source.scenes[scId].time:
                 if source.scenes[scId].date is not None:
                     self.scenes[scId].date = source.scenes[scId].date
@@ -2321,43 +2395,58 @@ class Yw7File(Novel):
             elif source.scenes[scId].minute or source.scenes[scId].hour or source.scenes[scId].day:
                 self.scenes[scId].date = None
                 self.scenes[scId].time = None
+
             if source.scenes[scId].minute is not None:
                 self.scenes[scId].minute = source.scenes[scId].minute
+
             if source.scenes[scId].hour is not None:
                 self.scenes[scId].hour = source.scenes[scId].hour
+
             if source.scenes[scId].day is not None:
                 self.scenes[scId].day = source.scenes[scId].day
+
             if source.scenes[scId].lastsMinutes is not None:
                 self.scenes[scId].lastsMinutes = source.scenes[scId].lastsMinutes
+
             if source.scenes[scId].lastsHours is not None:
                 self.scenes[scId].lastsHours = source.scenes[scId].lastsHours
+
             if source.scenes[scId].lastsDays is not None:
                 self.scenes[scId].lastsDays = source.scenes[scId].lastsDays
+
             if source.scenes[scId].isReactionScene is not None:
                 self.scenes[scId].isReactionScene = source.scenes[scId].isReactionScene
+
             if source.scenes[scId].isSubPlot is not None:
                 self.scenes[scId].isSubPlot = source.scenes[scId].isSubPlot
+
             if source.scenes[scId].goal is not None:
                 self.scenes[scId].goal = source.scenes[scId].goal
+
             if source.scenes[scId].conflict is not None:
                 self.scenes[scId].conflict = source.scenes[scId].conflict
+
             if source.scenes[scId].outcome is not None:
                 self.scenes[scId].outcome = source.scenes[scId].outcome
+
             if source.scenes[scId].characters is not None:
                 self.scenes[scId].characters = []
                 for crId in source.scenes[scId].characters:
                     if crId in self.characters:
                         self.scenes[scId].characters.append(crId)
+
             if source.scenes[scId].locations is not None:
                 self.scenes[scId].locations = []
                 for lcId in source.scenes[scId].locations:
                     if lcId in self.locations:
                         self.scenes[scId].locations.append(lcId)
+
             if source.scenes[scId].items is not None:
                 self.scenes[scId].items = []
                 for itId in source.scenes[scId].items:
                     if itId in self.items:
                         self.scenes[scId].items.append(itId)
+
             for fieldName in self._SCN_KWVAR:
                 try:
                     self.scenes[scId].kwVar[fieldName] = source.scenes[scId].kwVar[fieldName]
@@ -2368,21 +2457,29 @@ class Yw7File(Novel):
         for chId in source.chapters:
             if not chId in self.chapters:
                 self.chapters[chId] = self.CHAPTER_CLASS()
+
             if source.chapters[chId].title:
                 # avoids deleting the title, if it is empty by accident
                 self.chapters[chId].title = source.chapters[chId].title
+
             if source.chapters[chId].desc is not None:
                 self.chapters[chId].desc = source.chapters[chId].desc
+
             if source.chapters[chId].chLevel is not None:
                 self.chapters[chId].chLevel = source.chapters[chId].chLevel
+
             if source.chapters[chId].chType is not None:
                 self.chapters[chId].chType = source.chapters[chId].chType
+
             if source.chapters[chId].suppressChapterTitle is not None:
                 self.chapters[chId].suppressChapterTitle = source.chapters[chId].suppressChapterTitle
+
             if source.chapters[chId].suppressChapterBreak is not None:
                 self.chapters[chId].suppressChapterBreak = source.chapters[chId].suppressChapterBreak
+
             if source.chapters[chId].isTrash is not None:
                 self.chapters[chId].isTrash = source.chapters[chId].isTrash
+
             for fieldName in self._CHP_KWVAR:
                 try:
                     self.chapters[chId].kwVar[fieldName] = source.chapters[chId].kwVar[fieldName]
@@ -2410,20 +2507,37 @@ class Yw7File(Novel):
         if source.title:
             # avoids deleting the title, if it is empty by accident
             self.title = source.title
+
         if source.desc is not None:
             self.desc = source.desc
+
         if source.authorName is not None:
             self.authorName = source.authorName
+
         if source.authorBio is not None:
             self.authorBio = source.authorBio
+
         if source.fieldTitle1 is not None:
             self.fieldTitle1 = source.fieldTitle1
+
         if source.fieldTitle2 is not None:
             self.fieldTitle2 = source.fieldTitle2
+
         if source.fieldTitle3 is not None:
             self.fieldTitle3 = source.fieldTitle3
+
         if source.fieldTitle4 is not None:
             self.fieldTitle4 = source.fieldTitle4
+
+        if source.languageCode is not None:
+            self.languageCode = source.languageCode
+
+        if source.countryCode is not None:
+            self.countryCode = source.countryCode
+
+        if source.languages is not None:
+            self.languages = source.languages
+
         for fieldName in self._PRJ_KWVAR:
             try:
                 self.kwVar[fieldName] = source.kwVar[fieldName]
@@ -3044,7 +3158,17 @@ class Yw7File(Novel):
                 except(AttributeError):
                     ET.SubElement(xmlPrj, 'FieldTitle4').text = self.fieldTitle4
 
+            if self.languageCode:
+                self.kwVar['Field_LanguageCode'] = self.languageCode
+            if self.countryCode:
+                self.kwVar['Field_CountryCode'] = self.countryCode
+
             #--- Write project custom fields.
+
+            # This is for projects written with v7.6 - v7.10:
+            self.kwVar['Field_LanguageCode'] = None
+            self.kwVar['Field_CountryCode'] = None
+
             prjFields = xmlPrj.find('Fields')
             for field in self._PRJ_KWVAR:
                 setting = self.kwVar.get(field, None)
@@ -3155,13 +3279,16 @@ class Yw7File(Novel):
                 build_prjNote_subtree(xmlPnt, self.projectNotes[pnId], sortOrder)
 
         #--- Process project variables.
-        if self.languages:
+        if self.languages or self.languageCode or self.countryCode:
+            self.check_locale()
             projectvars = root.find('PROJECTVARS')
             if projectvars is None:
                 projectvars = ET.SubElement(root, 'PROJECTVARS')
             prjVars = []
             # list of all project variable IDs
             languages = self.languages.copy()
+            hasLanguageCode = False
+            hasCountryCode = False
             for projectvar in projectvars.findall('PROJECTVAR'):
                 prjVars.append(projectvar.find('ID').text)
                 title = projectvar.find('Title').text
@@ -3173,6 +3300,26 @@ class Yw7File(Novel):
                         languages.remove(langCode)
                     except:
                         pass
+
+                # Get the document's locale.
+                elif title == 'Language':
+                    projectvar.find('Desc').text = self.languageCode
+                    hasLanguageCode = True
+
+                elif title == 'Country':
+                    projectvar.find('Desc').text = self.countryCode
+                    hasCountryCode = True
+
+            # Define project variables for the missing locale.
+            if not hasLanguageCode:
+                add_projectvariable('Language',
+                                    self.languageCode,
+                                    '0')
+
+            if not hasCountryCode:
+                add_projectvariable('Country',
+                                    self.countryCode,
+                                    '0')
 
             # Define project variables for the missing language code tags.
             for langCode in languages:
@@ -3332,34 +3479,6 @@ class Yw7File(Novel):
             if self.chapters[chId].chType != 0:
                 for scId in self.chapters[chId].srtScenes:
                     self.scenes[scId].scType = self.chapters[chId].chType
-
-    def check_locale(self):
-        """Check the document's locale (language code and country code).
-        
-        If the locale is missing, set the system locale.  
-        If the locale doesn't look plausible, set "no language".        
-        """
-        try:
-            # Plausibility check: code must have two characters.
-            docLng = self.kwVar['Field_LanguageCode']
-            if len(docLng) == 2:
-                docCtr = self.kwVar['Field_CountryCode']
-                if len(docCtr) == 2:
-                    return
-                    # keep the setting
-
-        except:
-            # Language or country field doesn't exist.
-            sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
-            self.kwVar['Field_LanguageCode'] = sysLng
-            self.kwVar['Field_CountryCode'] = sysCtr
-            return
-
-        else:
-            # Existing language or country field looks not plausible
-            self.kwVar['Field_LanguageCode'] = 'zxx'
-            self.kwVar['Field_CountryCode'] = 'none'
-            return
 
 from html.parser import HTMLParser
 
@@ -3532,10 +3651,15 @@ class HtmlFormatted(HtmlFile):
         
         Return a yw7 markup string.
         """
-        #--- Remove orphaned tags.
-        text = text.replace('[/b][b]', '')
-        text = text.replace('[/i][i]', '')
-        text = text.replace('[/b][b]', '')
+        #--- Remove redundant tags.
+        # In contrast to Office Writer, yWriter accepts markup reaching across linebreaks.
+        tags = ['i', 'b']
+        for language in self.languages:
+            tags.append(f'lang={language}')
+        for tag in tags:
+            text = text.replace(f'[/{tag}][{tag}]', '')
+            text = text.replace(f'[/{tag}]\n[{tag}]', '\n')
+            text = text.replace(f'[/{tag}]\n> [{tag}]', '\n> ')
 
         #--- Remove misplaced formatting tags.
         # text = re.sub('\[\/*[b|i]\]', '', text)
@@ -3625,8 +3749,8 @@ class HtmlImport(HtmlFormatted):
                 if attr[0].lower() == 'lang':
                     try:
                         lngCode, ctrCode = attr[1].split('-')
-                        self.kwVar['Field_LanguageCode'] = lngCode
-                        self.kwVar['Field_CountryCode'] = ctrCode
+                        self.languageCode = lngCode
+                        self.countryCode = ctrCode
                     except:
                         pass
                     break
@@ -3776,8 +3900,8 @@ class HtmlOutline(HtmlFile):
                 if attr[0].lower() == 'lang':
                     try:
                         lngCode, ctrCode = attr[1].split('-')
-                        self.kwVar['Field_LanguageCode'] = lngCode
-                        self.kwVar['Field_CountryCode'] = ctrCode
+                        self.languageCode = lngCode
+                        self.countryCode = ctrCode
                     except:
                         pass
                     break
@@ -4049,6 +4173,12 @@ class FileExport(Novel):
 
         if source.kwVar:
             self.kwVar = source.kwVar
+
+        if source.languageCode is not None:
+            self.languageCode = source.languageCode
+
+        if source.countryCode is not None:
+            self.countryCode = source.countryCode
 
         if source.languages is not None:
             self.languages = source.languages
@@ -4759,22 +4889,11 @@ class OdfFile(FileExport):
             return f'{ERROR}{_("Cannot write file")}: "manifest.xml"'
 
         #--- Generate styles.xml.
-        # If no language/country is set, use the system language/country.
-        # If the language/country are set, but don't look reasonable, use "no language" settings.
-        sysLng, sysCtr = locale.getdefaultlocale()[0].split('_')
+        self.check_locale()
         localeMapping = dict(
-            Language='zxx',
-            Country='none',
-        )
-        try:
-            docLng = self.kwVar.get('Field_LanguageCode', sysLng)
-            if len(docLng) == 2:
-                docCtr = self.kwVar.get('Field_CountryCode', sysCtr)
-                if len(docCtr) == 2:
-                    localeMapping['Language'] = docLng
-                    localeMapping['Country'] = docCtr
-        except:
-            pass
+            Language=self.languageCode,
+            Country=self.countryCode,
+            )
         template = Template(self._STYLES_XML)
         text = template.safe_substitute(localeMapping)
         try:
@@ -7128,8 +7247,8 @@ class HtmlProof(HtmlFormatted):
                 if attr[0].lower() == 'lang':
                     try:
                         lngCode, ctrCode = attr[1].split('-')
-                        self.kwVar['Field_LanguageCode'] = lngCode
-                        self.kwVar['Field_CountryCode'] = ctrCode
+                        self.languageCode = lngCode
+                        self.countryCode = ctrCode
                     except:
                         pass
                     break
@@ -7236,8 +7355,8 @@ class HtmlManuscript(HtmlFormatted):
                 if attr[0].lower() == 'lang':
                     try:
                         lngCode, ctrCode = attr[1].split('-')
-                        self.kwVar['Field_LanguageCode'] = lngCode
-                        self.kwVar['Field_CountryCode'] = ctrCode
+                        self.languageCode = lngCode
+                        self.countryCode = ctrCode
                     except:
                         pass
                     break

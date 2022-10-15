@@ -42,6 +42,10 @@
 <li><a href="#how-to-set-up-a-work-in-progress-for-export">How to set up a work in progress for export</a></li>
 <li><a href="#how-to-set-up-an-outline-for-export">How to set up an outline for export</a></li>
 </ul>
+<h2 id="general">General</h2>
+<ul>
+<li><a href="#document-language-handling">Document language handling</a></li>
+</ul>
 <hr />
 <h2 id="export-to-ywriter">Export to yWriter</h2>
 <p>This writes back the document's content to the yWriter project file.</p>
@@ -185,6 +189,34 @@
 <h2 id="replace-list-strokes-with-bullets">Replace list strokes with bullets</h2>
 <p>This will select all paragraphs that start with "- " and apply a list paragraph style.</p>
 <p>Note: When exporting to yWriter, Lists will automatically marked with "- " list strokes.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="general-1">General</h2>
+<h3 id="document-language-handling">Document language handling</h3>
+<p>ODF documents are generally assigned a language that determines spell checking and country-specific character substitutions. In addition, Office Writer lets you assign text passages to languages other than the document language to mark foreign language usage or to suspend spell checking.</p>
+<h4 id="document-overall">Document overall</h4>
+<ul>
+<li><p>If a document language (Language code acc. to ISO 639-1 and country code acc. to ISO 3166-2) is detected in the source document during conversion to yw7 format, these codes are set as yWriter project variables.</p></li>
+<li><p>If language code and country code exist as project variables during conversion from yw7 format, they are inserted into the generated ODF document.</p></li>
+<li><p>If no language and country code exist as project variables when converting from yw7 format, language and country code from the operating system settings are entered into the generated ODF document.</p></li>
+<li><p>The language and country codes are checked superficially. If they obviously do not comply with the ISO standards, they are replaced by the values for "No language". These are:</p>
+<ul>
+<li>Language = zxx</li>
+<li>Country = none</li>
+</ul></li>
+</ul>
+<h4 id="text-passages-in-scenes">Text passages in scenes</h4>
+<p>If text markups for other languages are detected during conversion to the yw7 format, they are converted and transferred to the yWriter scene.</p>
+<p>This then looks like this, for example:</p>
+<p><code>xxx xxxx [lang=en-AU]yyy yyyy yyyy[/lang=en-AU] xxx xxx</code></p>
+<p>To prevent these text markups from interfering with <em>yWriter</em>, they are automatically set as project variables in such a way that <em>yWriter</em> interprets them as HTML instructions during document export.</p>
+<p>For the example shown above, the project variable definition for the opening tag looks like this:</p>
+<ul>
+<li><em>Variable Name:</em> <code>lang=en-AU</code></li>
+<li><em>Value/Text:</em> <code>&lt;HTM &lt;SPAN LANG="en-AU"&gt; /HTM&gt;</code></li>
+</ul>
+<p>The point of this is that such language assignments are preserved even after multiple conversions in both directions, so they are always effective for spell checking in the ODT document.</p>
+<p>It is recommended not to modify such markups in yWriter to avoid unwanted nesting and broken enclosing.</p>
 <p><a href="#top">Top of page</a></p>
 <hr />
 </body>

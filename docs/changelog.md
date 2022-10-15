@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.30.1
+
+- Store the document language and country codes as project variables, thus making them accessible in yWriter.
+- Add a chapter about document language handling to the help text.
+
+Based on PyWriter v7.12.2
+
 ### v1.30.0
 
 Introduce a notation for assigning text passages to another language/country. This is mainly for spell checking in Office Writer.

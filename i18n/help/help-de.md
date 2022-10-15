@@ -5,14 +5,14 @@ Haupt-Hilfeseite
 
 # yWriter Import/Export
 
+
 ## Befehlsreferenz
 
 ### "Datei"-Menü
 
 -   [Zu yWriter exportieren](#zu-ywriter-exportieren)
 -   [Von yWriter importieren](#von-ywriter-importieren)
--   [Von yWriter zum Korrekturlesen
-    importieren](#von-ywriter-zum-korrekturlesen-importieren)
+-   [Von yWriter zum Korrekturlesen importieren](#von-ywriter-zum-korrekturlesen-importieren)
 -   [Kurze Zusammenfassung](#kurze-zusammenfassung)
 -   [Figurenliste](#figurenliste)
 -   [Schauplatzliste](#schauplatzliste)
@@ -31,6 +31,11 @@ Haupt-Hilfeseite
 
 -   [Ein Manuskript zum Export vorbereiten](#ein-manuskript-zum-export-vorbereiten)
 -   [Eine Gliederung zum Export vorbereiten](#eine-gliederung-zum-export-vorbereiten)
+
+## Allgemeines
+
+-   [Umgang mit der Sprache des Dokuments](#umgang-mit-der-sprache-des-dokuments)
+
 
 ------------------------------------------------------------------------
 
@@ -235,3 +240,45 @@ Hinweis: Beim Export in yWriter werden Listen automatisch mit "-"-Listenstrichen
 [Zum Seitenbeginn](#top)
 
 ------------------------------------------------------------------------
+
+## Allgemeines
+
+### Umgang mit der Sprache des Dokuments
+
+ODF-Dokumenten ist im allgemeinen eine Sprache zugeordnet, welche die Rechtschreibprüfung und länderspezifische Zeichenersetzungen bestimmt. Außerdem kann man in Office Writer Textpassagen von der Dokumentsprache abweichende Sprachen zuordnen, um Fremdsprachengebrauch zu markieren oder die Rechtschreibprüfung auszusetzen. 
+
+#### Dokument insgesamt
+
+- Wenn bei der Konvertierung in das yw7-Format eine Dokument-Sprache (Sprachencode gem. ISO 639-1 und Ländercode gem. ISO 3166-2) im Ausgangsdokument erkannt wird, werden diese Codes als yWriter-Projektvariablen eingetragen.
+
+- Wenn bei der Konvertierung aus dem yw7-Format Sprach- und Ländercode als Projektvariablen existieren, werden sie ins erzeugte ODF-Dokument eingetragen. 
+
+- Wenn bei der Konvertierung aus dem yw7-Format keine Sprach- und Ländercode als Projektvariablen existieren, werden Sprach- und Ländercode aus den Betriebssystemeinstellungen ins erzeugte ODF-Dokument eingetragen. 
+
+- Die Sprach- und Ländercodes werden oberflächlich geprüft. Wenn sie offensichtlich nicht den ISO-Standards entsprechen, werden sie durch die Werte für "Keine Sprache" ersetzt. Das sind:
+    - Language = zxx
+    - Country = none
+    
+#### Textpassagen in Szenen  
+
+Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in die yWriter-Szene übernommen. 
+
+Das sieht dann beispielsweise so aus:
+
+`xxx xxxx [lang=de-CH]yyy yyyy yyyy[/lang=de-CH] xxx xxx`
+
+Damit diese Textauszeichnungen in *yWriter* nicht stören, werden sie automatisch als Projektvariablen eingetragen, und zwar so, dass *yWriter* sie beim Dokumentenexport als HTML-Anweisungen interpretiert. 
+
+Für das oben gezeigte Beispiel sieht die Projektvariablen-Definition für das öffnende Tag so aus:
+
+- *Variable Name:* `lang=de-CH` 
+- *Value/Text:* `<HTM <SPAN LANG="de-CH"> /HTM>`
+
+Der Sinn der Sache liegt darin, dass solche Sprachenzuweisungen auch bei mehrmaligem Konvertieren in beide Richtungen erhalten bleiben, also im ODT-Dokument immer für die Rechtschreibprüfung wirksam sind.
+
+Es wird empfohlen, solche Auszeichnungen nicht in yWriter zu verändern, um ungewollte Verschachtelungen und unterbrochene Umschließungen zu vermeiden. 
+
+[Zum Seitenbeginn](#top)
+
+------------------------------------------------------------------------
+

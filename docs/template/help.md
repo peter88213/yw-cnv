@@ -31,6 +31,11 @@
 -   [How to set up an outline for
     export](#how-to-set-up-an-outline-for-export)
 
+## General
+
+-   [Document language handling](#document-language-handling)
+
+
 ------------------------------------------------------------------------
 
 ## Export to yWriter
@@ -289,6 +294,47 @@ and apply a list paragraph style.
 
 Note: When exporting to yWriter, Lists will
 automatically marked with "- " list strokes.
+
+[Top of page](#top)
+
+------------------------------------------------------------------------
+
+## General
+
+### Document language handling
+
+ODF documents are generally assigned a language that determines spell checking and country-specific character substitutions. In addition, Office Writer lets you assign text passages to languages other than the document language to mark foreign language usage or to suspend spell checking. 
+
+#### Document overall
+
+- If a document language (Language code acc. to ISO 639-1 and country code acc. to ISO 3166-2) is detected in the source document during conversion to yw7 format, these codes are set as yWriter project variables. 
+
+- If language code and country code exist as project variables during conversion from yw7 format, they are inserted into the generated ODF document. 
+
+- If no language and country code exist as project variables when converting from yw7 format, language and country code from the operating system settings are entered into the generated ODF document. 
+
+- The language and country codes are checked superficially. If they obviously do not comply with the ISO standards, they are replaced by the values for "No language". These are:
+    - Language = zxx
+    - Country = none
+
+#### Text passages in scenes
+
+If text markups for other languages are detected during conversion to the yw7 format, they are converted and transferred to the yWriter scene. 
+
+This then looks like this, for example:
+
+`xxx xxxx [lang=en-AU]yyy yyyy yyyy[/lang=en-AU] xxx xxx` 
+
+To prevent these text markups from interfering with *yWriter*, they are automatically set as project variables in such a way that *yWriter* interprets them as HTML instructions during document export. 
+
+For the example shown above, the project variable definition for the opening tag looks like this: 
+
+- *Variable Name:* `lang=en-AU` 
+- *Value/Text:* `<HTM <SPAN LANG="en-AU"> /HTM>`
+
+The point of this is that such language assignments are preserved even after multiple conversions in both directions, so they are always effective for spell checking in the ODT document.
+
+It is recommended not to modify such markups in yWriter to avoid unwanted nesting and broken enclosing. 
 
 [Top of page](#top)
 
