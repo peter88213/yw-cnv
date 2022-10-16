@@ -37,15 +37,66 @@
 <li><a href="#absätze-einrücken-die-mit-beginnen">Absätze einrücken, die mit '&gt; ' beginnen'</a></li>
 <li><a href="#aufzählungsstriche-ersetzen">Aufzählungsstriche ersetzen</a></li>
 </ul>
-<h2 id="so-gehts">So geht's</h2>
-<ul>
-<li><a href="#ein-manuskript-zum-export-vorbereiten">Ein Manuskript zum Export vorbereiten</a></li>
-<li><a href="#eine-gliederung-zum-export-vorbereiten">Eine Gliederung zum Export vorbereiten</a></li>
-</ul>
+<hr />
 <h2 id="allgemeines">Allgemeines</h2>
+<h3 id="zur-textformatierung">Zur Textformatierung</h3>
+<p>Es wird davon ausgegangen, dass für einen fiktionalen Text nur sehr wenige Arten von Textauszeichnungen erforderlich sind:</p>
 <ul>
-<li><a href="#umgang-mit-der-sprache-des-dokuments">Umgang mit der Sprache des Dokuments</a></li>
+<li><em>Betont</em> (üblicherweise in Kursivschrift dargestellt).</li>
+<li><em>Stark betont</em> (üblicherweise in Großbuchstaben dargestellt).</li>
+<li><em>Zitat</em> (Absatz optisch vom Fließtext unterschieden).</li>
 </ul>
+<p>Beim Importieren aus dem yw7-Format ersetzt der Konverter diese Formatierungen wie folgt:</p>
+<ul>
+<li>In yWriter <em>kursiv</em> gesetzter Text wird als <em>Betont</em> formatiert.</li>
+<li>In yWriter <em>fett</em> gesetzter Text wird als <em>Stark betont</em> formatiert.</li>
+<li>Absätze, die in yWriter mit <code>"&gt; "</code> beginnen, werden als <em>Zitat</em> formatiert.</li>
+</ul>
+<p>Beim Exportieren in das yw7-Format gilt das Umgekehrte.</p>
+<h3 id="zur-sprache-des-dokuments">Zur Sprache des Dokuments</h3>
+<p>ODF-Dokumenten ist im allgemeinen eine Sprache zugeordnet, welche die Rechtschreibprüfung und länderspezifische Zeichenersetzungen bestimmt. Außerdem kann man in Office Writer Textpassagen von der Dokumentsprache abweichende Sprachen zuordnen, um Fremdsprachengebrauch zu markieren oder die Rechtschreibprüfung auszusetzen.</p>
+<h4 id="dokument-insgesamt">Dokument insgesamt</h4>
+<ul>
+<li><p>Wenn bei der Konvertierung in das yw7-Format eine Dokument-Sprache (Sprachencode gem. ISO 639-1 und Ländercode gem. ISO 3166-2) im Ausgangsdokument erkannt wird, werden diese Codes als yWriter-Projektvariablen eingetragen.</p></li>
+<li><p>Wenn bei der Konvertierung aus dem yw7-Format Sprach- und Ländercode als Projektvariablen existieren, werden sie ins erzeugte ODF-Dokument eingetragen.</p></li>
+<li><p>Wenn bei der Konvertierung aus dem yw7-Format keine Sprach- und Ländercode als Projektvariablen existieren, werden Sprach- und Ländercode aus den Betriebssystemeinstellungen ins erzeugte ODF-Dokument eingetragen.</p></li>
+<li><p>Die Sprach- und Ländercodes werden oberflächlich geprüft. Wenn sie offensichtlich nicht den ISO-Standards entsprechen, werden sie durch die Werte für "Keine Sprache" ersetzt. Das sind:</p>
+<ul>
+<li>Language = zxx</li>
+<li>Country = none</li>
+</ul></li>
+</ul>
+<h4 id="textpassagen-in-szenen">Textpassagen in Szenen</h4>
+<p>Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in die yWriter-Szene übernommen.</p>
+<p>Das sieht dann beispielsweise so aus:</p>
+<p><code>xxx xxxx [lang=de-CH]yyy yyyy yyyy[/lang=de-CH] xxx xxx</code></p>
+<p>Damit diese Textauszeichnungen in <em>yWriter</em> nicht stören, werden sie automatisch als Projektvariablen eingetragen, und zwar so, dass <em>yWriter</em> sie beim Dokumentenexport als HTML-Anweisungen interpretiert.</p>
+<p>Für das oben gezeigte Beispiel sieht die Projektvariablen-Definition für das öffnende Tag so aus:</p>
+<ul>
+<li><em>Variable Name:</em> <code>lang=de-CH</code></li>
+<li><em>Value/Text:</em> <code>&lt;HTM &lt;SPAN LANG="de-CH"&gt; /HTM&gt;</code></li>
+</ul>
+<p>Der Sinn der Sache liegt darin, dass solche Sprachenzuweisungen auch bei mehrmaligem Konvertieren in beide Richtungen erhalten bleiben, also im ODT-Dokument immer für die Rechtschreibprüfung wirksam sind.</p>
+<p>Es wird empfohlen, solche Auszeichnungen nicht in yWriter zu verändern, um ungewollte Verschachtelungen und unterbrochene Umschließungen zu vermeiden.</p>
+<h2 id="so-wirds-gemacht">So wird's gemacht</h2>
+<h2 id="ein-manuskript-zum-export-vorbereiten">Ein Manuskript zum Export vorbereiten</h2>
+<p>Ein in Arbeit befindliches Dokument hat keine Überschrift auf der dritten Ebene.</p>
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
+<li><em>Überschrift 2</em> → Neuer Kapiteltitel.</li>
+<li><code>* * *</code> → Szenentrenner (nicht erforderlich für die ersten Szenen eines Kapitels).</li>
+<li>Kommentare direkt am Anfang einer Szene gelten als Szenentitel.</li>
+<li>Alle anderen Texte gelten als Szeneninhalt.</li>
+</ul>
+<h2 id="eine-gliederung-zum-export-vorbereiten">Eine Gliederung zum Export vorbereiten</h2>
+<p>Eine Gliederung hat mindestens eine Überschrift auf der dritten Ebene.</p>
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
+<li><em>Überschrift 2</em> → Neue Kapitelüberschrift.</li>
+<li><em>Überschrift 3</em> → Neuer Szenentitel.</li>
+<li>Alle anderen Texte werden als Kapitel-/Szenenbeschreibung betrachtet.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 <h2 id="zu-ywriter-exportieren">Zu yWriter exportieren</h2>
 <p>Dadurch wird der Inhalt des Dokuments in die yWriter-Projektdatei zurückgeschrieben.</p>
@@ -145,41 +196,6 @@
 </ul>
 <p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
-<h2 id="ein-manuskript-zum-export-vorbereiten">Ein Manuskript zum Export vorbereiten</h2>
-<p>Erzeugt ein neues yWriter 7-Projekt aus einem in Arbeit befindlichen Dokument:</p>
-<ul>
-<li>Das neue yWriter-Projekt wird in demselben Ordner wie das Dokument abgelegt.</li>
-<li>Dateiname des yWriter-Projekts: <code>&lt;Dokumentname&gt;.yw7</code>.</li>
-<li>Bestehende yWriter 7-Projekte werden nicht überschrieben.</li>
-</ul>
-<h3 id="formatierung-des-manuskripts">Formatierung des Manuskripts:</h3>
-<p>Ein in Arbeit befindliches Dokument hat keine Überschrift auf der dritten Ebene.</p>
-<ul>
-<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
-<li><em>Überschrift 2</em> → Neuer Kapiteltitel.</li>
-<li><code>* * *</code> → Szenentrenner (nicht erforderlich für die ersten Szenen eines Kapitels).</li>
-<li>Kommentare direkt am Anfang einer Szene gelten als Szenentitel.</li>
-<li>Alle anderen Texte gelten als Szeneninhalt.</li>
-</ul>
-<p><a href="#top">Zum Seitenbeginn</a></p>
-<hr />
-<h2 id="eine-gliederung-zum-export-vorbereiten">Eine Gliederung zum Export vorbereiten</h2>
-<p>Erzeugt ein neues yWriter 7-Projekt aus einer Gliederung:</p>
-<ul>
-<li>Das neue yWriter-Projekt wird in demselben Ordner wie das Dokument abgelegt.</li>
-<li>Dateiname des yWriter-Projekts: <code>&lt;Dokumentname&gt;.yw7</code>.</li>
-<li>Bestehende yWriter 7-Projekte werden nicht überschrieben.</li>
-</ul>
-<h3 id="formatierung-der-gliederung">Formatierung der Gliederung:</h3>
-<p>Eine Gliederung hat mindestens eine Überschrift auf der dritten Ebene.</p>
-<ul>
-<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
-<li><em>Überschrift 2</em> → Neue Kapitelüberschrift.</li>
-<li><em>Überschrift 3</em> → Neuer Szenentitel.</li>
-<li>Alle anderen Texte werden als Kapitel-/Szenenbeschreibung betrachtet.</li>
-</ul>
-<p><a href="#top">Zum Seitenbeginn</a></p>
-<hr />
 <h2 id="szenentrenner-durch-leerzeilen-ersetzen">Szenentrenner durch Leerzeilen ersetzen</h2>
 <p>Dadurch werden die dreizeiligen "* * *"-Szenentrennlinien durch einzelne Leerzeilen ersetzt. Der Stil der szenenunterteilenden Zeilen wird von <em>Überschrift 4</em> auf <em>Überschrift 5</em> geändert.</p>
 <p><a href="#top">Zum Seitenbeginn</a></p>
@@ -192,34 +208,6 @@
 <h2 id="aufzählungsstriche-ersetzen">Aufzählungsstriche ersetzen</h2>
 <p>Dadurch werden alle Absätze, die mit "-" beginnen, ausgewählt und mit einem Listenabsatzstil versehen.</p>
 <p>Hinweis: Beim Export in yWriter werden Listen automatisch mit "-"-Listenstrichen markiert.</p>
-<p><a href="#top">Zum Seitenbeginn</a></p>
-<hr />
-<h2 id="allgemeines-1">Allgemeines</h2>
-<h3 id="umgang-mit-der-sprache-des-dokuments">Umgang mit der Sprache des Dokuments</h3>
-<p>ODF-Dokumenten ist im allgemeinen eine Sprache zugeordnet, welche die Rechtschreibprüfung und länderspezifische Zeichenersetzungen bestimmt. Außerdem kann man in Office Writer Textpassagen von der Dokumentsprache abweichende Sprachen zuordnen, um Fremdsprachengebrauch zu markieren oder die Rechtschreibprüfung auszusetzen.</p>
-<h4 id="dokument-insgesamt">Dokument insgesamt</h4>
-<ul>
-<li><p>Wenn bei der Konvertierung in das yw7-Format eine Dokument-Sprache (Sprachencode gem. ISO 639-1 und Ländercode gem. ISO 3166-2) im Ausgangsdokument erkannt wird, werden diese Codes als yWriter-Projektvariablen eingetragen.</p></li>
-<li><p>Wenn bei der Konvertierung aus dem yw7-Format Sprach- und Ländercode als Projektvariablen existieren, werden sie ins erzeugte ODF-Dokument eingetragen.</p></li>
-<li><p>Wenn bei der Konvertierung aus dem yw7-Format keine Sprach- und Ländercode als Projektvariablen existieren, werden Sprach- und Ländercode aus den Betriebssystemeinstellungen ins erzeugte ODF-Dokument eingetragen.</p></li>
-<li><p>Die Sprach- und Ländercodes werden oberflächlich geprüft. Wenn sie offensichtlich nicht den ISO-Standards entsprechen, werden sie durch die Werte für "Keine Sprache" ersetzt. Das sind:</p>
-<ul>
-<li>Language = zxx</li>
-<li>Country = none</li>
-</ul></li>
-</ul>
-<h4 id="textpassagen-in-szenen">Textpassagen in Szenen</h4>
-<p>Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in die yWriter-Szene übernommen.</p>
-<p>Das sieht dann beispielsweise so aus:</p>
-<p><code>xxx xxxx [lang=de-CH]yyy yyyy yyyy[/lang=de-CH] xxx xxx</code></p>
-<p>Damit diese Textauszeichnungen in <em>yWriter</em> nicht stören, werden sie automatisch als Projektvariablen eingetragen, und zwar so, dass <em>yWriter</em> sie beim Dokumentenexport als HTML-Anweisungen interpretiert.</p>
-<p>Für das oben gezeigte Beispiel sieht die Projektvariablen-Definition für das öffnende Tag so aus:</p>
-<ul>
-<li><em>Variable Name:</em> <code>lang=de-CH</code></li>
-<li><em>Value/Text:</em> <code>&lt;HTM &lt;SPAN LANG="de-CH"&gt; /HTM&gt;</code></li>
-</ul>
-<p>Der Sinn der Sache liegt darin, dass solche Sprachenzuweisungen auch bei mehrmaligem Konvertieren in beide Richtungen erhalten bleiben, also im ODT-Dokument immer für die Rechtschreibprüfung wirksam sind.</p>
-<p>Es wird empfohlen, solche Auszeichnungen nicht in yWriter zu verändern, um ungewollte Verschachtelungen und unterbrochene Umschließungen zu vermeiden.</p>
 <p><a href="#top">Zum Seitenbeginn</a></p>
 <hr />
 </body>

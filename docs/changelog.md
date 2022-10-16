@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.30.2
+
+- Update the help text.
+- Undo the change from v1.29.0: Change the German wording (Abschnitt --> Szene).
+
+Based on PyWriter v7.12.2
+
 ### v1.30.1
 
 - Store the document language and country codes as project variables, thus making them accessible in yWriter.

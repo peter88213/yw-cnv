@@ -231,7 +231,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Manuscript with chapter and scene sections</value>
-                                    <value xml:lang="de">Manuskript mit Kapitel- und Abschnittsbereichen</value>
+                                    <value xml:lang="de">Manuskript mit Kapitel- und Szenenbereichen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
@@ -246,7 +246,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Scene descriptions</value>
-                                    <value xml:lang="de">Abschnittsbeschreibungen</value>
+                                    <value xml:lang="de">Szenebeschreibungen</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
@@ -346,7 +346,7 @@
                                  </prop>
                                  <prop oor:name="Title" oor:type="xs:string">
                                     <value xml:lang="en">Scene list</value>
-                                    <value xml:lang="de">Abschnittsliste</value>
+                                    <value xml:lang="de">Szenenliste</value>
                                  </prop>
                                  <prop oor:name="URL" oor:type="xs:string">
                                     <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
@@ -441,7 +441,7 @@
                      </prop>
                      <prop oor:name="Title" oor:type="xs:string">
                         <value xml:lang="en">Replace scene dividers with blank lines</value>
-                        <value xml:lang="de">Abschnittstrenner durch Leerzeilen ersetzen</value>
+                        <value xml:lang="de">Szenentrenner durch Leerzeilen ersetzen</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
                         <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
@@ -679,7 +679,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Manuscript with chapter and scene sections</value>
-                           <value xml:lang="de">Manuskript mit Kapitel- und Abschnittsbereichen</value>
+                           <value xml:lang="de">Manuskript mit Kapitel- und Szenenbereichen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_manuscript?language=Python&amp;location=user:uno_packages</value>
@@ -694,7 +694,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Scene descriptions</value>
-                           <value xml:lang="de">Abschnittsbeschreibungen</value>
+                           <value xml:lang="de">Szenebeschreibungen</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenedesc?language=Python&amp;location=user:uno_packages</value>
@@ -794,7 +794,7 @@
                         </prop>
                         <prop oor:name="Title" oor:type="xs:string">
                            <value xml:lang="en">Scene list</value>
-                           <value xml:lang="de">Abschnittsliste</value>
+                           <value xml:lang="de">Szenenliste</value>
                         </prop>
                         <prop oor:name="URL" oor:type="xs:string">
                            <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$get_scenelist?language=Python&amp;location=user:uno_packages</value>
@@ -866,7 +866,7 @@
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
                      <value xml:lang="en">Replace scene dividers with blank lines</value>
-                     <value xml:lang="de">Abschnittstrenner durch Leerzeilen ersetzen</value>
+                     <value xml:lang="de">Szenentrenner durch Leerzeilen ersetzen</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$to_blank_lines?language=Python&amp;location=user:uno_packages</value>
