@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.30.2
+Version 1.30.3
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -82,7 +82,18 @@ import locale
 
 ERROR = '!'
 
-# Initialize localization.
+__all__ = ['ERROR', '_',
+           'LOCALE_PATH',
+           'CURRENT_LANGUAGE',
+           'ADDITIONAL_WORD_LIMITS',
+           'NO_WORD_LIMITS',
+           'NON_LETTERS',
+           'string_to_list',
+           'list_to_string',
+           'get_languages',
+           ]
+
+#--- Initialize localization.
 from urllib import parse
 oPackageInfoProvider = CTX.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
 sPackageLocation = oPackageInfoProvider.getPackageLocation("org.peter88213.yw-cnv")
@@ -96,6 +107,20 @@ except:
 
     def _(message):
         return message
+
+#--- Regular expressions for counting words and characters like in LibreOffice.
+# See: https://help.libreoffice.org/latest/en-GB/text/swriter/guide/words_count.html
+
+ADDITIONAL_WORD_LIMITS = re.compile('--|—|–')
+# this is to be replaced by spaces, thus making dashes and dash replacements word limits
+
+NO_WORD_LIMITS = re.compile('\[.+?\]|\/\*.+?\*\/|-|^\>', re.MULTILINE)
+# this is to be replaced by empty strings, thus excluding markup and comments from
+# word counting, and making hyphens join words
+
+NON_LETTERS = re.compile('\[.+?\]|\/\*.+?\*\/|\n|\r')
+# this is to be replaced by empty strings, thus excluding markup, comments, and linefeeds
+# from letter counting
 
 
 def string_to_list(text, divider=';'):
@@ -165,8 +190,6 @@ def get_languages(text):
             yield m.group(1)
             m = LANGUAGE_TAG.search(text)
 
-
-__all__ = ['ERROR', '_', 'LOCALE_PATH', 'CURRENT_LANGUAGE', 'string_to_list', 'list_to_string', 'get_languages']
 
 
 def open_document(document):
@@ -381,6 +404,7 @@ class YwCnvUi(YwCnv):
         else:
             message = self.convert(source, target)
             self.ui.set_info_how(message)
+            self._delete_tempfile(source.filePath)
             if message.startswith(ERROR):
                 self.newFile = None
             else:
@@ -996,16 +1020,11 @@ class Scene(BasicElement):
     def sceneContent(self, text):
         """Set sceneContent updating word count and letter count."""
         self._sceneContent = text
-        text = re.sub('--|—|–|…', ' ', text)
-        # Make dashes separate words
-        text = re.sub('\[.+?\]|\/\*.+?\*\/|\.|\,|-', '', text)
-        # Remove comments and yWriter raw markup for word count; make hyphens join words
+        text = ADDITIONAL_WORD_LIMITS.sub(' ', text)
+        text = NO_WORD_LIMITS.sub('', text)
         wordList = text.split()
         self.wordCount = len(wordList)
-        text = re.sub('\[.+?\]|\/\*.+?\*\/', '', self._sceneContent)
-        # Remove yWriter raw markup for letter count
-        text = text.replace('\n', '')
-        text = text.replace('\r', '')
+        text = NON_LETTERS.sub('', self._sceneContent)
         self.letterCount = len(text)
 
 

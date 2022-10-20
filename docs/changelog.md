@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.30.3
+
+- Count words like in LibreOffice. See:
+https://help.libreoffice.org/latest/en-GB/text/swriter/guide/words_count.html
+
+Based on PyWriter v7.14.0
+
 ### v1.30.2
 
 - Update the help text.
