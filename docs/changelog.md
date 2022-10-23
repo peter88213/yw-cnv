@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.30.4
+
+- Fix a bug in odt manuscript export, where the "Quotation" style is not applied at scene start.
+- Fix a bug in HTML parsers, where the language setting is not recognized if applied to the whole paragraph. 
+
+Based on PyWriter v7.14.1
+
 ### v1.30.3
 
 - Count words like in LibreOffice. See:
