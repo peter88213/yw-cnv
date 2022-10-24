@@ -1,6 +1,6 @@
 """Convert yWriter project to odt or ods and vice versa. 
 
-Version 1.30.4
+Version 1.30.5
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -94,10 +94,9 @@ __all__ = ['ERROR', '_',
            ]
 
 #--- Initialize localization.
-from urllib import parse
 oPackageInfoProvider = CTX.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
 sPackageLocation = oPackageInfoProvider.getPackageLocation("org.peter88213.yw-cnv")
-packagePath = parse.unquote(sPackageLocation).replace('file:///', '')
+packagePath = uno.fileUrlToSystemPath(sPackageLocation)
 LOCALE_PATH = f'{packagePath}/yw-cnv/locale/'
 CURRENT_LANGUAGE = locale.getdefaultlocale()[0][:2]
 try:

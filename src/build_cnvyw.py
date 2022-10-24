@@ -17,10 +17,9 @@ SOURCE_FILE = f'{SRC}cnvyw_.py'
 TARGET_FILE = f'{BUILD}cnvyw.py'
 
 SCRIPT_CODE = """LOCALE_PATH = f'{os.path.dirname(sys.argv[0])}/locale/'"""
-UNO_CODE = """from urllib import parse
-oPackageInfoProvider = CTX.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
+UNO_CODE = """oPackageInfoProvider = CTX.getByName("/singletons/com.sun.star.deployment.PackageInformationProvider")
 sPackageLocation = oPackageInfoProvider.getPackageLocation("org.peter88213.yw-cnv")
-packagePath = parse.unquote(sPackageLocation).replace('file:///', '')
+packagePath = uno.fileUrlToSystemPath(sPackageLocation)
 LOCALE_PATH = f'{packagePath}/yw-cnv/locale/'"""
 
 

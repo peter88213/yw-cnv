@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.30.5
+
+- Fix locale and help paths under Linux.
+
+Based on PyWriter v7.14.1
+
 ### v1.30.4
 
 - Fix a bug in odt manuscript import, where the "Quotation" style is not applied at scene start.
