@@ -1,4 +1,4 @@
-"""Convert yWriter project to odt or ods and vice versa. 
+"""Convert yw7 to odt/ods, or html/csv to yw7. 
 
 Version @release
 Requires Python 3.6+
