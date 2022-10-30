@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.31.0
+
+- Code optimization and library upgrade. 
+- Fix a bug where attempting to save a write-protected file raises an uncaught exception.
+
+Based on PyWriter v8.0.2
+
 ### v1.30.5
 
 - Fix locale and help paths under Linux.
