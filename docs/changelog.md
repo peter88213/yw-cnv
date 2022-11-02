@@ -4,12 +4,13 @@
 
 ## Changelog
 
-### v1.31.0
+### v1.31.1
 
 - Code optimization and library upgrade. 
 - Fix a bug where attempting to save a write-protected file raises an uncaught exception.
+- Assign "no language" to the chapter/scene markers for the  proof reading document.
 
-Based on PyWriter v8.0.2
+Based on PyWriter v8.0.4
 
 ### v1.30.5
 

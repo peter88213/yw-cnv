@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.31.0
+Version 1.31.1
 Requires Python 3.6+
 Copyright (c) 2022 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1281,7 +1281,12 @@ class Novel(BasicElement):
         # URL-coded path to the project directory.
 
         self.languageCode = None
+        # str
+        # Language code acc. to ISO 639-1.
+
         self.countryCode = None
+        # str
+        # Country code acc. to ISO 3166-2.
 
         self.filePath = filePath
 
@@ -4235,6 +4240,8 @@ class FileExport(Novel):
             FieldTitle2=self._convert_from_yw(self.fieldTitle2, True),
             FieldTitle3=self._convert_from_yw(self.fieldTitle3, True),
             FieldTitle4=self._convert_from_yw(self.fieldTitle4, True),
+            Language=self.languageCode,
+            Country=self.countryCode,
         )
         return projectTemplateMapping
 
@@ -4257,6 +4264,8 @@ class FileExport(Novel):
             Desc=self._convert_from_yw(self.chapters[chId].desc),
             ProjectName=self._convert_from_yw(self.projectName, True),
             ProjectPath=self.projectPath,
+            Language=self.languageCode,
+            Country=self.countryCode,
         )
         return chapterMapping
 
@@ -4418,6 +4427,8 @@ class FileExport(Novel):
             Notes=self._convert_from_yw(self.scenes[scId].notes),
             ProjectName=self._convert_from_yw(self.projectName, True),
             ProjectPath=self.projectPath,
+            Language=self.languageCode,
+            Country=self.countryCode,
         )
         return sceneMapping
 
@@ -5314,16 +5325,16 @@ class OdtFile(OdfFile):
    <style:text-properties style:font-name="Consolas"/>
   </style:style>
   <style:style style:name="yWriter_20_mark" style:display-name="yWriter mark" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#008000" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#008000" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="yWriter_20_mark_20_unused" style:display-name="yWriter mark unused" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#808080" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#808080" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="yWriter_20_mark_20_notes" style:display-name="yWriter mark notes" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#0000FF" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#0000FF" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="yWriter_20_mark_20_todo" style:display-name="yWriter mark todo" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#B22222" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#B22222" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="Emphasis" style:family="text">
    <style:text-properties fo:font-style="italic" fo:background-color="transparent"/>
