@@ -6,7 +6,7 @@
 
 ### v1.31.2
 
-- When converting to ODT format, apply all XML predefineded entities.
+- When converting to ODT format, apply all XML predefined entities.
 - Assign "no language" to the chapter/scene markers for the  proof reading document.
 - Code optimization and library upgrade. 
 - Fix a bug where attempting to save a write-protected file raises an uncaught exception.
