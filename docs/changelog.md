@@ -4,13 +4,14 @@
 
 ## Changelog
 
-### v1.31.1
+### v1.31.2
 
+- When converting to ODT format, apply all XML predefineded entities.
+- Assign "no language" to the chapter/scene markers for the  proof reading document.
 - Code optimization and library upgrade. 
 - Fix a bug where attempting to save a write-protected file raises an uncaught exception.
-- Assign "no language" to the chapter/scene markers for the  proof reading document.
 
-Based on PyWriter v8.0.4
+Based on PyWriter v8.0.8
 
 ### v1.30.5
 
