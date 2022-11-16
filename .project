@@ -3,7 +3,6 @@
 	<name>yw-cnv</name>
 	<comment></comment>
 	<projects>
-		<project>PyWriter</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
