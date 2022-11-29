@@ -5,7 +5,7 @@
  xmlns:l="http://libreoffice.org/extensions/description/2011"
  xmlns:xlink="http://www.w3.org/1999/xlink" >
    <identifier value="org.peter88213.yw-cnv" />
-   <version value="1.31.2" />
+   <version value="1.31.3" />
    <extension-description>
       <src xlink:href="Descriptions/descr-en.txt" lang="en"/>
       <src xlink:href="Descriptions/descr-de.txt" lang="de"/>
