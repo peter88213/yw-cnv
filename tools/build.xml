@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="yw-cnv" basedir=".">
-	<property name="version" value="1.31.3" />
+	<property name="version" value="1.31.4" />
 	<property name="test-app" value="cnvyw" />
 	
 	<property name="application" value="${ant.project.name}" />

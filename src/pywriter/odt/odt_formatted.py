@@ -45,7 +45,7 @@ class OdtFormatted(OdtFile):
         Overrides the superclass method.
         """
         if text:
-            # Apply XML predefineded entities.
+            # Apply XML predefined entities.
             odtReplacements = [
                 ('&', '&amp;'),
                 ('>', '&gt;'),

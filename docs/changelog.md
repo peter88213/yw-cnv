@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.31.4
+
+- Make it run with old Windows versions.
+
+Based on PyWriter v8.0.11
+
 ### v1.31.3
 
 - Fix a regression from v1.31.2 where wrong language markers are imported

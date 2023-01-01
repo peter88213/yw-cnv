@@ -17,7 +17,11 @@ def open_helppage(name):
     
     Otherwise open the standard help page.
     """
-    lang = locale.getlocale()[0][:2]
+    try:
+        lang = locale.getlocale()[0][:2]
+    except:
+        # Fallback for old Windows versions.
+        lang = locale.getdefaultlocale()[0][:2]
     scriptLocation = os.path.dirname(__file__)
     helpFile = f'{scriptLocation}/{name}-{lang}.html'
     if not os.path.isfile(uno.fileUrlToSystemPath(helpFile)):
