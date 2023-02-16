@@ -3,8 +3,8 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.31.4\n"
-"POT-Creation-Date: 2023-01-01 18:10:25\n"
+"Project-Id-Version: 1.32.0\n"
+"POT-Creation-Date: 2023-02-16 08:16:55\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: LANGUAGE\n"
@@ -35,7 +35,7 @@ msgstr ""
 msgid "Cannot overwrite file"
 msgstr ""
 
-msgid "Cannot parse File"
+msgid "Cannot read file"
 msgstr ""
 
 msgid "Cannot write file"
@@ -66,6 +66,9 @@ msgid "Export to yWriter"
 msgstr ""
 
 msgid "Export type is not supported"
+msgstr ""
+
+msgid "File"
 msgstr ""
 
 msgid "File already exists"
@@ -122,9 +125,6 @@ msgstr ""
 msgid "Notes chapters"
 msgstr ""
 
-msgid "Novel"
-msgstr ""
-
 msgid "Novel outline"
 msgstr ""
 
@@ -158,7 +158,7 @@ msgstr ""
 msgid "Work in progress"
 msgstr ""
 
-msgid "Wrong csv structure"
+msgid "Wrong table structure"
 msgstr ""
 
 msgid "manuscript"

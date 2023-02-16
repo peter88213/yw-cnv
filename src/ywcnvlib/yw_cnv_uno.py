@@ -6,6 +6,7 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 from pywriter.pywriter_globals import *
 from pywriter.converter.yw7_converter import Yw7Converter
+from pywriter.model.novel import Novel
 
 
 class YwCnvUno(Yw7Converter):
@@ -30,8 +31,12 @@ class YwCnvUno(Yw7Converter):
         Overrides the superclass method.
         """
         try:
-            self.convert(source, target)
-        except Error as ex:
+            self.check(source, target)
+            source.novel = Novel()
+            source.read()
+            target.novel = source.novel
+            target.write()
+        except Exception as ex:
             self.newFile = None
             self.ui.set_info_how(f'!{str(ex)}')
         else:

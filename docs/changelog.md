@@ -4,6 +4,14 @@
 
 ## Changelog
 
+### v1.32.0
+
+- When exporting to yw7, save the document only if modified.
+- Speed up the process by converting the ODT/ODS document instead of an
+intermediate HTML/CSV file.
+
+Based on PyWriter v12.1.1
+
 ### v1.31.4
 
 - Make it run with old Windows versions.

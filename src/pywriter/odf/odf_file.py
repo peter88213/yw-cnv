@@ -2,13 +2,12 @@
 
 All ODS and ODT file representations inherit from this class.
 
-Copyright (c) 2022 Peter Triesberger
+Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import os
 import zipfile
-import locale
 import tempfile
 from shutil import rmtree
 from datetime import datetime
@@ -93,10 +92,10 @@ class OdfFile(FileExport):
             raise Error(f'{_("Cannot write file")}: "manifest.xml"')
 
         #--- Generate styles.xml.
-        self.check_locale()
+        self.novel.check_locale()
         localeMapping = dict(
-            Language=self.languageCode,
-            Country=self.countryCode,
+            Language=self.novel.languageCode,
+            Country=self.novel.countryCode,
             )
         template = Template(self._STYLES_XML)
         text = template.safe_substitute(localeMapping)
@@ -108,9 +107,9 @@ class OdfFile(FileExport):
 
         #--- Generate meta.xml with actual document metadata.
         metaMapping = dict(
-            Author=self.authorName,
-            Title=self.title,
-            Summary=f'<![CDATA[{self.desc}]]>',
+            Author=self.novel.authorName,
+            Title=self.novel.title,
+            Summary=f'<![CDATA[{self.novel.desc}]]>',
             Datetime=datetime.today().replace(microsecond=0).isoformat(),
         )
         template = Template(self._META_XML)

@@ -1,12 +1,26 @@
 """Provide a class for yWriter scene representation.
 
-Copyright (c) 2022 Peter Triesberger
+Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import re
 from pywriter.model.basic_element import BasicElement
 from pywriter.pywriter_globals import *
+
+#--- Regular expressions for counting words and characters like in LibreOffice.
+# See: https://help.libreoffice.org/latest/en-GB/text/swriter/guide/words_count.html
+
+ADDITIONAL_WORD_LIMITS = re.compile('--|—|–')
+# this is to be replaced by spaces, thus making dashes and dash replacements word limits
+
+NO_WORD_LIMITS = re.compile('\[.+?\]|\/\*.+?\*\/|-|^\>', re.MULTILINE)
+# this is to be replaced by empty strings, thus excluding markup and comments from
+# word counting, and making hyphens join words
+
+NON_LETTERS = re.compile('\[.+?\]|\/\*.+?\*\/|\n|\r')
+# this is to be replaced by empty strings, thus excluding markup, comments, and linefeeds
+# from letter counting
 
 
 class Scene(BasicElement):
@@ -176,22 +190,14 @@ class Scene(BasicElement):
         # xml: <Items><ItemID>
 
         self.date = None
-        # str
+        # str (yyyy-mm-dd)
         # xml: <SpecificDateMode>-1
         # xml: <SpecificDateTime>1900-06-01 20:38:00
 
         self.time = None
-        # str
+        # str (hh:mm:ss)
         # xml: <SpecificDateMode>-1
         # xml: <SpecificDateTime>1900-06-01 20:38:00
-
-        self.minute = None
-        # str
-        # xml: <Minute>
-
-        self.hour = None
-        # str
-        # xml: <Hour>
 
         self.day = None
         # str
@@ -212,6 +218,20 @@ class Scene(BasicElement):
         self.image = None
         # str
         # xml: <ImageFile>
+
+        self.scnArcs = None
+        # str
+        # xml: <Field_SceneArcs>
+        # Semicolon-separated arc titles.
+        # Example: 'A' for 'A-Storyline'.
+        # If the scene is "Todo" type, an assigned single arc
+        # should be defined by it.
+
+        self.scnStyle = None
+        # str
+        # xml: <Field_SceneStyle>
+        # May be 'explaining', 'descriptive', or 'summarizing'.
+        # None is the default, meaning 'staged'.
 
     @property
     def sceneContent(self):

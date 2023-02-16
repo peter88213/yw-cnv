@@ -1,16 +1,16 @@
 """Provide a factory class for a document object to read and a new yWriter project.
 
-Copyright (c) 2022 Peter Triesberger
+Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
 import os
+import zipfile
 from pywriter.pywriter_globals import *
 from pywriter.converter.file_factory import FileFactory
 from pywriter.yw.yw7_file import Yw7File
-from pywriter.html.html_import import HtmlImport
-from pywriter.html.html_outline import HtmlOutline
-from pywriter.html.html_fop import read_html_file
+from pywriter.odt_r.odt_r_import import OdtRImport
+from pywriter.odt_r.odt_r_outline import OdtROutline
 
 
 class NewProjectFactory(FileFactory):
@@ -42,13 +42,18 @@ class NewProjectFactory(FileFactory):
 
         fileName, __ = os.path.splitext(sourcePath)
         targetFile = Yw7File(f'{fileName}{Yw7File.EXTENSION}', **kwargs)
-        if sourcePath.endswith('.html'):
+        if sourcePath.endswith('.odt'):
             # The source file might be an outline or a "work in progress".
-            content = read_html_file(sourcePath)
-            if "<h3" in content.lower():
-                sourceFile = HtmlOutline(sourcePath, **kwargs)
+            try:
+                with zipfile.ZipFile(sourcePath, 'r') as odfFile:
+                    content = odfFile.read('content.xml')
+            except:
+                raise Error(f'{_("Cannot read file")}: "{norm_path(sourcePath)}".')
+
+            if bytes('Heading_20_3', encoding='utf-8') in content:
+                sourceFile = OdtROutline(sourcePath, **kwargs)
             else:
-                sourceFile = HtmlImport(sourcePath, **kwargs)
+                sourceFile = OdtRImport(sourcePath, **kwargs)
             return sourceFile, targetFile
 
         else:

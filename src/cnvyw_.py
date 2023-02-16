@@ -16,22 +16,22 @@ from ywcnvlib.yw_cnv_uno import YwCnvUno
 from ywcnvlib.ui_uno import UiUno
 
 from pywriter.pywriter_globals import *
-from pywriter.odt.odt_proof import OdtProof
-from pywriter.odt.odt_manuscript import OdtManuscript
-from pywriter.odt.odt_scenedesc import OdtSceneDesc
-from pywriter.odt.odt_chapterdesc import OdtChapterDesc
-from pywriter.odt.odt_partdesc import OdtPartDesc
-from pywriter.odt.odt_brief_synopsis import OdtBriefSynopsis
-from pywriter.odt.odt_xref import OdtXref
-from pywriter.ods.ods_scenelist import OdsSceneList
-from pywriter.odt.odt_notes import OdtNotes
-from pywriter.odt.odt_todo import OdtTodo
-from pywriter.ods.ods_charlist import OdsCharList
-from pywriter.ods.ods_loclist import OdsLocList
-from pywriter.ods.ods_itemlist import OdsItemList
-from pywriter.odt.odt_characters import OdtCharacters
-from pywriter.odt.odt_items import OdtItems
-from pywriter.odt.odt_locations import OdtLocations
+from pywriter.odt_w.odt_w_proof import OdtWProof
+from pywriter.odt_w.odt_w_manuscript import OdtWManuscript
+from pywriter.odt_w.odt_w_scenedesc import OdtWSceneDesc
+from pywriter.odt_w.odt_w_chapterdesc import OdtWChapterDesc
+from pywriter.odt_w.odt_w_partdesc import OdtWPartDesc
+from pywriter.odt_w.odt_w_brief_synopsis import OdtWBriefSynopsis
+from pywriter.odt_w.odt_w_characters import OdtWCharacters
+from pywriter.odt_w.odt_w_items import OdtWItems
+from pywriter.odt_w.odt_w_locations import OdtWLocations
+from pywriter.odt_w.odt_w_xref import OdtWXref
+from pywriter.odt_w.odt_w_notes import OdtWNotes
+from pywriter.odt_w.odt_w_todo import OdtWTodo
+from pywriter.ods_w.ods_w_charlist import OdsWCharList
+from pywriter.ods_w.ods_w_loclist import OdsWLocList
+from pywriter.ods_w.ods_w_itemlist import OdsWItemList
+from pywriter.ods_w.ods_w_scenelist import OdsWSceneList
 
 INI_FILE = 'openyw.ini'
 
@@ -107,187 +107,117 @@ def proof_yw():
     '''Import scenes from yWriter 7 to a Writer document
     with visible chapter and scene markers. 
     '''
-    open_yw7(OdtProof.SUFFIX, OdtProof.EXTENSION)
+    open_yw7(OdtWProof.SUFFIX, OdtWProof.EXTENSION)
 
 
 def get_brf_synopsis():
     '''Import chapter and scene titles from yWriter 7 to a Writer document. 
     '''
-    open_yw7(OdtBriefSynopsis.SUFFIX, OdtBriefSynopsis.EXTENSION)
+    open_yw7(OdtWBriefSynopsis.SUFFIX, OdtWBriefSynopsis.EXTENSION)
 
 
 def get_manuscript():
     '''Import scenes from yWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(OdtManuscript.SUFFIX, OdtManuscript.EXTENSION)
+    open_yw7(OdtWManuscript.SUFFIX, OdtWManuscript.EXTENSION)
 
 
 def get_partdesc():
     '''Import pard descriptions from yWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(OdtPartDesc.SUFFIX, OdtPartDesc.EXTENSION)
+    open_yw7(OdtWPartDesc.SUFFIX, OdtWPartDesc.EXTENSION)
 
 
 def get_chapterdesc():
     '''Import chapter descriptions from yWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(OdtChapterDesc.SUFFIX, OdtChapterDesc.EXTENSION)
+    open_yw7(OdtWChapterDesc.SUFFIX, OdtWChapterDesc.EXTENSION)
 
 
 def get_scenedesc():
     '''Import scene descriptions from yWriter 7 to a Writer document
     with invisible chapter and scene markers. 
     '''
-    open_yw7(OdtSceneDesc.SUFFIX, OdtSceneDesc.EXTENSION)
+    open_yw7(OdtWSceneDesc.SUFFIX, OdtWSceneDesc.EXTENSION)
 
 
 def get_chardesc():
     '''Import character descriptions from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdtCharacters.SUFFIX, OdtCharacters.EXTENSION)
+    open_yw7(OdtWCharacters.SUFFIX, OdtWCharacters.EXTENSION)
 
 
 def get_locdesc():
     '''Import location descriptions from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdtLocations.SUFFIX, OdtLocations.EXTENSION)
+    open_yw7(OdtWLocations.SUFFIX, OdtWLocations.EXTENSION)
 
 
 def get_itemdesc():
     '''Import item descriptions from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdtItems.SUFFIX, OdtItems.EXTENSION)
+    open_yw7(OdtWItems.SUFFIX, OdtWItems.EXTENSION)
 
 
 def get_xref():
     '''Generate cross references from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdtXref.SUFFIX, OdtXref.EXTENSION)
+    open_yw7(OdtWXref.SUFFIX, OdtWXref.EXTENSION)
 
 
 def get_scenelist():
     '''Import a scene list from yWriter 7 to a Calc document.
     '''
-    open_yw7(OdsSceneList.SUFFIX, OdsSceneList.EXTENSION)
+    open_yw7(OdsWSceneList.SUFFIX, OdsWSceneList.EXTENSION)
 
 
 def get_notes():
     '''Import Notes chapters from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdtNotes.SUFFIX, OdtNotes.EXTENSION)
+    open_yw7(OdtWNotes.SUFFIX, OdtWNotes.EXTENSION)
 
 
 def get_todo():
     '''Import Todo chapters from yWriter 7 to a Writer document.
     '''
-    open_yw7(OdtTodo.SUFFIX, OdtTodo.EXTENSION)
+    open_yw7(OdtWTodo.SUFFIX, OdtWTodo.EXTENSION)
 
 
 def get_charlist():
     '''Import a character list from yWriter 7 to a Calc document.
     '''
-    open_yw7(OdsCharList.SUFFIX, OdsCharList.EXTENSION)
+    open_yw7(OdsWCharList.SUFFIX, OdsWCharList.EXTENSION)
 
 
 def get_loclist():
     '''Import a location list from yWriter 7 to a Calc document.
     '''
-    open_yw7(OdsLocList.SUFFIX, OdsLocList.EXTENSION)
+    open_yw7(OdsWLocList.SUFFIX, OdsWLocList.EXTENSION)
 
 
 def get_itemlist():
     '''Import an item list from yWriter 7 to a Calc document.
     '''
-    open_yw7(OdsItemList.SUFFIX, OdsItemList.EXTENSION)
+    open_yw7(OdsWItemList.SUFFIX, OdsWItemList.EXTENSION)
 
 
 def export_yw():
-    """Export the currently loaded document to a yWriter 7 project."""
+    """Save the document if modified, and call the converter script."""
+    thisComponent = XSCRIPTCONTEXT.getDocument()
 
-    # Get document's filename
-    document = XSCRIPTCONTEXT.getDocument().CurrentController.Frame
-    # document   = ThisComponent.CurrentController.Frame
+    if thisComponent.isModified():
+        thisComponent.store()
 
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    smgr = ctx.getServiceManager()
-    dispatcher = smgr.createInstanceWithContext(
-        "com.sun.star.frame.DispatchHelper", ctx)
-    # dispatcher = createUnoService("com.sun.star.frame.DispatchHelper")
-
-    documentPath = XSCRIPTCONTEXT.getDocument().getURL()
-    # documentPath = ThisComponent.getURL()
-
-    args1 = []
-    args1.append(PropertyValue())
-    args1.append(PropertyValue())
-    # dim args1(1) as new com.sun.star.beans.PropertyValue
-
-    if documentPath.endswith('.odt') or documentPath.endswith('.html'):
-        odtPath = documentPath.replace('.html', '.odt')
-        htmlPath = documentPath.replace('.odt', '.html')
-
-        # Save document in HTML format
-        args1[0].Name = 'URL'
-        # args1(0).Name = "URL"
-        args1[0].Value = htmlPath
-        # args1(0).Value = htmlPath
-        args1[1].Name = 'FilterName'
-        # args1(1).Name = "FilterName"
-        args1[1].Value = 'HTML (StarWriter)'
-        # args1(1).Value = "HTML (StarWriter)"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        # Save document in OpenDocument format
-        args1[0].Value = odtPath
-        # args1(0).Value = odtPath
-        args1[1].Value = 'writer8'
-        # args1(1).Value = "writer8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        targetPath = uno.fileUrlToSystemPath(htmlPath)
-    elif documentPath.endswith('.ods') or documentPath.endswith('.csv'):
-        odsPath = documentPath.replace('.csv', '.ods')
-        csvPath = documentPath.replace('.ods', '.csv')
-
-        # Save document in csv format
-        args1.append(PropertyValue())
-        args1[0].Name = 'URL'
-        # args1(0).Name = "URL"
-        args1[0].Value = csvPath
-        # args1(0).Value = csvPath
-        args1[1].Name = 'FilterName'
-        # args1(1).Name = "FilterName"
-        args1[1].Value = 'Text - txt - csv (StarCalc)'
-        # args1(1).Value = "Text - txt - csv (StarCalc)"
-        args1[2].Name = "FilterOptions"
-        # args1(2).Name = "FilterOptions"
-        args1[2].Value = "44,34,76,1,,0,true,true,true"
-        # args1(2).Value = "44,34,76,1,,0,true,true,true"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        # Save document in OpenDocument format
-        args1[0].Value = odsPath
-        # args1(0).Value = odsPath
-        args1[1].Value = 'calc8'
-        # args1(1).Value = "calc8"
-        dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1)
-        # dispatcher.executeDispatch(document, ".uno:SaveAs", "", 0, args1())
-
-        targetPath = uno.fileUrlToSystemPath(csvPath)
-    else:
-        msgbox(f'{_("File type is not supported")}: "{norm_path(documentPath)}".', type_msg=ERRORBOX)
-        return
+    documentUrl = thisComponent.getURL()
+    sourcePath = uno.fileUrlToSystemPath(documentUrl)
 
     converter = YwCnvUno()
     converter.ui = UiUno(_('Export to yWriter'))
     kwargs = {'suffix': None}
-    converter.run(targetPath, **kwargs)
+    converter.run(sourcePath, **kwargs)
 
 
 def to_blank_lines():
