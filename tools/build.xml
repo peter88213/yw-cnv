@@ -19,11 +19,11 @@
 	<target name="build" description="inline all library modules">
 		<delete file="${test-path}/${test-app}.pyw" />
 		<exec executable="python" failonerror="true">
-		    <arg value="${source-path}/make_pot.py"/>
+		    <arg value="make_pot.py"/>
 		    <arg value="${version}"/>
 		</exec>
 		<exec executable="python" failonerror="true">
-		    <arg value="${source-path}/translate_de.py"/>
+		    <arg value="translate_de.py"/>
 		    <arg value="${version}"/>
 		</exec>
 	</target>
