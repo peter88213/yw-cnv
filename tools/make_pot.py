@@ -5,7 +5,7 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 import os
 import sys
-sys.path.insert(0, f'{os.getcwd()}/../../PyWriter/src')
+# sys.path.insert(0, f'{os.getcwd()}/../../PyWriter/src')
 from build_cnvyw import main
 from build_cnvyw import TARGET_FILE
 import pgettext

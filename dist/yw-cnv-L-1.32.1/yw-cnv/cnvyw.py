@@ -1,8 +1,8 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.32.0
+Version 1.32.1
 Requires Python 3.6+
-Copyright (c) 2022 Peter Triesberger
+Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
@@ -8330,8 +8330,10 @@ def export_yw():
         thisComponent.store()
 
     documentUrl = thisComponent.getURL()
-    sourcePath = uno.fileUrlToSystemPath(documentUrl)
-
+    if documentUrl:
+        sourcePath = uno.fileUrlToSystemPath(documentUrl)
+    else:
+        sourcePath = ''
     converter = YwCnvUno()
     converter.ui = UiUno(_('Export to yWriter'))
     kwargs = {'suffix': None}

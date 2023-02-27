@@ -212,8 +212,10 @@ def export_yw():
         thisComponent.store()
 
     documentUrl = thisComponent.getURL()
-    sourcePath = uno.fileUrlToSystemPath(documentUrl)
-
+    if documentUrl:
+        sourcePath = uno.fileUrlToSystemPath(documentUrl)
+    else:
+        sourcePath = ''
     converter = YwCnvUno()
     converter.ui = UiUno(_('Export to yWriter'))
     kwargs = {'suffix': None}

@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.32.1
+
+- Fix a bug where an exception occurs when running the exporter with a new file.
+
+Based on PyWriter v12.1.1
+
 ### v1.32.0
 
 - When exporting to yw7, save the document only if modified.
