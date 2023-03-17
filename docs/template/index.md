@@ -19,7 +19,6 @@ You can find more information on the [help pages](help).
 ## Requirements
 
 - [LibreOffice](https://www.libreoffice.org/) version 5.4 or more recent. LibreOffice 7 is highly recommended.
-- Java Runtime Environment (LibreOffice might need it for macro execution).
 
 **OpenOffice users:** *This extension can not be installed on OpenOffice. An OpenOffice variant can be found [here]( https://peter88213.github.io/pywoo).*
 
