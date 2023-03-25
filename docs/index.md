@@ -60,6 +60,6 @@ License](http://www.opensource.org/licenses/mit-license.php).
 
 [The "curly" extensions for OpenOffice and LibreOffice](https://peter88213.github.io/curly/)
 
-[The StyleSwitcher extension for OpenOffice](https://peter88213.github.io/StyleSwitcher/)
+[The StyleSwitcher extension for OpenOffice and LibreOffice](https://peter88213.github.io/StyleSwitcher/)
 
 [The emph extension for OpenOffice and LibreOffice](https://peter88213.github.io/emph/)
