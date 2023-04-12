@@ -16,16 +16,16 @@ class OdtParser(sax.ContentHandler):
     Public methods:
         feed_file(filePath) -- Feed an ODT file to the parser.
     
-      HTMLParser compatible API
-        handle_starttag -- Stub for a start tag handler to be implemented in a subclass.
-        handle_endtag -- Stub for an end tag handler to be implemented in a subclass.
-        handle_data -- Stub for a data handler to be implemented in a subclass.
-        handle_comment -- Stub for a comment handler to be implemented in a subclass.
-        
       Methods overriding xml.sax.ContentHandler methods (not meant to be overridden by subclasses)
-        startElement -- Signals the start of an element in non-namespace mode.
-        endElement -- Signals the end of an element in non-namespace mode.
         characters -- Receive notification of character data.
+        endElement -- Signals the end of an element in non-namespace mode.
+        startElement -- Signals the start of an element in non-namespace mode.
+      
+      HTMLParser-like API
+        handle_comment -- Stub for a comment handler to be implemented in a subclass.
+        handle_data -- Stub for a data handler to be implemented in a subclass.
+        handle_endtag -- Stub for an end tag handler to be implemented in a subclass.
+        handle_starttag -- Stub for a start tag handler to be implemented in a subclass.  
     """
 
     def __init__(self):
@@ -47,7 +47,7 @@ class OdtParser(sax.ContentHandler):
         """Feed an ODT file to the parser.
         
         Positional arguments:
-            filePath -- str: ODT document path.
+            filePath: str -- ODT document path.
         
         First unzip the ODT file located at self.filePath, 
         and get languageCode, countryCode, title, desc, and authorName,        
@@ -100,6 +100,51 @@ class OdtParser(sax.ContentHandler):
 
         #--- Parse 'content.xml'.
         sax.parseString(content, self)
+
+    def characters(self, content):
+        """Receive notification of character data.
+        
+        Overrides the xml.sax.ContentHandler method             
+        """
+        if self._commentParagraphCount is not None:
+            if self._commentParagraphCount == 1:
+                self._comment = f'{self._comment}{content}'
+        elif self._paragraph:
+            self.handle_data(content)
+        elif self._heading is not None:
+            self.handle_data(content)
+
+    def endElement(self, name):
+        """Signals the end of an element in non-namespace mode.
+        
+        Overrides the xml.sax.ContentHandler method     
+        """
+        if name == 'text:p':
+            if self._commentParagraphCount is None:
+                if self._blockquote:
+                    self.handle_endtag('blockquote')
+                    self._blockquote = False
+                elif self._heading:
+                    self.handle_endtag(self._heading)
+                    self._heading = None
+                else:
+                    self.handle_endtag('p')
+                self._paragraph = False
+        elif name == 'text:span':
+            if self._span:
+                self.handle_endtag(self._span.pop())
+        elif name == 'text:section':
+            self.handle_endtag('div')
+        elif name == 'office:annotation':
+            self.handle_comment(self._comment)
+            self._commentParagraphCount = None
+        elif name == 'text:h':
+            self.handle_endtag(self._heading)
+            self._heading = None
+        elif name == 'text:list-item':
+            self._list = False
+        elif name == 'style:style':
+            self._style = None
 
     def startElement(self, name, attrs):
         """Signals the start of an element in non-namespace mode.
@@ -179,77 +224,36 @@ class OdtParser(sax.ContentHandler):
                     locale = lngCode
                 self._languageTags[self._style] = locale
 
-    def endElement(self, name):
-        """Signals the end of an element in non-namespace mode.
-        
-        Overrides the xml.sax.ContentHandler method     
-        """
-        if name == 'text:p':
-            if self._commentParagraphCount is None:
-                if self._blockquote:
-                    self.handle_endtag('blockquote')
-                    self._blockquote = False
-                elif self._heading:
-                    self.handle_endtag(self._heading)
-                    self._heading = None
-                else:
-                    self.handle_endtag('p')
-                self._paragraph = False
-        elif name == 'text:span':
-            if self._span:
-                self.handle_endtag(self._span.pop())
-        elif name == 'text:section':
-            self.handle_endtag('div')
-        elif name == 'office:annotation':
-            self.handle_comment(self._comment)
-            self._commentParagraphCount = None
-        elif name == 'text:h':
-            self.handle_endtag(self._heading)
-            self._heading = None
-        elif name == 'text:list-item':
-            self._list = False
-        elif name == 'style:style':
-            self._style = None
-
-    def characters(self, content):
-        """Receive notification of character data.
-        
-        Overrides the xml.sax.ContentHandler method             
-        """
-        if self._commentParagraphCount is not None:
-            if self._commentParagraphCount == 1:
-                self._comment = f'{self._comment}{content}'
-        elif self._paragraph:
-            self.handle_data(content)
-        elif self._heading is not None:
-            self.handle_data(content)
-
-    def handle_starttag(self, tag, attrs):
-        """Stub for a start tag handler to be implemented in a subclass.
+    def handle_comment(self, data):
+        """Stub for a comment handler to be implemented in a subclass.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
-            attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
+            data: str -- comment text. 
         """
-
-    def handle_endtag(self, tag):
-        """Stub for an end tag handler to be implemented in a subclass.
-        
-        Positional arguments:
-            tag -- str: name of the tag converted to lower case.
-        """
+        pass
 
     def handle_data(self, data):
         """Stub for a data handler to be implemented in a subclass.
 
         Positional arguments:
-            data -- str: text to be stored. 
+            data: str -- text to be stored. 
         """
+        pass
 
-    def handle_comment(self, data):
-        """Stub for a comment handler to be implemented in a subclass.
+    def handle_endtag(self, tag):
+        """Stub for an end tag handler to be implemented in a subclass.
         
         Positional arguments:
-            data -- str: comment text. 
+            tag: str -- name of the tag converted to lower case.
         """
+        pass
+
+    def handle_starttag(self, tag, attrs):
+        """Stub for a start tag handler to be implemented in a subclass.
+        
+        Positional arguments:
+            tag: str -- name of the tag converted to lower case.
+            attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
+        """
+        pass
 

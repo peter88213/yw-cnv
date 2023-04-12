@@ -23,11 +23,11 @@ class Splitter:
         CHAPTER_SEPARATOR -- marker indicating the beginning of a new chapter, splitting a scene.
         DESC_SEPARATOR -- marker separating title and description of a chapter or scene.
     """
-    PART_SEPARATOR = '#'
-    CHAPTER_SEPARATOR = '##'
-    SCENE_SEPARATOR = '###'
-    DESC_SEPARATOR = '|'
-    _CLIP_TITLE = 20
+    PART_SEPARATOR: str = '#'
+    CHAPTER_SEPARATOR: str = '##'
+    SCENE_SEPARATOR: str = '###'
+    DESC_SEPARATOR: str = '|'
+    _CLIP_TITLE: int = 20
     # Maximum length of newly generated scene titles.
 
     def split_scenes(self, file):
@@ -43,7 +43,7 @@ class Splitter:
         otherwise return False.        
         """
 
-        def create_chapter(chapterId, title, desc, level):
+        def create_chapter(chapterId: str, title: str, desc: str, level: int):
             """Create a new chapter and add it to the file.novel.
             
             Positional arguments:
@@ -59,7 +59,7 @@ class Splitter:
             newChapter.chType = 0
             file.novel.chapters[chapterId] = newChapter
 
-        def create_scene(sceneId, parent, splitCount, title, desc):
+        def create_scene(sceneId: str, parent: str, splitCount: int, title: str, desc: str):
             """Create a new scene and add it to the file.novel.
             
             Positional arguments:
@@ -69,7 +69,7 @@ class Splitter:
                 title -- str: title of the scene to create.
                 desc -- str: description of the scene to create.
             """
-            WARNING = '(!)'
+            WARNING: str = '(!)'
 
             # Mark metadata of split scenes.
             newScene = Scene()

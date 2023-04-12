@@ -33,6 +33,15 @@ class OdtWFormatted(OdtWriter):
 
 '''
 
+    def write(self):
+        """Determine the languages used in the document before writing.
+        
+        Extends the superclass method.
+        """
+        if self.novel.languages is None:
+            self.novel.get_languages()
+        return super().write()
+
     def _convert_from_yw(self, text, quick=False):
         """Return text, converted from yw7 markup to target format.
         
@@ -40,7 +49,7 @@ class OdtWFormatted(OdtWriter):
             text -- string to convert.
         
         Optional arguments:
-            quick -- bool: if True, apply a conversion mode for one-liners without formatting.
+            quick: bool -- if True, apply a conversion mode for one-liners without formatting.
         
         Overrides the superclass method.
         """
@@ -109,28 +118,6 @@ class OdtWFormatted(OdtWriter):
             text = ''
         return text
 
-    def _get_text(self):
-        """Call all processing methods.
-        
-        Return a string to be written to the output file.
-        Overrides the superclass method.
-        """
-        lines = self._get_fileHeader()
-        lines.extend(self._get_chapters())
-        lines.append(self._fileFooter)
-        text = ''.join(lines)
-
-        # Set style of paragraphs that start with "> " to "Quotations".
-        # This is done here to include the scene openings.
-        if '&gt; ' in text:
-            quotMarks = ('"First_20_line_20_indent">&gt; ',
-                         '"Text_20_body">&gt; ',
-                         )
-            for quotMark in quotMarks:
-                text = text.replace(quotMark, '"Quotations">')
-            text = re.sub('"Text_20_body"\>(\<office\:annotation\>.+?\<\/office\:annotation\>)\&gt\; ', '"Quotations">\\1', text)
-        return text
-
     def _get_fileHeaderMapping(self):
         """Return a mapping dictionary for the project section.
         
@@ -159,11 +146,25 @@ class OdtWFormatted(OdtWriter):
         projectTemplateMapping['ContentHeader'] = template.safe_substitute(styleMapping)
         return projectTemplateMapping
 
-    def write(self):
-        """Determine the languages used in the document before writing.
+    def _get_text(self):
+        """Call all processing methods.
         
-        Extends the superclass method.
+        Return a string to be written to the output file.
+        Overrides the superclass method.
         """
-        if self.novel.languages is None:
-            self.novel.get_languages()
-        return super().write()
+        lines = self._get_fileHeader()
+        lines.extend(self._get_chapters())
+        lines.append(self._fileFooter)
+        text = ''.join(lines)
+
+        # Set style of paragraphs that start with "> " to "Quotations".
+        # This is done here to include the scene openings.
+        if '&gt; ' in text:
+            quotMarks = ('"First_20_line_20_indent">&gt; ',
+                         '"Text_20_body">&gt; ',
+                         )
+            for quotMark in quotMarks:
+                text = text.replace(quotMark, '"Quotations">')
+            text = re.sub('"Text_20_body"\>(\<office\:annotation\>.+?\<\/office\:annotation\>)\&gt\; ', '"Quotations">\\1', text)
+        return text
+

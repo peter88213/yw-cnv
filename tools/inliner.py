@@ -3,6 +3,9 @@
 In order to distribute single scripts without dependencies, 
 this script "inlines" all modules imported from the pywriter package.
 
+- Discards docstrings and multiline strings in double quotes.
+- Discards comment lines.
+
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
@@ -21,28 +24,34 @@ def inline_module(file, package, packagePath, text, processedModules, copyPyWrit
             if not os.path.isfile(target):
                 copyfile(file, target)
         lines = f.readlines()
-        inSuppressedComment = False
-        inHeader = True
+        inDocstring = False
         # document parsing always starts in the header
         for line in lines:
             if line.startswith('# do_not_inline'):
                 break
 
-            if (inHeader) and line.count('"""') == 1:
-                # Beginning or end of a docstring
+            if line.count('"""') == 2:
+                # Discard single-line docstring.
+                continue
+
+            if line.lstrip().startswith('#'):
+                # Discard comment line.
+                continue
+
+            if line.count('"""') == 1:
+                # Beginning or end of a multi-line docstring
                 if package in file:
                     # This is not the root script
-                    # so suppress the module's docstring
-                    if inSuppressedComment:
+                    # so discard the module's docstring
+                    if inDocstring:
                         # docstring ends
-                        inSuppressedComment = False
-                        inHeader = False
+                        inDocstring = False
                     else:
                         # docstring begins
-                        inSuppressedComment = True
+                        inDocstring = True
                 else:
                     text = f'{text}{line}'
-            elif not inSuppressedComment:
+            elif not inDocstring:
                 if package in file:
                     if 'main()' in line:
                         return(text)

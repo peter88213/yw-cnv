@@ -12,16 +12,97 @@ from pywriter.model.splitter import Splitter
 class OdtRManuscript(OdtRFormatted):
     """ODT manuscript file reader.
 
+    Public methods:
+        handle_comment -- Process inline comments within scene content.
+        handle_data -- Collect data within scene sections.
+        handle_endtag -- Recognize the paragraph's end.
+        handle_starttag -- Recognize the paragraph's beginning.
+
     Import a manuscript with invisibly tagged chapters and scenes.
     """
     DESCRIPTION = _('Editable manuscript')
     SUFFIX = '_manuscript'
 
+    def handle_comment(self, data):
+        """Process inline comments within scene content.
+        
+        Positional arguments:
+            data: str -- comment text. 
+        
+        Use marked comments at scene start as scene titles.
+        Overrides the superclass method.
+        """
+        if self._scId is not None:
+            if not self._lines:
+                # Comment is at scene start
+                pass
+            if self._SC_TITLE_BRACKET in data:
+                # Comment is marked as a scene title
+                try:
+                    self.novel.scenes[self._scId].title = data.split(self._SC_TITLE_BRACKET)[1].strip()
+                except:
+                    pass
+                return
+
+            self._lines.append(f'{self._COMMENT_START}{data.strip()}{self._COMMENT_END}')
+
+    def handle_data(self, data):
+        """Collect data within scene sections.
+
+        Positional arguments:
+            data: str -- text to be stored. 
+        
+        Overrides the superclass method.
+        """
+        if self._skip_data:
+            self._skip_data = False
+        elif self._scId is not None:
+            if not data.isspace():
+                self._lines.append(data)
+        elif self._chId is not None:
+            if self.novel.chapters[self._chId].title is None:
+                self.chapters[self._chId].title = data.strip()
+
+    def handle_endtag(self, tag):
+        """Recognize the end of the scene section and save data.
+        
+        Positional arguments:
+            tag: str -- name of the tag converted to lower case.
+
+        Overrides the superclass method.
+        """
+        if self._scId is not None:
+            if tag in ('p', 'blockquote'):
+                if self._language:
+                    self._lines.append(f'[/lang={self._language}]')
+                    self._language = ''
+                self._lines.append('\n')
+            elif tag == 'em':
+                self._lines.append('[/i]')
+            elif tag == 'strong':
+                self._lines.append('[/b]')
+            elif tag == 'lang':
+                if self._language:
+                    self._lines.append(f'[/lang={self._language}]')
+                    self._language = ''
+            elif tag == 'div':
+                text = ''.join(self._lines)
+                self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).rstrip()
+                self._lines = []
+                self._scId = None
+            elif tag == 'h1':
+                self._lines.append('\n')
+            elif tag == 'h2':
+                self._lines.append('\n')
+        elif self._chId is not None:
+            if tag == 'div':
+                self._chId = None
+
     def handle_starttag(self, tag, attrs):
         """Identify scenes and chapters.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
+            tag: str -- name of the tag converted to lower case.
             attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
         
         Extends the superclass method by processing inline chapter and scene dividers.
@@ -70,77 +151,3 @@ class OdtRManuscript(OdtRFormatted):
                     if attr[1]:
                         self.novel.countryCode = attr[1]
 
-    def handle_endtag(self, tag):
-        """Recognize the end of the scene section and save data.
-        
-        Positional arguments:
-            tag -- str: name of the tag converted to lower case.
-
-        Overrides the superclass method.
-        """
-        if self._scId is not None:
-            if tag in ('p', 'blockquote'):
-                if self._language:
-                    self._lines.append(f'[/lang={self._language}]')
-                    self._language = ''
-                self._lines.append('\n')
-            elif tag == 'em':
-                self._lines.append('[/i]')
-            elif tag == 'strong':
-                self._lines.append('[/b]')
-            elif tag == 'lang':
-                if self._language:
-                    self._lines.append(f'[/lang={self._language}]')
-                    self._language = ''
-            elif tag == 'div':
-                text = ''.join(self._lines)
-                self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).rstrip()
-                self._lines = []
-                self._scId = None
-            elif tag == 'h1':
-                self._lines.append('\n')
-            elif tag == 'h2':
-                self._lines.append('\n')
-        elif self._chId is not None:
-            if tag == 'div':
-                self._chId = None
-
-    def handle_comment(self, data):
-        """Process inline comments within scene content.
-        
-        Positional arguments:
-            data -- str: comment text. 
-        
-        Use marked comments at scene start as scene titles.
-        Overrides the superclass method.
-        """
-        if self._scId is not None:
-            if not self._lines:
-                # Comment is at scene start
-                pass
-            if self._SC_TITLE_BRACKET in data:
-                # Comment is marked as a scene title
-                try:
-                    self.novel.scenes[self._scId].title = data.split(self._SC_TITLE_BRACKET)[1].strip()
-                except:
-                    pass
-                return
-
-            self._lines.append(f'{self._COMMENT_START}{data.strip()}{self._COMMENT_END}')
-
-    def handle_data(self, data):
-        """Collect data within scene sections.
-
-        Positional arguments:
-            data -- str: text to be stored. 
-        
-        Overrides the superclass method.
-        """
-        if self._skip_data:
-            self._skip_data = False
-        elif self._scId is not None:
-            if not data.isspace():
-                self._lines.append(data)
-        elif self._chId is not None:
-            if self.novel.chapters[self._chId].title is None:
-                self.chapters[self._chId].title = data.strip()

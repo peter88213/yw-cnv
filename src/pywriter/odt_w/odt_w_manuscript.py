@@ -54,8 +54,8 @@ class OdtWManuscript(OdtWFormatted):
         """Return a mapping dictionary for a chapter section.
         
         Positional arguments:
-            chId -- str: chapter ID.
-            chapterNumber -- int: chapter number.
+            chId: str -- chapter ID.
+            chapterNumber: int -- chapter number.
         
         Suppress the chapter title if necessary.
         Extends the superclass method.

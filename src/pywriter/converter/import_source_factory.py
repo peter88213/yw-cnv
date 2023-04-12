@@ -19,7 +19,7 @@ class ImportSourceFactory(FileFactory):
         """Instantiate a source object for conversion to a yWriter project.       
 
         Positional arguments:
-            sourcePath -- str: path to the source file to convert.
+            sourcePath: str -- path to the source file to convert.
 
         Return a tuple with two elements:
         - sourceFile: a Novel subclass instance, or None in case of error

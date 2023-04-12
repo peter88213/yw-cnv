@@ -24,7 +24,7 @@ class YwCnvUi:
 
     Instance variables:
         ui -- Ui (can be overridden e.g. by subclasses).
-        newFile -- str: path to the target file in case of success.   
+        newFile: str -- path to the target file in case of success.   
     """
 
     def __init__(self):

@@ -13,6 +13,11 @@ from pywriter.odt_r.odt_reader import OdtReader
 class OdtRLocations(OdtReader):
     """ODT location descriptions file reader.
 
+    Public methods:
+        handle_data -- Collect data within scene sections.
+        handle_endtag -- Recognize the paragraph's end.
+        handle_starttag -- Recognize the paragraph's beginning.
+
     Import a location sheet with invisibly tagged descriptions.
     """
     DESCRIPTION = _('Location descriptions')
@@ -22,7 +27,7 @@ class OdtRLocations(OdtReader):
         """Initialize local instance variables for parsing.
 
         Positional arguments:
-            filePath -- str: path to the file represented by the Novel instance.
+            filePath: str -- path to the file represented by the Novel instance.
             
         The ODT parser works like a state machine. 
         The location ID must be saved between the transitions.         
@@ -31,11 +36,38 @@ class OdtRLocations(OdtReader):
         super().__init__(filePath)
         self._lcId = None
 
+    def handle_data(self, data):
+        """collect data within location sections.
+        
+        Positional arguments:
+            data: str -- text to be stored. 
+        
+        Overrides the superclass method.
+        """
+        if self._lcId is not None:
+            self._lines.append(data.strip())
+
+    def handle_endtag(self, tag):
+        """Recognize the end of the location section and save data.
+        
+        Positional arguments:
+            tag: str -- name of the tag converted to lower case.
+
+        Overrides the superclass method.
+        """
+        if self._lcId is not None:
+            if tag == 'div':
+                self.novel.locations[self._lcId].desc = ''.join(self._lines).rstrip()
+                self._lines = []
+                self._lcId = None
+            elif tag == 'p':
+                self._lines.append('\n')
+
     def handle_starttag(self, tag, attrs):
         """Identify locations.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
+            tag: str -- name of the tag converted to lower case.
             attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
         
         Overrides the superclass method.
@@ -48,29 +80,3 @@ class OdtRLocations(OdtReader):
                         self.novel.srtLocations.append(self._lcId)
                         self.novel.locations[self._lcId] = WorldElement()
 
-    def handle_endtag(self, tag):
-        """Recognize the end of the location section and save data.
-        
-        Positional arguments:
-            tag -- str: name of the tag converted to lower case.
-
-        Overrides the superclass method.
-        """
-        if self._lcId is not None:
-            if tag == 'div':
-                self.novel.locations[self._lcId].desc = ''.join(self._lines).rstrip()
-                self._lines = []
-                self._lcId = None
-            elif tag == 'p':
-                self._lines.append('\n')
-
-    def handle_data(self, data):
-        """collect data within location sections.
-        
-        Positional arguments:
-            data -- str: text to be stored. 
-        
-        Overrides the superclass method.
-        """
-        if self._lcId is not None:
-            self._lines.append(data.strip())

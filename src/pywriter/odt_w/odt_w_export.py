@@ -36,12 +36,28 @@ class OdtWExport(OdtWFormatted):
     _sceneDivider = '<text:p text:style-name="Heading_20_4">* * *</text:p>\n'
     _fileFooter = OdtWFormatted._CONTENT_XML_FOOTER
 
+    def _convert_from_yw(self, text, quick=False):
+        """Return text, converted from yw7 markup to target format.
+        
+        Positional arguments:
+            text -- string to convert.
+        
+        Optional arguments:
+            quick: bool -- if True, apply a conversion mode for one-liners without formatting.
+        
+        Extends the superclass method.
+        """
+        if not quick:
+            text = self._remove_inline_code(text)
+        text = super()._convert_from_yw(text, quick)
+        return(text)
+
     def _get_chapterMapping(self, chId, chapterNumber):
         """Return a mapping dictionary for a chapter section.
         
         Positional arguments:
-            chId -- str: chapter ID.
-            chapterNumber -- int: chapter number.
+            chId: str -- chapter ID.
+            chapterNumber: int -- chapter number.
         
         Suppress the chapter title if necessary.
         Extends the superclass method.
@@ -50,20 +66,4 @@ class OdtWExport(OdtWFormatted):
         if self.novel.chapters[chId].suppressChapterTitle:
             chapterMapping['Title'] = ''
         return chapterMapping
-
-    def _convert_from_yw(self, text, quick=False):
-        """Return text, converted from yw7 markup to target format.
-        
-        Positional arguments:
-            text -- string to convert.
-        
-        Optional arguments:
-            quick -- bool: if True, apply a conversion mode for one-liners without formatting.
-        
-        Extends the superclass method.
-        """
-        if not quick:
-            text = self._remove_inline_code(text)
-        text = super()._convert_from_yw(text, quick)
-        return(text)
 

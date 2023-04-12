@@ -21,6 +21,11 @@ from pywriter.odt_r.odt_reader import OdtReader
 class OdtROutline(OdtReader):
     """ODT outline file reader.
 
+    Public methods:
+        handle_data -- Collect data within scene sections.
+        handle_endtag -- Recognize the paragraph's end.
+        handle_starttag -- Recognize the paragraph's beginning.
+    
     Import an outline without chapter and scene tags.
     """
     DESCRIPTION = _('Novel outline')
@@ -30,7 +35,7 @@ class OdtROutline(OdtReader):
         """Initialize local instance variables for parsing.
 
         Positional arguments:
-            filePath -- str: path to the file represented by the Novel instance.
+            filePath: str -- path to the file represented by the Novel instance.
             
         The ODT parser works like a state machine. 
         Chapter and scene count must be saved between the transitions.         
@@ -40,11 +45,46 @@ class OdtROutline(OdtReader):
         self._chCount = 0
         self._scCount = 0
 
+    def handle_data(self, data):
+        """Collect data within scene sections.
+
+        Positional arguments:
+            data: str -- text to be stored. 
+        
+        Overrides the superclass method.
+        """
+        self._lines.append(data)
+
+    def handle_endtag(self, tag):
+        """Recognize the paragraph's end.
+        
+        Positional arguments:
+            tag: str -- name of the tag converted to lower case.
+
+        Overrides the superclass method.
+        """
+        text = ''.join(self._lines)
+        if tag == 'p':
+            text = f'{text.strip()}\n'
+            self._lines = [text]
+            if self._scId is not None:
+                self.novel.scenes[self._scId].desc = text
+            elif self._chId is not None:
+                self.novel.chapters[self._chId].desc = text
+        elif tag in ('h1', 'h2'):
+            self.novel.chapters[self._chId].title = text.strip()
+            self._lines = []
+        elif tag == 'h3':
+            self.novel.scenes[self._scId].title = text.strip()
+            self._lines = []
+        elif tag == 'title':
+            self.novel.title = text.strip()
+
     def handle_starttag(self, tag, attrs):
         """Recognize the paragraph's beginning.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
+            tag: str -- name of the tag converted to lower case.
             attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
         
         Overrides the superclass method.
@@ -88,38 +128,3 @@ class OdtROutline(OdtReader):
                 elif attr[0] == 'country':
                     if attr[1]:
                         self.novel.countryCode = attr[1]
-
-    def handle_endtag(self, tag):
-        """Recognize the paragraph's end.
-        
-        Positional arguments:
-            tag -- str: name of the tag converted to lower case.
-
-        Overrides the superclass method.
-        """
-        text = ''.join(self._lines)
-        if tag == 'p':
-            text = f'{text.strip()}\n'
-            self._lines = [text]
-            if self._scId is not None:
-                self.novel.scenes[self._scId].desc = text
-            elif self._chId is not None:
-                self.novel.chapters[self._chId].desc = text
-        elif tag in ('h1', 'h2'):
-            self.novel.chapters[self._chId].title = text.strip()
-            self._lines = []
-        elif tag == 'h3':
-            self.novel.scenes[self._scId].title = text.strip()
-            self._lines = []
-        elif tag == 'title':
-            self.novel.title = text.strip()
-
-    def handle_data(self, data):
-        """Collect data within scene sections.
-
-        Positional arguments:
-            data -- str: text to be stored. 
-        
-        Overrides the superclass method.
-        """
-        self._lines.append(data)

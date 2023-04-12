@@ -10,21 +10,18 @@ class BasicElement:
     """Basic element representation (may be a project note).
     
     Public instance variables:
-        title -- str: title (name).
-        desc -- str: description.
-        kwVar -- dict: custom keyword variables.
+        title: str -- title (name).
+        desc: str -- description.
+        kwVar: dict -- custom keyword variables.
     """
 
     def __init__(self):
         """Initialize instance variables."""
-        self.title = None
-        # str
+        self.title: str = None
         # xml: <Title>
 
-        self.desc = None
-        # str
+        self.desc: str = None
         # xml: <Desc>
 
-        self.kwVar = {}
-        # dictionary
+        self.kwVar: dict[str, str] = {}
         # Optional key/value instance variables for customization.

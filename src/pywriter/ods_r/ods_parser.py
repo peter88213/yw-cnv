@@ -30,8 +30,8 @@ class OdsParser:
         """Return a nested list with rows and cells from an ODS document.
         
         Positional arguments:
-            filePath -- str: ODS document path.
-            cellsPerRow -- int: Number of cells per row.
+            filePath: str -- ODS document path.
+            cellsPerRow: int -- Number of cells per row.
         
         First unzip the ODS file located at self.filePath, then parse content.xml.
         """

@@ -29,7 +29,7 @@ class NewProjectFactory(FileFactory):
         """Instantiate a source and a target object for creation of a new yWriter project.
 
         Positional arguments:
-            sourcePath -- str: path to the source file to convert.
+            sourcePath: str -- path to the source file to convert.
 
         Return a tuple with two elements:
         - sourceFile: a Novel subclass instance
@@ -69,7 +69,7 @@ class NewProjectFactory(FileFactory):
         """Check whether the source file can be imported to yWriter.
         
         Positional arguments: 
-            sourcePath -- str: path of the file to be ckecked.
+            sourcePath: str -- path of the file to be ckecked.
         
         Return True, if the file located at sourcepath is of an importable type.
         Otherwise, return False.

@@ -32,7 +32,7 @@ class OdtWLocations(OdtWriter):
         """Return a mapping dictionary for a location section.
         
         Positional arguments:
-            lcId -- str: location ID.
+            lcId: str -- location ID.
         
         Special formatting of alternate name. 
         Extends the superclass method.

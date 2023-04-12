@@ -8,10 +8,15 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 import locale
 import re
+from typing import Iterator, Pattern
 from pywriter.pywriter_globals import *
 from pywriter.model.basic_element import BasicElement
+from pywriter.model.chapter import Chapter
+from pywriter.model.scene import Scene
+from pywriter.model.world_element import WorldElement
+from pywriter.model.character import Character
 
-LANGUAGE_TAG = re.compile('\[lang=(.*?)\]')
+LANGUAGE_TAG: Pattern = re.compile('\[lang=(.*?)\]')
 
 
 class Novel(BasicElement):
@@ -26,23 +31,23 @@ class Novel(BasicElement):
         check_locale() -- Check the document's locale (language code and country code).
 
     Public instance variables:
-        authorName -- str: author's name.
-        author bio -- str: information about the author.
-        fieldTitle1 -- str: scene rating field title 1.
-        fieldTitle2 -- str: scene rating field title 2.
-        fieldTitle3 -- str: scene rating field title 3.
-        fieldTitle4 -- str: scene rating field title 4.
-        chapters -- dict: (key: ID; value: chapter instance).
-        scenes -- dict: (key: ID, value: scene instance).
-        srtChapters -- list: the novel's sorted chapter IDs.
-        locations -- dict: (key: ID, value: WorldElement instance).
-        srtLocations -- list: the novel's sorted location IDs.
-        items -- dict: (key: ID, value: WorldElement instance).
-        srtItems -- list: the novel's sorted item IDs.
-        characters -- dict: (key: ID, value: character instance).
-        srtCharacters -- list: the novel's sorted character IDs.
-        projectNotes -- dict:  (key: ID, value: projectNote instance).
-        srtPrjNotes -- list: the novel's sorted project notes.
+        authorName: str -- author's name.
+        author bio: str -- information about the author.
+        fieldTitle1: str -- scene rating field title 1.
+        fieldTitle2: str -- scene rating field title 2.
+        fieldTitle3: str -- scene rating field title 3.
+        fieldTitle4: str -- scene rating field title 4.
+        chapters: dict -- (key: ID; value: chapter instance).
+        scenes: dict -- (key: ID, value: scene instance).
+        srtChapters: list -- the novel's sorted chapter IDs.
+        locations: dict -- (key: ID, value: WorldElement instance).
+        srtLocations: list -- the novel's sorted location IDs.
+        items: dict -- (key: ID, value: WorldElement instance).
+        srtItems: list -- the novel's sorted item IDs.
+        characters: dict -- (key: ID, value: character instance).
+        srtCharacters: list -- the novel's sorted character IDs.
+        projectNotes: dict --  (key: ID, value: projectNote instance).
+        srtPrjNotes: list -- the novel's sorted project notes.
     """
 
     def __init__(self):
@@ -52,111 +57,89 @@ class Novel(BasicElement):
         """
         super().__init__()
 
-        self.authorName = None
-        # str
+        self.authorName: str = None
         # xml: <PROJECT><AuthorName>
 
-        self.authorBio = None
-        # str
+        self.authorBio: str = None
         # xml: <PROJECT><Bio>
 
-        self.fieldTitle1 = None
-        # str
+        self.fieldTitle1: str = None
         # xml: <PROJECT><FieldTitle1>
 
-        self.fieldTitle2 = None
-        # str
+        self.fieldTitle2: str = None
         # xml: <PROJECT><FieldTitle2>
 
-        self.fieldTitle3 = None
-        # str
+        self.fieldTitle3: str = None
         # xml: <PROJECT><FieldTitle3>
 
-        self.fieldTitle4 = None
-        # str
+        self.fieldTitle4: str = None
         # xml: <PROJECT><FieldTitle4>
 
-        self.wordTarget = None
-        # int
+        self.wordTarget: int = None
         # xml: <PROJECT><wordTarget>
 
-        self.wordCountStart = None
-        # int
+        self.wordCountStart: int = None
         # xml: <PROJECT><wordCountStart>
 
-        self.wordTarget = None
-        # int
+        self.wordTarget: int = None
         # xml: <PROJECT><wordCountStart>
 
-        self.chapters = {}
-        # dict
+        self.chapters: dict[str, Chapter] = {}
         # xml: <CHAPTERS><CHAPTER><ID>
         # key = chapter ID, value = Chapter instance.
         # The order of the elements does not matter (the novel's order of the chapters is defined by srtChapters)
 
-        self.scenes = {}
-        # dict
+        self.scenes: dict[str, Scene] = {}
         # xml: <SCENES><SCENE><ID>
         # key = scene ID, value = Scene instance.
         # The order of the elements does not matter (the novel's order of the scenes is defined by
         # the order of the chapters and the order of the scenes within the chapters)
 
-        self.languages = None
-        # list of str
+        self.languages: list[str] = None
         # List of non-document languages occurring as scene markup.
         # Format: ll-CC, where ll is the language code, and CC is the country code.
 
-        self.srtChapters = []
-        # list of str
+        self.srtChapters: list[str] = []
         # The novel's chapter IDs. The order of its elements corresponds to the novel's order of the chapters.
 
-        self.locations = {}
+        self.locations: dict[str, WorldElement] = {}
         # dict
         # xml: <LOCATIONS>
         # key = location ID, value = WorldElement instance.
         # The order of the elements does not matter.
 
-        self.srtLocations = []
-        # list of str
+        self.srtLocations: list[str] = []
         # The novel's location IDs. The order of its elements
         # corresponds to the XML project file.
 
-        self.items = {}
-        # dict
+        self.items: dict[str, WorldElement] = {}
         # xml: <ITEMS>
         # key = item ID, value = WorldElement instance.
         # The order of the elements does not matter.
 
-        self.srtItems = []
-        # list of str
+        self.srtItems: list[str] = []
         # The novel's item IDs. The order of its elements corresponds to the XML project file.
 
-        self.characters = {}
-        # dict
+        self.characters: dict[str, Character] = {}
         # xml: <CHARACTERS>
         # key = character ID, value = Character instance.
         # The order of the elements does not matter.
 
-        self.srtCharacters = []
-        # list of str
+        self.srtCharacters: list[str] = []
         # The novel's character IDs. The order of its elements corresponds to the XML project file.
 
-        self.projectNotes = {}
-        # dict
+        self.projectNotes: dict[str, BasicElement] = {}
         # xml: <PROJECTNOTES>
         # key = note ID, value = note instance.
         # The order of the elements does not matter.
 
-        self.srtPrjNotes = []
-        # list of str
+        self.srtPrjNotes: list[str] = []
         # The novel's projectNote IDs. The order of its elements corresponds to the XML project file.
 
-        self.languageCode = None
-        # str
+        self.languageCode: str = None
         # Language code acc. to ISO 639-1.
 
-        self.countryCode = None
-        # str
+        self.countryCode: str = None
         # Country code acc. to ISO 3166-2.
 
     def get_languages(self):
@@ -168,8 +151,8 @@ class Novel(BasicElement):
         - language code: 'en-AU'
         """
 
-        def languages(text):
-            """Return a generator object with the language codes appearing in text.
+        def languages(text: str) -> Iterator[str]:
+            """Return the language codes appearing in text.
             
             Example:
             - language markup: 'Standard text [lang=en-AU]Australian text[/lang=en-AU].'

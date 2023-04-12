@@ -47,7 +47,7 @@ class OdtWCharacters(OdtWriter):
         """Return a mapping dictionary for a character section.
         
         Positional arguments:
-            crId -- str: character ID.
+            crId: str -- character ID.
         
         Special formatting of alternate and full name. 
         Extends the superclass method.

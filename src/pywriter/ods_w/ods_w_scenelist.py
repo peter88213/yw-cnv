@@ -209,10 +209,10 @@ class OdsWSceneList(OdsWriter):
         """Return a mapping dictionary for a scene section.
         
         Positional arguments:
-            scId -- str: scene ID.
-            sceneNumber -- int: scene number to be displayed.
-            wordsTotal -- int: accumulated wordcount.
-            lettersTotal -- int: accumulated lettercount.
+            scId: str -- scene ID.
+            sceneNumber: int -- scene number to be displayed.
+            wordsTotal: int -- accumulated wordcount.
+            lettersTotal: int -- accumulated lettercount.
         
         Scene rating "1" is not applicable.
         Extends the superclass template method.

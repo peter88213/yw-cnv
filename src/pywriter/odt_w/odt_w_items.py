@@ -32,7 +32,7 @@ class OdtWItems(OdtWriter):
         """Return a mapping dictionary for an item section.
         
         Positional arguments:
-            itId -- str: item ID.
+            itId: str -- item ID.
         
         Special formatting of alternate name. 
         Extends the superclass method.

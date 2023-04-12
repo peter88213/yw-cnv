@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.32.2
+
+- Make it run with files on virtual file systems.
+- Remove docstrings and comments from the application code.
+
+Based on PyWriter v12.3.2
+
 ### v1.32.1
 
 - Fix a bug where an exception occurs when running the exporter with a new file.

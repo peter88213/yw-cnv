@@ -20,10 +20,10 @@ class ExportTargetFactory(FileFactory):
         """Instantiate a target object for conversion from a yWriter project.
 
         Positional arguments:
-            sourcePath -- str: path to the source file to convert.
+            sourcePath: str -- path to the source file to convert.
 
         Required keyword arguments: 
-            suffix -- str: target file name suffix.
+            suffix: str -- target file name suffix.
 
         Return a tuple with two elements:
         - sourceFile: None

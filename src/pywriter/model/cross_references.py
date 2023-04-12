@@ -4,6 +4,7 @@ Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
+from pywriter.model.novel import Novel
 
 
 class CrossReferences:
@@ -26,54 +27,45 @@ class CrossReferences:
 
     def __init__(self):
         """Initialize instance variables."""
-        
+
         # Cross reference dictionaries:
 
-        self.scnPerChr = {}
-        # dict
+        self.scnPerChr: dict[str, list[str]] = {}
         # key = character ID, value: list of scene IDs
         # Scenes per character
 
-        self.scnPerLoc = {}
-        # dict
+        self.scnPerLoc: dict[str, list[str]] = {}
         # key = location ID, value: list of scene IDs
         # Scenes per location
 
-        self.scnPerItm = {}
-        # dict
+        self.scnPerItm: dict[str, list[str]] = {}
         # key = item ID, value: list of scene IDs
         # Scenes per item
 
-        self.scnPerTag = {}
-        # dict
+        self.scnPerTag: dict[str, list[str]] = {}
         # key = tag, value: list of scene IDs
         # Scenes per tag
 
-        self.chrPerTag = {}
-        # dict
+        self.chrPerTag: dict[str, list[str]] = {}
         # key = tag, value: list of character IDs
         # Characters per tag
 
-        self.locPerTag = {}
-        # dict
+        self.locPerTag: dict[str, list[str]] = {}
         # key = tag, value: list of location IDs
         # Locations per tag
 
-        self.itmPerTag = {}
-        # dict
+        self.itmPerTag: dict[str, list[str]] = {}
         # key = tag, value: list of item IDs
         # Items per tag
 
-        self.chpPerScn = {}
-        # dict
+        self.chpPerScn: dict[str, str] = {}
         # key = scene ID, value: chapter ID
         # Chapter to which the scene belongs
 
-        self.srtScenes = None
-        # list of str
+        self.srtScenes: list[str] = None
         # Scene IDs in the overall order
 
-    def generate_xref(self, novel):
+    def generate_xref(self, novel: Novel):
         """Generate cross references for a novel.
         
         Positional argument:
@@ -115,7 +107,7 @@ class CrossReferences:
                     if not tag in self.itmPerTag:
                         self.itmPerTag[tag] = []
                     self.itmPerTag[tag].append(itId)
-                    
+
         #--- Process chapters and scenes.
         for chId in novel.srtChapters:
 

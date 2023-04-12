@@ -15,10 +15,10 @@ class Ui:
     
     Public methods:
         ask_yes_no(text) -- return True or False.
-        set_info_what(message) -- show what the converter is going to do.
         set_info_how(message) -- show how the converter is doing.
-        start() -- launch the GUI, if any.
+        set_info_what(message) -- show what the converter is going to do.
         show_warning(message) -- Stub for displaying a warning message.
+        start() -- launch the GUI, if any.
         
     Public instance variables:
         infoWhatText -- buffer for general messages.
@@ -45,14 +45,6 @@ class Ui:
         """
         return True
 
-    def set_info_what(self, message):
-        """Show what the converter is going to do.
-        
-        Positional arguments:
-            message -- message to be buffered. 
-        """
-        self.infoWhatText = message
-
     def set_info_how(self, message):
         """Show how the converter is doing.
         
@@ -66,12 +58,27 @@ class Ui:
             sys.stderr.write(message)
         self.infoHowText = message
 
+    def set_info_what(self, message):
+        """Show what the converter is going to do.
+        
+        Positional arguments:
+            message -- message to be buffered. 
+        """
+        self.infoWhatText = message
+
+    def show_warning(self, message):
+        """Stub for displaying a warning message.
+
+        Positional arguments:
+            message -- message to be displayed. 
+        """
+        pass
+
     def start(self):
         """Launch the GUI, if any.
         
         To be overridden by subclasses requiring
         special action to launch the user interaction.
         """
+        pass
 
-    def show_warning(self, message):
-        """Stub for displaying a warning message."""

@@ -11,16 +11,34 @@ from pywriter.odt_r.odt_reader import OdtReader
 class OdtRSceneDesc(OdtReader):
     """ODT scene summaries file reader.
 
+    Public methods:
+        handle_data -- Collect data within scene sections.
+        handle_endtag -- Recognize the paragraph's end.
+
     Import a full synopsis with invisibly tagged scene descriptions.
     """
     DESCRIPTION = _('Scene descriptions')
     SUFFIX = '_scenes'
 
+    def handle_data(self, data):
+        """Collect data within scene sections.
+
+        Positional arguments:
+            data: str -- text to be stored. 
+        
+        Overrides the superclass method.
+        """
+        if self._scId is not None:
+            self._lines.append(data)
+        elif self._chId is not None:
+            if not self.novel.chapters[self._chId].title:
+                self.novel.chapters[self._chId].title = data.strip()
+
     def handle_endtag(self, tag):
         """Recognize the end of the scene section and save data.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
+            tag: str -- name of the tag converted to lower case.
 
         Overrides the superclass method.
         """
@@ -46,16 +64,3 @@ class OdtRSceneDesc(OdtReader):
             if tag == 'div':
                 self._chId = None
 
-    def handle_data(self, data):
-        """Collect data within scene sections.
-
-        Positional arguments:
-            data -- str: text to be stored. 
-        
-        Overrides the superclass method.
-        """
-        if self._scId is not None:
-            self._lines.append(data)
-        elif self._chId is not None:
-            if not self.novel.chapters[self._chId].title:
-                self.novel.chapters[self._chId].title = data.strip()

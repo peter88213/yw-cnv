@@ -33,7 +33,7 @@ class OdfFile(FileExport):
         """Create a temporary directory for zipfile generation.
         
         Positional arguments:
-            filePath -- str: path to the file represented by the Novel instance.
+            filePath: str -- path to the file represented by the Novel instance.
             
         Optional arguments:
             kwargs -- keyword arguments to be used by subclasses.            
@@ -48,12 +48,49 @@ class OdfFile(FileExport):
         """Make sure to delete the temporary directory, in case write() has not been called."""
         self._tear_down()
 
-    def _tear_down(self):
-        """Delete the temporary directory containing the unpacked ODF directory structure."""
+    def write(self):
+        """Write instance variables to the export file.
+        
+        Create a template-based output file. 
+        Raise the "Error" exception in case of error. 
+        Extends the super class method, adding ZIP file operations.
+        """
+
+        #--- Create a temporary directory
+        # containing the internal structure of an ODS file except "content.xml".
+        self._set_up()
+
+        #--- Add "content.xml" to the temporary directory.
+        self._originalPath = self._filePath
+        self._filePath = f'{self._tempDir}/content.xml'
+        super().write()
+        self._filePath = self._originalPath
+
+        #--- Pack the contents of the temporary directory into the ODF file.
+        workdir = os.getcwd()
+        backedUp = False
+        if os.path.isfile(self.filePath):
+            try:
+                os.replace(self.filePath, f'{self.filePath}.bak')
+            except:
+                raise Error(f'{_("Cannot overwrite file")}: "{norm_path(self.filePath)}".')
+            else:
+                backedUp = True
         try:
-            rmtree(self._tempDir)
+            with zipfile.ZipFile(self.filePath, 'w') as odfTarget:
+                os.chdir(self._tempDir)
+                for file in self._ODF_COMPONENTS:
+                    odfTarget.write(file, compress_type=zipfile.ZIP_DEFLATED)
         except:
-            pass
+            os.chdir(workdir)
+            if backedUp:
+                os.replace(f'{self.filePath}.bak', self.filePath)
+            raise Error(f'{_("Cannot create file")}: "{norm_path(self.filePath)}".')
+
+        #--- Remove temporary data.
+        os.chdir(workdir)
+        self._tear_down()
+        return f'{_("File written")}: "{norm_path(self.filePath)}".'
 
     def _set_up(self):
         """Helper method for ZIP file generation.
@@ -120,46 +157,10 @@ class OdfFile(FileExport):
         except:
             raise Error(f'{_("Cannot write file")}: "meta.xml".')
 
-    def write(self):
-        """Write instance variables to the export file.
-        
-        Create a template-based output file. 
-        Raise the "Error" exception in case of error. 
-        Extends the super class method, adding ZIP file operations.
-        """
-
-        #--- Create a temporary directory
-        # containing the internal structure of an ODS file except "content.xml".
-        self._set_up()
-
-        #--- Add "content.xml" to the temporary directory.
-        self._originalPath = self._filePath
-        self._filePath = f'{self._tempDir}/content.xml'
-        super().write()
-        self._filePath = self._originalPath
-
-        #--- Pack the contents of the temporary directory into the ODF file.
-        workdir = os.getcwd()
-        backedUp = False
-        if os.path.isfile(self.filePath):
-            try:
-                os.replace(self.filePath, f'{self.filePath}.bak')
-            except:
-                raise Error(f'{_("Cannot overwrite file")}: "{norm_path(self.filePath)}".')
-            else:
-                backedUp = True
+    def _tear_down(self):
+        """Delete the temporary directory containing the unpacked ODF directory structure."""
         try:
-            with zipfile.ZipFile(self.filePath, 'w') as odfTarget:
-                os.chdir(self._tempDir)
-                for file in self._ODF_COMPONENTS:
-                    odfTarget.write(file, compress_type=zipfile.ZIP_DEFLATED)
+            rmtree(self._tempDir)
         except:
-            os.chdir(workdir)
-            if backedUp:
-                os.replace(f'{self.filePath}.bak', self.filePath)
-            raise Error(f'{_("Cannot create file")}: "{norm_path(self.filePath)}".')
+            pass
 
-        #--- Remove temporary data.
-        os.chdir(workdir)
-        self._tear_down()
-        return f'{_("File written")}: "{norm_path(self.filePath)}".'

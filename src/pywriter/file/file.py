@@ -23,9 +23,9 @@ class File:
         write() -- Write instance variables to the file.
 
     Public instance variables:
-        projectName -- str: URL-coded file name without suffix and extension. 
-        projectPath -- str: URL-coded path to the project directory. 
-        filePath -- str: path to the file (property with getter and setter). 
+        projectName: str -- URL-coded file name without suffix and extension. 
+        projectPath: str -- URL-coded path to the project directory. 
+        filePath: str -- path to the file (property with getter and setter). 
 
     Public class constants:
         PRJ_KWVAR -- List of the names of the project keyword variables.
@@ -54,7 +54,7 @@ class File:
         """Initialize instance variables.
 
         Positional arguments:
-            filePath -- str: path to the file represented by the File instance.
+            filePath: str -- path to the file represented by the File instance.
             
         Optional arguments:
             kwargs -- keyword arguments to be used by subclasses.  
@@ -95,7 +95,11 @@ class File:
             suffix = ''
         if filePath.lower().endswith(f'{suffix}{self.EXTENSION}'.lower()):
             self._filePath = filePath
-            head, tail = os.path.split(os.path.realpath(filePath))
+            try:
+                head, tail = os.path.split(os.path.realpath(filePath))
+                # realpath() completes relative paths, but may not work on virtual file systems.
+            except:
+                head, tail = os.path.split(filePath)
             self.projectPath = quote(head.replace('\\', '/'), '/:')
             self.projectName = quote(tail.replace(f'{suffix}{self.EXTENSION}', ''))
 
@@ -105,7 +109,7 @@ class File:
         Raise the "Error" exception in case of error. 
         This is a stub to be overridden by subclass methods.
         """
-        raise Error(f'Read method is not implemented.')
+        raise NotImplementedError
 
     def write(self):
         """Write instance variables to the file.
@@ -113,17 +117,7 @@ class File:
         Raise the "Error" exception in case of error. 
         This is a stub to be overridden by subclass methods.
         """
-        raise Error(f'Write method is not implemented.')
-
-    def _convert_to_yw(self, text):
-        """Return text, converted from source format to yw7 markup.
-        
-        Positional arguments:
-            text -- string to convert.
-        
-        This is a stub to be overridden by subclass methods.
-        """
-        return text.rstrip()
+        raise NotImplementedError
 
     def _convert_from_yw(self, text, quick=False):
         """Return text, converted from yw7 markup to target format.
@@ -132,7 +126,17 @@ class File:
             text -- string to convert.
         
         Optional arguments:
-            quick -- bool: if True, apply a conversion mode for one-liners without formatting.
+            quick: bool -- if True, apply a conversion mode for one-liners without formatting.
+        
+        This is a stub to be overridden by subclass methods.
+        """
+        return text.rstrip()
+
+    def _convert_to_yw(self, text):
+        """Return text, converted from source format to yw7 markup.
+        
+        Positional arguments:
+            text -- string to convert.
         
         This is a stub to be overridden by subclass methods.
         """

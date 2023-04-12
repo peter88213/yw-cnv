@@ -368,24 +368,6 @@ class OdtWriter(OdfFile):
 '''
     _MIMETYPE = 'application/vnd.oasis.opendocument.text'
 
-    def _set_up(self):
-        """Helper method for ZIP file generation.
-
-        Add rdf manifest to the temporary directory containing the internal structure of an ODF file.
-        Raise the "Error" exception in case of error. 
-        Extends the superclass method.
-        """
-
-        # Generate the common ODF components.
-        super()._set_up()
-
-        # Generate manifest.rdf
-        try:
-            with open(f'{self._tempDir}/manifest.rdf', 'w', encoding='utf-8') as f:
-                f.write(self._MANIFEST_RDF)
-        except:
-            raise Error(f'{_("Cannot write file")}: "manifest.rdf"')
-
     def _convert_from_yw(self, text, quick=False):
         """Return text without markup, converted to target format.
         
@@ -393,7 +375,7 @@ class OdtWriter(OdfFile):
             text -- string to convert.
         
         Optional arguments:
-            quick -- bool: if True, apply a conversion mode for one-liners without formatting.
+            quick: bool -- if True, apply a conversion mode for one-liners without formatting.
         
         Overrides the superclass method.
         """
@@ -418,3 +400,22 @@ class OdtWriter(OdfFile):
         else:
             text = ''
         return text
+
+    def _set_up(self):
+        """Helper method for ZIP file generation.
+
+        Add rdf manifest to the temporary directory containing the internal structure of an ODF file.
+        Raise the "Error" exception in case of error. 
+        Extends the superclass method.
+        """
+
+        # Generate the common ODF components.
+        super()._set_up()
+
+        # Generate manifest.rdf
+        try:
+            with open(f'{self._tempDir}/manifest.rdf', 'w', encoding='utf-8') as f:
+                f.write(self._MANIFEST_RDF)
+        except:
+            raise Error(f'{_("Cannot write file")}: "manifest.rdf"')
+

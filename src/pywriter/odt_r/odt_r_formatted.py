@@ -10,6 +10,9 @@ from pywriter.model.splitter import Splitter
 
 class OdtRFormatted(OdtReader):
     """ODT file reader.
+    
+    Public methods:
+        read() -- Parse the file and get the instance variables.
 
     Provide methods and data for processing chapters with formatted text.
     """

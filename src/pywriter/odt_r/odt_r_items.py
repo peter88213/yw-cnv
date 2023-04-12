@@ -13,6 +13,11 @@ from pywriter.odt_r.odt_reader import OdtReader
 class OdtRItems(OdtReader):
     """ODT item descriptions file reader.
 
+    Public methods:
+        handle_data -- Collect data within scene sections.
+        handle_endtag -- Recognize the paragraph's end.
+        handle_starttag -- Recognize the paragraph's beginning.
+
     Import a item sheet with invisibly tagged descriptions.
     """
     DESCRIPTION = _('Item descriptions')
@@ -22,7 +27,7 @@ class OdtRItems(OdtReader):
         """Initialize local instance variables for parsing.
 
         Positional arguments:
-            filePath -- str: path to the file represented by the Novel instance.
+            filePath: str -- path to the file represented by the Novel instance.
             
         The ODT parser works like a state machine. 
         The item ID must be saved between the transitions.         
@@ -31,11 +36,38 @@ class OdtRItems(OdtReader):
         super().__init__(filePath)
         self._itId = None
 
+    def handle_data(self, data):
+        """collect data within item sections.
+
+        Positional arguments:
+            data: str -- text to be stored. 
+        
+        Overrides the superclass method.
+        """
+        if self._itId is not None:
+            self._lines.append(data.strip())
+
+    def handle_endtag(self, tag):
+        """Recognize the end of the item section and save data.
+        
+        Positional arguments:
+            tag: str -- name of the tag converted to lower case.
+
+        Overrides the superclass method.
+        """
+        if self._itId is not None:
+            if tag == 'div':
+                self.novel.items[self._itId].desc = ''.join(self._lines).rstrip()
+                self._lines = []
+                self._itId = None
+            elif tag == 'p':
+                self._lines.append('\n')
+
     def handle_starttag(self, tag, attrs):
         """Identify items.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
+            tag: str -- name of the tag converted to lower case.
             attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
         
         Overrides the superclass method.
@@ -48,29 +80,3 @@ class OdtRItems(OdtReader):
                         self.novel.srtItems.append(self._itId)
                         self.novel.items[self._itId] = WorldElement()
 
-    def handle_endtag(self, tag):
-        """Recognize the end of the item section and save data.
-        
-        Positional arguments:
-            tag -- str: name of the tag converted to lower case.
-
-        Overrides the superclass method.
-        """
-        if self._itId is not None:
-            if tag == 'div':
-                self.novel.items[self._itId].desc = ''.join(self._lines).rstrip()
-                self._lines = []
-                self._itId = None
-            elif tag == 'p':
-                self._lines.append('\n')
-
-    def handle_data(self, data):
-        """collect data within item sections.
-
-        Positional arguments:
-            data -- str: text to be stored. 
-        
-        Overrides the superclass method.
-        """
-        if self._itId is not None:
-            self._lines.append(data.strip())

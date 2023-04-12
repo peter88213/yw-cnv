@@ -18,10 +18,8 @@ class OdtReader(File, OdtParser):
     """Generic ODT file reader.
     
     Public methods:
-        handle_starttag(tag, attrs) -- Identify scenes and chapters.
-        handle_endtag(tag) -- Stub for an end tag handler.
-        handle_data(data) -- Stub for a data handler.
         handle comment(data) -- Process inline comments within scene content.
+        handle_starttag(tag, attrs) -- Identify scenes and chapters.
         read() -- Parse the file and get the instance variables.
     """
     EXTENSION = '.odt'
@@ -38,7 +36,7 @@ class OdtReader(File, OdtParser):
         """Initialize the ODT parser and local instance variables for parsing.
         
         Positional arguments:
-            filePath -- str: path to the file represented by the File instance.
+            filePath: str -- path to the file represented by the File instance.
             
         Optional arguments:
             kwargs -- keyword arguments to be used by subclasses.            
@@ -55,29 +53,22 @@ class OdtReader(File, OdtParser):
         self._language = ''
         self._skip_data = False
 
-    def _convert_to_yw(self, text):
-        """Convert html formatting tags to yWriter 7 raw markup.
+    def handle_comment(self, data):
+        """Process inline comments within scene content.
         
         Positional arguments:
-            text -- string to convert.
-        
-        Return a yw7 markup string.
+            data: str -- comment text. 
+
         Overrides the superclass method.
         """
-        #--- Put everything in one line.
-        text = text.replace('\n', ' ')
-        text = text.replace('\r', ' ')
-        text = text.replace('\t', ' ')
-        while '  ' in text:
-            text = text.replace('  ', ' ')
-
-        return text
+        if self._scId is not None:
+            self._lines.append(f'{self._COMMENT_START}{data}{self._COMMENT_END}')
 
     def handle_starttag(self, tag, attrs):
         """Identify scenes and chapters.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
+            tag: str -- name of the tag.
             attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
         
         Overrides the superclass method. 
@@ -100,16 +91,24 @@ class OdtReader(File, OdtParser):
                         self.novel.srtChapters.append(self._chId)
                     self.novel.chapters[self._chId].chType = self._TYPE
 
-    def handle_comment(self, data):
-        """Process inline comments within scene content.
-        
-        Positional arguments:
-            data -- str: comment text. 
-        
-        Overrides the superclass method.
-        """
-        if self._scId is not None:
-            self._lines.append(f'{self._COMMENT_START}{data}{self._COMMENT_END}')
-
     def read(self):
         OdtParser.feed_file(self, self.filePath)
+
+    def _convert_to_yw(self, text):
+        """Convert html formatting tags to yWriter 7 raw markup.
+        
+        Positional arguments:
+            text -- string to convert.
+        
+        Return a yw7 markup string.
+        Overrides the superclass method.
+        """
+        #--- Put everything in one line.
+        text = text.replace('\n', ' ')
+        text = text.replace('\r', ' ')
+        text = text.replace('\t', ' ')
+        while '  ' in text:
+            text = text.replace('  ', ' ')
+
+        return text
+

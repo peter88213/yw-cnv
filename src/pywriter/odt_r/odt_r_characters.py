@@ -13,6 +13,11 @@ from pywriter.odt_r.odt_reader import OdtReader
 class OdtRCharacters(OdtReader):
     """ODT character descriptions file reader.
 
+    Public methods:
+        handle_data -- Collect data within scene sections.
+        handle_endtag -- Recognize the paragraph's end.
+        handle_starttag -- Recognize the paragraph's beginning.
+
     Import a character sheet with invisibly tagged descriptions.
     """
     DESCRIPTION = _('Character descriptions')
@@ -22,7 +27,7 @@ class OdtRCharacters(OdtReader):
         """Initialize local instance variables for parsing.
 
         Positional arguments:
-            filePath -- str: path to the file represented by the Novel instance.
+            filePath: str -- path to the file represented by the Novel instance.
             
         The ODT parser works like a state machine. 
         Character ID and section title must be saved between the transitions.         
@@ -32,35 +37,22 @@ class OdtRCharacters(OdtReader):
         self._crId = None
         self._section = None
 
-    def handle_starttag(self, tag, attrs):
-        """Identify characters with subsections.
-        
+    def handle_data(self, data):
+        """collect data within character sections.
+
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
-            attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
+            data: str -- text to be stored. 
         
         Overrides the superclass method.
         """
-        if tag == 'div':
-            if attrs[0][0] == 'id':
-                if attrs[0][1].startswith('CrID_desc'):
-                    self._crId = re.search('[0-9]+', attrs[0][1]).group()
-                    if not self._crId in self.novel.characters:
-                        self.novel.srtCharacters.append(self._crId)
-                        self.novel.characters[self._crId] = Character()
-                    self._section = 'desc'
-                elif attrs[0][1].startswith('CrID_bio'):
-                    self._section = 'bio'
-                elif attrs[0][1].startswith('CrID_goals'):
-                    self._section = 'goals'
-                elif attrs[0][1].startswith('CrID_notes'):
-                    self._section = 'notes'
+        if self._section is not None:
+            self._lines.append(data.strip())
 
     def handle_endtag(self, tag):
         """Recognize the end of the character section and save data.
         
         Positional arguments:
-            tag -- str: name of the tag converted to lower case.
+            tag: str -- name of the tag converted to lower case.
 
         Overrides the superclass method.
         """
@@ -85,13 +77,27 @@ class OdtRCharacters(OdtReader):
             elif tag == 'p':
                 self._lines.append('\n')
 
-    def handle_data(self, data):
-        """collect data within character sections.
-
+    def handle_starttag(self, tag, attrs):
+        """Identify characters with subsections.
+        
         Positional arguments:
-            data -- str: text to be stored. 
+            tag: str -- name of the tag converted to lower case.
+            attrs -- list of (name, value) pairs containing the attributes found inside the tag’s <> brackets.
         
         Overrides the superclass method.
         """
-        if self._section is not None:
-            self._lines.append(data.strip())
+        if tag == 'div':
+            if attrs[0][0] == 'id':
+                if attrs[0][1].startswith('CrID_desc'):
+                    self._crId = re.search('[0-9]+', attrs[0][1]).group()
+                    if not self._crId in self.novel.characters:
+                        self.novel.srtCharacters.append(self._crId)
+                        self.novel.characters[self._crId] = Character()
+                    self._section = 'desc'
+                elif attrs[0][1].startswith('CrID_bio'):
+                    self._section = 'bio'
+                elif attrs[0][1].startswith('CrID_goals'):
+                    self._section = 'goals'
+                elif attrs[0][1].startswith('CrID_notes'):
+                    self._section = 'notes'
+
