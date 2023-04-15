@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.32.3
+
+- Show a message when scenes are split during conversion.
+
+Based on PyWriter v12.4.0
+
 ### v1.32.2
 
 - Make it run with files on virtual file systems.

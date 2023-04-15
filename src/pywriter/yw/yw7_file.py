@@ -33,7 +33,6 @@ class Yw7File(File):
 
     Public instance variables:
         tree -- xml element tree of the yWriter project
-        scenesSplit: bool -- True, if a scene or chapter is split during merging.
         
     Public class constants:
         PRJ_KWVAR -- List of the names of the project keyword variables.
@@ -72,7 +71,6 @@ class Yw7File(File):
         """
         super().__init__(filePath)
         self.tree = None
-        self.scenesSplit = False
 
     def adjust_scene_types(self):
         """Make sure that scenes in non-"Normal" chapters inherit the chapter's type."""

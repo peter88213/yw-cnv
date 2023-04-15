@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.32.2
+Version 1.32.3
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -468,7 +468,7 @@ class YwCnvUi:
         else:
             message = f'{_("File written")}: "{norm_path(target.filePath)}".'
             self.newFile = target.filePath
-            if target.scenesSplit:
+            if source.scenesSplit:
                 self.ui.show_warning(_('New scenes created during conversion.'))
         finally:
             self.ui.set_info_how(message)
@@ -638,6 +638,7 @@ class File:
 
         self.projectPath = None
 
+        self.scenesSplit = False
         self.filePath = filePath
 
     @property
@@ -720,7 +721,6 @@ class Yw7File(File):
     def __init__(self, filePath, **kwargs):
         super().__init__(filePath)
         self.tree = None
-        self.scenesSplit = False
 
     def adjust_scene_types(self):
         for chId in self.novel.srtChapters:

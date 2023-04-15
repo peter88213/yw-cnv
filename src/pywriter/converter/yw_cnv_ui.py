@@ -138,7 +138,7 @@ class YwCnvUi:
         else:
             message = f'{_("File written")}: "{norm_path(target.filePath)}".'
             self.newFile = target.filePath
-            if target.scenesSplit:
+            if source.scenesSplit:
                 self.ui.show_warning(_('New scenes created during conversion.'))
         finally:
             self.ui.set_info_how(message)

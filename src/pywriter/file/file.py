@@ -25,6 +25,7 @@ class File:
     Public instance variables:
         projectName: str -- URL-coded file name without suffix and extension. 
         projectPath: str -- URL-coded path to the project directory. 
+        scenesSplit: bool -- True, if a scene or chapter is split during merging.
         filePath: str -- path to the file (property with getter and setter). 
 
     Public class constants:
@@ -76,6 +77,7 @@ class File:
         # str
         # URL-coded path to the project directory.
 
+        self.scenesSplit = False
         self.filePath = filePath
 
     @property
