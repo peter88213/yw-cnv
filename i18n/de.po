@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.32.3\n"
-"POT-Creation-Date: 2023-04-15 21:19:14\n"
-"PO-Revision-Date: 2023-04-15 21:19:14\n"
+"Project-Id-Version: 1.32.4\n"
+"POT-Creation-Date: 2023-04-20 13:45:16\n"
+"PO-Revision-Date: 2023-04-20 13:45:16\n"
 "Last-Translator: Peter Triesberger\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -138,6 +138,9 @@ msgstr "Bitte ein yWriter-Projekt wählen"
 
 msgid "Please close document first"
 msgstr "Bitte zuerst das Dokument schließen"
+
+msgid "Scene"
+msgstr "Szene"
 
 msgid "Scene descriptions"
 msgstr "Szenebeschreibungen"

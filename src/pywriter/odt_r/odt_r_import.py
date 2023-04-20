@@ -135,7 +135,7 @@ class OdtRImport(OdtRFormatted):
                 self.novel.scenes[self._scId] = Scene()
                 self.novel.chapters[self._chId].srtScenes.append(self._scId)
                 self.novel.scenes[self._scId].status = '1'
-                self.novel.scenes[self._scId].title = f'Scene {self._scCount}'
+                self.novel.scenes[self._scId].title = f'{_("Scene")} {self._scCount}'
             try:
                 if attrs[0][0] == 'lang':
                     self._language = attrs[0][1]
