@@ -33,27 +33,30 @@ class OdtRProof(OdtRFormatted):
         
         Overrides the superclass method.
         """
-        if self._skip_data:
-            self._skip_data = False
-        elif '[ScID' in data:
-            self._scId = re.search('[0-9]+', data).group()
-            if not self._scId in self.novel.scenes:
-                self.novel.scenes[self._scId] = Scene()
-                self.novel.chapters[self._chId].srtScenes.append(self._scId)
-            self._lines = []
-        elif '[/ScID' in data:
-            text = ''.join(self._lines)
-            self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
-            self._scId = None
-        elif '[ChID' in data:
-            self._chId = re.search('[0-9]+', data).group()
-            if not self._chId in self.novel.chapters:
-                self.novel.chapters[self._chId] = Chapter()
-                self.novel.srtChapters.append(self._chId)
-        elif '[/ChID' in data:
-            self._chId = None
-        elif self._scId is not None:
-            self._lines.append(data)
+        try:
+            if self._skip_data:
+                self._skip_data = False
+            elif '[ScID' in data:
+                self._scId = re.search('[0-9]+', data).group()
+                if not self._scId in self.novel.scenes:
+                    self.novel.scenes[self._scId] = Scene()
+                    self.novel.chapters[self._chId].srtScenes.append(self._scId)
+                self._lines = []
+            elif '[/ScID' in data:
+                text = ''.join(self._lines)
+                self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
+                self._scId = None
+            elif '[ChID' in data:
+                self._chId = re.search('[0-9]+', data).group()
+                if not self._chId in self.novel.chapters:
+                    self.novel.chapters[self._chId] = Chapter()
+                    self.novel.srtChapters.append(self._chId)
+            elif '[/ChID' in data:
+                self._chId = None
+            elif self._scId is not None:
+                self._lines.append(data)
+        except:
+            raise Error(f'{_("Corrupt marker")}: "{data}"')
 
     def handle_endtag(self, tag):
         """Recognize the paragraph's end.      

@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.32.4
+Version 1.32.5
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1669,23 +1669,23 @@ class Yw7File(File):
                     except:
                         pass
 
-        def build_prjNote_subtree(xmlPnt, prjPnt, sortOrder):
-            if prjPnt.title is not None:
-                ET.SubElement(xmlPnt, 'Title').text = prjPnt.title
+        def build_prjNote_subtree(xmlProjectnote, projectNote, sortOrder):
+            if projectNote.title is not None:
+                ET.SubElement(xmlProjectnote, 'Title').text = projectNote.title
 
-            if prjPnt.desc is not None:
-                ET.SubElement(xmlPnt, 'Desc').text = prjPnt.desc
+            if projectNote.desc is not None:
+                ET.SubElement(xmlProjectnote, 'Desc').text = projectNote.desc
 
-            ET.SubElement(xmlPnt, 'SortOrder').text = str(sortOrder)
+            ET.SubElement(xmlProjectnote, 'SortOrder').text = str(sortOrder)
 
         def add_projectvariable(title, desc, tags):
             pvId = create_id(prjVars)
             prjVars.append(pvId)
-            projectvar = ET.SubElement(projectvars, 'PROJECTVAR')
-            ET.SubElement(projectvar, 'ID').text = pvId
-            ET.SubElement(projectvar, 'Title').text = title
-            ET.SubElement(projectvar, 'Desc').text = desc
-            ET.SubElement(projectvar, 'Tags').text = tags
+            xmlProjectvar = ET.SubElement(xmlProjectvars, 'PROJECTVAR')
+            ET.SubElement(xmlProjectvar, 'ID').text = pvId
+            ET.SubElement(xmlProjectvar, 'Title').text = title
+            ET.SubElement(xmlProjectvar, 'Desc').text = desc
+            ET.SubElement(xmlProjectvar, 'Tags').text = tags
 
         def build_item_subtree(xmlItm, prjItm, sortOrder):
             if prjItm.title is not None:
@@ -1915,8 +1915,8 @@ class Yw7File(File):
 
 
         if xmlProjectnotes is not None:
-            for xmlPnt in xmlProjectnotes.findall('PROJECTNOTE'):
-                xmlProjectnotes.remove(xmlPnt)
+            for xmlProjectnote in xmlProjectnotes.findall('PROJECTNOTE'):
+                xmlProjectnotes.remove(xmlProjectnote)
             if not self.novel.srtPrjNotes:
                 root.remove(xmlProjectnotes)
         elif self.novel.srtPrjNotes:
@@ -1925,22 +1925,22 @@ class Yw7File(File):
             sortOrder = 0
             for pnId in self.novel.srtPrjNotes:
                 sortOrder += 1
-                xmlPnt = ET.SubElement(xmlProjectnotes, 'PROJECTNOTE')
-                ET.SubElement(xmlPnt, 'ID').text = pnId
-                build_prjNote_subtree(xmlPnt, self.novel.projectNotes[pnId], sortOrder)
+                xmlProjectnote = ET.SubElement(xmlProjectnotes, 'PROJECTNOTE')
+                ET.SubElement(xmlProjectnote, 'ID').text = pnId
+                build_prjNote_subtree(xmlProjectnote, self.novel.projectNotes[pnId], sortOrder)
 
+        xmlProjectvars = root.find('PROJECTVARS')
         if self.novel.languages or self.novel.languageCode or self.novel.countryCode:
             self.novel.check_locale()
-            projectvars = root.find('PROJECTVARS')
-            if projectvars is None:
-                projectvars = ET.SubElement(root, 'PROJECTVARS')
+            if xmlProjectvars is None:
+                xmlProjectvars = ET.SubElement(root, 'PROJECTVARS')
             prjVars = []
             languages = self.novel.languages.copy()
             hasLanguageCode = False
             hasCountryCode = False
-            for projectvar in projectvars.findall('PROJECTVAR'):
-                prjVars.append(projectvar.find('ID').text)
-                title = projectvar.find('Title').text
+            for xmlProjectvar in xmlProjectvars.findall('PROJECTVAR'):
+                prjVars.append(xmlProjectvar.find('ID').text)
+                title = xmlProjectvar.find('Title').text
 
                 if title.startswith('lang='):
                     try:
@@ -1950,11 +1950,11 @@ class Yw7File(File):
                         pass
 
                 elif title == 'Language':
-                    projectvar.find('Desc').text = self.novel.languageCode
+                    xmlProjectvar.find('Desc').text = self.novel.languageCode
                     hasLanguageCode = True
 
                 elif title == 'Country':
-                    projectvar.find('Desc').text = self.novel.countryCode
+                    xmlProjectvar.find('Desc').text = self.novel.countryCode
                     hasCountryCode = True
 
             if not hasLanguageCode:
@@ -5227,27 +5227,30 @@ class OdtRProof(OdtRFormatted):
     SUFFIX = '_proof'
 
     def handle_data(self, data):
-        if self._skip_data:
-            self._skip_data = False
-        elif '[ScID' in data:
-            self._scId = re.search('[0-9]+', data).group()
-            if not self._scId in self.novel.scenes:
-                self.novel.scenes[self._scId] = Scene()
-                self.novel.chapters[self._chId].srtScenes.append(self._scId)
-            self._lines = []
-        elif '[/ScID' in data:
-            text = ''.join(self._lines)
-            self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
-            self._scId = None
-        elif '[ChID' in data:
-            self._chId = re.search('[0-9]+', data).group()
-            if not self._chId in self.novel.chapters:
-                self.novel.chapters[self._chId] = Chapter()
-                self.novel.srtChapters.append(self._chId)
-        elif '[/ChID' in data:
-            self._chId = None
-        elif self._scId is not None:
-            self._lines.append(data)
+        try:
+            if self._skip_data:
+                self._skip_data = False
+            elif '[ScID' in data:
+                self._scId = re.search('[0-9]+', data).group()
+                if not self._scId in self.novel.scenes:
+                    self.novel.scenes[self._scId] = Scene()
+                    self.novel.chapters[self._chId].srtScenes.append(self._scId)
+                self._lines = []
+            elif '[/ScID' in data:
+                text = ''.join(self._lines)
+                self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
+                self._scId = None
+            elif '[ChID' in data:
+                self._chId = re.search('[0-9]+', data).group()
+                if not self._chId in self.novel.chapters:
+                    self.novel.chapters[self._chId] = Chapter()
+                    self.novel.srtChapters.append(self._chId)
+            elif '[/ChID' in data:
+                self._chId = None
+            elif self._scId is not None:
+                self._lines.append(data)
+        except:
+            raise Error(f'{_("Corrupt marker")}: "{data}"')
 
     def handle_endtag(self, tag):
         if tag in ['p', 'h2', 'h1', 'blockquote']:
