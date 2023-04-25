@@ -12,7 +12,7 @@ Based on PyWriter v12.5.1
 
 ### v1.32.4
 
-- When creating a new scene on ODT import, localize the default title.
+- When creating a new scene on yWriter export, localize the default title.
 
 Based on PyWriter v12.4.2
 
