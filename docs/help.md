@@ -185,10 +185,11 @@ text document (odt) with chapter and scene markers. File name suffix is
     document into yWriter.
 -   Chapters and scenes can neither be rearranged nor deleted. 
 -   You can split scenes by inserting headings or a scene divider:
-    -  *Heading 1* → New chapter title (beginning a new section).
-    -  *Heading 2* → New chapter title.
+    -  *Heading 1* → New chapter title (beginning a new section). Optionally, you can add a description, separated by `|`.
+    -  *Heading 2* → New chapter title. Optionally, you can add a description, separated by `|`.
     -  `###` → Scene divider. Optionally, you can append the 
-       scene title to the scene divider.
+       scene title to the scene divider. You can also add a description, separated by `|`.
+    - **Note:** Export documents with split scenes not more than once.      
 -   Paragraphs starting with `> ` are formatted as quotations.
 
 You can write back the scene contents to the yWriter 7 project file
