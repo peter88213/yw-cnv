@@ -36,9 +36,10 @@ Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument 
 - Gobal- und Projektvariablen werden nicht aufgelöst.
 - Kapitel und Szenen können weder neu geordnet noch gelöscht werden.
 - Sie können Szenen durch Einfügen von Überschriften oder einem Szenentrenner aufteilen:
-    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
-    - *Überschrift 2* → Neuer Kapiteltitel.
-    - `###` → Szenentrenner. Optional können Sie den Szenentitel auch an den Szenentrenner anhängen.
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - *Überschrift 2* → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
+    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Szenen nicht mehrmals zu yw7. 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 
@@ -177,11 +178,11 @@ Dies schreibt yWriter 7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neue
 - Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, 
   wenn sie von `~` umgeben sind.
 - Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
-- Szenen können durch Einfügen von Überschriften oder einem Szenentrenner geteilt werden:
-    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
-    - *Überschrift 2* → Neuer Kapiteltitel.
-    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den
-      Titel an den Szenentrenner anhängen.
+- Sie können Szenen durch Einfügen von Überschriften oder einem Szenentrenner aufteilen:
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - *Überschrift 2* → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
+    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Szenen nicht mehrmals zu yw7. 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)
@@ -197,11 +198,11 @@ Abschnitten (die im Navigator zu sehen sind). Die Dateinamenserweiterung ist `_t
 - Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben,
   wenn sie von `~` umgeben sind.
 - Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
-- Szenen können durch Einfügen von Überschriften oder einem Szenentrenner geteilt werden:
-    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
-    - *Überschrift 2* → Neuer Kapiteltitel.
-    - `###` → Szenentrenner. Optional können Sie den 
-       Szenentitel an den Szenentrenner anhängen.
+- Sie können Szenen durch Einfügen von Überschriften oder einem Szenentrenner aufteilen:
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - *Überschrift 2* → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
+    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Szenen nicht mehrmals zu yw7. 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)

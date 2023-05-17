@@ -32,7 +32,7 @@ out the features with a test project first.
 
 ## Manuscript with chapter and scene sections
 
-This will write yWriter 7 chapters and scenes into a new OpenDocument
+This will write yWriter chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
@@ -46,15 +46,16 @@ seen in the Navigator). File name suffix is `_manuscript`.
 -   Interspersed HTML, TEX, or RTF commands are taken over unchanged.
 -   Gobal variables and project variables are not resolved.
 -   Chapters and scenes can neither be rearranged nor deleted.
--   You can split scenes by inserting headings or a scene divider:
-    -  *Heading 1* → New chapter title (beginning a new section).
-    -  *Heading 2* → New chapter title.
-    -  `###` → Scene divider. Optionally, you can also append the 
-       scene title to the scene divider.
+-  Scenes can be split by inserting headings or a scene divider:
+    -  *Heading 1* → New chapter title (beginning a new section). Optionally, you can add a description, separated by `|`.
+    -  *Heading 2* → New chapter title. Optionally, you can add a description, separated by `|`.
+    -  `###` → Scene divider. Optionally, you can append the 
+       scene title to the scene divider. You can also add a description, separated by `|`.
+    - **Note:** Export documents with split scenes not more than once.      
 -   Paragraphs starting with `> ` are formatted as quotations.
 
 You can write back the scene contents and the chapter/part headings to 
-the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
+the yw7 project file with the [Export to yWriter](help#export-to-ywriter) 
 command.
 
 -   Comments within scenes are written back as scene titles
@@ -68,11 +69,11 @@ command.
 
 This will generate a new OpenDocument text document (odt) containing a
 **full synopsis** with chapter titles and scene descriptions that can be
-edited and written back to yWriter format. File name suffix is
+edited and written back to yw7 format. File name suffix is
 `_scenes`.
 
 You can write back the scene descriptions and the chapter/part headings 
-to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
+to the yw7 project file with the [Export to yWriter](help#export-to-ywriter) 
 command. Comments right at the beginning of the scene descriptions are 
 written back as scene titles.
 
@@ -84,13 +85,13 @@ written back as scene titles.
 
 This will generate a new OpenDocument text document (odt) containing a
 **brief synopsis** with chapter titles and chapter descriptions that can
-be edited and written back to yWriter format. File name suffix is
+be edited and written back to yw7 format. File name suffix is
 `_chapters`.
 
 **Note:** Doesn't apply to chapters marked
 `This chapter begins a new section` in yWriter.
 
-You can write back the headings and descriptions to the yWriter 7 project 
+You can write back the headings and descriptions to the yw7 project 
 file with the [Export to yWriter](help#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -101,13 +102,13 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing a
 **very brief synopsis** with part titles and part descriptions that can
-be edited and written back to yWriter format. File name suffix is
+be edited and written back to yw7 format. File name suffix is
 `_parts`.
 
 **Note:** Applies only to chapters marked
 `This chapter  begins a new section` in yWriter.
 
-You can write back the headings and descriptions to the yWriter 7 project
+You can write back the headings and descriptions to the yw7 project
 file with the [Export to yWriter](help#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -118,10 +119,10 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing
 character descriptions, bio, goals, and notes that can be edited in Office
-Writer and written back to yWriter format. File name suffix is
+Writer and written back to yw7 format. File name suffix is
 `_characters`.
 
-You can write back the descriptions to the yWriter 7 project
+You can write back the descriptions to the yw7 project
 file with the [Export to yWriter](help#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -132,9 +133,9 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing
 location descriptions that can be edited in Office Writer and written
-back to yWriter format. File name suffix is `_locations`.
+back to yw7 format. File name suffix is `_locations`.
 
-You can write back the descriptions to the yWriter 7 project
+You can write back the descriptions to the yw7 project
 file with the [Export to yWriter](help#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -145,9 +146,9 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing
 item descriptions that can be edited in Office Writer and written back
-to yWriter format. File name suffix is `_items`.
+to yw7 format. File name suffix is `_items`.
 
-You can write back the descriptions to the yWriter 7 project
+You can write back the descriptions to the yw7 project
 file with the [Export to yWriter](help#export-to-ywriter) command.
 
 [Top of page](#top)
@@ -188,10 +189,10 @@ Scenes beginning with `<HTML>` or `<TEX>` are omitted.
 
 File name suffix is `_scenelist`.
 
-You can write back the table contents to the yWriter 7 project file with
+You can write back the table contents to the yw7 project file with
 the [Export to yWriter](help#export-to-ywriter) command.
 
-The following columns can be written back to the yWriter project:
+The following columns can be written back to the yw7 project:
 
 - Title
 - Description
@@ -213,7 +214,7 @@ The following columns can be written back to the yWriter project:
 
 ## Notes chapters
 
-This will write yWriter 7 "Notes" chapters with child scenes into a new 
+This will write yWriter "Notes" chapters with child scenes into a new 
 OpenDocument text document (odt) with invisible chapter and scene 
 sections (to be seen in the Navigator). File name suffix is `_notes`.
 
@@ -221,10 +222,11 @@ sections (to be seen in the Navigator). File name suffix is `_notes`.
    if surrounded by `~`.
 -  Chapters and scenes can neither be rearranged nor deleted.
 -  Scenes can be split by inserting headings or a scene divider:
-    -  *Heading 1* → New chapter title (beginning a new section).
-    -  *Heading 2* → New chapter title.
+    -  *Heading 1* → New chapter title (beginning a new section). Optionally, you can add a description, separated by `|`.
+    -  *Heading 2* → New chapter title. Optionally, you can add a description, separated by `|`.
     -  `###` → Scene divider. Optionally, you can append the 
-       scene title to the scene divider.
+       scene title to the scene divider. You can also add a description, separated by `|`.
+    - **Note:** Export documents with split scenes not more than once.      
 -  Paragraphs starting with `> ` are formatted as quotations.
 
 [Top of page](#top)
@@ -233,7 +235,7 @@ sections (to be seen in the Navigator). File name suffix is `_notes`.
 
 ## Todo chapters
 
-This will write yWriter 7 "Todo" chapters with child scenes into a new 
+This will write yWriter "Todo" chapters with child scenes into a new 
 OpenDocument text document (odt) with invisible chapter and scene 
 sections (to be seen in the Navigator). File name suffix is `_todo`.
 
@@ -241,10 +243,11 @@ sections (to be seen in the Navigator). File name suffix is `_todo`.
    if surrounded by `~`.
 -  Chapters and scenes can neither be rearranged nor deleted.
 -  Scenes can be split by inserting headings or a scene divider:
-    -  *Heading 1* → New chapter title (beginning a new section).
-    -  *Heading 2* → New chapter title.
+    -  *Heading 1* → New chapter title (beginning a new section). Optionally, you can add a description, separated by `|`.
+    -  *Heading 2* → New chapter title. Optionally, you can add a description, separated by `|`.
     -  `###` → Scene divider. Optionally, you can append the 
-       scene title to the scene divider.
+       scene title to the scene divider. You can also add a description, separated by `|`.
+    - **Note:** Export documents with split scenes not more than once.      
 -  Paragraphs starting with `> ` are formatted as quotations.
 
 [Top of page](#top)
