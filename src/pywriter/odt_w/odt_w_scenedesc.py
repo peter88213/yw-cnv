@@ -30,20 +30,20 @@ class OdtWSceneDesc(OdtWriter):
 
     _sceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="Text_20_body"><office:annotation>
-<dc:creator>scene title</dc:creator>
+<dc:creator>$sceneTitle</dc:creator>
 <text:p>~ ${Title} ~</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a></text:p>
+<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→$Manuscript</text:a></text:p>
 </office:annotation>$Desc</text:p>
 </text:section>
 '''
 
     _appendedSceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="First_20_line_20_indent"><office:annotation>
-<dc:creator>scene title</dc:creator>
+<dc:creator>$sceneTitle</dc:creator>
 <text:p>~ ${Title} ~</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→Manuscript</text:a></text:p>
+<text:p><text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">→$Manuscript</text:a></text:p>
 </office:annotation>$Desc</text:p>
 </text:section>
 '''
@@ -55,3 +55,18 @@ class OdtWSceneDesc(OdtWriter):
 '''
 
     _fileFooter = OdtWriter._CONTENT_XML_FOOTER
+
+    def _get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section.
+        
+        Positional arguments:
+            scId: str -- scene ID.
+            sceneNumber: int -- scene number to be displayed.
+            wordsTotal: int -- accumulated wordcount.
+            lettersTotal: int -- accumulated lettercount.
+        
+        Extends the superclass method.
+        """
+        sceneMapping = super()._get_sceneMapping(scId, sceneNumber, wordsTotal, lettersTotal)
+        sceneMapping['Manuscript'] = _('Manuscript')
+        return sceneMapping

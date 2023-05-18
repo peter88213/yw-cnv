@@ -765,6 +765,20 @@ class Yw7File(File):
                 xmlSceneFields = ET.SubElement(xmlScene, 'Fields')
                 ET.SubElement(xmlSceneFields, 'Field_SceneType').text = ySceneType
 
+            #--- Export when RTF.
+            if self.novel.scenes[scId].doNotExport is not None:
+                xmlExportCondSpecific = xmlScene.find('ExportCondSpecific')
+                xmlExportWhenRtf = xmlScene.find('ExportWhenRTF')
+                if self.novel.scenes[scId].doNotExport:
+                    if xmlExportCondSpecific is None:
+                        xmlExportCondSpecific = ET.SubElement(xmlScene, 'ExportCondSpecific')
+                    if xmlExportWhenRtf is not None:
+                        xmlScene.remove(xmlExportWhenRtf)
+                else:
+                    if xmlExportCondSpecific is not None:
+                        if xmlExportWhenRtf is None:
+                            ET.SubElement(xmlScene, 'ExportWhenRTF').text = '-1'
+
             #--- Write scene custom fields.
             for field in self.SCN_KWVAR:
                 if self.novel.scenes[scId].kwVar.get(field, None):
@@ -878,7 +892,7 @@ class Yw7File(File):
                         except(AttributeError):
                             ET.SubElement(xmlScene, 'Day').text = prjScn.day
                     if prjScn.time is not None:
-                        hours, minutes, seconds = prjScn.time.split(':')
+                        hours, minutes, __ = prjScn.time.split(':')
                         try:
                             xmlScene.find('Hour').text = hours
                         except(AttributeError):

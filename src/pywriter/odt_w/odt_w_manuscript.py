@@ -29,16 +29,16 @@ class OdtWManuscript(OdtWFormatted):
 '''
 
     _sceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
-<text:p text:style-name="Text_20_body"><office:annotation><dc:creator>scene title</dc:creator><text:p>~ ${Title} ~</text:p><text:p/><text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a></text:p></office:annotation>$SceneContent</text:p>
+<text:p text:style-name="Text_20_body"><office:annotation><dc:creator>$sceneTitle</dc:creator><text:p>~ ${Title} ~</text:p><text:p/><text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→$Summary</text:a></text:p></office:annotation>$SceneContent</text:p>
 </text:section>
 '''
 
     _appendedSceneTemplate = '''<text:section text:style-name="Sect1" text:name="ScID:$ID">
 <text:p text:style-name="First_20_line_20_indent"><office:annotation>
-<dc:creator>scene title</dc:creator>
+<dc:creator>$sceneTitle</dc:creator>
 <text:p>~ ${Title} ~</text:p>
 <text:p/>
-<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→Summary</text:a></text:p>
+<text:p><text:a xlink:href="../${ProjectName}_scenes.odt#ScID:$ID%7Cregion">→$Summary</text:a></text:p>
 </office:annotation>$SceneContent</text:p>
 </text:section>
 '''
@@ -64,4 +64,19 @@ class OdtWManuscript(OdtWFormatted):
         if self.novel.chapters[chId].suppressChapterTitle:
             chapterMapping['Title'] = ''
         return chapterMapping
+
+    def _get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section.
+        
+        Positional arguments:
+            scId: str -- scene ID.
+            sceneNumber: int -- scene number to be displayed.
+            wordsTotal: int -- accumulated wordcount.
+            lettersTotal: int -- accumulated lettercount.
+        
+        Extends the superclass method.
+        """
+        sceneMapping = super()._get_sceneMapping(scId, sceneNumber, wordsTotal, lettersTotal)
+        sceneMapping['Summary'] = _('Summary')
+        return sceneMapping
 

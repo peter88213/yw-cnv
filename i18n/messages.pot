@@ -3,8 +3,8 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.32.6\n"
-"POT-Creation-Date: 2023-05-17 10:49:05\n"
+"Project-Id-Version: 1.32.7\n"
+"POT-Creation-Date: 2023-05-18 11:17:50\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: LANGUAGE\n"
@@ -107,6 +107,9 @@ msgstr ""
 msgid "Location list"
 msgstr ""
 
+msgid "Manuscript"
+msgstr ""
+
 msgid "New Chapter"
 msgstr ""
 
@@ -150,6 +153,9 @@ msgid "Scene descriptions"
 msgstr ""
 
 msgid "Scene list"
+msgstr ""
+
+msgid "Summary"
 msgstr ""
 
 msgid "Tagged manuscript for proofing"

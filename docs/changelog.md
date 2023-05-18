@@ -4,6 +4,15 @@
 
 ## Changelog
 
+### v1.32.7
+
+- Fix a bug in the ODT parser where direct bold and italic formatting is
+not recognized.
+- Provide translations for scene related comments in the exported
+documents.
+
+Based on Pywriter v12.7.2
+
 ### v1.32.6
 
 - Update help.

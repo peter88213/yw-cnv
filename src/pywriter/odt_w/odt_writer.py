@@ -401,6 +401,21 @@ class OdtWriter(OdfFile):
             text = ''
         return text
 
+    def _get_sceneMapping(self, scId, sceneNumber, wordsTotal, lettersTotal):
+        """Return a mapping dictionary for a scene section.
+        
+        Positional arguments:
+            scId: str -- scene ID.
+            sceneNumber: int -- scene number to be displayed.
+            wordsTotal: int -- accumulated wordcount.
+            lettersTotal: int -- accumulated lettercount.
+        
+        Extends the superclass method.
+        """
+        sceneMapping = super()._get_sceneMapping(scId, sceneNumber, wordsTotal, lettersTotal)
+        sceneMapping['sceneTitle'] = _('Scene')
+        return sceneMapping
+
     def _set_up(self):
         """Helper method for ZIP file generation.
 

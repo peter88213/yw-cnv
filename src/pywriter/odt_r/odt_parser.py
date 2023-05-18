@@ -211,9 +211,9 @@ class OdtParser(sax.ContentHandler):
             elif styleName == 'Quotations':
                 self._blockquoteTags.append(self._style)
         elif name == 'style:text-properties':
-            if xmlAttributes.get('style:font-style', None) == 'italic':
+            if xmlAttributes.get('fo:font-style', None) == 'italic':
                 self._emTags.append(self._style)
-            if xmlAttributes.get('style:font-weight', None) == 'bold':
+            if xmlAttributes.get('fo:font-weight', None) == 'bold':
                 self._strongTags.append(self._style)
             if xmlAttributes.get('fo:language', False):
                 lngCode = xmlAttributes['fo:language']
