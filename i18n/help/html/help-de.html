@@ -132,21 +132,19 @@
 <h2 id="von-ywriter-zum-korrekturlesen-importieren">Von yWriter zum Korrekturlesen importieren</h2>
 <p>Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit Kapitel- und Szenenmarkierungen. Das Suffix des Dateinamens ist <code>_proof</code>.</p>
 <ul>
-<li>Das Probedokument wird im selben Ordner wie das yWriter-Projekt abgelegt.</li>
-<li>Der Dateiname des Dokuments: <code>&lt;yW Projektname&gt;_proof.odt</code>.</li>
-<li>Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.</li>
+<li>Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.</li>
 <li>Szenen, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
-<li>Alle anderen Kapitel und Szenen werden importiert, egal ob "benutzt" oder "unbenutzt".</li>
 <li>Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.</li>
 <li>Das Dokument enthält Kapitel <code>[ChID:x]</code> und Szenen <code>[ScID:y]</code> Markierungen entsprechend dem yWriter 5 Standard. <strong>Ändern Sie die Zeilen mit den Markierungen nicht</strong>, wenn Sie das Dokument wieder in yWriter importieren wollen.</li>
 <li>Kapitel und Szenen können weder umgeordnet noch gelöscht werden.</li>
 <li>Sie können Szenen aufteilen, indem Sie Überschriften oder einen Szenentrenner einfügen:
 <ul>
-<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).</li>
-<li><em>Überschrift 2</em> → Neuer Kapiteltitel.</li>
-<li><code>###</code> → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen.</li>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><em>Überschrift 2</em> → Neuer Kapiteltitel. Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><code>###</code> → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
 </ul></li>
 <li>Absätze, die mit <code>&gt;</code> beginnen, werden als Zitate formatiert.</li>
+<li>Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.</li>
 </ul>
 <p>Sie können den Inhalt der Szene mit dem Befehl <a href="#zu-ywriter-exportieren">Zu yWriter exportieren</a> in die yWriter 7 Projektdatei zurückschreiben.</p>
 <p><a href="#top">Zum Seitenbeginn</a></p>

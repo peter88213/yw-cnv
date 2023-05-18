@@ -151,19 +151,17 @@ Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokum
 
 Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit Kapitel- und Szenenmarkierungen. Das Suffix des Dateinamens ist `_proof`.
 
-- Das Probedokument wird im selben Ordner wie das yWriter-Projekt abgelegt.
-- Der Dateiname des Dokuments: `<yW Projektname>_proof.odt`.
-- Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.
+- Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
 - Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
-- Alle anderen Kapitel und Szenen werden importiert, egal ob "benutzt" oder "unbenutzt".
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
 - Das Dokument enthält Kapitel `[ChID:x]` und Szenen `[ScID:y]` Markierungen entsprechend dem yWriter 5 Standard. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yWriter importieren wollen.
 - Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
 - Sie können Szenen aufteilen, indem Sie Überschriften oder einen Szenentrenner einfügen:
-    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
-    - *Überschrift 2* → Neuer Kapiteltitel.
-    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen.
+    - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - *Überschrift 2* → Neuer Kapiteltitel. Sie können eine Beschreibung anfügen, durch `|` getrennt.
+    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
+- Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.
 
 Sie können den Inhalt der Szene mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
 

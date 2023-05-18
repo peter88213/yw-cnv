@@ -170,14 +170,9 @@ This will write yWriter 7 chapters and scenes into a new OpenDocument
 text document (odt) with chapter and scene markers. File name suffix is
 `_proof`.
 
--   The proof read document is placed in the same folder as the yWriter
-    project.
--   Document's filename: `<yW project name>_proof.odt`.
--   Text markup: Bold and italics are supported. Other highlighting such
-    as underline and strikethrough are lost.
+-   Only "normal" chapters and scenes are imported. Chapters and
+    scenes marked "unused", "todo" or "notes" are not imported.
 -   Scenes beginning with `<HTML>` or `<TEX>` are not imported.
--   All other chapters and scenes are imported, whether "used" or
-    "unused".
 -   Interspersed HTML, TEX, or RTF commands are taken over unchanged.
 -   The document contains chapter `[ChID:x]` and scene `[ScID:y]`
     markers according to yWriter 5 standard. **Do not touch lines
@@ -191,6 +186,8 @@ text document (odt) with chapter and scene markers. File name suffix is
        scene title to the scene divider. You can also add a description, separated by `|`.
     - **Note:** Export documents with split scenes not more than once.      
 -   Paragraphs starting with `> ` are formatted as quotations.
+-   Text markup: Bold and italics are supported. Other highlighting such
+    as underline and strikethrough are lost.
 
 You can write back the scene contents to the yWriter 7 project file
 with the [Export to yWriter](#export-to-ywriter) command.

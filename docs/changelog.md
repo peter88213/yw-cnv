@@ -4,6 +4,16 @@
 
 ## Changelog
 
+### v1.33.0
+
+Modify the "Proofing document" class for ODT exchange document export:
+
+- Exclude "Unused", "Notes" and "Todo" scenes from the document export.
+- Apply direct formatting instead of the emphasizing character styles.
+- Do not apply the "Quotation" paragraph style.
+
+Based on PyWriter v12.8.1
+
 ### v1.32.7
 
 - Fix a bug in the ODT parser where direct bold and italic formatting is

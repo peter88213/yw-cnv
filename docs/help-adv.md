@@ -53,6 +53,8 @@ seen in the Navigator). File name suffix is `_manuscript`.
        scene title to the scene divider. You can also add a description, separated by `|`.
     - **Note:** Export documents with split scenes not more than once.      
 -   Paragraphs starting with `> ` are formatted as quotations.
+-   Text markup: Bold and italics are supported. Other highlighting such
+    as underline and strikethrough are lost.
 
 You can write back the scene contents and the chapter/part headings to 
 the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
@@ -218,16 +220,18 @@ This will write yWriter 7 "Notes" chapters with child scenes into a new
 OpenDocument text document (odt) with invisible chapter and scene 
 sections (to be seen in the Navigator). File name suffix is `_notes`.
 
--  Comments within scenes are written back as scene titles
-   if surrounded by `~`.
--  Chapters and scenes can neither be rearranged nor deleted.
--  You can split scenes by inserting headings or a scene divider:
+-   Comments within scenes are written back as scene titles
+    if surrounded by `~`.
+-   Chapters and scenes can neither be rearranged nor deleted.
+-   You can split scenes by inserting headings or a scene divider:
     -  *Heading 1* → New chapter title (beginning a new section). Optionally, you can add a description, separated by `|`.
     -  *Heading 2* → New chapter title. Optionally, you can add a description, separated by `|`.
     -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider. You can also add a description, separated by `|`.
     - **Note:** Export documents with split scenes not more than once.      
--  Paragraphs starting with `> ` are formatted as quotations.
+-   Paragraphs starting with `> ` are formatted as quotations.
+-   Text markup: Bold and italics are supported. Other highlighting such
+    as underline and strikethrough are lost.
 
 [Top of page](#top)
 
@@ -239,16 +243,18 @@ This will write yWriter 7 "Todo" chapters with child scenes into a new
 OpenDocument text document (odt) with invisible chapter and scene 
 sections (to be seen in the Navigator). File name suffix is `_todo`.
 
--  Comments within scenes are written back as scene titles
-   if surrounded by `~`.
--  Chapters and scenes can neither be rearranged nor deleted.
--  You can split scenes by inserting headings or a scene divider:
+-   Comments within scenes are written back as scene titles
+    if surrounded by `~`.
+-   Chapters and scenes can neither be rearranged nor deleted.
+-   You can split scenes by inserting headings or a scene divider:
     -  *Heading 1* → New chapter title (beginning a new section). Optionally, you can add a description, separated by `|`.
     -  *Heading 2* → New chapter title. Optionally, you can add a description, separated by `|`.
     -  `###` → Scene divider. Optionally, you can append the 
        scene title to the scene divider. You can also add a description, separated by `|`.
     - **Note:** Export documents with split scenes not more than once.      
--  Paragraphs starting with `> ` are formatted as quotations.
+-   Paragraphs starting with `> ` are formatted as quotations.
+-   Text markup: Bold and italics are supported. Other highlighting such
+    as underline and strikethrough are lost.
 
 [Top of page](#top)
 

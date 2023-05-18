@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.32.7
+Version 1.33.0
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -2747,6 +2747,7 @@ class NewProjectFactory(FileFactory):
 
         return True
 from string import Template
+from string import Template
 import tempfile
 from shutil import rmtree
 from datetime import datetime
@@ -3893,36 +3894,9 @@ class OdtWProof(OdtWFormatted):
 <text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
 '''
 
-    _unusedChapterTemplate = '''<text:p text:style-name="yWriter_20_mark_20_unused">[ChID:$ID (Unused)]</text:p>
-<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
-'''
-
-    _notesChapterTemplate = '''<text:p text:style-name="yWriter_20_mark_20_notes">[ChID:$ID (Notes)]</text:p>
-<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
-'''
-
-    _todoChapterTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">[ChID:$ID (ToDo)]</text:p>
-<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
-'''
-
     _sceneTemplate = '''<text:p text:style-name="yWriter_20_mark">[ScID:$ID]</text:p>
 <text:p text:style-name="Text_20_body">$SceneContent</text:p>
 <text:p text:style-name="yWriter_20_mark">[/ScID]</text:p>
-'''
-
-    _unusedSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_unused">[ScID:$ID (Unused)]</text:p>
-<text:p text:style-name="Text_20_body">$SceneContent</text:p>
-<text:p text:style-name="yWriter_20_mark_20_unused">[/ScID (Unused)]</text:p>
-'''
-
-    _notesSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_notes">[ScID:$ID (Notes)]</text:p>
-<text:p text:style-name="Text_20_body">$SceneContent</text:p>
-<text:p text:style-name="yWriter_20_mark_20_notes">[/ScID (Notes)]</text:p>
-'''
-
-    _todoSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">[ScID:$ID (ToDo)]</text:p>
-<text:p text:style-name="Text_20_body">$SceneContent</text:p>
-<text:p text:style-name="yWriter_20_mark_20_todo">[/ScID (ToDo)]</text:p>
 '''
 
     _sceneDivider = '''<text:p text:style-name="Heading_20_4">* * *</text:p>
@@ -3931,16 +3905,104 @@ class OdtWProof(OdtWFormatted):
     _chapterEndTemplate = '''<text:p text:style-name="yWriter_20_mark">[/ChID]</text:p>
 '''
 
-    _unusedChapterEndTemplate = '''<text:p text:style-name="yWriter_20_mark_20_unused">[/ChID (Unused)]</text:p>
-'''
-
-    _notesChapterEndTemplate = '''<text:p text:style-name="yWriter_20_mark_20_notes">[/ChID (Notes)]</text:p>
-'''
-
-    _todoChapterEndTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">[/ChID (ToDo)]</text:p>
-'''
-
     _fileFooter = OdtWFormatted._CONTENT_XML_FOOTER
+
+    def _convert_from_yw(self, text, quick=False):
+        if text:
+            odtReplacements = [
+                ('&', '&amp;'),
+                ('>', '&gt;'),
+                ('<', '&lt;'),
+                ("'", '&apos;'),
+                ('"', '&quot;'),
+                ]
+            tags = ['i', 'b']
+            odtReplacements.extend([
+                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
+                ('\r', '\n'),
+                ('[/i]', '</text:span>'),
+                ('[/b]', '</text:span>'),
+                ('/*', f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>'),
+                ('*/', '</text:p></office:annotation>'),
+            ])
+            for i, language in enumerate(self.novel.languages, 1):
+                tags.append(f'lang={language}')
+                odtReplacements.append((f'[lang={language}]', f'<text:span text:style-name="T{i}">'))
+                odtReplacements.append((f'[/lang={language}]', '</text:span>'))
+            odtReplacements.extend([
+                ('[i]', f'<text:span text:style-name="T{i+1}">'),
+                ('[b]', f'<text:span text:style-name="T{i+2}">'),
+            ])
+
+            newlines = []
+            lines = text.split('\n')
+            isOpen = {}
+            opening = {}
+            closing = {}
+            for tag in tags:
+                isOpen[tag] = False
+                opening[tag] = f'[{tag}]'
+                closing[tag] = f'[/{tag}]'
+            for line in lines:
+                for tag in tags:
+                    if isOpen[tag]:
+                        if line.startswith('&gt; '):
+                            line = f"&gt; {opening[tag]}{line.lstrip('&gt; ')}"
+                        else:
+                            line = f'{opening[tag]}{line}'
+                        isOpen[tag] = False
+                    while line.count(opening[tag]) > line.count(closing[tag]):
+                        line = f'{line}{closing[tag]}'
+                        isOpen[tag] = True
+                    while line.count(closing[tag]) > line.count(opening[tag]):
+                        line = f'{opening[tag]}{line}'
+                    line = line.replace(f'{opening[tag]}{closing[tag]}', '')
+                newlines.append(line)
+            text = '\n'.join(newlines).rstrip()
+
+            for yw, od in odtReplacements:
+                text = text.replace(yw, od)
+
+            text = re.sub('\[\/*[h|c|r|s|u]\d*\]', '', text)
+        else:
+            text = ''
+        return text
+
+    def _get_fileHeaderMapping(self):
+        styleMapping = {}
+        if self.novel.languages:
+            lines = ['<office:automatic-styles>']
+            for i, language in enumerate(self.novel.languages, 1):
+                try:
+                    lngCode, ctrCode = language.split('-')
+                except:
+                    lngCode = 'zxx'
+                    ctrCode = 'none'
+                lines.append(f'''  <style:style style:name="T{i}" style:family="text">
+   <style:text-properties fo:language="{lngCode}" fo:country="{ctrCode}" style:language-asian="{lngCode}" style:country-asian="{ctrCode}" style:language-complex="{lngCode}" style:country-complex="{ctrCode}"/>
+  </style:style>''')
+            lines.append(f'''  <style:style style:name="T{i+1}" style:family="text">
+   <style:text-properties fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic"/>
+  </style:style>''')
+            lines.append(f'''  <style:style style:name="T{i+2}" style:family="text">
+   <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
+  </style:style>''')
+            lines.append(' </office:automatic-styles>')
+            styleMapping['automaticStyles'] = '\n'.join(lines)
+        else:
+            styleMapping['automaticStyles'] = '<office:automatic-styles/>'
+        template = Template(self._CONTENT_XML_HEADER)
+        projectTemplateMapping = super()._get_fileHeaderMapping()
+        projectTemplateMapping['ContentHeader'] = template.safe_substitute(styleMapping)
+        return projectTemplateMapping
+
+    def _get_text(self):
+        lines = self._get_fileHeader()
+        lines.extend(self._get_chapters())
+        lines.append(self._fileFooter)
+        text = ''.join(lines)
+        return text
 
 
 class OdtWManuscript(OdtWFormatted):
