@@ -319,16 +319,16 @@ class OdtWriter(OdfFile):
    <style:text-properties style:font-name="Consolas"/>
   </style:style>
   <style:style style:name="scene_20_mark" style:display-name="Scene mark" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#008000" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#008000" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="scene_20_mark_20_unused" style:display-name="Scene mark (unused type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#808080" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#808080" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="scene_20_mark_20_notes" style:display-name="Scene mark (notes type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#0000FF" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#0000FF" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="scene_20_mark_20_todo" style:display-name="Scene mark (todo type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
-   <style:text-properties fo:color="#B22222" fo:font-size="10pt"/>
+   <style:text-properties fo:color="#B22222" fo:font-size="10pt" fo:language="zxx" fo:country="none"/>
   </style:style>
   <style:style style:name="Emphasis" style:family="text">
    <style:text-properties fo:font-style="italic" fo:background-color="transparent"/>

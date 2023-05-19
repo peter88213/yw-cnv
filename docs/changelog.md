@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.33.2
+
+- Fix a bug where direct formatting of whole paragraphs is not considered when converting from ODT to yw7.
+- Exclude the scene marks in the "proofing" document from spell checking.
+
+Based on PyWriter v12.8.5
+
 ### v1.33.1
 
 - Fix a regression from v1.33.0 where the "proofing" document export may crash in case no language tags are found.
