@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.33.0
+Version 1.33.1
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -3604,14 +3604,6 @@ class OdtWriter(OdfFile):
   <style:style style:name="Heading_20_10" style:display-name="Heading 10" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="10" style:list-style-name="" style:class="text">
    <style:text-properties fo:font-size="75%" fo:font-weight="bold"/>
   </style:style>
-  <style:style style:name="Header_20_and_20_Footer" style:display-name="Header and Footer" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
-   <style:paragraph-properties text:number-lines="false" text:line-number="0">
-    <style:tab-stops>
-     <style:tab-stop style:position="8.5cm" style:type="center"/>
-     <style:tab-stop style:position="17cm" style:type="right"/>
-    </style:tab-stops>
-   </style:paragraph-properties>
-  </style:style>
   <style:style style:name="Header" style:family="paragraph" style:parent-style-name="Standard" style:class="extra" style:master-page-name="">
    <style:paragraph-properties fo:text-align="end" style:justify-single-word="false" style:page-number="auto" fo:padding="0.049cm" fo:border-left="none" fo:border-right="none" fo:border-top="none" fo:border-bottom="0.002cm solid #000000" style:shadow="none">
     <style:tab-stops>
@@ -3677,16 +3669,16 @@ class OdtWriter(OdfFile):
    <style:paragraph-properties fo:margin="100%" fo:margin-left="1cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
    <style:text-properties style:font-name="Consolas"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark" style:display-name="yWriter mark" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark" style:display-name="Scene mark" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#008000" fo:font-size="10pt"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark_20_unused" style:display-name="yWriter mark unused" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark_20_unused" style:display-name="Scene mark (unused type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#808080" fo:font-size="10pt"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark_20_notes" style:display-name="yWriter mark notes" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark_20_notes" style:display-name="Scene mark (notes type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#0000FF" fo:font-size="10pt"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark_20_todo" style:display-name="yWriter mark todo" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark_20_todo" style:display-name="Scene mark (todo type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#B22222" fo:font-size="10pt"/>
   </style:style>
   <style:style style:name="Emphasis" style:family="text">
@@ -3886,23 +3878,18 @@ class OdtWProof(OdtWFormatted):
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
 
-    _partTemplate = '''<text:p text:style-name="yWriter_20_mark">[ChID:$ID]</text:p>
-<text:h text:style-name="Heading_20_1" text:outline-level="1">$Title</text:h>
+    _partTemplate = '''<text:h text:style-name="Heading_20_1" text:outline-level="1">$Title</text:h>
 '''
 
-    _chapterTemplate = '''<text:p text:style-name="yWriter_20_mark">[ChID:$ID]</text:p>
-<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
+    _chapterTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
 '''
 
-    _sceneTemplate = '''<text:p text:style-name="yWriter_20_mark">[ScID:$ID]</text:p>
+    _sceneTemplate = '''<text:p text:style-name="scene_20_mark">[ScID:$ID]</text:p>
 <text:p text:style-name="Text_20_body">$SceneContent</text:p>
-<text:p text:style-name="yWriter_20_mark">[/ScID]</text:p>
+<text:p text:style-name="scene_20_mark">[/ScID]</text:p>
 '''
 
     _sceneDivider = '''<text:p text:style-name="Heading_20_4">* * *</text:p>
-'''
-
-    _chapterEndTemplate = '''<text:p text:style-name="yWriter_20_mark">[/ChID]</text:p>
 '''
 
     _fileFooter = OdtWFormatted._CONTENT_XML_FOOTER
@@ -3926,6 +3913,7 @@ class OdtWProof(OdtWFormatted):
                 ('/*', f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>'),
                 ('*/', '</text:p></office:annotation>'),
             ])
+            i = 0
             for i, language in enumerate(self.novel.languages, 1):
                 tags.append(f'lang={language}')
                 odtReplacements.append((f'[lang={language}]', f'<text:span text:style-name="T{i}">'))
@@ -3971,27 +3959,25 @@ class OdtWProof(OdtWFormatted):
 
     def _get_fileHeaderMapping(self):
         styleMapping = {}
-        if self.novel.languages:
-            lines = ['<office:automatic-styles>']
-            for i, language in enumerate(self.novel.languages, 1):
-                try:
-                    lngCode, ctrCode = language.split('-')
-                except:
-                    lngCode = 'zxx'
-                    ctrCode = 'none'
-                lines.append(f'''  <style:style style:name="T{i}" style:family="text">
+        i = 0
+        lines = ['<office:automatic-styles>']
+        for i, language in enumerate(self.novel.languages, 1):
+            try:
+                lngCode, ctrCode = language.split('-')
+            except:
+                lngCode = 'zxx'
+                ctrCode = 'none'
+            lines.append(f'''  <style:style style:name="T{i}" style:family="text">
    <style:text-properties fo:language="{lngCode}" fo:country="{ctrCode}" style:language-asian="{lngCode}" style:country-asian="{ctrCode}" style:language-complex="{lngCode}" style:country-complex="{ctrCode}"/>
   </style:style>''')
-            lines.append(f'''  <style:style style:name="T{i+1}" style:family="text">
+        lines.append(f'''  <style:style style:name="T{i+1}" style:family="text">
    <style:text-properties fo:font-style="italic" style:font-style-asian="italic" style:font-style-complex="italic"/>
   </style:style>''')
-            lines.append(f'''  <style:style style:name="T{i+2}" style:family="text">
+        lines.append(f'''  <style:style style:name="T{i+2}" style:family="text">
    <style:text-properties fo:font-weight="bold" style:font-weight-asian="bold" style:font-weight-complex="bold"/>
   </style:style>''')
-            lines.append(' </office:automatic-styles>')
-            styleMapping['automaticStyles'] = '\n'.join(lines)
-        else:
-            styleMapping['automaticStyles'] = '<office:automatic-styles/>'
+        lines.append(' </office:automatic-styles>')
+        styleMapping['automaticStyles'] = '\n'.join(lines)
         template = Template(self._CONTENT_XML_HEADER)
         projectTemplateMapping = super()._get_fileHeaderMapping()
         projectTemplateMapping['ContentHeader'] = template.safe_substitute(styleMapping)
@@ -4378,19 +4364,19 @@ class OdtWXref(OdtWriter):
     _fileHeader = f'''{OdtWriter._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
-    _sceneTemplate = '''<text:p text:style-name="yWriter_20_mark">
+    _sceneTemplate = '''<text:p text:style-name="scene_20_mark">
 <text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">$SceneNumber</text:a> (Ch $Chapter) $Title
 </text:p>
 '''
-    _unusedSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_unused">
+    _unusedSceneTemplate = '''<text:p text:style-name="scene_20_mark_20_unused">
 $SceneNumber (Ch $Chapter) $Title (Unused)
 </text:p>
 '''
-    _notesSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_notes">
+    _notesSceneTemplate = '''<text:p text:style-name="scene_20_mark_20_notes">
 $SceneNumber (Ch $Chapter) $Title (Notes)
 </text:p>
 '''
-    _todoSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">
+    _todoSceneTemplate = '''<text:p text:style-name="scene_20_mark_20_todo">
 $SceneNumber (Ch $Chapter) $Title (ToDo)
 </text:p>
 '''
@@ -5330,13 +5316,6 @@ class OdtRProof(OdtRFormatted):
                 text = ''.join(self._lines)
                 self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
                 self._scId = None
-            elif '[ChID' in data:
-                self._chId = re.search('[0-9]+', data).group()
-                if not self._chId in self.novel.chapters:
-                    self.novel.chapters[self._chId] = Chapter()
-                    self.novel.srtChapters.append(self._chId)
-            elif '[/ChID' in data:
-                self._chId = None
             elif self._scId is not None:
                 self._lines.append(data)
         except:

@@ -18,19 +18,19 @@ class OdtWXref(OdtWriter):
     _fileHeader = f'''{OdtWriter._CONTENT_XML_HEADER}<text:p text:style-name="Title">$Title</text:p>
 <text:p text:style-name="Subtitle">$AuthorName</text:p>
 '''
-    _sceneTemplate = '''<text:p text:style-name="yWriter_20_mark">
+    _sceneTemplate = '''<text:p text:style-name="scene_20_mark">
 <text:a xlink:href="../${ProjectName}_manuscript.odt#ScID:$ID%7Cregion">$SceneNumber</text:a> (Ch $Chapter) $Title
 </text:p>
 '''
-    _unusedSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_unused">
+    _unusedSceneTemplate = '''<text:p text:style-name="scene_20_mark_20_unused">
 $SceneNumber (Ch $Chapter) $Title (Unused)
 </text:p>
 '''
-    _notesSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_notes">
+    _notesSceneTemplate = '''<text:p text:style-name="scene_20_mark_20_notes">
 $SceneNumber (Ch $Chapter) $Title (Notes)
 </text:p>
 '''
-    _todoSceneTemplate = '''<text:p text:style-name="yWriter_20_mark_20_todo">
+    _todoSceneTemplate = '''<text:p text:style-name="scene_20_mark_20_todo">
 $SceneNumber (Ch $Chapter) $Title (ToDo)
 </text:p>
 '''

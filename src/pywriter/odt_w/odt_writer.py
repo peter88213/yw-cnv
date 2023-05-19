@@ -253,14 +253,6 @@ class OdtWriter(OdfFile):
   <style:style style:name="Heading_20_10" style:display-name="Heading 10" style:family="paragraph" style:parent-style-name="Heading" style:next-style-name="Text_20_body" style:default-outline-level="10" style:list-style-name="" style:class="text">
    <style:text-properties fo:font-size="75%" fo:font-weight="bold"/>
   </style:style>
-  <style:style style:name="Header_20_and_20_Footer" style:display-name="Header and Footer" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">
-   <style:paragraph-properties text:number-lines="false" text:line-number="0">
-    <style:tab-stops>
-     <style:tab-stop style:position="8.5cm" style:type="center"/>
-     <style:tab-stop style:position="17cm" style:type="right"/>
-    </style:tab-stops>
-   </style:paragraph-properties>
-  </style:style>
   <style:style style:name="Header" style:family="paragraph" style:parent-style-name="Standard" style:class="extra" style:master-page-name="">
    <style:paragraph-properties fo:text-align="end" style:justify-single-word="false" style:page-number="auto" fo:padding="0.049cm" fo:border-left="none" fo:border-right="none" fo:border-top="none" fo:border-bottom="0.002cm solid #000000" style:shadow="none">
     <style:tab-stops>
@@ -326,16 +318,16 @@ class OdtWriter(OdfFile):
    <style:paragraph-properties fo:margin="100%" fo:margin-left="1cm" fo:margin-right="0cm" fo:margin-top="0cm" fo:margin-bottom="0cm" fo:text-indent="0cm" style:auto-text-indent="false"/>
    <style:text-properties style:font-name="Consolas"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark" style:display-name="yWriter mark" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark" style:display-name="Scene mark" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#008000" fo:font-size="10pt"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark_20_unused" style:display-name="yWriter mark unused" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark_20_unused" style:display-name="Scene mark (unused type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#808080" fo:font-size="10pt"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark_20_notes" style:display-name="yWriter mark notes" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark_20_notes" style:display-name="Scene mark (notes type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#0000FF" fo:font-size="10pt"/>
   </style:style>
-  <style:style style:name="yWriter_20_mark_20_todo" style:display-name="yWriter mark todo" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
+  <style:style style:name="scene_20_mark_20_todo" style:display-name="Scene mark (todo type)" style:family="paragraph" style:parent-style-name="Standard" style:next-style-name="Standard" style:class="text">
    <style:text-properties fo:color="#B22222" fo:font-size="10pt"/>
   </style:style>
   <style:style style:name="Emphasis" style:family="text">

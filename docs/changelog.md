@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.33.1
+
+- Fix a regression from v1.33.0 where the "proofing" document export may crash in case no language tags are found.
+- Simplify the "proofread" document's structure.
+
+Based on PyWriter v12.8.3
+
 ### v1.33.0
 
 Modify the "Proofing document" class for ODT exchange document export:

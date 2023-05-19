@@ -149,12 +149,12 @@ Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokum
 
 ## Von yWriter zum Korrekturlesen importieren
 
-Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit Kapitel- und Szenenmarkierungen. Das Suffix des Dateinamens ist `_proof`.
+Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit sichtbaren Szenenmarkierungen. Das Suffix des Dateinamens ist `_proof`.
 
 - Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
 - Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
-- Das Dokument enthält Kapitel `[ChID:x]` und Szenen `[ScID:y]` Markierungen entsprechend dem yWriter 5 Standard. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yWriter importieren wollen.
+- Das Dokument enthält Szenen Markierungen `[ScID:x]`. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yWriter importieren wollen.
 - Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
 - Sie können Szenen aufteilen, indem Sie Überschriften oder einen Szenentrenner einfügen:
     - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.

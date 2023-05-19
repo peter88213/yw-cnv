@@ -46,13 +46,6 @@ class OdtRProof(OdtRFormatted):
                 text = ''.join(self._lines)
                 self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
                 self._scId = None
-            elif '[ChID' in data:
-                self._chId = re.search('[0-9]+', data).group()
-                if not self._chId in self.novel.chapters:
-                    self.novel.chapters[self._chId] = Chapter()
-                    self.novel.srtChapters.append(self._chId)
-            elif '[/ChID' in data:
-                self._chId = None
             elif self._scId is not None:
                 self._lines.append(data)
         except:
