@@ -79,4 +79,6 @@ class OdtRItems(OdtReader):
                     if not self._itId in self.novel.items:
                         self.novel.srtItems.append(self._itId)
                         self.novel.items[self._itId] = WorldElement()
+        elif tag == 's':
+            self._lines.append(' ')
 

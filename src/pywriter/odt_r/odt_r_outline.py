@@ -128,3 +128,5 @@ class OdtROutline(OdtReader):
                 elif attr[0] == 'country':
                     if attr[1]:
                         self.novel.countryCode = attr[1]
+        elif tag == 's':
+            self._lines.append(' ')

@@ -79,4 +79,6 @@ class OdtRLocations(OdtReader):
                     if not self._lcId in self.novel.locations:
                         self.novel.srtLocations.append(self._lcId)
                         self.novel.locations[self._lcId] = WorldElement()
+        elif tag == 's':
+            self._lines.append(' ')
 

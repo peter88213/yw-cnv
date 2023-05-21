@@ -90,6 +90,8 @@ class OdtReader(File, OdtParser):
                         self.novel.chapters[self._chId].srtScenes = []
                         self.novel.srtChapters.append(self._chId)
                     self.novel.chapters[self._chId].chType = self._TYPE
+        elif tag == 's':
+            self._lines.append(' ')
 
     def read(self):
         OdtParser.feed_file(self, self.filePath)

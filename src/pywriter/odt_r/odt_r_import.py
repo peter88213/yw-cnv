@@ -197,6 +197,8 @@ class OdtRImport(OdtRFormatted):
                     self._lines.append(f'[lang={self._language}]')
             except:
                 pass
+        elif tag == 's':
+            self._lines.append(' ')
 
     def read(self):
         """Parse the file and get the instance variables.

@@ -230,6 +230,8 @@ class OdtParser(sax.ContentHandler):
                 else:
                     locale = lngCode
                 self._languageTags[self._style] = locale
+        elif name == 'text:s':
+            self.handle_starttag('s', [()])
 
     def handle_comment(self, data):
         """Stub for a comment handler to be implemented in a subclass.

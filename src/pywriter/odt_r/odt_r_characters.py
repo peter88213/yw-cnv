@@ -100,4 +100,6 @@ class OdtRCharacters(OdtReader):
                     self._section = 'goals'
                 elif attrs[0][1].startswith('CrID_notes'):
                     self._section = 'notes'
+        elif tag == 's':
+            self._lines.append(' ')
 

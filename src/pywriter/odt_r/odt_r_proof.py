@@ -6,8 +6,6 @@ Published under the MIT License (https://opensource.org/licenses/mit-license.php
 """
 import re
 from pywriter.pywriter_globals import *
-from pywriter.model.chapter import Chapter
-from pywriter.model.scene import Scene
 from pywriter.odt_r.odt_r_formatted import OdtRFormatted
 from pywriter.model.splitter import Splitter
 
@@ -38,13 +36,12 @@ class OdtRProof(OdtRFormatted):
                 self._skip_data = False
             elif '[ScID' in data:
                 self._scId = re.search('[0-9]+', data).group()
-                if not self._scId in self.novel.scenes:
-                    self.novel.scenes[self._scId] = Scene()
-                    self.novel.chapters[self._chId].srtScenes.append(self._scId)
                 self._lines = []
             elif '[/ScID' in data:
-                text = ''.join(self._lines)
-                self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
+                if self._scId in self.novel.scenes:
+                    text = ''.join(self._lines)
+                    self.novel.scenes[self._scId].sceneContent = self._cleanup_scene(text).strip()
+                    self._lines = []
                 self._scId = None
             elif self._scId is not None:
                 self._lines.append(data)
@@ -122,4 +119,6 @@ class OdtRProof(OdtRFormatted):
         elif tag in ('br', 'ul'):
             self._skip_data = True
             # avoid inserting an unwanted blank
+        elif tag == 's':
+            self._lines.append(' ')
 
