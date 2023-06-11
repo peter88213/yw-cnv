@@ -6,7 +6,7 @@
 
 ### v1.34.0
 
-- When exporting an ODT document that is not meant for re-import, convert yWriter comments into footnotes or endnotes (see [help text](help#import-from-ywriter)).
+- When importing an ODT document that is not meant for re-import, convert yWriter comments into footnotes or endnotes (see [help text](help#import-from-ywriter)).
 
 Based on PyWriter v12.13.0
 
