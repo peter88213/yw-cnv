@@ -4,6 +4,7 @@ Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/PyWriter
 Published under the MIT License (https://opensource.org/licenses/mit-license.php)
 """
+import re
 from pywriter.pywriter_globals import *
 from pywriter.odt_w.odt_w_formatted import OdtWFormatted
 
@@ -66,4 +67,45 @@ class OdtWExport(OdtWFormatted):
         if self.novel.chapters[chId].suppressChapterTitle:
             chapterMapping['Title'] = ''
         return chapterMapping
+
+    def _get_replacements(self):
+        return [
+                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
+                ('\r', '\n'),
+                ('[i]', '<text:span text:style-name="Emphasis">'),
+                ('[/i]', '</text:span>'),
+                ('[b]', '<text:span text:style-name="Strong_20_Emphasis">'),
+                ('[/b]', '</text:span>'),
+                ]
+
+    def _get_text(self):
+
+        def replace_note(match):
+            noteType = match.group(1)
+            self._noteCounter += 1
+            self._noteNumber += 1
+            noteLabel = f'{self._noteNumber}'
+            if noteType.startswith('fn'):
+                noteClass = 'footnote'
+                noteStyle = 'Footnote'
+                if noteType.endswith('*'):
+                    self._noteNumber -= 1
+                    noteLabel = '*'
+            elif noteType.startswith('en'):
+                noteClass = 'endnote'
+                noteStyle = 'Endnote'
+            text = match.group(2).replace('text:style-name="First_20_line_20_indent"', f'text:style-name="{noteStyle}"')
+            return f'<text:note text:id="ftn{self._noteCounter}" text:note-class="{noteClass}"><text:note-citation text:label="{noteLabel}">*</text:note-citation><text:note-body><text:p text:style-name="{noteStyle}">{text}</text:p></text:note-body></text:note>'
+
+        text = super()._get_text()
+        if text.find('/*') > 0:
+            text = text.replace('\r', '@r@').replace('\n', '@n@')
+            self._noteCounter = 0
+            self._noteNumber = 0
+            simpleComment = f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>\\1</text:p></office:annotation>'
+            text = re.sub('\/\* @([ef]n\**) (.*?)\*\/', replace_note, text)
+            text = re.sub('\/\*(.*?)\*\/', simpleComment, text)
+            text = text.replace('@r@', '\r').replace('@n@', '\n')
+        return text
 

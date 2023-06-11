@@ -65,7 +65,11 @@ class OdtParser(sax.ContentHandler):
             with zipfile.ZipFile(filePath, 'r') as odfFile:
                 content = odfFile.read('content.xml')
                 styles = odfFile.read('styles.xml')
-                meta = odfFile.read('meta.xml')
+                try:
+                    meta = odfFile.read('meta.xml')
+                except KeyError:
+                    # meta.xml may be missing in outlines created with e.g. FreeMind
+                    meta = None
         except:
             raise Error(f'{_("Cannot read file")}: "{norm_path(filePath)}".')
 
@@ -81,22 +85,23 @@ class OdtParser(sax.ContentHandler):
                 break
 
         #--- Get title, description, and author from 'meta.xml'.
-        root = ET.fromstring(meta)
-        meta = root.find('office:meta', namespaces)
-        title = meta.find('dc:title', namespaces)
-        if title is not None:
-            if title.text:
-                self.handle_starttag('title', [()])
-                self.handle_data(title.text)
-                self.handle_endtag('title')
-        author = meta.find('meta:initial-creator', namespaces)
-        if author is not None:
-            if author.text:
-                self.handle_starttag('meta', [('', 'author'), ('', author.text)])
-        desc = meta.find('dc:description', namespaces)
-        if desc is not None:
-            if desc.text:
-                self.handle_starttag('meta', [('', 'description'), ('', desc.text)])
+        if meta:
+            root = ET.fromstring(meta)
+            meta = root.find('office:meta', namespaces)
+            title = meta.find('dc:title', namespaces)
+            if title is not None:
+                if title.text:
+                    self.handle_starttag('title', [()])
+                    self.handle_data(title.text)
+                    self.handle_endtag('title')
+            author = meta.find('meta:initial-creator', namespaces)
+            if author is not None:
+                if author.text:
+                    self.handle_starttag('meta', [('', 'author'), ('', author.text)])
+            desc = meta.find('dc:description', namespaces)
+            if desc is not None:
+                if desc.text:
+                    self.handle_starttag('meta', [('', 'description'), ('', desc.text)])
 
         #--- Parse 'content.xml'.
         sax.parseString(content, self)

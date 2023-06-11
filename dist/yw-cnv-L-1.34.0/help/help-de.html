@@ -117,6 +117,13 @@
 <li>Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.</li>
 <li>Szenen, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
 <li>Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. <code>/* das ist ein Kommentar */</code>), werden in Autorenkommentare umgewandelt.</li>
+<li>Gekennzeichnete Kommentare (wie <code>/* @en Das ist eine Endnote. */</code>) werden zu Fußnoten oder Endnoten konvertiert. Kennzeichnungen:
+<ul>
+<li><code>@fn*</code> -- Einfache Fußnote mit Sternchen,</li>
+<li><code>@fn</code> -- Nummerierte Fußnote.</li>
+<li><code>@en</code> -- Nummerierte Endnote.<br />
+</li>
+</ul></li>
 <li>Eingestreute HTML-, TEX- oder RTF-Befehle werden entfernt.</li>
 <li>Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.</li>
 <li>Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.</li>

@@ -22,10 +22,10 @@ LOCALE_PATH = f'{packagePath}/yw-cnv/locale/'"""
 
 
 def main():
-    # inliner.run(SOURCE_FILE, TARGET_FILE, 'ywcnvlib', '../src/', copyPyWriter=True)
-    # inliner.run(TARGET_FILE, TARGET_FILE, 'pywriter', '../../PyWriter/src/', copyPyWriter=True)
-    inliner.run(SOURCE_FILE, TARGET_FILE, 'ywcnvlib', '../src/')
-    inliner.run(TARGET_FILE, TARGET_FILE, 'pywriter', '../src/')
+    inliner.run(SOURCE_FILE, TARGET_FILE, 'ywcnvlib', '../src/', copyPyWriter=True)
+    inliner.run(TARGET_FILE, TARGET_FILE, 'pywriter', '../../PyWriter/src/', copyPyWriter=True)
+    # inliner.run(SOURCE_FILE, TARGET_FILE, 'ywcnvlib', '../src/')
+    # inliner.run(TARGET_FILE, TARGET_FILE, 'pywriter', '../src/')
 
     # This is a hack to get the script's location within the UNO context:
     with open(TARGET_FILE, 'r') as f:

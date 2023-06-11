@@ -133,6 +133,11 @@ Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokum
 - Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.
 - Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* das ist ein Kommentar */`), werden in Autorenkommentare umgewandelt.
+- Gekennzeichnete Kommentare (wie `/* @en Das ist eine Endnote. */`) 
+  werden zu Fußnoten oder Endnoten konvertiert. Kennzeichnungen:
+    - `@fn*` -- Einfache Fußnote mit Sternchen, 
+    - `@fn` -- Nummerierte Fußnote.
+    - `@en` -- Nummerierte Endnote.  
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden entfernt.
 - Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.
 - Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.

@@ -117,6 +117,13 @@
 <li>Only scenes that are intended for RTF export in yWriter will be imported.</li>
 <li>Scenes beginning with <code>&lt;HTML&gt;</code> or <code>&lt;TEX&gt;</code> are not imported.</li>
 <li>Comments in the text bracketed with slashes and asterisks (like <code>/* this is a comment */</code>) are converted to author's comments.</li>
+<li>yWriter comments with special marks (like <code>/* @en this is an endnote. */</code>) are converted into footnotes or endnotes. Markup:
+<ul>
+<li><code>@fn*</code> -- simple footnote, marked with an astersik</li>
+<li><code>@fn</code> -- numbered footnote</li>
+<li><code>@en</code> -- numbered endnote<br />
+</li>
+</ul></li>
 <li>Interspersed HTML, TEX, or RTF commands are removed.</li>
 <li>Gobal variables and project variables are not resolved.</li>
 <li>Chapter titles appear as first level heading if the chapter is marked as beginning of a new section in yWriter. Such headings are considered as "part" headings.</li>

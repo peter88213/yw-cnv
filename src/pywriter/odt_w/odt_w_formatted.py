@@ -64,17 +64,7 @@ class OdtWFormatted(OdtWriter):
                 ]
             if not quick:
                 tags = ['i', 'b']
-                odtReplacements.extend([
-                    ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
-                    ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
-                    ('\r', '\n'),
-                    ('[i]', '<text:span text:style-name="Emphasis">'),
-                    ('[/i]', '</text:span>'),
-                    ('[b]', '<text:span text:style-name="Strong_20_Emphasis">'),
-                    ('[/b]', '</text:span>'),
-                    ('/*', f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>'),
-                    ('*/', '</text:p></office:annotation>'),
-                ])
+                odtReplacements.extend(self._get_replacements())
                 for i, language in enumerate(self.novel.languages, 1):
                     tags.append(f'lang={language}')
                     odtReplacements.append((f'[lang={language}]', f'<text:span text:style-name="T{i}">'))
@@ -145,6 +135,19 @@ class OdtWFormatted(OdtWriter):
         projectTemplateMapping = super()._get_fileHeaderMapping()
         projectTemplateMapping['ContentHeader'] = template.safe_substitute(styleMapping)
         return projectTemplateMapping
+
+    def _get_replacements(self):
+        return [
+                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
+                ('\r', '\n'),
+                ('[i]', '<text:span text:style-name="Emphasis">'),
+                ('[/i]', '</text:span>'),
+                ('[b]', '<text:span text:style-name="Strong_20_Emphasis">'),
+                ('[/b]', '</text:span>'),
+                ('/*', f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>'),
+                ('*/', '</text:p></office:annotation>'),
+                ]
 
     def _get_text(self):
         """Call all processing methods.

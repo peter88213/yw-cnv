@@ -140,6 +140,11 @@ text document (odt).
 -   Scenes beginning with `<HTML>` or `<TEX>` are not imported.
 -   Comments in the text bracketed with slashes and asterisks (like
     `/* this is a comment */`) are converted to author's comments.
+-   yWriter comments with special marks (like `/* @en this is an endnote. */`) 
+    are converted into footnotes or endnotes. Markup:
+    - `@fn*` -- simple footnote, marked with an astersik
+    - `@fn` -- numbered footnote
+    - `@en` -- numbered endnote   
 -   Interspersed HTML, TEX, or RTF commands are removed.
 -   Gobal variables and project variables are not resolved.
 -   Chapter titles appear as first level heading if the chapter is

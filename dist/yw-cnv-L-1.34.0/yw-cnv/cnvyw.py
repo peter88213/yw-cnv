@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.33.3
+Version 1.34.0
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -733,459 +733,6 @@ class Yw7File(File):
 
     def read(self):
 
-        def read_project(root):
-            xmlProject = root.find('PROJECT')
-
-            if xmlProject.find('Title') is not None:
-                self.novel.title = xmlProject.find('Title').text
-
-            if xmlProject.find('AuthorName') is not None:
-                self.novel.authorName = xmlProject.find('AuthorName').text
-
-            if xmlProject.find('Bio') is not None:
-                self.novel.authorBio = xmlProject.find('Bio').text
-
-            if xmlProject.find('Desc') is not None:
-                self.novel.desc = xmlProject.find('Desc').text
-
-            if xmlProject.find('FieldTitle1') is not None:
-                self.novel.fieldTitle1 = xmlProject.find('FieldTitle1').text
-
-            if xmlProject.find('FieldTitle2') is not None:
-                self.novel.fieldTitle2 = xmlProject.find('FieldTitle2').text
-
-            if xmlProject.find('FieldTitle3') is not None:
-                self.novel.fieldTitle3 = xmlProject.find('FieldTitle3').text
-
-            if xmlProject.find('FieldTitle4') is not None:
-                self.novel.fieldTitle4 = xmlProject.find('FieldTitle4').text
-
-            if xmlProject.find('WordCountStart') is not None:
-                try:
-                    self.novel.wordCountStart = int(xmlProject.find('WordCountStart').text)
-                except:
-                    self.novel.wordCountStart = 0
-            if xmlProject.find('WordTarget') is not None:
-                try:
-                    self.novel.wordTarget = int(xmlProject.find('WordTarget').text)
-                except:
-                    self.novel.wordTarget = 0
-
-            for fieldName in self.PRJ_KWVAR:
-                self.novel.kwVar[fieldName] = None
-
-            for xmlProjectFields in xmlProject.findall('Fields'):
-                for fieldName in self.PRJ_KWVAR:
-                    field = xmlProjectFields.find(fieldName)
-                    if field is not None:
-                        self.novel.kwVar[fieldName] = field.text
-
-            if self.novel.kwVar['Field_LanguageCode']:
-                self.novel.languageCode = self.novel.kwVar['Field_LanguageCode']
-            if self.novel.kwVar['Field_CountryCode']:
-                self.novel.countryCode = self.novel.kwVar['Field_CountryCode']
-
-        def read_locations(root):
-            self.novel.srtLocations = []
-            for xmlLocation in root.find('LOCATIONS'):
-                lcId = xmlLocation.find('ID').text
-                self.novel.srtLocations.append(lcId)
-                self.novel.locations[lcId] = WorldElement()
-
-                if xmlLocation.find('Title') is not None:
-                    self.novel.locations[lcId].title = xmlLocation.find('Title').text
-
-                if xmlLocation.find('ImageFile') is not None:
-                    self.novel.locations[lcId].image = xmlLocation.find('ImageFile').text
-
-                if xmlLocation.find('Desc') is not None:
-                    self.novel.locations[lcId].desc = xmlLocation.find('Desc').text
-
-                if xmlLocation.find('AKA') is not None:
-                    self.novel.locations[lcId].aka = xmlLocation.find('AKA').text
-
-                if xmlLocation.find('Tags') is not None:
-                    if xmlLocation.find('Tags').text is not None:
-                        tags = string_to_list(xmlLocation.find('Tags').text)
-                        self.novel.locations[lcId].tags = self._strip_spaces(tags)
-
-                for fieldName in self.LOC_KWVAR:
-                    self.novel.locations[lcId].kwVar[fieldName] = None
-
-                for xmlLocationFields in xmlLocation.findall('Fields'):
-                    for fieldName in self.LOC_KWVAR:
-                        field = xmlLocationFields.find(fieldName)
-                        if field is not None:
-                            self.novel.locations[lcId].kwVar[fieldName] = field.text
-
-        def read_items(root):
-            self.novel.srtItems = []
-            for xmlItem in root.find('ITEMS'):
-                itId = xmlItem.find('ID').text
-                self.novel.srtItems.append(itId)
-                self.novel.items[itId] = WorldElement()
-
-                if xmlItem.find('Title') is not None:
-                    self.novel.items[itId].title = xmlItem.find('Title').text
-
-                if xmlItem.find('ImageFile') is not None:
-                    self.novel.items[itId].image = xmlItem.find('ImageFile').text
-
-                if xmlItem.find('Desc') is not None:
-                    self.novel.items[itId].desc = xmlItem.find('Desc').text
-
-                if xmlItem.find('AKA') is not None:
-                    self.novel.items[itId].aka = xmlItem.find('AKA').text
-
-                if xmlItem.find('Tags') is not None:
-                    if xmlItem.find('Tags').text is not None:
-                        tags = string_to_list(xmlItem.find('Tags').text)
-                        self.novel.items[itId].tags = self._strip_spaces(tags)
-
-                for fieldName in self.ITM_KWVAR:
-                    self.novel.items[itId].kwVar[fieldName] = None
-
-                for xmlItemFields in xmlItem.findall('Fields'):
-                    for fieldName in self.ITM_KWVAR:
-                        field = xmlItemFields.find(fieldName)
-                        if field is not None:
-                            self.novel.items[itId].kwVar[fieldName] = field.text
-
-        def read_characters(root):
-            self.novel.srtCharacters = []
-            for xmlCharacter in root.find('CHARACTERS'):
-                crId = xmlCharacter.find('ID').text
-                self.novel.srtCharacters.append(crId)
-                self.novel.characters[crId] = Character()
-
-                if xmlCharacter.find('Title') is not None:
-                    self.novel.characters[crId].title = xmlCharacter.find('Title').text
-
-                if xmlCharacter.find('ImageFile') is not None:
-                    self.novel.characters[crId].image = xmlCharacter.find('ImageFile').text
-
-                if xmlCharacter.find('Desc') is not None:
-                    self.novel.characters[crId].desc = xmlCharacter.find('Desc').text
-
-                if xmlCharacter.find('AKA') is not None:
-                    self.novel.characters[crId].aka = xmlCharacter.find('AKA').text
-
-                if xmlCharacter.find('Tags') is not None:
-                    if xmlCharacter.find('Tags').text is not None:
-                        tags = string_to_list(xmlCharacter.find('Tags').text)
-                        self.novel.characters[crId].tags = self._strip_spaces(tags)
-
-                if xmlCharacter.find('Notes') is not None:
-                    self.novel.characters[crId].notes = xmlCharacter.find('Notes').text
-
-                if xmlCharacter.find('Bio') is not None:
-                    self.novel.characters[crId].bio = xmlCharacter.find('Bio').text
-
-                if xmlCharacter.find('Goals') is not None:
-                    self.novel.characters[crId].goals = xmlCharacter.find('Goals').text
-
-                if xmlCharacter.find('FullName') is not None:
-                    self.novel.characters[crId].fullName = xmlCharacter.find('FullName').text
-
-                if xmlCharacter.find('Major') is not None:
-                    self.novel.characters[crId].isMajor = True
-                else:
-                    self.novel.characters[crId].isMajor = False
-
-                for fieldName in self.CRT_KWVAR:
-                    self.novel.characters[crId].kwVar[fieldName] = None
-
-                for xmlCharacterFields in xmlCharacter.findall('Fields'):
-                    for fieldName in self.CRT_KWVAR:
-                        field = xmlCharacterFields.find(fieldName)
-                        if field is not None:
-                            self.novel.characters[crId].kwVar[fieldName] = field.text
-
-        def read_projectnotes(root):
-            self.novel.srtPrjNotes = []
-
-            try:
-                for xmlProjectnote in root.find('PROJECTNOTES'):
-                    if xmlProjectnote.find('ID') is not None:
-                        pnId = xmlProjectnote.find('ID').text
-                        self.novel.srtPrjNotes.append(pnId)
-                        self.novel.projectNotes[pnId] = BasicElement()
-                        if xmlProjectnote.find('Title') is not None:
-                            self.novel.projectNotes[pnId].title = xmlProjectnote.find('Title').text
-                        if xmlProjectnote.find('Desc') is not None:
-                            self.novel.projectNotes[pnId].desc = xmlProjectnote.find('Desc').text
-
-                    for fieldName in self.PNT_KWVAR:
-                        self.novel.projectNotes[pnId].kwVar[fieldName] = None
-
-                    for pnFields in xmlProjectnote.findall('Fields'):
-                        field = pnFields.find(fieldName)
-                        if field is not None:
-                            self.novel.projectNotes[pnId].kwVar[fieldName] = field.text
-            except:
-                pass
-
-        def read_projectvars(root):
-            try:
-                for xmlProjectvar in root.find('PROJECTVARS'):
-                    if xmlProjectvar.find('Title') is not None:
-                        title = xmlProjectvar.find('Title').text
-                        if title == 'Language':
-                            if xmlProjectvar.find('Desc') is not None:
-                                self.novel.languageCode = xmlProjectvar.find('Desc').text
-
-                        elif title == 'Country':
-                            if xmlProjectvar.find('Desc') is not None:
-                                self.novel.countryCode = xmlProjectvar.find('Desc').text
-
-                        elif title.startswith('lang='):
-                            try:
-                                __, langCode = title.split('=')
-                                if self.novel.languages is None:
-                                    self.novel.languages = []
-                                self.novel.languages.append(langCode)
-                            except:
-                                pass
-            except:
-                pass
-
-        def read_scenes(root):
-            for xmlScene in root.find('SCENES'):
-                scId = xmlScene.find('ID').text
-                self.novel.scenes[scId] = Scene()
-
-                if xmlScene.find('Title') is not None:
-                    self.novel.scenes[scId].title = xmlScene.find('Title').text
-
-                if xmlScene.find('Desc') is not None:
-                    self.novel.scenes[scId].desc = xmlScene.find('Desc').text
-
-                if xmlScene.find('SceneContent') is not None:
-                    sceneContent = xmlScene.find('SceneContent').text
-                    if sceneContent is not None:
-                        self.novel.scenes[scId].sceneContent = sceneContent
-
-
-
-                self.novel.scenes[scId].scType = 0
-
-                for fieldName in self.SCN_KWVAR:
-                    self.novel.scenes[scId].kwVar[fieldName] = None
-
-                for xmlSceneFields in xmlScene.findall('Fields'):
-                    for fieldName in self.SCN_KWVAR:
-                        field = xmlSceneFields.find(fieldName)
-                        if field is not None:
-                            self.novel.scenes[scId].kwVar[fieldName] = field.text
-
-                    if xmlSceneFields.find('Field_SceneType') is not None:
-                        if xmlSceneFields.find('Field_SceneType').text == '1':
-                            self.novel.scenes[scId].scType = 1
-                        elif xmlSceneFields.find('Field_SceneType').text == '2':
-                            self.novel.scenes[scId].scType = 2
-                if xmlScene.find('Unused') is not None:
-                    if self.novel.scenes[scId].scType == 0:
-                        self.novel.scenes[scId].scType = 3
-
-                if xmlScene.find('ExportCondSpecific') is None:
-                    self.novel.scenes[scId].doNotExport = False
-                elif xmlScene.find('ExportWhenRTF') is not None:
-                    self.novel.scenes[scId].doNotExport = False
-                else:
-                    self.novel.scenes[scId].doNotExport = True
-
-                if xmlScene.find('Status') is not None:
-                    self.novel.scenes[scId].status = int(xmlScene.find('Status').text)
-
-                if xmlScene.find('Notes') is not None:
-                    self.novel.scenes[scId].notes = xmlScene.find('Notes').text
-
-                if xmlScene.find('Tags') is not None:
-                    if xmlScene.find('Tags').text is not None:
-                        tags = string_to_list(xmlScene.find('Tags').text)
-                        self.novel.scenes[scId].tags = self._strip_spaces(tags)
-
-                if xmlScene.find('Field1') is not None:
-                    self.novel.scenes[scId].field1 = xmlScene.find('Field1').text
-
-                if xmlScene.find('Field2') is not None:
-                    self.novel.scenes[scId].field2 = xmlScene.find('Field2').text
-
-                if xmlScene.find('Field3') is not None:
-                    self.novel.scenes[scId].field3 = xmlScene.find('Field3').text
-
-                if xmlScene.find('Field4') is not None:
-                    self.novel.scenes[scId].field4 = xmlScene.find('Field4').text
-
-                if xmlScene.find('AppendToPrev') is not None:
-                    self.novel.scenes[scId].appendToPrev = True
-                else:
-                    self.novel.scenes[scId].appendToPrev = False
-
-                if xmlScene.find('SpecificDateTime') is not None:
-                    dateTimeStr = xmlScene.find('SpecificDateTime').text
-
-                    try:
-                        dateTime = datetime.fromisoformat(dateTimeStr)
-                    except:
-                        self.novel.scenes[scId].date = ''
-                        self.novel.scenes[scId].time = ''
-                    else:
-                        startDateTime = dateTime.isoformat().split('T')
-                        self.novel.scenes[scId].date = startDateTime[0]
-                        self.novel.scenes[scId].time = startDateTime[1]
-                else:
-                    if xmlScene.find('Day') is not None:
-                        day = xmlScene.find('Day').text
-
-                        try:
-                            int(day)
-                        except ValueError:
-                            day = ''
-                        self.novel.scenes[scId].day = day
-
-                    hasUnspecificTime = False
-                    if xmlScene.find('Hour') is not None:
-                        hour = xmlScene.find('Hour').text.zfill(2)
-                        hasUnspecificTime = True
-                    else:
-                        hour = '00'
-                    if xmlScene.find('Minute') is not None:
-                        minute = xmlScene.find('Minute').text.zfill(2)
-                        hasUnspecificTime = True
-                    else:
-                        minute = '00'
-                    if hasUnspecificTime:
-                        self.novel.scenes[scId].time = f'{hour}:{minute}:00'
-
-                if xmlScene.find('LastsDays') is not None:
-                    self.novel.scenes[scId].lastsDays = xmlScene.find('LastsDays').text
-
-                if xmlScene.find('LastsHours') is not None:
-                    self.novel.scenes[scId].lastsHours = xmlScene.find('LastsHours').text
-
-                if xmlScene.find('LastsMinutes') is not None:
-                    self.novel.scenes[scId].lastsMinutes = xmlScene.find('LastsMinutes').text
-
-                if xmlScene.find('ReactionScene') is not None:
-                    self.novel.scenes[scId].isReactionScene = True
-                else:
-                    self.novel.scenes[scId].isReactionScene = False
-
-                if xmlScene.find('SubPlot') is not None:
-                    self.novel.scenes[scId].isSubPlot = True
-                else:
-                    self.novel.scenes[scId].isSubPlot = False
-
-                if xmlScene.find('Goal') is not None:
-                    self.novel.scenes[scId].goal = xmlScene.find('Goal').text
-
-                if xmlScene.find('Conflict') is not None:
-                    self.novel.scenes[scId].conflict = xmlScene.find('Conflict').text
-
-                if xmlScene.find('Outcome') is not None:
-                    self.novel.scenes[scId].outcome = xmlScene.find('Outcome').text
-
-                if xmlScene.find('ImageFile') is not None:
-                    self.novel.scenes[scId].image = xmlScene.find('ImageFile').text
-
-                if xmlScene.find('Characters') is not None:
-                    for characters in xmlScene.find('Characters').iter('CharID'):
-                        crId = characters.text
-                        if crId in self.novel.srtCharacters:
-                            if self.novel.scenes[scId].characters is None:
-                                self.novel.scenes[scId].characters = []
-                            self.novel.scenes[scId].characters.append(crId)
-
-                if xmlScene.find('Locations') is not None:
-                    for locations in xmlScene.find('Locations').iter('LocID'):
-                        lcId = locations.text
-                        if lcId in self.novel.srtLocations:
-                            if self.novel.scenes[scId].locations is None:
-                                self.novel.scenes[scId].locations = []
-                            self.novel.scenes[scId].locations.append(lcId)
-
-                if xmlScene.find('Items') is not None:
-                    for items in xmlScene.find('Items').iter('ItemID'):
-                        itId = items.text
-                        if itId in self.novel.srtItems:
-                            if self.novel.scenes[scId].items is None:
-                                self.novel.scenes[scId].items = []
-                            self.novel.scenes[scId].items.append(itId)
-
-        def read_chapters(root):
-            self.novel.srtChapters = []
-            for xmlChapter in root.find('CHAPTERS'):
-                chId = xmlChapter.find('ID').text
-                self.novel.chapters[chId] = Chapter()
-                self.novel.srtChapters.append(chId)
-
-                if xmlChapter.find('Title') is not None:
-                    self.novel.chapters[chId].title = xmlChapter.find('Title').text
-
-                if xmlChapter.find('Desc') is not None:
-                    self.novel.chapters[chId].desc = xmlChapter.find('Desc').text
-
-                if xmlChapter.find('SectionStart') is not None:
-                    self.novel.chapters[chId].chLevel = 1
-                else:
-                    self.novel.chapters[chId].chLevel = 0
-
-
-                self.novel.chapters[chId].chType = 0
-                if xmlChapter.find('Unused') is not None:
-                    yUnused = True
-                else:
-                    yUnused = False
-                if xmlChapter.find('ChapterType') is not None:
-                    yChapterType = xmlChapter.find('ChapterType').text
-                    if yChapterType == '2':
-                        self.novel.chapters[chId].chType = 2
-                    elif yChapterType == '1':
-                        self.novel.chapters[chId].chType = 1
-                    elif yUnused:
-                        self.novel.chapters[chId].chType = 3
-                else:
-                    if xmlChapter.find('Type') is not None:
-                        yType = xmlChapter.find('Type').text
-                        if yType == '1':
-                            self.novel.chapters[chId].chType = 1
-                        elif yUnused:
-                            self.novel.chapters[chId].chType = 3
-
-                self.novel.chapters[chId].suppressChapterTitle = False
-                if self.novel.chapters[chId].title is not None:
-                    if self.novel.chapters[chId].title.startswith('@'):
-                        self.novel.chapters[chId].suppressChapterTitle = True
-
-                for fieldName in self.CHP_KWVAR:
-                    self.novel.chapters[chId].kwVar[fieldName] = None
-
-                for xmlChapterFields in xmlChapter.findall('Fields'):
-                    if xmlChapterFields.find('Field_SuppressChapterTitle') is not None:
-                        if xmlChapterFields.find('Field_SuppressChapterTitle').text == '1':
-                            self.novel.chapters[chId].suppressChapterTitle = True
-                    self.novel.chapters[chId].isTrash = False
-                    if xmlChapterFields.find('Field_IsTrash') is not None:
-                        if xmlChapterFields.find('Field_IsTrash').text == '1':
-                            self.novel.chapters[chId].isTrash = True
-                    self.novel.chapters[chId].suppressChapterBreak = False
-                    if xmlChapterFields.find('Field_SuppressChapterBreak') is not None:
-                        if xmlChapterFields.find('Field_SuppressChapterBreak').text == '1':
-                            self.novel.chapters[chId].suppressChapterBreak = True
-
-                    for fieldName in self.CHP_KWVAR:
-                        field = xmlChapterFields.find(fieldName)
-                        if field is not None:
-                            self.novel.chapters[chId].kwVar[fieldName] = field.text
-
-                self.novel.chapters[chId].srtScenes = []
-                if xmlChapter.find('Scenes') is not None:
-                    for scn in xmlChapter.find('Scenes').findall('ScID'):
-                        scId = scn.text
-                        if scId in self.novel.scenes:
-                            self.novel.chapters[chId].srtScenes.append(scId)
-
         for field in self.PRJ_KWVAR:
             self.novel.kwVar[field] = None
 
@@ -1197,14 +744,14 @@ class Yw7File(File):
             raise Error(f'{_("Can not process file")}: "{norm_path(self.filePath)}".')
 
         root = self.tree.getroot()
-        read_project(root)
-        read_locations(root)
-        read_items(root)
-        read_characters(root)
-        read_projectvars(root)
-        read_projectnotes(root)
-        read_scenes(root)
-        read_chapters(root)
+        self._read_project(root)
+        self._read_locations(root)
+        self._read_items(root)
+        self._read_characters(root)
+        self._read_projectvars(root)
+        self._read_projectnotes(root)
+        self._read_scenes(root)
+        self._read_chapters(root)
         self.adjust_scene_types()
 
         for scId in self.novel.scenes:
@@ -2064,6 +1611,459 @@ class Yw7File(File):
         except:
             raise Error(f'{_("Cannot write file")}: "{norm_path(filePath)}".')
 
+    def _read_project(self, root):
+        xmlProject = root.find('PROJECT')
+
+        if xmlProject.find('Title') is not None:
+            self.novel.title = xmlProject.find('Title').text
+
+        if xmlProject.find('AuthorName') is not None:
+            self.novel.authorName = xmlProject.find('AuthorName').text
+
+        if xmlProject.find('Bio') is not None:
+            self.novel.authorBio = xmlProject.find('Bio').text
+
+        if xmlProject.find('Desc') is not None:
+            self.novel.desc = xmlProject.find('Desc').text
+
+        if xmlProject.find('FieldTitle1') is not None:
+            self.novel.fieldTitle1 = xmlProject.find('FieldTitle1').text
+
+        if xmlProject.find('FieldTitle2') is not None:
+            self.novel.fieldTitle2 = xmlProject.find('FieldTitle2').text
+
+        if xmlProject.find('FieldTitle3') is not None:
+            self.novel.fieldTitle3 = xmlProject.find('FieldTitle3').text
+
+        if xmlProject.find('FieldTitle4') is not None:
+            self.novel.fieldTitle4 = xmlProject.find('FieldTitle4').text
+
+        if xmlProject.find('WordCountStart') is not None:
+            try:
+                self.novel.wordCountStart = int(xmlProject.find('WordCountStart').text)
+            except:
+                self.novel.wordCountStart = 0
+        if xmlProject.find('WordTarget') is not None:
+            try:
+                self.novel.wordTarget = int(xmlProject.find('WordTarget').text)
+            except:
+                self.novel.wordTarget = 0
+
+        for fieldName in self.PRJ_KWVAR:
+            self.novel.kwVar[fieldName] = None
+
+        for xmlProjectFields in xmlProject.findall('Fields'):
+            for fieldName in self.PRJ_KWVAR:
+                field = xmlProjectFields.find(fieldName)
+                if field is not None:
+                    self.novel.kwVar[fieldName] = field.text
+
+        if self.novel.kwVar['Field_LanguageCode']:
+            self.novel.languageCode = self.novel.kwVar['Field_LanguageCode']
+        if self.novel.kwVar['Field_CountryCode']:
+            self.novel.countryCode = self.novel.kwVar['Field_CountryCode']
+
+    def _read_locations(self, root):
+        self.novel.srtLocations = []
+        for xmlLocation in root.find('LOCATIONS'):
+            lcId = xmlLocation.find('ID').text
+            self.novel.srtLocations.append(lcId)
+            self.novel.locations[lcId] = WorldElement()
+
+            if xmlLocation.find('Title') is not None:
+                self.novel.locations[lcId].title = xmlLocation.find('Title').text
+
+            if xmlLocation.find('ImageFile') is not None:
+                self.novel.locations[lcId].image = xmlLocation.find('ImageFile').text
+
+            if xmlLocation.find('Desc') is not None:
+                self.novel.locations[lcId].desc = xmlLocation.find('Desc').text
+
+            if xmlLocation.find('AKA') is not None:
+                self.novel.locations[lcId].aka = xmlLocation.find('AKA').text
+
+            if xmlLocation.find('Tags') is not None:
+                if xmlLocation.find('Tags').text is not None:
+                    tags = string_to_list(xmlLocation.find('Tags').text)
+                    self.novel.locations[lcId].tags = self._strip_spaces(tags)
+
+            for fieldName in self.LOC_KWVAR:
+                self.novel.locations[lcId].kwVar[fieldName] = None
+
+            for xmlLocationFields in xmlLocation.findall('Fields'):
+                for fieldName in self.LOC_KWVAR:
+                    field = xmlLocationFields.find(fieldName)
+                    if field is not None:
+                        self.novel.locations[lcId].kwVar[fieldName] = field.text
+
+    def _read_items(self, root):
+        self.novel.srtItems = []
+        for xmlItem in root.find('ITEMS'):
+            itId = xmlItem.find('ID').text
+            self.novel.srtItems.append(itId)
+            self.novel.items[itId] = WorldElement()
+
+            if xmlItem.find('Title') is not None:
+                self.novel.items[itId].title = xmlItem.find('Title').text
+
+            if xmlItem.find('ImageFile') is not None:
+                self.novel.items[itId].image = xmlItem.find('ImageFile').text
+
+            if xmlItem.find('Desc') is not None:
+                self.novel.items[itId].desc = xmlItem.find('Desc').text
+
+            if xmlItem.find('AKA') is not None:
+                self.novel.items[itId].aka = xmlItem.find('AKA').text
+
+            if xmlItem.find('Tags') is not None:
+                if xmlItem.find('Tags').text is not None:
+                    tags = string_to_list(xmlItem.find('Tags').text)
+                    self.novel.items[itId].tags = self._strip_spaces(tags)
+
+            for fieldName in self.ITM_KWVAR:
+                self.novel.items[itId].kwVar[fieldName] = None
+
+            for xmlItemFields in xmlItem.findall('Fields'):
+                for fieldName in self.ITM_KWVAR:
+                    field = xmlItemFields.find(fieldName)
+                    if field is not None:
+                        self.novel.items[itId].kwVar[fieldName] = field.text
+
+    def _read_characters(self, root):
+        self.novel.srtCharacters = []
+        for xmlCharacter in root.find('CHARACTERS'):
+            crId = xmlCharacter.find('ID').text
+            self.novel.srtCharacters.append(crId)
+            self.novel.characters[crId] = Character()
+
+            if xmlCharacter.find('Title') is not None:
+                self.novel.characters[crId].title = xmlCharacter.find('Title').text
+
+            if xmlCharacter.find('ImageFile') is not None:
+                self.novel.characters[crId].image = xmlCharacter.find('ImageFile').text
+
+            if xmlCharacter.find('Desc') is not None:
+                self.novel.characters[crId].desc = xmlCharacter.find('Desc').text
+
+            if xmlCharacter.find('AKA') is not None:
+                self.novel.characters[crId].aka = xmlCharacter.find('AKA').text
+
+            if xmlCharacter.find('Tags') is not None:
+                if xmlCharacter.find('Tags').text is not None:
+                    tags = string_to_list(xmlCharacter.find('Tags').text)
+                    self.novel.characters[crId].tags = self._strip_spaces(tags)
+
+            if xmlCharacter.find('Notes') is not None:
+                self.novel.characters[crId].notes = xmlCharacter.find('Notes').text
+
+            if xmlCharacter.find('Bio') is not None:
+                self.novel.characters[crId].bio = xmlCharacter.find('Bio').text
+
+            if xmlCharacter.find('Goals') is not None:
+                self.novel.characters[crId].goals = xmlCharacter.find('Goals').text
+
+            if xmlCharacter.find('FullName') is not None:
+                self.novel.characters[crId].fullName = xmlCharacter.find('FullName').text
+
+            if xmlCharacter.find('Major') is not None:
+                self.novel.characters[crId].isMajor = True
+            else:
+                self.novel.characters[crId].isMajor = False
+
+            for fieldName in self.CRT_KWVAR:
+                self.novel.characters[crId].kwVar[fieldName] = None
+
+            for xmlCharacterFields in xmlCharacter.findall('Fields'):
+                for fieldName in self.CRT_KWVAR:
+                    field = xmlCharacterFields.find(fieldName)
+                    if field is not None:
+                        self.novel.characters[crId].kwVar[fieldName] = field.text
+
+    def _read_projectnotes(self, root):
+        self.novel.srtPrjNotes = []
+
+        try:
+            for xmlProjectnote in root.find('PROJECTNOTES'):
+                if xmlProjectnote.find('ID') is not None:
+                    pnId = xmlProjectnote.find('ID').text
+                    self.novel.srtPrjNotes.append(pnId)
+                    self.novel.projectNotes[pnId] = BasicElement()
+                    if xmlProjectnote.find('Title') is not None:
+                        self.novel.projectNotes[pnId].title = xmlProjectnote.find('Title').text
+                    if xmlProjectnote.find('Desc') is not None:
+                        self.novel.projectNotes[pnId].desc = xmlProjectnote.find('Desc').text
+
+                for fieldName in self.PNT_KWVAR:
+                    self.novel.projectNotes[pnId].kwVar[fieldName] = None
+
+                for pnFields in xmlProjectnote.findall('Fields'):
+                    field = pnFields.find(fieldName)
+                    if field is not None:
+                        self.novel.projectNotes[pnId].kwVar[fieldName] = field.text
+        except:
+            pass
+
+    def _read_projectvars(self, root):
+        try:
+            for xmlProjectvar in root.find('PROJECTVARS'):
+                if xmlProjectvar.find('Title') is not None:
+                    title = xmlProjectvar.find('Title').text
+                    if title == 'Language':
+                        if xmlProjectvar.find('Desc') is not None:
+                            self.novel.languageCode = xmlProjectvar.find('Desc').text
+
+                    elif title == 'Country':
+                        if xmlProjectvar.find('Desc') is not None:
+                            self.novel.countryCode = xmlProjectvar.find('Desc').text
+
+                    elif title.startswith('lang='):
+                        try:
+                            __, langCode = title.split('=')
+                            if self.novel.languages is None:
+                                self.novel.languages = []
+                            self.novel.languages.append(langCode)
+                        except:
+                            pass
+        except:
+            pass
+
+    def _read_scenes(self, root):
+        for xmlScene in root.find('SCENES'):
+            scId = xmlScene.find('ID').text
+            self.novel.scenes[scId] = Scene()
+
+            if xmlScene.find('Title') is not None:
+                self.novel.scenes[scId].title = xmlScene.find('Title').text
+
+            if xmlScene.find('Desc') is not None:
+                self.novel.scenes[scId].desc = xmlScene.find('Desc').text
+
+            if xmlScene.find('SceneContent') is not None:
+                sceneContent = xmlScene.find('SceneContent').text
+                if sceneContent is not None:
+                    self.novel.scenes[scId].sceneContent = sceneContent
+
+
+
+            self.novel.scenes[scId].scType = 0
+
+            for fieldName in self.SCN_KWVAR:
+                self.novel.scenes[scId].kwVar[fieldName] = None
+
+            for xmlSceneFields in xmlScene.findall('Fields'):
+                for fieldName in self.SCN_KWVAR:
+                    field = xmlSceneFields.find(fieldName)
+                    if field is not None:
+                        self.novel.scenes[scId].kwVar[fieldName] = field.text
+
+                if xmlSceneFields.find('Field_SceneType') is not None:
+                    if xmlSceneFields.find('Field_SceneType').text == '1':
+                        self.novel.scenes[scId].scType = 1
+                    elif xmlSceneFields.find('Field_SceneType').text == '2':
+                        self.novel.scenes[scId].scType = 2
+            if xmlScene.find('Unused') is not None:
+                if self.novel.scenes[scId].scType == 0:
+                    self.novel.scenes[scId].scType = 3
+
+            if xmlScene.find('ExportCondSpecific') is None:
+                self.novel.scenes[scId].doNotExport = False
+            elif xmlScene.find('ExportWhenRTF') is not None:
+                self.novel.scenes[scId].doNotExport = False
+            else:
+                self.novel.scenes[scId].doNotExport = True
+
+            if xmlScene.find('Status') is not None:
+                self.novel.scenes[scId].status = int(xmlScene.find('Status').text)
+
+            if xmlScene.find('Notes') is not None:
+                self.novel.scenes[scId].notes = xmlScene.find('Notes').text
+
+            if xmlScene.find('Tags') is not None:
+                if xmlScene.find('Tags').text is not None:
+                    tags = string_to_list(xmlScene.find('Tags').text)
+                    self.novel.scenes[scId].tags = self._strip_spaces(tags)
+
+            if xmlScene.find('Field1') is not None:
+                self.novel.scenes[scId].field1 = xmlScene.find('Field1').text
+
+            if xmlScene.find('Field2') is not None:
+                self.novel.scenes[scId].field2 = xmlScene.find('Field2').text
+
+            if xmlScene.find('Field3') is not None:
+                self.novel.scenes[scId].field3 = xmlScene.find('Field3').text
+
+            if xmlScene.find('Field4') is not None:
+                self.novel.scenes[scId].field4 = xmlScene.find('Field4').text
+
+            if xmlScene.find('AppendToPrev') is not None:
+                self.novel.scenes[scId].appendToPrev = True
+            else:
+                self.novel.scenes[scId].appendToPrev = False
+
+            if xmlScene.find('SpecificDateTime') is not None:
+                dateTimeStr = xmlScene.find('SpecificDateTime').text
+
+                try:
+                    dateTime = datetime.fromisoformat(dateTimeStr)
+                except:
+                    self.novel.scenes[scId].date = ''
+                    self.novel.scenes[scId].time = ''
+                else:
+                    startDateTime = dateTime.isoformat().split('T')
+                    self.novel.scenes[scId].date = startDateTime[0]
+                    self.novel.scenes[scId].time = startDateTime[1]
+            else:
+                if xmlScene.find('Day') is not None:
+                    day = xmlScene.find('Day').text
+
+                    try:
+                        int(day)
+                    except ValueError:
+                        day = ''
+                    self.novel.scenes[scId].day = day
+
+                hasUnspecificTime = False
+                if xmlScene.find('Hour') is not None:
+                    hour = xmlScene.find('Hour').text.zfill(2)
+                    hasUnspecificTime = True
+                else:
+                    hour = '00'
+                if xmlScene.find('Minute') is not None:
+                    minute = xmlScene.find('Minute').text.zfill(2)
+                    hasUnspecificTime = True
+                else:
+                    minute = '00'
+                if hasUnspecificTime:
+                    self.novel.scenes[scId].time = f'{hour}:{minute}:00'
+
+            if xmlScene.find('LastsDays') is not None:
+                self.novel.scenes[scId].lastsDays = xmlScene.find('LastsDays').text
+
+            if xmlScene.find('LastsHours') is not None:
+                self.novel.scenes[scId].lastsHours = xmlScene.find('LastsHours').text
+
+            if xmlScene.find('LastsMinutes') is not None:
+                self.novel.scenes[scId].lastsMinutes = xmlScene.find('LastsMinutes').text
+
+            if xmlScene.find('ReactionScene') is not None:
+                self.novel.scenes[scId].isReactionScene = True
+            else:
+                self.novel.scenes[scId].isReactionScene = False
+
+            if xmlScene.find('SubPlot') is not None:
+                self.novel.scenes[scId].isSubPlot = True
+            else:
+                self.novel.scenes[scId].isSubPlot = False
+
+            if xmlScene.find('Goal') is not None:
+                self.novel.scenes[scId].goal = xmlScene.find('Goal').text
+
+            if xmlScene.find('Conflict') is not None:
+                self.novel.scenes[scId].conflict = xmlScene.find('Conflict').text
+
+            if xmlScene.find('Outcome') is not None:
+                self.novel.scenes[scId].outcome = xmlScene.find('Outcome').text
+
+            if xmlScene.find('ImageFile') is not None:
+                self.novel.scenes[scId].image = xmlScene.find('ImageFile').text
+
+            if xmlScene.find('Characters') is not None:
+                for characters in xmlScene.find('Characters').iter('CharID'):
+                    crId = characters.text
+                    if crId in self.novel.srtCharacters:
+                        if self.novel.scenes[scId].characters is None:
+                            self.novel.scenes[scId].characters = []
+                        self.novel.scenes[scId].characters.append(crId)
+
+            if xmlScene.find('Locations') is not None:
+                for locations in xmlScene.find('Locations').iter('LocID'):
+                    lcId = locations.text
+                    if lcId in self.novel.srtLocations:
+                        if self.novel.scenes[scId].locations is None:
+                            self.novel.scenes[scId].locations = []
+                        self.novel.scenes[scId].locations.append(lcId)
+
+            if xmlScene.find('Items') is not None:
+                for items in xmlScene.find('Items').iter('ItemID'):
+                    itId = items.text
+                    if itId in self.novel.srtItems:
+                        if self.novel.scenes[scId].items is None:
+                            self.novel.scenes[scId].items = []
+                        self.novel.scenes[scId].items.append(itId)
+
+    def _read_chapters(self, root):
+        self.novel.srtChapters = []
+        for xmlChapter in root.find('CHAPTERS'):
+            chId = xmlChapter.find('ID').text
+            self.novel.chapters[chId] = Chapter()
+            self.novel.srtChapters.append(chId)
+
+            if xmlChapter.find('Title') is not None:
+                self.novel.chapters[chId].title = xmlChapter.find('Title').text
+
+            if xmlChapter.find('Desc') is not None:
+                self.novel.chapters[chId].desc = xmlChapter.find('Desc').text
+
+            if xmlChapter.find('SectionStart') is not None:
+                self.novel.chapters[chId].chLevel = 1
+            else:
+                self.novel.chapters[chId].chLevel = 0
+
+
+            self.novel.chapters[chId].chType = 0
+            if xmlChapter.find('Unused') is not None:
+                yUnused = True
+            else:
+                yUnused = False
+            if xmlChapter.find('ChapterType') is not None:
+                yChapterType = xmlChapter.find('ChapterType').text
+                if yChapterType == '2':
+                    self.novel.chapters[chId].chType = 2
+                elif yChapterType == '1':
+                    self.novel.chapters[chId].chType = 1
+                elif yUnused:
+                    self.novel.chapters[chId].chType = 3
+            else:
+                if xmlChapter.find('Type') is not None:
+                    yType = xmlChapter.find('Type').text
+                    if yType == '1':
+                        self.novel.chapters[chId].chType = 1
+                    elif yUnused:
+                        self.novel.chapters[chId].chType = 3
+
+            self.novel.chapters[chId].suppressChapterTitle = False
+            if self.novel.chapters[chId].title is not None:
+                if self.novel.chapters[chId].title.startswith('@'):
+                    self.novel.chapters[chId].suppressChapterTitle = True
+
+            for fieldName in self.CHP_KWVAR:
+                self.novel.chapters[chId].kwVar[fieldName] = None
+
+            for xmlChapterFields in xmlChapter.findall('Fields'):
+                if xmlChapterFields.find('Field_SuppressChapterTitle') is not None:
+                    if xmlChapterFields.find('Field_SuppressChapterTitle').text == '1':
+                        self.novel.chapters[chId].suppressChapterTitle = True
+                self.novel.chapters[chId].isTrash = False
+                if xmlChapterFields.find('Field_IsTrash') is not None:
+                    if xmlChapterFields.find('Field_IsTrash').text == '1':
+                        self.novel.chapters[chId].isTrash = True
+                self.novel.chapters[chId].suppressChapterBreak = False
+                if xmlChapterFields.find('Field_SuppressChapterBreak') is not None:
+                    if xmlChapterFields.find('Field_SuppressChapterBreak').text == '1':
+                        self.novel.chapters[chId].suppressChapterBreak = True
+
+                for fieldName in self.CHP_KWVAR:
+                    field = xmlChapterFields.find(fieldName)
+                    if field is not None:
+                        self.novel.chapters[chId].kwVar[fieldName] = field.text
+
+            self.novel.chapters[chId].srtScenes = []
+            if xmlChapter.find('Scenes') is not None:
+                for scn in xmlChapter.find('Scenes').findall('ScID'):
+                    scId = scn.text
+                    if scId in self.novel.scenes:
+                        self.novel.chapters[chId].srtScenes.append(scId)
+
     def _strip_spaces(self, lines):
         stripped = []
         for line in lines:
@@ -2119,7 +2119,10 @@ class OdtParser(sax.ContentHandler):
             with zipfile.ZipFile(filePath, 'r') as odfFile:
                 content = odfFile.read('content.xml')
                 styles = odfFile.read('styles.xml')
-                meta = odfFile.read('meta.xml')
+                try:
+                    meta = odfFile.read('meta.xml')
+                except KeyError:
+                    meta = None
         except:
             raise Error(f'{_("Cannot read file")}: "{norm_path(filePath)}".')
 
@@ -2133,22 +2136,23 @@ class OdtParser(sax.ContentHandler):
                 self.handle_starttag('body', [('language', lngCode), ('country', ctrCode)])
                 break
 
-        root = ET.fromstring(meta)
-        meta = root.find('office:meta', namespaces)
-        title = meta.find('dc:title', namespaces)
-        if title is not None:
-            if title.text:
-                self.handle_starttag('title', [()])
-                self.handle_data(title.text)
-                self.handle_endtag('title')
-        author = meta.find('meta:initial-creator', namespaces)
-        if author is not None:
-            if author.text:
-                self.handle_starttag('meta', [('', 'author'), ('', author.text)])
-        desc = meta.find('dc:description', namespaces)
-        if desc is not None:
-            if desc.text:
-                self.handle_starttag('meta', [('', 'description'), ('', desc.text)])
+        if meta:
+            root = ET.fromstring(meta)
+            meta = root.find('office:meta', namespaces)
+            title = meta.find('dc:title', namespaces)
+            if title is not None:
+                if title.text:
+                    self.handle_starttag('title', [()])
+                    self.handle_data(title.text)
+                    self.handle_endtag('title')
+            author = meta.find('meta:initial-creator', namespaces)
+            if author is not None:
+                if author.text:
+                    self.handle_starttag('meta', [('', 'author'), ('', author.text)])
+            desc = meta.find('dc:description', namespaces)
+            if desc is not None:
+                if desc.text:
+                    self.handle_starttag('meta', [('', 'description'), ('', desc.text)])
 
         sax.parseString(content, self)
 
@@ -3796,17 +3800,7 @@ class OdtWFormatted(OdtWriter):
                 ]
             if not quick:
                 tags = ['i', 'b']
-                odtReplacements.extend([
-                    ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
-                    ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
-                    ('\r', '\n'),
-                    ('[i]', '<text:span text:style-name="Emphasis">'),
-                    ('[/i]', '</text:span>'),
-                    ('[b]', '<text:span text:style-name="Strong_20_Emphasis">'),
-                    ('[/b]', '</text:span>'),
-                    ('/*', f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>'),
-                    ('*/', '</text:p></office:annotation>'),
-                ])
+                odtReplacements.extend(self._get_replacements())
                 for i, language in enumerate(self.novel.languages, 1):
                     tags.append(f'lang={language}')
                     odtReplacements.append((f'[lang={language}]', f'<text:span text:style-name="T{i}">'))
@@ -3867,6 +3861,19 @@ class OdtWFormatted(OdtWriter):
         projectTemplateMapping = super()._get_fileHeaderMapping()
         projectTemplateMapping['ContentHeader'] = template.safe_substitute(styleMapping)
         return projectTemplateMapping
+
+    def _get_replacements(self):
+        return [
+                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
+                ('\r', '\n'),
+                ('[i]', '<text:span text:style-name="Emphasis">'),
+                ('[/i]', '</text:span>'),
+                ('[b]', '<text:span text:style-name="Strong_20_Emphasis">'),
+                ('[/b]', '</text:span>'),
+                ('/*', f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>'),
+                ('*/', '</text:p></office:annotation>'),
+                ]
 
     def _get_text(self):
         lines = self._get_fileHeader()
@@ -4199,6 +4206,47 @@ class OdtWExport(OdtWFormatted):
         if self.novel.chapters[chId].suppressChapterTitle:
             chapterMapping['Title'] = ''
         return chapterMapping
+
+    def _get_replacements(self):
+        return [
+                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
+                ('\r', '\n'),
+                ('[i]', '<text:span text:style-name="Emphasis">'),
+                ('[/i]', '</text:span>'),
+                ('[b]', '<text:span text:style-name="Strong_20_Emphasis">'),
+                ('[/b]', '</text:span>'),
+                ]
+
+    def _get_text(self):
+
+        def replace_note(match):
+            noteType = match.group(1)
+            self._noteCounter += 1
+            self._noteNumber += 1
+            noteLabel = f'{self._noteNumber}'
+            if noteType.startswith('fn'):
+                noteClass = 'footnote'
+                noteStyle = 'Footnote'
+                if noteType.endswith('*'):
+                    self._noteNumber -= 1
+                    noteLabel = '*'
+            elif noteType.startswith('en'):
+                noteClass = 'endnote'
+                noteStyle = 'Endnote'
+            text = match.group(2).replace('text:style-name="First_20_line_20_indent"', f'text:style-name="{noteStyle}"')
+            return f'<text:note text:id="ftn{self._noteCounter}" text:note-class="{noteClass}"><text:note-citation text:label="{noteLabel}">*</text:note-citation><text:note-body><text:p text:style-name="{noteStyle}">{text}</text:p></text:note-body></text:note>'
+
+        text = super()._get_text()
+        if text.find('/*') > 0:
+            text = text.replace('\r', '@r@').replace('\n', '@n@')
+            self._noteCounter = 0
+            self._noteNumber = 0
+            simpleComment = f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>\\1</text:p></office:annotation>'
+            text = re.sub('\/\* @([ef]n\**) (.*?)\*\/', replace_note, text)
+            text = re.sub('\/\*(.*?)\*\/', simpleComment, text)
+            text = text.replace('@r@', '\r').replace('@n@', '\n')
+        return text
 
 
 

@@ -21,6 +21,7 @@ class Splitter:
     Public class constants:
         PART_SEPARATOR -- marker indicating the beginning of a new part, splitting a scene.
         CHAPTER_SEPARATOR -- marker indicating the beginning of a new chapter, splitting a scene.
+        SCENE_SEPARATOR -- marker indicating the beginning of a new scene, splitting a scene.
         DESC_SEPARATOR -- marker separating title and description of a chapter or scene.
     """
     PART_SEPARATOR: str = '#'
