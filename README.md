@@ -4,35 +4,37 @@ For more information, see the [project homepage](https://peter88213.github.io/yw
 
 ## Development
 
-*yw-cnv* is organized as an Eclipse PyDev project. The official release branch on GitHub is *main*.
+*yw-cnv* depends on the [pywriter](https://github.com/peter88213/PyWriter) library which must be present in your file system. It is organized as an Eclipse PyDev project. The official release branch on GitHub is *main*.
+
+### Mandatory directory structure for building the application script
+
+```
+.
+├── PyWriter/
+│   └── src/
+│       └── pywriter/
+└── yw-cnv/
+    ├── src/
+    ├── test/
+    └── tools/ 
+        ├── build.xml
+        └── build_extension.py 
+```
 
 ### Conventions
 
 See https://github.com/peter88213/PyWriter/blob/main/docs/conventions.md
 
-Exceptions:
-- The directory structure is modified to minimize dependencies:
-
-```
-.
-└── yw-cnv/
-    ├── src/
-    ├── test/
-    └── tools/ 
-        └── build.xml
-```
-
 ### Development tools
 
 - [Python](https://python.org) version 3.10
-- [Eclipse IDE](https://eclipse.org) with [PyDev](https://pydev.org) and [EGit](https://www.eclipse.org/egit/)
+- [Eclipse IDE](https://eclipse.org) with [PyDev](https://pydev.org) and *EGit*)
 - Apache Ant for building the application script
 - [pandoc](https://pandoc.org/) for building the HTML help pages
 
 ### Documentation tools
 
 - [Eclipse Papyrus](https://www.eclipse.org/papyrus/) Modeling environment for creating Use Case and Class diagrams
-
 
 ## Credits
 
