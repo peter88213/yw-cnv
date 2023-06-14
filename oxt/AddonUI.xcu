@@ -10,8 +10,8 @@
                <value/>
             </prop>
             <prop oor:name="Title" oor:type="xs:string">
-               <value xml:lang="en">yWriter Import/Export Help</value>
-               <value xml:lang="de">yWriter Import/Export Hilfe</value>
+               <value xml:lang="en">yw7 Import/Export Help</value>
+               <value xml:lang="de">yw7 Import/Export Hilfe</value>
             </prop>
             <prop oor:name="URL" oor:type="xs:string">
                <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|help|help.py$show_help?language=Python&amp;location=user:uno_packages</value>
@@ -48,8 +48,8 @@
                         <value/>
                      </prop>
                      <prop oor:name="Title" oor:type="xs:string">
-                        <value xml:lang="en">Export to yWriter</value>
-                        <value xml:lang="de">Zu yWriter exportieren</value>
+                        <value xml:lang="en">Export to yw7</value>
+                        <value xml:lang="de">Zu yw7 exportieren</value>
                      </prop>
                      <prop oor:name="URL" oor:type="xs:string">
                         <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
@@ -68,8 +68,8 @@
                         <value/>
                      </prop>
                      <prop oor:name="Title" oor:type="xs:string">
-                        <value xml:lang="en">Import from yWriter</value>
-                        <value xml:lang="de">Von yWriter importieren</value>
+                        <value xml:lang="en">Import from yw7</value>
+                        <value xml:lang="de">Von yw7 importieren</value>
                      </prop>
                      <node oor:name="Submenu">
                         <node oor:name="N006" oor:op="replace">
@@ -77,8 +77,8 @@
                               <value/>
                            </prop>
                            <prop oor:name="Title" oor:type="xs:string">
-                              <value xml:lang="en">Import from yWriter</value>
-                              <value xml:lang="de">Von yWriter importieren</value>
+                              <value xml:lang="en">Import from yw7</value>
+                              <value xml:lang="de">Von yw7 importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
                               <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
@@ -92,8 +92,8 @@
                               <value/>
                            </prop>
                            <prop oor:name="Title" oor:type="xs:string">
-                              <value xml:lang="en">Import from yWriter for proof reading</value>
-                              <value xml:lang="de">Von yWriter zum Korrekturlesen importieren</value>
+                              <value xml:lang="en">Import from yw7 for proof reading</value>
+                              <value xml:lang="de">Von yw7 zum Korrekturlesen importieren</value>
                            </prop>
                            <prop oor:name="URL" oor:type="xs:string">
                               <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
@@ -497,7 +497,7 @@
                <value/>
             </prop>
             <prop oor:name="Title" oor:type="xs:string">
-               <value>yWriter Import/Export</value>
+               <value>yw7 Import/Export</value>
             </prop>
             <node oor:name="Submenu">
                <node oor:name="N002" oor:op="replace">
@@ -505,8 +505,8 @@
                      <value>com.sun.star.text.TextDocument,com.sun.star.sheet.SpreadsheetDocument</value>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
-                     <value xml:lang="en">Export to yWriter</value>
-                     <value xml:lang="de">Zu yWriter exportieren</value>
+                     <value xml:lang="en">Export to yw7</value>
+                     <value xml:lang="de">Zu yw7 exportieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$export_yw?language=Python&amp;location=user:uno_packages</value>
@@ -525,8 +525,8 @@
                      <value/>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
-                     <value xml:lang="en">Import from yWriter</value>
-                     <value xml:lang="de">von yWriter importieren</value>
+                     <value xml:lang="en">Import from yw7</value>
+                     <value xml:lang="de">von yw7 importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$import_yw?language=Python&amp;location=user:uno_packages</value>
@@ -540,8 +540,8 @@
                      <value/>
                   </prop>
                   <prop oor:name="Title" oor:type="xs:string">
-                     <value xml:lang="en">Import from yWriter for proof reading</value>
-                     <value xml:lang="de">von yWriter zum Korrekturlesen importieren</value>
+                     <value xml:lang="en">Import from yw7 for proof reading</value>
+                     <value xml:lang="de">von yw7 zum Korrekturlesen importieren</value>
                   </prop>
                   <prop oor:name="URL" oor:type="xs:string">
                      <value>vnd.sun.star.script:yw-cnv-L-0.99.0.oxt|yw-cnv|cnvyw.py$proof_yw?language=Python&amp;location=user:uno_packages</value>
