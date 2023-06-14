@@ -22,12 +22,9 @@ You can find more information on the [help pages](help).
 
 **OpenOffice users:** *This extension can not be installed on OpenOffice. An OpenOffice variant can be found [here]( https://peter88213.github.io/pywoo).*
 
-**novelyst users:** *A lightweight alternative, providing export to the yw7 file format only, is [lo2yw7](https://peter88213.github.io/lo2yw7).*
-
-
 ## Download and install {#download}
 
-[Download the latest release (version 1.34.1)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.34.1.oxt)
+[Download the latest release (version 1.35.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.35.0.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).

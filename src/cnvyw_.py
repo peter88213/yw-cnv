@@ -43,11 +43,26 @@ def open_yw7(suffix, newExt):
         suffix -- str: filename suffix of the document to create.
         newExt -- str: file extension of the document to create.   
     """
+    # Check whether the current document is associated with an yWriter project.
+    defaultFile = None
+    thisComponent = XSCRIPTCONTEXT.getDocument()
+    documentUrl = thisComponent.getURL()
+    if documentUrl:
+        currentPath = uno.fileUrlToSystemPath(documentUrl).replace('\\', '/')
+        head, tail = os.path.split(currentPath)
+        root, __ = os.path.splitext(tail)
+        try:
+            prjName, __ = root.rsplit('_', maxsplit=1)
+        except:
+            pass
+        else:
+            prjFile = f'{head}/{prjName}.yw7'
+            if os.path.isfile(prjFile):
+                defaultFile = uno.systemPathToFileUrl(prjFile)
 
     # Set last opened yWriter project as default (if existing).
     scriptLocation = os.path.dirname(__file__)
     inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
-    defaultFile = None
     config = ConfigParser()
     try:
         config.read(inifile)

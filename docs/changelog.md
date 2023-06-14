@@ -4,6 +4,13 @@
 
 ## Changelog
 
+### v1.35.0
+
+- Move the "Export to yWriter" menu entry from the "yWriter import/export" submenu to the "Files" menu.
+- When importing from yw7, set the current project, if any, as file picker default.
+
+Based on PyWriter v12.13.2
+
 ### v1.34.1
 
 - Fix a bug where the scene content gets lost when splitting a scene at an appended chapter heading.
