@@ -59,18 +59,18 @@ def open_yw7(suffix, newExt):
             prjFile = f'{head}/{prjName}.yw7'
             if os.path.isfile(prjFile):
                 defaultFile = uno.systemPathToFileUrl(prjFile)
-
-    # Set last opened yWriter project as default (if existing).
-    scriptLocation = os.path.dirname(__file__)
-    inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
-    config = ConfigParser()
-    try:
-        config.read(inifile)
-        ywLastOpen = config.get('FILES', 'yw_last_open')
-        if os.path.isfile(ywLastOpen):
-            defaultFile = uno.systemPathToFileUrl(ywLastOpen)
-    except:
-        pass
+    if defaultFile is None:
+        # Set last opened yWriter project as default (if existing).
+        scriptLocation = os.path.dirname(__file__)
+        inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
+        config = ConfigParser()
+        try:
+            config.read(inifile)
+            ywLastOpen = config.get('FILES', 'yw_last_open')
+            if os.path.isfile(ywLastOpen):
+                defaultFile = uno.systemPathToFileUrl(ywLastOpen)
+        except:
+            pass
 
     # Ask for yWriter 7 project to open:
     ywFile = FilePicker(path=defaultFile)
