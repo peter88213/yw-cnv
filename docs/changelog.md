@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.34.1
+
+- Fix a bug where the scene content gets lost when splitting a scene at an appended chapter heading.
+
+Based on PyWriter v12.13.2
+
 ### v1.34.0
 
 - When importing an ODT document that is not meant for re-import, convert yWriter comments into footnotes or endnotes (see [help text](help#import-from-ywriter)).

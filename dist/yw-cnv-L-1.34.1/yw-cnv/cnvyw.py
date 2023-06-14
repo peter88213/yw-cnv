@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.34.0
+Version 1.34.1
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -2484,7 +2484,8 @@ class Splitter:
                         inScene = True
                     else:
                         newLines.append(line)
-                file.novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
+                if inScene:
+                    file.novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
             file.novel.chapters[chapterId].srtScenes = srtScenes
         file.novel.srtChapters = srtChapters
         return scenesSplit
@@ -3850,9 +3851,11 @@ class OdtWFormatted(OdtWriter):
                 except:
                     lngCode = 'zxx'
                     ctrCode = 'none'
-                lines.append(f'''  <style:style style:name="T{i}" style:family="text">
-   <style:text-properties fo:language="{lngCode}" fo:country="{ctrCode}" style:language-asian="{lngCode}" style:country-asian="{ctrCode}" style:language-complex="{lngCode}" style:country-complex="{ctrCode}"/>
-  </style:style>''')
+                lines.append((f'  <style:style style:name="T{i}" style:family="text">\n'
+                              f'   <style:text-properties fo:language="{lngCode}" fo:country="{ctrCode}" '
+                              f'style:language-asian="{lngCode}" style:country-asian="{ctrCode}" '
+                              f'style:language-complex="{lngCode}" style:country-complex="{ctrCode}"/>\n'
+                              '  </style:style>'))
             lines.append(' </office:automatic-styles>')
             styleMapping['automaticStyles'] = '\n'.join(lines)
         else:
@@ -3864,7 +3867,8 @@ class OdtWFormatted(OdtWriter):
 
     def _get_replacements(self):
         return [
-                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n\n', ('</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r'
+                          '<text:p text:style-name="Text_20_body">')),
                 ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
                 ('\r', '\n'),
                 ('[i]', '<text:span text:style-name="Emphasis">'),
@@ -3887,7 +3891,8 @@ class OdtWFormatted(OdtWriter):
                          )
             for quotMark in quotMarks:
                 text = text.replace(quotMark, '"Quotations">')
-            text = re.sub('"Text_20_body"\>(\<office\:annotation\>.+?\<\/office\:annotation\>)\&gt\; ', '"Quotations">\\1', text)
+            text = re.sub('"Text_20_body"\>(\<office\:annotation\>.+?\<\/office\:annotation\>)\&gt\; ',
+                          '"Quotations">\\1', text)
         return text
 
 
@@ -4209,7 +4214,8 @@ class OdtWExport(OdtWFormatted):
 
     def _get_replacements(self):
         return [
-                ('\n\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r<text:p text:style-name="Text_20_body">'),
+                ('\n\n', ('</text:p>\r<text:p text:style-name="First_20_line_20_indent" />\r'
+                          '<text:p text:style-name="Text_20_body">')),
                 ('\n', '</text:p>\r<text:p text:style-name="First_20_line_20_indent">'),
                 ('\r', '\n'),
                 ('[i]', '<text:span text:style-name="Emphasis">'),
@@ -4234,15 +4240,22 @@ class OdtWExport(OdtWFormatted):
             elif noteType.startswith('en'):
                 noteClass = 'endnote'
                 noteStyle = 'Endnote'
-            text = match.group(2).replace('text:style-name="First_20_line_20_indent"', f'text:style-name="{noteStyle}"')
-            return f'<text:note text:id="ftn{self._noteCounter}" text:note-class="{noteClass}"><text:note-citation text:label="{noteLabel}">*</text:note-citation><text:note-body><text:p text:style-name="{noteStyle}">{text}</text:p></text:note-body></text:note>'
+            text = match.group(2).replace('text:style-name="First_20_line_20_indent"',
+                                          f'text:style-name="{noteStyle}"')
+            return (f'<text:note text:id="ftn{self._noteCounter}" '
+                    f'text:note-class="{noteClass}"><text:note-citation '
+                    f'text:label="{noteLabel}">*</text:note-citation><text:note-body>'
+                    f'<text:p text:style-name="{noteStyle}">{text}</text:p></text:note-body></text:note>')
 
         text = super()._get_text()
+
         if text.find('/*') > 0:
             text = text.replace('\r', '@r@').replace('\n', '@n@')
             self._noteCounter = 0
             self._noteNumber = 0
-            simpleComment = f'<office:annotation><dc:creator>{self.novel.authorName}</dc:creator><text:p>\\1</text:p></office:annotation>'
+            simpleComment = (f'<office:annotation><dc:creator>{self.novel.authorName}'
+                             '</dc:creator><text:p>\\1</text:p></office:annotation>'
+                             )
             text = re.sub('\/\* @([ef]n\**) (.*?)\*\/', replace_note, text)
             text = re.sub('\/\*(.*?)\*\/', simpleComment, text)
             text = text.replace('@r@', '\r').replace('@n@', '\n')
