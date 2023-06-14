@@ -3,9 +3,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: 1.35.1\n"
-"POT-Creation-Date: 2023-06-14 19:50:34\n"
-"PO-Revision-Date: 2023-06-14 19:50:35\n"
+"Project-Id-Version: 1.35.2\n"
+"POT-Creation-Date: 2023-06-14 22:55:44\n"
+"PO-Revision-Date: 2023-06-14 22:55:44\n"
 "Last-Translator: Peter Triesberger\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
@@ -116,10 +116,10 @@ msgid "New Part"
 msgstr "Neuer Teil"
 
 msgid "New Scene"
-msgstr "Neue Szene"
+msgstr "Neuer Abschnitt"
 
 msgid "New scenes created during conversion."
-msgstr "Während der Konvertierung wurden neue Szenen erzeugt."
+msgstr "Während der Konvertierung wurden neue Abschnitte erzeugt."
 
 msgid "No yWriter project to write"
 msgstr "Kein yWriter-Projekt zu schreiben"
@@ -146,13 +146,13 @@ msgid "Please close document first"
 msgstr "Bitte zuerst das Dokument schließen"
 
 msgid "Scene"
-msgstr "Szene"
+msgstr "Abschnitt"
 
 msgid "Scene descriptions"
-msgstr "Szenebeschreibungen"
+msgstr "Abschnittsbeschreibungen"
 
 msgid "Scene list"
-msgstr "Szenenliste"
+msgstr "Abschnittsliste"
 
 msgid "Summary"
 msgstr "Zusammenfassung"

@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.35.2
+
+- German translations: replace "Szene" with "Abschnitt".
+
+Based on PyWriter v12.13.2
+
 ### v1.35.1
 
 - Change the menu entries: replace "yWriter" by "yw7".

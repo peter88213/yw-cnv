@@ -11,51 +11,51 @@ Diese Funktionen sind nur für erfahrene OpenOffice/LibreOffice-Benutzer gedacht
 
 ## Befehlsreferenz
 
--   [Manuskript mit Kapitel- und Szenenbereichen](#manuskript-mit-kapitel--und-szenenbereichen)
--   [Szenebeschreibungen](#szenebeschreibungen)
+-   [Manuskript mit Kapitel- und Abschnittsbereichen](#manuskript-mit-kapitel--und-szenenbereichen)
+-   [Abschnittsbeschreibungen](#abschnittsbeschreibungen)
 -   [Kapitelbeschreibungen](#kapitelbeschreibungen)
 -   [Teilebeschreibungen](#teilebeschreibungen)
 -   [Figurenbeschreibungen](#figurenbeschreibungen)
 -   [Schauplatzbeschreibungen](#schauplatzbeschreibungen)
 -   [Gegenstandsbeschreibungen](#gegenstandsbeschreibungen)
--   [Szenenliste](#szenenliste)
+-   [Abschnittsliste](#abschnittsliste)
 -   [Notizen-Kapitel](#notizen-kapitel)
 -   [Planungs-Kapitel](#planungs-kapitel)
 
 ------------------------------------------------------------------------
 
-## Manuskript mit Kapitel- und Szenenbereichen
+## Manuskript mit Kapitel- und Abschnittsbereichen
 
-Dies lädt yw7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenebereichen (die im Navigator zu sehen sind). Das Suffix des Dateinamens ist `_manuscript`.
+Dies lädt yw7-Kapitel und -Abschnitte in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (die im Navigator zu sehen sind). Das Suffix des Dateinamens ist `_manuscript`.
 
-- Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
-- Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
-- Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, wenn sie von `~` umgeben sind.
+- Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
+- Abschnitte, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
+- Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, wenn sie von `~` umgeben sind.
 - Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* dies ist ein Kommentar */`), werden in Autorenkommentare umgewandelt.
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
 - Gobal- und Projektvariablen werden nicht aufgelöst.
-- Kapitel und Szenen können weder neu geordnet noch gelöscht werden.
-- Sie können Szenen durch Einfügen von Überschriften oder einem Szenentrenner aufteilen:
+- Kapitel und Abschnitte können weder neu geordnet noch gelöscht werden.
+- Sie können Abschnitte durch Einfügen von Überschriften oder einem Abschnittstrenner aufteilen:
     - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
     - *Überschrift 2* → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch `|` getrennt.
-    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
-    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Szenen nicht mehrmals zu yw7. 
+    - `###` → Abschnittstrenner. Optional können Sie den Abschnittstitel an den Abschnittstrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
+    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Abschnitten nicht mehrmals zu yw7. 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 
-Mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) können Sie den Szeneninhalt und die Kapitel-/Abschnittsüberschriften in die yw7 Projektdatei zurückschreiben.
+Mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) können Sie den Abschnittsinhalt und die Kapitel-/Abschnittsüberschriften in die yw7 Projektdatei zurückschreiben.
 
--   Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, wenn sie von `~` umgeben sind.
+-   Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, wenn sie von `~` umgeben sind.
 
 [Zum Seitenbeginn](#top)
 
 ------------------------------------------------------------------------
 
-## Szenebeschreibungen
+## Abschnittsbeschreibungen
 
-Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **vollständige Zusammenfassung** mit Kapitelüberschriften und Szenenbeschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_scenes`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **vollständige Zusammenfassung** mit Kapitelüberschriften und Abschnittsbeschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_scenes`.
 
-Sie können die Szenenbeschreibungen und die Kapitel-/Teilüberschriften mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben. Kommentare direkt am Anfang der Szenenbeschreibungen werden als Szenentitel zurückgeschrieben.
+Sie können die Abschnittsbeschreibungen und die Kapitel-/Teilüberschriften mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben. Kommentare direkt am Anfang der Abschnittsbeschreibungen werden als Abschnittstitel zurückgeschrieben.
 
 [Zum Seitenbeginn](#top)
 
@@ -116,20 +116,20 @@ Sie können die Beschreibungen mit dem Befehl [Zu yw7 exportieren](help-de.html#
 
 ------------------------------------------------------------------------
 
-## Szenenliste
+## Abschnittsliste
 
 Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das Folgendes enthält:
 
--   Hyperlink zum Szenenbereich des Manuskripts
--   Szenentitel
--   Szenenbeschreibung
+-   Hyperlink zum Abschnittsbereich des Manuskripts
+-   Abschnittstitel
+-   Abschnittsbeschreibung
 -   Tags
--   Szenen-Notizen
+-   Abschnitts-Notizen
 -   A/R
 -   Ziel
 -   Konflikt
 -   Ausgang
--   Aufeinanderfolgende Szenennummern
+-   Aufeinanderfolgende Abschnittsnummern
 -   Gesamtwortzahl
 -   Bewertung 1
 -   Bewertung 2
@@ -142,7 +142,7 @@ Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das Folgendes enthält:
 -   Schauplätze
 -   Gegenstände
 
-Nur "normale" Szenen, die in *yWriter* als RTF exportiert werden würden, erhalten eine Zeile in der Szenenliste. Szenen vom Typ "Unused", "Notes" oder "ToDo" werden ausgelassen.
+Nur "normale" Abschnitte, die in *yWriter* als RTF exportiert werden würden, erhalten eine Zeile in der Abschnittsliste. Abschnitte vom Typ "Unused", "Notes" oder "ToDo" werden ausgelassen.
 
 Das Suffix des Dateinamens ist `_scenelist`.
 
@@ -153,7 +153,7 @@ Die folgenden Spalten können in das yw7-Projekt zurückgeschrieben werden:
 -   Title
 -   Beschreibung
 -   Tags (durch Kommas getrennt)
--   Szenen-Notizen
+-   Abschnitts-Notizen
 -   A/R (action/reaction scene)
 -   Ziel
 -   Konflikt
@@ -173,16 +173,16 @@ Das ist für das Zurückschreiben ins yw7-Format notwendig.*
 
 ## Notizen-Kapitel
 
-Dies schreibt yw7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenenabschnitten (zu sehen im Navigator). Das Suffix des Dateinamens ist `_notes`.
+Dies schreibt yw7 "Notizen"-Kapitel mit untergeordneten Abschnitten in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (zu sehen im Navigator). Das Suffix des Dateinamens ist `_notes`.
 
-- Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, 
+- Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, 
   wenn sie von `~` umgeben sind.
-- Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
-- Sie können Szenen durch Einfügen von Überschriften oder einem Szenentrenner aufteilen:
+- Kapitel und Abschnitte können weder umgeordnet noch gelöscht werden.
+- Sie können Abschnitte durch Einfügen von Überschriften oder einem Abschnittstrenner aufteilen:
     - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
     - *Überschrift 2* → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch `|` getrennt.
-    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
-    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Szenen nicht mehrmals zu yw7. 
+    - `###` → Abschnittstrenner. Optional können Sie den Abschnittstitel an den Abschnittstrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
+    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Abschnitten nicht mehrmals zu yw7. 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)
@@ -191,18 +191,17 @@ Dies schreibt yw7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neues Open
 
 ## Planungs-Kapitel
 
-Dies schreibt yw7 "Todo"-Kapitel mit untergeordneten Szenen in ein neues 
-OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenen 
-Abschnitten (die im Navigator zu sehen sind). Die Dateinamenserweiterung ist `_todo`.
+Dies schreibt yw7 "Todo"-Kapitel mit untergeordneten Abschnitten in ein neues 
+OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (die im Navigator zu sehen sind). Die Dateinamenserweiterung ist `_todo`.
 
-- Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben,
+- Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben,
   wenn sie von `~` umgeben sind.
-- Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
-- Sie können Szenen durch Einfügen von Überschriften oder einem Szenentrenner aufteilen:
+- Kapitel und Abschnitte können weder umgeordnet noch gelöscht werden.
+- Sie können Abschnitte durch Einfügen von Überschriften oder einem Abschnittstrenner aufteilen:
     - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
     - *Überschrift 2* → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch `|` getrennt.
-    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
-    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Szenen nicht mehrmals zu yw7. 
+    - `###` → Abschnittstrenner. Optional können Sie den Abschnittstitel an den Abschnittstrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
+    - **Hinweis:** Exportieren Sie Dokumente mit aufgeteilten Abschnitten nicht mehrmals zu yw7. 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)

@@ -22,8 +22,8 @@ Haupt-Hilfeseite
 
 ### "Format"-Menü
 
--   [Szenentrenner durch Leerzeilen
-    ersetzen](#szenentrenner-durch-leerzeilen-ersetzen)
+-   [Abschnittstrenner durch Leerzeilen
+    ersetzen](#abschnittstrenner-durch-leerzeilen-ersetzen)
 -   [Absätze einrücken, die mit '> ' beginnen'](#absätze-einrücken-die-mit-beginnen)
 -   [Aufzählungsstriche ersetzen](#aufzählungsstriche-ersetzen)
 
@@ -64,9 +64,9 @@ ODF-Dokumenten ist im allgemeinen eine Sprache zugeordnet, welche die Rechtschre
     - Language = zxx
     - Country = none
     
-#### Textpassagen in Szenen  
+#### Textpassagen in Abschnitten
 
-Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in die yw7-Szene übernommen. 
+Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in drn yw7-Abschnitt übernommen. 
 
 Das sieht dann beispielsweise so aus:
 
@@ -92,9 +92,9 @@ Ein in Arbeit befindliches Dokument hat keine Überschrift auf der dritten Ebene
 
 - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
 - *Überschrift 2* → Neuer Kapiteltitel.
-- `* * *` → Szenentrenner (nicht erforderlich für die ersten Szenen eines Kapitels).
-- Kommentare direkt am Anfang einer Szene gelten als Szenentitel.
-- Alle anderen Texte gelten als Szeneninhalt.
+- `* * *` → Abschnittstrenner (nicht erforderlich für die ersten Abschnitte eines Kapitels).
+- Kommentare direkt am Anfang eines Abschnitts gelten als Abschnittstitel.
+- Alle anderen Texte gelten als Abschnittsinhalt.
 
 ## Eine Gliederung zum Export vorbereiten
 
@@ -102,8 +102,8 @@ Eine Gliederung hat mindestens eine Überschrift auf der dritten Ebene.
 
 - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts).
 - *Überschrift 2* → Neue Kapitelüberschrift.
-- *Überschrift 3* → Neuer Szenentitel.
-- Alle anderen Texte werden als Kapitel-/Szenenbeschreibung betrachtet.
+- *Überschrift 3* → Neuer Abschnittstitel.
+- Alle anderen Texte werden als Kapitel-/Abschnittsbeschreibung betrachtet.
 
 [Zum Seitenbeginn](#top)
 
@@ -125,14 +125,14 @@ in das yw7-Format nicht ändern.
 
 ## Von yw7 importieren
 
-Dadurch werden yw7-Kapitel und -Szenen in ein neues OpenDocument Textdokument (odt) importiert.
+Dadurch werden yw7-Kapitel und -Abschnitte in ein neues OpenDocument Textdokument (odt) importiert.
 
 - Das Dokument wird im selben Ordner wie das yw7-Projekt abgelegt.
 - Der **Dateiname** des Dokuments: `<yW-Projektname>.odt`.
 - Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.
-- Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
-- Nur Szenen, die in *yWriter* für den RTF-Export vorgesehen sind, werden importiert.
-- Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
+- Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
+- Nur Abschnitte, die in *yWriter* für den RTF-Export vorgesehen sind, werden importiert.
+- Abschnitte, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* das ist ein Kommentar */`), werden in Autorenkommentare umgewandelt.
 - Gekennzeichnete Kommentare (wie `/* @en Das ist eine Endnote. */`) 
   werden zu Fußnoten oder Endnoten konvertiert. Kennzeichnungen:
@@ -143,10 +143,10 @@ Dadurch werden yw7-Kapitel und -Szenen in ein neues OpenDocument Textdokument (o
 - Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.
 - Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yw7 als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
 - Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.
-- Szenentitel erscheinen als navigierbare Kommentare, die an den Anfang der Szene gepinnt sind.
-- Szenen werden durch `* * *` getrennt. Die erste Zeile wird nicht eingerückt. Mit dem Menübefehl **Format &gt; Szenentrenner durch Leerzeilen ersetzen** können Sie die Szenentrenner durch Leerzeilen ersetzen.
+- Abschnittstitel erscheinen als navigierbare Kommentare, die an den Anfang des Abschnitts gepinnt sind.
+- Abschnitte werden durch `* * *` getrennt. Die erste Zeile wird nicht eingerückt. Mit dem Menübefehl **Format &gt; Abschnittstrenner durch Leerzeilen ersetzen** können Sie die Abschnittstrenner durch Leerzeilen ersetzen.
 - Ab dem zweiten Absatz beginnen Absätze mit der Einrückung der ersten Zeile.
-- Szenen, die in yw7 mit "an vorherige Szene anhängen" gekennzeichnet sind, erscheinen wie durchgehende Absätze.
+- Abschnitte, die in yw7 mit "an vorherigen Abschnitt anhängen" gekennzeichnet sind, erscheinen wie durchgehende Absätze.
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)
@@ -155,21 +155,21 @@ Dadurch werden yw7-Kapitel und -Szenen in ein neues OpenDocument Textdokument (o
 
 ## Von yw7 zum Korrekturlesen importieren
 
-Dies lädt yw7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit sichtbaren Szenenmarkierungen. Das Suffix des Dateinamens ist `_proof`.
+Dies lädt yw7-Kapitel und -Abschnitte in ein neues OpenDocument-Textdokument (odt) mit sichtbaren Abschnittsmarkierungen. Das Suffix des Dateinamens ist `_proof`.
 
-- Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
-- Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
+- Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
+- Abschnitte, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
-- Das Dokument enthält Szenen Markierungen `[ScID:x]`. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yw7 importieren wollen.
-- Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
-- Sie können Szenen aufteilen, indem Sie Überschriften oder einen Szenentrenner einfügen:
+- Das Dokument enthält Abschnittsmarkierungen `[ScID:x]`. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yw7 importieren wollen.
+- Kapitel und Abschnitte können weder umgeordnet noch gelöscht werden.
+- Sie können Abschnitte aufteilen, indem Sie Überschriften oder einen Abschnittstrenner einfügen:
     - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
     - *Überschrift 2* → Neuer Kapiteltitel. Sie können eine Beschreibung anfügen, durch `|` getrennt.
-    - `###` → Szenentrenner. Optional können Sie den Szenentitel an den Szenentrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
+    - `###` → Abschnittstrenner. Optional können Sie den Abschnittstitel an den Abschnittstrenner anhängen. Sie können auch eine Beschreibung anfügen, durch `|` getrennt.
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 - Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.
 
-Sie können den Inhalt der Szene mit dem Befehl [Zu yw7 exportieren](#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
+Sie können den Inhalt des Abschnitts mit dem Befehl [Zu yw7 exportieren](#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -177,17 +177,17 @@ Sie können den Inhalt der Szene mit dem Befehl [Zu yw7 exportieren](#zu-yw7-exp
 
 ## Kurze Zusammenfassung
 
-Dies lädt eine kurze Zusammenfassung mit Kapitel- und Szenenüberschriften in ein
+Dies lädt eine kurze Zusammenfassung mit Kapitel- und Abschnittsüberschriften in ein
 neues OpenDocument-Textdokument (odt).
 
 - Das Dokument wird im selben Ordner wie das yw7-Projekt abgelegt.
 - Der **Dateiname** des Dokuments: `<yW-Projektname_brf_synopsis>.odt`.
-- Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
-- Nur Szenen, die in *yWriter* für den RTF-Export vorgesehen sind, werden importiert.
-- Titel von Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
+- Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
+- Nur Abschnitte, die in *yWriter* für den RTF-Export vorgesehen sind, werden importiert.
+- Titel von Abschnitten, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Kapitelüberschriften erscheinen als Überschrift der ersten Ebene, wenn das Kapitel in yw7 als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
 - Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.
-- Szenentitel erscheinen als einfache Absätze.
+- Abschnittstitel erscheinen als einfache Absätze.
 
 [Zum Seitenbeginn](#top)
 
@@ -233,10 +233,10 @@ Sie können die bearbeitete Tabelle mit dem Befehl [Zu yw7 exportieren](#zu-yw7-
 
 Dadurch wird ein neues OpenDocument-Textdokument (odt) erzeugt, das navigierbare Querverweise enthält. Das Suffix des Dateinamens ist `_xref`. Die Querverweise sind:
 
-- Szenen pro Figur,
-- Szenen pro Schauplatz,
-- Szenen pro Gegenstand,
-- Szenen pro Tag,
+- Abschnitte pro Figur,
+- Abschnitte pro Schauplatz,
+- Abschnitte pro Gegenstand,
+- Abschnitte pro Tag,
 - Figuren pro Tag,
 - Schauplätze pro Tag,
 - Gegenstände pro Tag.
@@ -245,9 +245,9 @@ Dadurch wird ein neues OpenDocument-Textdokument (odt) erzeugt, das navigierbare
 
 ------------------------------------------------------------------------
 
-## Szenentrenner durch Leerzeilen ersetzen
+## Abschnittstrenner durch Leerzeilen ersetzen
 
-Dadurch werden die dreizeiligen "\* \* \*"-Szenentrennlinien durch einzelne Leerzeilen ersetzt. Der Stil der szenenunterteilenden Zeilen wird von *Überschrift 4* auf *Überschrift 5* geändert.
+Dadurch werden die dreizeiligen "\* \* \*"-Abschnittstrennlinien durch einzelne Leerzeilen ersetzt. Der Stil der szenenunterteilenden Zeilen wird von *Überschrift 4* auf *Überschrift 5* geändert.
 
 [Zum Seitenbeginn](#top)
 
