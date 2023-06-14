@@ -4,6 +4,14 @@
 
 ## Changelog
 
+### v1.35.1
+
+- Change the menu entries: replace "yWriter" by "yw7".
+- When choosing a project to export from, do not override the current
+project name with the last opened one.
+
+Based on PyWriter v12.13.2
+
 ### v1.35.0
 
 - Move the "Export to yWriter" menu entry from the "yWriter import/export" submenu to the "Files" menu.

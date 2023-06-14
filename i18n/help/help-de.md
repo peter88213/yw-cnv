@@ -3,16 +3,16 @@ Haupt-Hilfeseite
 
 ------------------------------------------------------------------------
 
-# yWriter Import/Export
+# yw7 Import/Export
 
 
 ## Befehlsreferenz
 
 ### "Datei"-Menü
 
--   [Zu yWriter exportieren](#zu-ywriter-exportieren)
--   [Von yWriter importieren](#von-ywriter-importieren)
--   [Von yWriter zum Korrekturlesen importieren](#von-ywriter-zum-korrekturlesen-importieren)
+-   [Zu yw7 exportieren](#zu-yw7-exportieren)
+-   [Von yw7 importieren](#von-yw7-importieren)
+-   [Von yw7 zum Korrekturlesen importieren](#von-yw7-zum-korrekturlesen-importieren)
 -   [Kurze Zusammenfassung](#kurze-zusammenfassung)
 -   [Figurenliste](#figurenliste)
 -   [Schauplatzliste](#schauplatzliste)
@@ -42,9 +42,9 @@ Es wird davon ausgegangen, dass für einen fiktionalen Text nur sehr wenige Arte
 
 Beim Importieren aus dem yw7-Format ersetzt der Konverter diese Formatierungen wie folgt: 
 
-- In yWriter *kursiv* gesetzter Text wird als *Betont* formatiert.
-- In yWriter *fett* gesetzter Text wird als *Stark betont* formatiert. 
-- Absätze, die in yWriter mit `"> "` beginnen, werden als *Zitat* formatiert. 
+- In yw7 *kursiv* gesetzter Text wird als *Betont* formatiert.
+- In yw7 *fett* gesetzter Text wird als *Stark betont* formatiert. 
+- Absätze, die in yw7 mit `"> "` beginnen, werden als *Zitat* formatiert. 
 
 Beim Exportieren in das yw7-Format gilt das Umgekehrte.
 
@@ -54,7 +54,7 @@ ODF-Dokumenten ist im allgemeinen eine Sprache zugeordnet, welche die Rechtschre
 
 #### Dokument insgesamt
 
-- Wenn bei der Konvertierung in das yw7-Format eine Dokument-Sprache (Sprachencode gem. ISO 639-1 und Ländercode gem. ISO 3166-2) im Ausgangsdokument erkannt wird, werden diese Codes als yWriter-Projektvariablen eingetragen.
+- Wenn bei der Konvertierung in das yw7-Format eine Dokument-Sprache (Sprachencode gem. ISO 639-1 und Ländercode gem. ISO 3166-2) im Ausgangsdokument erkannt wird, werden diese Codes als yw7-Projektvariablen eingetragen.
 
 - Wenn bei der Konvertierung aus dem yw7-Format Sprach- und Ländercode als Projektvariablen existieren, werden sie ins erzeugte ODF-Dokument eingetragen. 
 
@@ -66,7 +66,7 @@ ODF-Dokumenten ist im allgemeinen eine Sprache zugeordnet, welche die Rechtschre
     
 #### Textpassagen in Szenen  
 
-Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in die yWriter-Szene übernommen. 
+Wenn bei der Konvertierung in das yw7-Format Textauszeichnungen für andere Sprachen erkannt werden, werden diese umgewandelt und in die yw7-Szene übernommen. 
 
 Das sieht dann beispielsweise so aus:
 
@@ -81,7 +81,7 @@ Für das oben gezeigte Beispiel sieht die Projektvariablen-Definition für das �
 
 Der Sinn der Sache liegt darin, dass solche Sprachenzuweisungen auch bei mehrmaligem Konvertieren in beide Richtungen erhalten bleiben, also im ODT-Dokument immer für die Rechtschreibprüfung wirksam sind.
 
-Es wird empfohlen, solche Auszeichnungen nicht in yWriter zu verändern, um ungewollte Verschachtelungen und unterbrochene Umschließungen zu vermeiden. 
+Es wird empfohlen, solche Auszeichnungen nicht in *yWriter* zu verändern, um ungewollte Verschachtelungen und unterbrochene Umschließungen zu vermeiden. 
 
 
 ## So wird's gemacht
@@ -109,28 +109,29 @@ Eine Gliederung hat mindestens eine Überschrift auf der dritten Ebene.
 
 ------------------------------------------------------------------------
 
-## Zu yWriter exportieren
+## Zu yw7 exportieren
 
-Dadurch wird der Inhalt des Dokuments in die yWriter-Projektdatei zurückgeschrieben.
+Dadurch wird der Inhalt des Dokuments in die yw7-Projektdatei zurückgeschrieben.
 
--   Stellen Sie sicher, dass Sie den Dateinamen eines generierten Dokuments vor dem Zurückschreiben in das yWriter-Formanicht ändern.
--   Das zu überschreibende yWriter 7 Projekt muss sich im selben Ordner befinden wie das Dokument.
--   Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als [Manuskript in Arbeit](#ein-manuskript-zum-export-vorbereiten) oder eine [Gliederung](#eine-gliederung-zum-export-vorbereiten) zum Exportieren in ein neu zu erstellendes yWriter-Projekt. **Hinweis:** Bestehende  yWriter-Projekte werden nicht überschrieben.
+-   Stellen Sie sicher, dass Sie den Dateinamen eines generierten Dokuments vor dem Zurückschreiben 
+in das yw7-Format nicht ändern.
+-   Das zu überschreibende yw7 Projekt muss sich im selben Ordner befinden wie das Dokument.
+-   Wenn der Dateiname des Dokuments kein Suffix hat, dient das Dokument als [Manuskript in Arbeit](#ein-manuskript-zum-export-vorbereiten) oder eine [Gliederung](#eine-gliederung-zum-export-vorbereiten) zum Exportieren in ein neu zu erstellendes yw7-Projekt. **Hinweis:** Bestehende  yw7-Projekte werden nicht überschrieben.
 
 
 [Zum Seitenbeginn](#top)
 
 ------------------------------------------------------------------------
 
-## Von yWriter importieren
+## Von yw7 importieren
 
-Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokument (odt) importiert.
+Dadurch werden yw7-Kapitel und -Szenen in ein neues OpenDocument Textdokument (odt) importiert.
 
-- Das Dokument wird im selben Ordner wie das yWriter-Projekt abgelegt.
+- Das Dokument wird im selben Ordner wie das yw7-Projekt abgelegt.
 - Der **Dateiname** des Dokuments: `<yW-Projektname>.odt`.
 - Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.
 - Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
-- Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.
+- Nur Szenen, die in *yWriter* für den RTF-Export vorgesehen sind, werden importiert.
 - Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* das ist ein Kommentar */`), werden in Autorenkommentare umgewandelt.
 - Gekennzeichnete Kommentare (wie `/* @en Das ist eine Endnote. */`) 
@@ -140,26 +141,26 @@ Dadurch werden yWriter 7-Kapitel und -Szenen in ein neues OpenDocument Textdokum
     - `@en` -- Nummerierte Endnote.  
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden entfernt.
 - Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.
-- Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
+- Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yw7 als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
 - Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.
 - Szenentitel erscheinen als navigierbare Kommentare, die an den Anfang der Szene gepinnt sind.
 - Szenen werden durch `* * *` getrennt. Die erste Zeile wird nicht eingerückt. Mit dem Menübefehl **Format &gt; Szenentrenner durch Leerzeilen ersetzen** können Sie die Szenentrenner durch Leerzeilen ersetzen.
 - Ab dem zweiten Absatz beginnen Absätze mit der Einrückung der ersten Zeile.
-- Szenen, die in yWriter mit "an vorherige Szene anhängen" gekennzeichnet sind, erscheinen wie durchgehende Absätze.
+- Szenen, die in yw7 mit "an vorherige Szene anhängen" gekennzeichnet sind, erscheinen wie durchgehende Absätze.
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 [Zum Seitenbeginn](#top)
 
 ------------------------------------------------------------------------
 
-## Von yWriter zum Korrekturlesen importieren
+## Von yw7 zum Korrekturlesen importieren
 
-Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit sichtbaren Szenenmarkierungen. Das Suffix des Dateinamens ist `_proof`.
+Dies lädt yw7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit sichtbaren Szenenmarkierungen. Das Suffix des Dateinamens ist `_proof`.
 
 - Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
 - Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
-- Das Dokument enthält Szenen Markierungen `[ScID:x]`. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yWriter importieren wollen.
+- Das Dokument enthält Szenen Markierungen `[ScID:x]`. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yw7 importieren wollen.
 - Kapitel und Szenen können weder umgeordnet noch gelöscht werden.
 - Sie können Szenen aufteilen, indem Sie Überschriften oder einen Szenentrenner einfügen:
     - *Überschrift 1* → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch `|` getrennt.
@@ -168,7 +169,7 @@ Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 - Textauszeichnung: Fett und kursiv werden unterstützt. Andere Hervorhebungen wie Unterstreichen und Durchstreichen gehen verloren.
 
-Sie können den Inhalt der Szene mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können den Inhalt der Szene mit dem Befehl [Zu yw7 exportieren](#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -179,12 +180,12 @@ Sie können den Inhalt der Szene mit dem Befehl [Zu yWriter exportieren](#zu-ywr
 Dies lädt eine kurze Zusammenfassung mit Kapitel- und Szenenüberschriften in ein
 neues OpenDocument-Textdokument (odt).
 
-- Das Dokument wird im selben Ordner wie das yWriter-Projekt abgelegt.
+- Das Dokument wird im selben Ordner wie das yw7-Projekt abgelegt.
 - Der **Dateiname** des Dokuments: `<yW-Projektname_brf_synopsis>.odt`.
 - Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
-- Nur Szenen, die für den RTF-Export in yWriter vorgesehen sind, werden importiert.
+- Nur Szenen, die in *yWriter* für den RTF-Export vorgesehen sind, werden importiert.
 - Titel von Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
-- Kapitelüberschriften erscheinen als Überschrift der ersten Ebene, wenn das Kapitel in yWriter als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
+- Kapitelüberschriften erscheinen als Überschrift der ersten Ebene, wenn das Kapitel in yw7 als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
 - Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.
 - Szenentitel erscheinen als einfache Absätze.
 
@@ -194,11 +195,11 @@ neues OpenDocument-Textdokument (odt).
 
 ## Figurenliste
 
-Damit wird ein neues OpenDocument Tabellenblatt (ods) erzeugt, das eine Figurenliste enthält, die in Office Calc bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_charlist`.
+Damit wird ein neues OpenDocument Tabellenblatt (ods) erzeugt, das eine Figurenliste enthält, die in Office Calc bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_charlist`.
 
 Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.
 
-Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die bearbeitete Tabelle mit dem Befehl [Zu yw7 exportieren](#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -206,11 +207,11 @@ Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-
 
 ## Schauplatzliste
 
-Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das eine Schauplatzliste enthält, die in Office Calc bearbeitet und in das yWriter Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_loclist`.
+Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das eine Schauplatzliste enthält, die in Office Calc bearbeitet und in das yw7 Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_loclist`.
 
 Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.
 
-Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die bearbeitete Tabelle mit dem Befehl [Zu yw7 exportieren](#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -218,11 +219,11 @@ Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-
 
 ## Gegenstandsliste
 
-Dies erzeugt ein neues OpenDocument Spreadsheet (ods), das eine Gegenstandsliste enthält, die in Office Calc bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_itemlist`.
+Dies erzeugt ein neues OpenDocument Spreadsheet (ods), das eine Gegenstandsliste enthält, die in Office Calc bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_itemlist`.
 
 Sie können die Sortierreihenfolge der Zeilen ändern. Sie können auch Zeilen hinzufügen oder entfernen. Neue Einträge müssen eine eindeutige ID erhalten.
 
-Sie können die bearbeitete Tabelle mit dem Befehl [Zu yWriter exportieren](#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die bearbeitete Tabelle mit dem Befehl [Zu yw7 exportieren](#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -256,7 +257,7 @@ Dadurch werden die dreizeiligen "\* \* \*"-Szenentrennlinien durch einzelne Leer
 
 Dadurch werden alle Absätze ausgewählt, die mit "&gt; " beginnen, und ihr Absatzstil wird in *Quotations* geändert.
 
-Hinweis: Beim Export in yWriter werden Absätze im Stil *Quotations* automatisch mit "&gt; " am Anfang markiert.
+Hinweis: Beim Export in yw7 werden Absätze im Stil *Quotations* automatisch mit "&gt; " am Anfang markiert.
 
 [Zum Seitenbeginn](#top)
 
@@ -266,7 +267,7 @@ Hinweis: Beim Export in yWriter werden Absätze im Stil *Quotations* automatisch
 
 Dadurch werden alle Absätze, die mit "-" beginnen, ausgewählt und mit einem Listenabsatzstil versehen.
 
-Hinweis: Beim Export in yWriter werden Listen automatisch mit "-"-Listenstrichen markiert.
+Hinweis: Beim Export in yw7 werden Listen automatisch mit "-"-Listenstrichen markiert.
 
 [Zum Seitenbeginn](#top)
 

@@ -2,7 +2,7 @@
 
 ------------------------------------------------------------------------
 
-# yWriter import/export: advanced features
+# yw7 import/export: advanced features
 
 ## Warning!
 
@@ -32,7 +32,7 @@ out the features with a test project first.
 
 ## Manuscript with chapter and scene sections
 
-This will write yWriter 7 chapters and scenes into a new OpenDocument
+This will write yw7 chapters and scenes into a new OpenDocument
 text document (odt) with invisible chapter and scene sections (to be
 seen in the Navigator). File name suffix is `_manuscript`.
 
@@ -57,7 +57,7 @@ seen in the Navigator). File name suffix is `_manuscript`.
     as underline and strikethrough are lost.
 
 You can write back the scene contents and the chapter/part headings to 
-the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
+the yw7 project file with the [Export to yw7](help#export-to-yw7) 
 command.
 
 -   Comments within scenes are written back as scene titles
@@ -71,11 +71,11 @@ command.
 
 This will generate a new OpenDocument text document (odt) containing a
 **full synopsis** with chapter titles and scene descriptions that can be
-edited and written back to yWriter format. File name suffix is
+edited and written back to yw7 format. File name suffix is
 `_scenes`.
 
 You can write back the scene descriptions and the chapter/part headings 
-to the yWriter 7 project file with the [Export to yWriter](help#export-to-ywriter) 
+to the yw7 project file with the [Export to yw7](help#export-to-yw7) 
 command. Comments right at the beginning of the scene descriptions are 
 written back as scene titles.
 
@@ -87,14 +87,14 @@ written back as scene titles.
 
 This will generate a new OpenDocument text document (odt) containing a
 **brief synopsis** with chapter titles and chapter descriptions that can
-be edited and written back to yWriter format. File name suffix is
+be edited and written back to yw7 format. File name suffix is
 `_chapters`.
 
 **Note:** Doesn't apply to chapters marked
-`This chapter begins a new section` in yWriter.
+`This chapter begins a new section` in yw7.
 
-You can write back the headings and descriptions to the yWriter 7 project 
-file with the [Export to yWriter](help#export-to-ywriter) command.
+You can write back the headings and descriptions to the yw7 project 
+file with the [Export to yw7](help#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -104,14 +104,14 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing a
 **very brief synopsis** with part titles and part descriptions that can
-be edited and written back to yWriter format. File name suffix is
+be edited and written back to yw7 format. File name suffix is
 `_parts`.
 
 **Note:** Applies only to chapters marked
-`This chapter  begins a new section` in yWriter.
+`This chapter  begins a new section` in yw7.
 
-You can write back the headings and descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+You can write back the headings and descriptions to the yw7 project
+file with the [Export to yw7](help#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -121,11 +121,11 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing
 character descriptions, bio, goals, and notes that can be edited in Office
-Writer and written back to yWriter format. File name suffix is
+Writer and written back to yw7 format. File name suffix is
 `_characters`.
 
-You can write back the descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+You can write back the descriptions to the yw7 project
+file with the [Export to yw7](help#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -135,10 +135,10 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing
 location descriptions that can be edited in Office Writer and written
-back to yWriter format. File name suffix is `_locations`.
+back to yw7 format. File name suffix is `_locations`.
 
-You can write back the descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+You can write back the descriptions to the yw7 project
+file with the [Export to yw7](help#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -148,10 +148,10 @@ file with the [Export to yWriter](help#export-to-ywriter) command.
 
 This will generate a new OpenDocument text document (odt) containing
 item descriptions that can be edited in Office Writer and written back
-to yWriter format. File name suffix is `_items`.
+to yw7 format. File name suffix is `_items`.
 
-You can write back the descriptions to the yWriter 7 project
-file with the [Export to yWriter](help#export-to-ywriter) command.
+You can write back the descriptions to the yw7 project
+file with the [Export to yw7](help#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -183,7 +183,7 @@ This will generate a new OpenDocument spreadsheet (ods) listing the following:
 - Locations
 - Items
 
-Only "normal" scenes that would be exported as RTF in yWriter get a 
+Only "normal" scenes that would be exported as RTF in *yWriter* get a 
 row in the scene list. Scenes of the "Unused", "Notes", or "ToDo" 
 type are omitted.
 
@@ -191,10 +191,10 @@ Scenes beginning with `<HTML>` or `<TEX>` are omitted.
 
 File name suffix is `_scenelist`.
 
-You can write back the table contents to the yWriter 7 project file with
-the [Export to yWriter](help#export-to-ywriter) command.
+You can write back the table contents to the yw7 project file with
+the [Export to yw7](help#export-to-yw7) command.
 
-The following columns can be written back to the yWriter project:
+The following columns can be written back to the yw7 project:
 
 - Title
 - Description
@@ -216,7 +216,7 @@ The following columns can be written back to the yWriter project:
 
 ## Notes chapters
 
-This will write yWriter 7 "Notes" chapters with child scenes into a new 
+This will write yw7 "Notes" chapters with child scenes into a new 
 OpenDocument text document (odt) with invisible chapter and scene 
 sections (to be seen in the Navigator). File name suffix is `_notes`.
 
@@ -239,7 +239,7 @@ sections (to be seen in the Navigator). File name suffix is `_notes`.
 
 ## Todo chapters
 
-This will write yWriter 7 "Todo" chapters with child scenes into a new 
+This will write yw7 "Todo" chapters with child scenes into a new 
 OpenDocument text document (odt) with invisible chapter and scene 
 sections (to be seen in the Navigator). File name suffix is `_todo`.
 

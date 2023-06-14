@@ -3,7 +3,7 @@
 
 ------------------------------------------------------------------------
 
-# yWriter Import/Export: für Fortgeschrittene
+# yw7 Import/Export: für Fortgeschrittene
 
 ## Warnung!
 
@@ -26,7 +26,7 @@ Diese Funktionen sind nur für erfahrene OpenOffice/LibreOffice-Benutzer gedacht
 
 ## Manuskript mit Kapitel- und Szenenbereichen
 
-Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenebereichen (die im Navigator zu sehen sind). Das Suffix des Dateinamens ist `_manuscript`.
+Dies lädt yw7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenebereichen (die im Navigator zu sehen sind). Das Suffix des Dateinamens ist `_manuscript`.
 
 - Es werden nur "normale" Kapitel und Szenen importiert. Kapitel und Szenen, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
 - Szenen, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
@@ -43,7 +43,7 @@ Dies lädt yWriter 7-Kapitel und -Szenen in ein neues OpenDocument-Textdokument 
 - Absätze, die mit `>` beginnen, werden als Zitate formatiert.
 
 
-Mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) können Sie den Szeneninhalt und die Kapitel-/Abschnittsüberschriften in die yWriter 7 Projektdatei zurückschreiben.
+Mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) können Sie den Szeneninhalt und die Kapitel-/Abschnittsüberschriften in die yw7 Projektdatei zurückschreiben.
 
 -   Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, wenn sie von `~` umgeben sind.
 
@@ -53,9 +53,9 @@ Mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) kö
 
 ## Szenebeschreibungen
 
-Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **vollständige Zusammenfassung** mit Kapitelüberschriften und Szenenbeschreibungen enthält, die bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_scenes`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **vollständige Zusammenfassung** mit Kapitelüberschriften und Szenenbeschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_scenes`.
 
-Sie können die Szenenbeschreibungen und die Kapitel-/Teilüberschriften mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben. Kommentare direkt am Anfang der Szenenbeschreibungen werden als Szenentitel zurückgeschrieben.
+Sie können die Szenenbeschreibungen und die Kapitel-/Teilüberschriften mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben. Kommentare direkt am Anfang der Szenenbeschreibungen werden als Szenentitel zurückgeschrieben.
 
 [Zum Seitenbeginn](#top)
 
@@ -63,11 +63,11 @@ Sie können die Szenenbeschreibungen und die Kapitel-/Teilüberschriften mit dem
 
 ## Kapitelbeschreibungen
 
-Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **Kurzzusammenfassung** mit Kapitelüberschriften und -beschreibungen enthält, die bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist `_chapters`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **Kurzzusammenfassung** mit Kapitelüberschriften und -beschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist `_chapters`.
 
-**Anmerkung:** Gilt nicht für Kapitel, die in yWriter mit `Dieses Kapitel beginnt einen neuen Abschnitt` gekennzeichnet sind.
+**Anmerkung:** Gilt nicht für Kapitel, die in yw7 mit `Dieses Kapitel beginnt einen neuen Abschnitt` gekennzeichnet sind.
 
-Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 
 [Zum Seitenbeginn](#top)
@@ -76,11 +76,11 @@ Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yWriter exp
 
 ## Teilebeschreibungen
 
-Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **sehr kurze Zusammenfassung** mit Teiltiteln und Teilbeschreibungen enthält, die bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist `_parts`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine **sehr kurze Zusammenfassung** mit Teiltiteln und Teilbeschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist `_parts`.
 
-**Hinweis:** Gilt nur für Kapitel, die in yWriter mit `Dieses Kapitel beginnt einen neuen Abschnitt` gekennzeichnet sind.
+**Hinweis:** Gilt nur für Kapitel, die in yw7 mit `Dieses Kapitel beginnt einen neuen Abschnitt` gekennzeichnet sind.
 
-Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -88,9 +88,9 @@ Sie können die Überschriften und Beschreibungen mit dem Befehl [Zu yWriter exp
 
 ## Figurenbeschreibungen
 
-Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Figurenbeschreibungen, Lebenslauf, Zielen und Notizen, das in Office Writer bearbeitet und in das yWriter-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_characters`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Figurenbeschreibungen, Lebenslauf, Zielen und Notizen, das in Office Writer bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist `_characters`.
 
-Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die Beschreibungen mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -98,9 +98,9 @@ Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.h
 
 ## Schauplatzbeschreibungen
 
-Dies erzeugt ein neues OpenDocument Textdokument (odt) mit Schauplatzbeschreibungen, die in Office Writer bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist `_locations`.
+Dies erzeugt ein neues OpenDocument Textdokument (odt) mit Schauplatzbeschreibungen, die in Office Writer bearbeitet und in das yw7-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist `_locations`.
 
-Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die Beschreibungen mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -108,9 +108,9 @@ Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.h
 
 ## Gegenstandsbeschreibungen
 
-Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Gegenstandsbeschreibungen, die in Office Writer bearbeitet und in das yWriter-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist `_items`.
+Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Gegenstandsbeschreibungen, die in Office Writer bearbeitet und in das yw7-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist `_items`.
 
-Sie können die Beschreibungen mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können die Beschreibungen mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
 [Zum Seitenbeginn](#top)
 
@@ -142,13 +142,13 @@ Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das Folgendes enthält:
 -   Schauplätze
 -   Gegenstände
 
-Nur "normale" Szenen, die in yWriter als RTF exportiert werden würden, erhalten eine Zeile in der Szenenliste. Szenen vom Typ "Unused", "Notes" oder "ToDo" werden ausgelassen.
+Nur "normale" Szenen, die in *yWriter* als RTF exportiert werden würden, erhalten eine Zeile in der Szenenliste. Szenen vom Typ "Unused", "Notes" oder "ToDo" werden ausgelassen.
 
 Das Suffix des Dateinamens ist `_scenelist`.
 
-Sie können den Tabelleninhalt mit dem Befehl [Zu yWriter exportieren](help-de.html#zu-ywriter-exportieren) in die yWriter 7 Projektdatei zurückschreiben.
+Sie können den Tabelleninhalt mit dem Befehl [Zu yw7 exportieren](help-de.html#zu-yw7-exportieren) in die yw7 Projektdatei zurückschreiben.
 
-Die folgenden Spalten können in das yWriter-Projekt zurückgeschrieben werden:
+Die folgenden Spalten können in das yw7-Projekt zurückgeschrieben werden:
 
 -   Title
 -   Beschreibung
@@ -165,7 +165,7 @@ Die folgenden Spalten können in das yWriter-Projekt zurückgeschrieben werden:
 -   Status ('Gliederung', 'Entwurf', '1. Überarbeitung', '2. Überarbeitung', 'Fertig')
 
 *Hinweis: In der Tabelle erscheinen die Spaltentitel in englischer Sprache. 
-Das ist für das Zurückschreiben ins yWriter-Format notwendig.*
+Das ist für das Zurückschreiben ins yw7-Format notwendig.*
 
 [Zum Seitenbeginn](#top)
 
@@ -173,7 +173,7 @@ Das ist für das Zurückschreiben ins yWriter-Format notwendig.*
 
 ## Notizen-Kapitel
 
-Dies schreibt yWriter 7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenenabschnitten (zu sehen im Navigator). Das Suffix des Dateinamens ist `_notes`.
+Dies schreibt yw7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenenabschnitten (zu sehen im Navigator). Das Suffix des Dateinamens ist `_notes`.
 
 - Kommentare innerhalb von Szenen werden als Szenentitel zurückgeschrieben, 
   wenn sie von `~` umgeben sind.
@@ -191,7 +191,7 @@ Dies schreibt yWriter 7 "Notizen"-Kapitel mit untergeordneten Szenen in ein neue
 
 ## Planungs-Kapitel
 
-Dies schreibt yWriter 7 "Todo"-Kapitel mit untergeordneten Szenen in ein neues 
+Dies schreibt yw7 "Todo"-Kapitel mit untergeordneten Szenen in ein neues 
 OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Szenen 
 Abschnitten (die im Navigator zu sehen sind). Die Dateinamenserweiterung ist `_todo`.
 

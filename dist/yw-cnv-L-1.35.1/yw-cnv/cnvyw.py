@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.35.0
+Version 1.35.1
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -6111,17 +6111,17 @@ def open_yw7(suffix, newExt):
             prjFile = f'{head}/{prjName}.yw7'
             if os.path.isfile(prjFile):
                 defaultFile = uno.systemPathToFileUrl(prjFile)
-
-    scriptLocation = os.path.dirname(__file__)
-    inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
-    config = ConfigParser()
-    try:
-        config.read(inifile)
-        ywLastOpen = config.get('FILES', 'yw_last_open')
-        if os.path.isfile(ywLastOpen):
-            defaultFile = uno.systemPathToFileUrl(ywLastOpen)
-    except:
-        pass
+    if defaultFile is None:
+        scriptLocation = os.path.dirname(__file__)
+        inifile = uno.fileUrlToSystemPath(f'{scriptLocation}/{INI_FILE}')
+        config = ConfigParser()
+        try:
+            config.read(inifile)
+            ywLastOpen = config.get('FILES', 'yw_last_open')
+            if os.path.isfile(ywLastOpen):
+                defaultFile = uno.systemPathToFileUrl(ywLastOpen)
+        except:
+            pass
 
     ywFile = FilePicker(path=defaultFile)
     if ywFile is None:

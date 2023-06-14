@@ -2,15 +2,15 @@
 
 ------------------------------------------------------------------------
 
-# yWriter import/export
+# yw7 import/export
 
 ## Command reference
 
 ### "Files" menu
 
--   [Export to yWriter](#export-to-ywriter) 
--   [Import from yWriter](#import-from-ywriter)
--   [Import from yWriter for proof reading](#import-from-ywriter-for-proof-reading)
+-   [Export to yw7](#export-to-yw7) 
+-   [Import from yw7](#import-from-yw7)
+-   [Import from yw7 for proof reading](#import-from-yw7-for-proof-reading)
 -   [Brief synopsis](#brief-synopsis)
 -   [Character list](#character-list)
 -   [Location list](#location-list)
@@ -38,9 +38,9 @@ It is assumed that very few types of text markup are needed for a fictional text
 
 When importing from yw7 format, the converter replaces these formattings as follows: 
 
-- Text with *italics* in yWriter is formatted as *Emphasized*.
-- *Bold* text in yWriter is formatted as *Strongly emphasized*. 
-- Paragraphs starting with `"> "` in yWriter, are formatted as *Quote*.
+- Text with *italics* in yw7 is formatted as *Emphasized*.
+- *Bold* text in yw7 is formatted as *Strongly emphasized*. 
+- Paragraphs starting with `"> "` in yw7, are formatted as *Quote*.
 
 When exporting to yw7 format, the reverse is the case. 
 
@@ -50,7 +50,7 @@ ODF documents are generally assigned a language that determines spell checking a
 
 #### Document overall
 
-- If a document language (Language code acc. to ISO 639-1 and country code acc. to ISO 3166-2) is detected in the source document during conversion to yw7 format, these codes are set as yWriter project variables. 
+- If a document language (Language code acc. to ISO 639-1 and country code acc. to ISO 3166-2) is detected in the source document during conversion to yw7 format, these codes are set as yw7 project variables. 
 
 - If language code and country code exist as project variables during conversion from yw7 format, they are inserted into the generated ODF document. 
 
@@ -62,7 +62,7 @@ ODF documents are generally assigned a language that determines spell checking a
 
 #### Text passages in scenes
 
-If text markups for other languages are detected during conversion to the yw7 format, they are converted and transferred to the yWriter scene. 
+If text markups for other languages are detected during conversion to the yw7 format, they are converted and transferred to the yw7 scene. 
 
 This then looks like this, for example:
 
@@ -77,7 +77,7 @@ For the example shown above, the project variable definition for the opening tag
 
 The point of this is that such language assignments are preserved even after multiple conversions in both directions, so they are always effective for spell checking in the ODT document.
 
-It is recommended not to modify such markups in yWriter to avoid unwanted nesting and broken enclosing. 
+It is recommended not to modify such markups in *yWriter* to avoid unwanted nesting and broken enclosing. 
 
 ## HowTo
 
@@ -105,42 +105,42 @@ An outline has at least one third level heading.
 
 ------------------------------------------------------------------------
 
-## Export to yWriter
+## Export to yw7
 
-This writes back the document's content to the yWriter project file.
+This writes back the document's content to the yw7 project file.
 
 -   Make sure not to change a generated document's file name before
-    writing back to yWriter format.
--   The yWriter 7 project to rewrite must exist in the same folder as
+    writing back to yw7 format.
+-   The yw7 project to rewrite must exist in the same folder as
     the document.
 -   If the document's file name has no suffix, the document is
     considered a [Work in
     progress](#how-to-set-up-a-work-in-progress-for-export) or an
     [Outline](#how-to-set-up-an-outline-for-export) to be exported into
-    a newly created yWriter project. **Note:** Existing yWriter projects
+    a newly created yw7 project. **Note:** Existing yw7 projects
     will not be overwritten.
 
 [Top of page](#top)
 
 ------------------------------------------------------------------------
 
-## Import from yWriter
+## Import from yw7
 
-This will write yWriter 7 chapters and scenes into a new OpenDocument
+This will write yw7 chapters and scenes into a new OpenDocument
 text document (odt).
 
--   The document is placed in the same folder as the yWriter project.
+-   The document is placed in the same folder as the yw7 project.
 -   Document's **filename**: `<yW project name>.odt`.
 -   Text markup: Bold and italics are supported. Other highlighting such
     as underline and strikethrough are lost.
 -   Only "normal" chapters and scenes are imported. Chapters and
     scenes marked "unused", "todo" or "notes" are not imported.
--   Only scenes that are intended for RTF export in yWriter will be
+-   Only scenes that are intended for RTF export in *yWriter* will be
     imported.
 -   Scenes beginning with `<HTML>` or `<TEX>` are not imported.
 -   Comments in the text bracketed with slashes and asterisks (like
     `/* this is a comment */`) are converted to author's comments.
--   yWriter comments with special marks (like `/* @en this is an endnote. */`) 
+-   yw7 comments with special marks (like `/* @en this is an endnote. */`) 
     are converted into footnotes or endnotes. Markup:
     - `@fn*` -- simple footnote, marked with an astersik
     - `@fn` -- numbered footnote
@@ -148,7 +148,7 @@ text document (odt).
 -   Interspersed HTML, TEX, or RTF commands are removed.
 -   Gobal variables and project variables are not resolved.
 -   Chapter titles appear as first level heading if the chapter is
-    marked as beginning of a new section in yWriter. Such headings are
+    marked as beginning of a new section in yw7. Such headings are
     considered as "part" headings.
 -   Chapter titles appear as second level heading if the chapter is not
     marked as beginning of a new section. Such headings are considered
@@ -160,7 +160,7 @@ text document (odt).
     the menu command **Format >  Replace scene dividers with blank lines**.
 -   Starting from the second paragraph, paragraphs begin with
     indentation of the first line.
--   Scenes marked "attach to previous scene" in yWriter appear like
+-   Scenes marked "attach to previous scene" in yw7 appear like
     continuous paragraphs.
 -   Paragraphs starting with `> ` are formatted as quotations.
 
@@ -169,9 +169,9 @@ text document (odt).
 
 ------------------------------------------------------------------------
 
-## Import from yWriter for proof reading
+## Import from yw7 for proof reading
 
-This will write yWriter 7 chapters and scenes into into a new OpenDocument
+This will write yw7 chapters and scenes into a new OpenDocument
 text document (odt) with visible scene markers. File name suffix is
 `_proof`.
 
@@ -192,8 +192,8 @@ text document (odt) with visible scene markers. File name suffix is
 -   Text markup: Bold and italics are supported. Other highlighting such
     as underline and strikethrough are lost.
 
-You can write back the scene contents to the yWriter 7 project file
-with the [Export to yWriter](#export-to-ywriter) command.
+You can write back the scene contents to the yw7 project file
+with the [Export to yw7](#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -204,11 +204,11 @@ with the [Export to yWriter](#export-to-ywriter) command.
 This will write a brief synopsis with chapter and scenes titles into a new 
 OpenDocument text document.  File name suffix is `_brf_synopsis`.
  
--   Only scenes that are intended for RTF export in yWriter will be
+-   Only scenes that are intended for RTF export in *yWriter* will be
     imported.
 -   Titles of scenes beginning with `<HTML>` or `<TEX>` are not imported.
 -   Chapter titles appear as first level heading if the chapter is
-    marked as beginning of a new section in yWriter. Such headings are
+    marked as beginning of a new section in yw7. Such headings are
     considered as "part" headings.
 -   Chapter titles appear as second level heading if the chapter is not
     marked as beginning of a new section. Such headings are considered
@@ -225,13 +225,13 @@ OpenDocument text document.  File name suffix is `_brf_synopsis`.
 
 This will generate a new OpenDocument spreadsheet (ods) containing a
 character list that can be edited in Office Calc and written back to
-yWriter format. File name suffix is `_charlist`.
+yw7 format. File name suffix is `_charlist`.
 
 You may change the sort order of the rows. You may also add or remove
 rows. New entities must get a unique ID.
 
-You can write back the edited table to the yWriter 7 project file with
-the [Export to yWriter](#export-to-ywriter) command.
+You can write back the edited table to the yw7 project file with
+the [Export to yw7](#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -241,13 +241,13 @@ the [Export to yWriter](#export-to-ywriter) command.
 
 This will generate a new OpenDocument spreadsheet (ods) containing a
 location list that can be edited in Office Calc and written back to
-yWriter format. File name suffix is `_loclist`.
+yw7 format. File name suffix is `_loclist`.
 
 You may change the sort order of the rows. You may also add or remove
 rows. New entities must get a unique ID.
 
-You can write back the edited table to the yWriter 7 project file with
-the [Export to yWriter](#export-to-ywriter) command.
+You can write back the edited table to the yw7 project file with
+the [Export to yw7](#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -256,14 +256,14 @@ the [Export to yWriter](#export-to-ywriter) command.
 ## Item list
 
 This will generate a new OpenDocument spreadsheet (ods) containing an
-item list that can be edited in Office Calc and written back to yWriter
+item list that can be edited in Office Calc and written back to yw7
 format. File name suffix is `_itemlist`.
 
 You may change the sort order of the rows. You may also add or remove
 rows. New entities must get a unique ID.
 
-You can write back the edited table to the yWriter 7 project file with
-the [Export to yWriter](#export-to-ywriter) command.
+You can write back the edited table to the yw7 project file with
+the [Export to yw7](#export-to-yw7) command.
 
 [Top of page](#top)
 
@@ -302,7 +302,7 @@ lines will be changed from  _Heading 4_  to  _Heading 5_.
 This will select all paragraphs that start with "> "
 and change their paragraph style to _Quotations_.
 
-Note: When exporting to yWriter, _Quotations_ style paragraphs will
+Note: When exporting to yw7, _Quotations_ style paragraphs will
 automatically marked with "> " at the beginning.
 
 [Top of page](#top)
@@ -314,7 +314,7 @@ automatically marked with "> " at the beginning.
 This will select all paragraphs that start with "- "
 and apply a list paragraph style.
 
-Note: When exporting to yWriter, Lists will
+Note: When exporting to yw7, Lists will
 automatically marked with "- " list strokes.
 
 [Top of page](#top)
