@@ -134,7 +134,7 @@ Dadurch werden yw7-Kapitel und -Abschnitte in ein neues OpenDocument Textdokumen
 - Nur Abschnitte, die in *yWriter* für den RTF-Export vorgesehen sind, werden importiert.
 - Abschnitte, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* das ist ein Kommentar */`), werden in Autorenkommentare umgewandelt.
-- Gekennzeichnete Kommentare (wie `/* @en Das ist eine Endnote. */`) 
+- Gekennzeichnete Kommentare (wie `/*@en Das ist eine Endnote. */`) 
   werden zu Fußnoten oder Endnoten konvertiert. Kennzeichnungen:
     - `@fn*` -- Einfache Fußnote mit Sternchen, 
     - `@fn` -- Nummerierte Fußnote.

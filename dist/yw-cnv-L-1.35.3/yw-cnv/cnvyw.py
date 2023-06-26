@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.35.2
+Version 1.35.3
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -493,12 +493,17 @@ class YwCnvUi:
         if os.path.isfile(target.filePath) and not self._confirm_overwrite(target.filePath):
             raise Error(f'{_("Action canceled by user")}.')
 
+from abc import ABC, abstractmethod
 
 
-class FileFactory:
+class FileFactory(ABC):
 
     def __init__(self, fileClasses=[]):
         self._fileClasses = fileClasses
+
+    @abstractmethod
+    def make_file_objects(self, sourcePath, **kwargs):
+        pass
 
 
 class ExportSourceFactory(FileFactory):
@@ -573,7 +578,7 @@ class YwCnvFf(YwCnvUi):
         self.exportTargetFactory = ExportTargetFactory(self.EXPORT_TARGET_CLASSES)
         self.importSourceFactory = ImportSourceFactory(self.IMPORT_SOURCE_CLASSES)
         self.importTargetFactory = ImportTargetFactory(self.IMPORT_TARGET_CLASSES)
-        self.newProjectFactory = FileFactory()
+        self.newProjectFactory = None
 
     def run(self, sourcePath, **kwargs):
         self.newFile = None
@@ -612,10 +617,11 @@ import zipfile
 from html import unescape
 from datetime import datetime
 import xml.etree.ElementTree as ET
+from abc import ABC
 from urllib.parse import quote
 
 
-class File:
+class File(ABC):
     DESCRIPTION = _('File')
     EXTENSION = None
     SUFFIX = None
@@ -629,7 +635,6 @@ class File:
     PNT_KWVAR = []
 
     def __init__(self, filePath, **kwargs):
-        super().__init__()
         self.novel = None
 
         self._filePath = None
@@ -2086,12 +2091,13 @@ class Yw7File(File):
                 os.replace(f'{ywProject.filePath}.bak', ywProject.filePath)
             raise Error(f'{_("Cannot write file")}: "{norm_path(ywProject.filePath)}".')
 
+from abc import ABC
 from xml import sax
 
 
 class OdtParser(sax.ContentHandler):
 
-    def __init__(self):
+    def __init__(self, client):
         super().__init__()
         self._emTags = ['Emphasis']
         self._strongTags = ['Strong_20_Emphasis']
@@ -2105,6 +2111,7 @@ class OdtParser(sax.ContentHandler):
         self._list = False
         self._span = []
         self._style = None
+        self._client = client
 
     def feed_file(self, filePath):
         namespaces = dict(
@@ -2133,7 +2140,7 @@ class OdtParser(sax.ContentHandler):
                 textProperties = defaultStyle.find('style:text-properties', namespaces)
                 lngCode = textProperties.get(f'{{{namespaces["fo"]}}}language')
                 ctrCode = textProperties.get(f'{{{namespaces["fo"]}}}country')
-                self.handle_starttag('body', [('language', lngCode), ('country', ctrCode)])
+                self._client.handle_starttag('body', [('language', lngCode), ('country', ctrCode)])
                 break
 
         if meta:
@@ -2142,17 +2149,17 @@ class OdtParser(sax.ContentHandler):
             title = meta.find('dc:title', namespaces)
             if title is not None:
                 if title.text:
-                    self.handle_starttag('title', [()])
-                    self.handle_data(title.text)
-                    self.handle_endtag('title')
+                    self._client.handle_starttag('title', [()])
+                    self._client.handle_data(title.text)
+                    self._client.handle_endtag('title')
             author = meta.find('meta:initial-creator', namespaces)
             if author is not None:
                 if author.text:
-                    self.handle_starttag('meta', [('', 'author'), ('', author.text)])
+                    self._client.handle_starttag('meta', [('', 'author'), ('', author.text)])
             desc = meta.find('dc:description', namespaces)
             if desc is not None:
                 if desc.text:
-                    self.handle_starttag('meta', [('', 'description'), ('', desc.text)])
+                    self._client.handle_starttag('meta', [('', 'description'), ('', desc.text)])
 
         sax.parseString(content, self)
 
@@ -2161,34 +2168,34 @@ class OdtParser(sax.ContentHandler):
             if self._commentParagraphCount == 1:
                 self._comment = f'{self._comment}{content}'
         elif self._paragraph:
-            self.handle_data(content)
+            self._client.handle_data(content)
         elif self._heading is not None:
-            self.handle_data(content)
+            self._client.handle_data(content)
 
     def endElement(self, name):
         if name == 'text:p':
             if self._commentParagraphCount is None:
                 while self._span:
-                    self.handle_endtag(self._span.pop())
+                    self._client.handle_endtag(self._span.pop())
                 if self._blockquote:
-                    self.handle_endtag('blockquote')
+                    self._client.handle_endtag('blockquote')
                     self._blockquote = False
                 elif self._heading:
-                    self.handle_endtag(self._heading)
+                    self._client.handle_endtag(self._heading)
                     self._heading = None
                 else:
-                    self.handle_endtag('p')
+                    self._client.handle_endtag('p')
                 self._paragraph = False
         elif name == 'text:span':
             if self._span:
-                self.handle_endtag(self._span.pop())
+                self._client.handle_endtag(self._span.pop())
         elif name == 'text:section':
-            self.handle_endtag('div')
+            self._client.handle_endtag('div')
         elif name == 'office:annotation':
-            self.handle_comment(self._comment)
+            self._client.handle_comment(self._comment)
             self._commentParagraphCount = None
         elif name == 'text:h':
-            self.handle_endtag(self._heading)
+            self._client.handle_endtag(self._heading)
             self._heading = None
         elif name == 'text:list-item':
             self._list = False
@@ -2208,40 +2215,40 @@ class OdtParser(sax.ContentHandler):
             if self._commentParagraphCount is not None:
                 self._commentParagraphCount += 1
             elif style in self._blockquoteTags:
-                self.handle_starttag('blockquote', param)
+                self._client.handle_starttag('blockquote', param)
                 self._paragraph = True
                 self._blockquote = True
             elif style.startswith('Heading'):
                 self._heading = f'h{style[-1]}'
-                self.handle_starttag(self._heading, [()])
+                self._client.handle_starttag(self._heading, [()])
             elif style in self._headingTags:
                 self._heading = self._headingTags[style]
-                self.handle_starttag(self._heading, [()])
+                self._client.handle_starttag(self._heading, [()])
             elif self._list:
-                self.handle_starttag('li', [()])
+                self._client.handle_starttag('li', [()])
                 self._paragraph = True
             else:
-                self.handle_starttag('p', param)
+                self._client.handle_starttag('p', param)
                 self._paragraph = True
             if style in self._emTags:
                 self._span.append('em')
-                self.handle_starttag('em', [()])
+                self._client.handle_starttag('em', [()])
             if style in self._strongTags:
                 self._span.append('strong')
-                self.handle_starttag('strong', [()])
+                self._client.handle_starttag('strong', [()])
         elif name == 'text:span':
             if style in self._emTags:
                 self._span.append('em')
-                self.handle_starttag('em', [()])
+                self._client.handle_starttag('em', [()])
             if style in self._strongTags:
                 self._span.append('strong')
-                self.handle_starttag('strong', [()])
+                self._client.handle_starttag('strong', [()])
             if style in self._languageTags:
                 self._span.append('lang')
-                self.handle_starttag('lang', [('lang', self._languageTags[style])])
+                self._client.handle_starttag('lang', [('lang', self._languageTags[style])])
         elif name == 'text:section':
             sectionId = xmlAttributes['text:name']
-            self.handle_starttag('div', [('id', sectionId)])
+            self._client.handle_starttag('div', [('id', sectionId)])
         elif name == 'office:annotation':
             self._commentParagraphCount = 0
             self._comment = ''
@@ -2250,7 +2257,7 @@ class OdtParser(sax.ContentHandler):
                 self._heading = f'h{xmlAttributes["text:outline-level"]}'
             except:
                 self._heading = f'h{style[-1]}'
-            self.handle_starttag(self._heading, [()])
+            self._client.handle_starttag(self._heading, [()])
         elif name == 'text:list-item':
             self._list = True
         elif name == 'style:style':
@@ -2274,23 +2281,11 @@ class OdtParser(sax.ContentHandler):
                     locale = lngCode
                 self._languageTags[self._style] = locale
         elif name == 'text:s':
-            self.handle_starttag('s', [()])
-
-    def handle_comment(self, data):
-        pass
-
-    def handle_data(self, data):
-        pass
-
-    def handle_endtag(self, tag):
-        pass
-
-    def handle_starttag(self, tag, attrs):
-        pass
+            self._client.handle_starttag('s', [()])
 
 
 
-class OdtReader(File, OdtParser):
+class OdtReader(File, ABC):
     EXTENSION = '.odt'
 
     _TYPE = 0
@@ -2314,6 +2309,12 @@ class OdtReader(File, OdtParser):
         if self._scId is not None:
             self._lines.append(f'{self._COMMENT_START}{data}{self._COMMENT_END}')
 
+    def handle_data(self, data):
+        pass
+
+    def handle_endtag(self, tag):
+        pass
+
     def handle_starttag(self, tag, attrs):
         if tag == 'div':
             if attrs[0][0] == 'id':
@@ -2334,7 +2335,8 @@ class OdtReader(File, OdtParser):
             self._lines.append(' ')
 
     def read(self):
-        OdtParser.feed_file(self, self.filePath)
+        parser = OdtParser(self)
+        parser.feed_file(self.filePath)
 
     def _convert_to_yw(self, text):
         text = text.replace('\n', ' ')
@@ -4256,7 +4258,7 @@ class OdtWExport(OdtWFormatted):
             simpleComment = (f'<office:annotation><dc:creator>{self.novel.authorName}'
                              '</dc:creator><text:p>\\1</text:p></office:annotation>'
                              )
-            text = re.sub('\/\* @([ef]n\**) (.*?)\*\/', replace_note, text)
+            text = re.sub('\/\* *@([ef]n\**) (.*?)\*\/', replace_note, text)
             text = re.sub('\/\*(.*?)\*\/', simpleComment, text)
             text = text.replace('@r@', '\r').replace('@n@', '\n')
         return text
@@ -5756,6 +5758,7 @@ class OdtRItems(OdtReader):
         elif tag == 's':
             self._lines.append(' ')
 
+from abc import ABC, abstractmethod
 
 
 class OdsParser:
@@ -5821,7 +5824,7 @@ class OdsParser:
 
 
 
-class OdsReader(File):
+class OdsReader(File, ABC):
     EXTENSION = '.ods'
     _SEPARATOR = ','
     _rowTitles = []
@@ -5832,11 +5835,12 @@ class OdsReader(File):
         super().__init__(filePath)
         self._rows = []
 
+    @abstractmethod
     def read(self):
         self._rows = []
         cellsPerRow = len(self._rowTitles)
-        reader = OdsParser()
-        self._rows = reader.get_rows(self.filePath, cellsPerRow)
+        parser = OdsParser()
+        self._rows = parser.get_rows(self.filePath, cellsPerRow)
         for row in self._rows:
             if len(row) != cellsPerRow:
                 print(row)
