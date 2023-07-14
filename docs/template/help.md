@@ -16,7 +16,7 @@
 -   [Location list](#location-list)
 -   [Item list](#item-list)
 -   [Cross reference](#cross-reference)
--   [Advanced features](help-adv)
+-   [Advanced features](@help-adv@)
 
 ### "Format" menu
 

@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.35.4
+
+- Fix the "Advanced features" link in the Englisch help file.
+
+Based on PyWriter v12.13.5
+
 ### v1.35.3
 
 - Ignore leading blanks when parsing footnote/endnote markup.
