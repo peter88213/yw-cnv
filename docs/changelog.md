@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.35.5
+
+- Fix a typo in the German translations.
+
+Based on PyWriter v12.13.5
+
 ### v1.35.4
 
 - Fix the "Advanced features" link in the English help file.
