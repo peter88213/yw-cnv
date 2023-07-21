@@ -2,6 +2,10 @@
 
 For more information, see the [project homepage](https://peter88213.github.io/yw-cnv) with description and download instructions.
 
+## Feedback? Ideas? Feature requests?
+
+You can go to the ["discussions" forum](https://github.com/peter88213/yw-cnv/discussions) and start a thread.
+
 ## Development
 
 *yw-cnv* depends on the [pywriter](https://github.com/peter88213/PyWriter) library which must be present in your file system. It is organized as an Eclipse PyDev project. The official release branch on GitHub is *main*.
