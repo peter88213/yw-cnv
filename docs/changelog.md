@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.36.0
+
+- Add scene headings to the "proofing" document.
+
+Based on PyWriter v12.14.0
+
 ### v1.35.5
 
 - Fix a typo in the German translations.

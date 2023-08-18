@@ -24,7 +24,7 @@ You can find more information on the [help pages](help).
 
 ## Download and install {#download}
 
-[Download the latest release (version 1.35.5)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.35.5.oxt)
+[Download the latest release (version 1.36.0)](https://raw.githubusercontent.com/peter88213/yw-cnv/main/dist/yw-cnv-L-1.36.0.oxt)
 
 - Installation right at download, by double-clicking on the downloaded 
  file, or via the LibreOffice Extension Manager. Instructions can be found [here](https://wiki.documentfoundation.org/Documentation/HowTo/install_extension).

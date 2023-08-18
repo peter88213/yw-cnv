@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.35.5
+Version 1.36.0
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -1583,18 +1583,6 @@ class Yw7File(File):
         self.tree = ET.ElementTree(root)
 
     def _postprocess_xml_file(self, filePath):
-        '''Postprocess an xml file created by ElementTree.
-        
-        Positional argument:
-            filePath: str -- path to xml file.
-        
-        Read the xml file, put a header on top, insert the missing CDATA tags,
-        and replace xml entities by plain text (unescape). Overwrite the .yw7 xml file.
-        Raise the "Error" exception in case of error. 
-        
-        Note: The path is given as an argument rather than using self.filePath. 
-        So this routine can be used for yWriter-generated xml files other than .yw7 as well. 
-        '''
         with open(filePath, 'r', encoding='utf-8') as f:
             text = f.read()
         lines = text.split('\n')
@@ -3913,12 +3901,10 @@ class OdtWProof(OdtWFormatted):
     _chapterTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">$Title</text:h>
 '''
 
-    _sceneTemplate = '''<text:p text:style-name="scene_20_mark">[ScID:$ID]</text:p>
+    _sceneTemplate = '''<text:h text:style-name="Heading_20_3" text:outline-level="3">$Title</text:h>
+<text:p text:style-name="scene_20_mark">[ScID:$ID]</text:p>
 <text:p text:style-name="Text_20_body">$SceneContent</text:p>
 <text:p text:style-name="scene_20_mark">[/ScID]</text:p>
-'''
-
-    _sceneDivider = '''<text:p text:style-name="Heading_20_4">* * *</text:p>
 '''
 
     _fileFooter = OdtWFormatted._CONTENT_XML_FOOTER

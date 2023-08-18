@@ -160,6 +160,7 @@ Dies lädt yw7-Kapitel und -Abschnitte in ein neues OpenDocument-Textdokument (o
 - Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
 - Abschnitte, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
+- Das Dokument enthält Kapitel- und Abschnittsüberschriften. Änderungen daran werden jedoch nicht zurückgeschrieben.
 - Das Dokument enthält Abschnittsmarkierungen `[ScID:x]`. **Ändern Sie die Zeilen mit den Markierungen nicht**, wenn Sie das Dokument wieder in yw7 importieren wollen.
 - Kapitel und Abschnitte können weder umgeordnet noch gelöscht werden.
 - Sie können Abschnitte aufteilen, indem Sie Überschriften oder einen Abschnittstrenner einfügen:
