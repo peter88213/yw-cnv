@@ -38,6 +38,8 @@ You can find more information on the [help pages](help).
 
 This extension supports the update mechanism of LibreOffice. You can let the Extension Manager check for updates from time to time to get the latest release.
 
+---
+
 ## Credits
 
 [OpenOffice Extension
@@ -53,6 +55,8 @@ Andrew D. Pitonyak published useful Macro code examples in [OpenOffice.org Macro
 This extension is distributed under the [MIT
 License](http://www.opensource.org/licenses/mit-license.php).
 
+---
+
 ## See also
 
 [The "curly" extensions for OpenOffice and LibreOffice](https://peter88213.github.io/curly/)
@@ -60,3 +64,5 @@ License](http://www.opensource.org/licenses/mit-license.php).
 [The StyleSwitcher extension for OpenOffice and LibreOffice](https://peter88213.github.io/StyleSwitcher/)
 
 [The emph extension for OpenOffice and LibreOffice](https://peter88213.github.io/emph/)
+
+[The yW2OO standalone converter for yWriter and OpenOffice/LibreOffice](https://peter88213.github.io/yW2OO/)
