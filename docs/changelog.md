@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.37.1
+
+- Escape characters in custom field variables when writing as PCDATA to .yw7.
+
+Based on PyWriter v12.16.2
+
 ### v1.37.0
 
 Change the layout of exported documents.

@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.37.0
+Version 1.37.1
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -887,10 +887,11 @@ class Yw7File(File):
                 if self.novel.scenes[scId].kwVar.get(field, None):
                     if xmlSceneFields is None:
                         xmlSceneFields = ET.SubElement(xmlScene, 'Fields')
+                    fieldEntry = self._convert_from_yw(self.novel.scenes[scId].kwVar[field])
                     try:
-                        xmlSceneFields.find(field).text = self.novel.scenes[scId].kwVar[field]
+                        xmlSceneFields.find(field).text = fieldEntry
                     except(AttributeError):
-                        ET.SubElement(xmlSceneFields, field).text = self.novel.scenes[scId].kwVar[field]
+                        ET.SubElement(xmlSceneFields, field).text = fieldEntry
                 elif xmlSceneFields is not None:
                     try:
                         xmlSceneFields.remove(xmlSceneFields.find(field))
@@ -1165,10 +1166,11 @@ class Yw7File(File):
                     if xmlChapterFields is None:
                         xmlChapterFields = ET.Element('Fields')
                         xmlChapter.insert(i, xmlChapterFields)
+                    fieldEntry = self._convert_from_yw(prjChp.kwVar[field])
                     try:
-                        xmlChapterFields.find(field).text = prjChp.kwVar[field]
+                        xmlChapterFields.find(field).text = fieldEntry
                     except(AttributeError):
-                        ET.SubElement(xmlChapterFields, field).text = prjChp.kwVar[field]
+                        ET.SubElement(xmlChapterFields, field).text = fieldEntry
                 elif xmlChapterFields is not None:
                     try:
                         xmlChapterFields.remove(xmlChapterFields.find(field))
@@ -1224,10 +1226,11 @@ class Yw7File(File):
                 if prjLoc.kwVar.get(field, None):
                     if xmlLocationFields is None:
                         xmlLocationFields = ET.SubElement(xmlLoc, 'Fields')
+                    fieldEntry = self._convert_from_yw(prjLoc.kwVar[field])
                     try:
-                        xmlLocationFields.find(field).text = prjLoc.kwVar[field]
+                        xmlLocationFields.find(field).text = fieldEntry
                     except(AttributeError):
-                        ET.SubElement(xmlLocationFields, field).text = prjLoc.kwVar[field]
+                        ET.SubElement(xmlLocationFields, field).text = fieldEntry
                 elif xmlLocationFields is not None:
                     try:
                         xmlLocationFields.remove(xmlLocationFields.find(field))
@@ -1275,10 +1278,11 @@ class Yw7File(File):
                 if prjItm.kwVar.get(field, None):
                     if xmlItemFields is None:
                         xmlItemFields = ET.SubElement(xmlItm, 'Fields')
+                    fieldEntry = self._convert_from_yw(prjItm.kwVar[field])
                     try:
-                        xmlItemFields.find(field).text = prjItm.kwVar[field]
+                        xmlItemFields.find(field).text = fieldEntry
                     except(AttributeError):
-                        ET.SubElement(xmlItemFields, field).text = prjItm.kwVar[field]
+                        ET.SubElement(xmlItemFields, field).text = fieldEntry
                 elif xmlItemFields is not None:
                     try:
                         xmlItemFields.remove(xmlItemFields.find(field))
@@ -1323,10 +1327,11 @@ class Yw7File(File):
                 if prjCrt.kwVar.get(field, None):
                     if xmlCharacterFields is None:
                         xmlCharacterFields = ET.SubElement(xmlCrt, 'Fields')
+                    fieldEntry = self._convert_from_yw(prjCrt.kwVar[field])
                     try:
-                        xmlCharacterFields.find(field).text = prjCrt.kwVar[field]
+                        xmlCharacterFields.find(field).text = fieldEntry
                     except(AttributeError):
-                        ET.SubElement(xmlCharacterFields, field).text = prjCrt.kwVar[field]
+                        ET.SubElement(xmlCharacterFields, field).text = fieldEntry
                 elif xmlCharacterFields is not None:
                     try:
                         xmlCharacterFields.remove(xmlCharacterFields.find(field))
@@ -1410,10 +1415,11 @@ class Yw7File(File):
                 if setting:
                     if xmlProjectFields is None:
                         xmlProjectFields = ET.SubElement(xmlProject, 'Fields')
+                    fieldEntry = self._convert_from_yw(setting)
                     try:
-                        xmlProjectFields.find(field).text = setting
+                        xmlProjectFields.find(field).text = fieldEntry
                     except(AttributeError):
-                        ET.SubElement(xmlProjectFields, field).text = setting
+                        ET.SubElement(xmlProjectFields, field).text = fieldEntry
                 else:
                     try:
                         xmlProjectFields.remove(xmlProjectFields.find(field))
@@ -1581,6 +1587,21 @@ class Yw7File(File):
 
         indent(root)
         self.tree = ET.ElementTree(root)
+
+    def _convert_from_yw(self, text, quick=False):
+        if text:
+            XML_REPLACEMENTS = [
+                ('&', '&amp;'),
+                ('>', '&gt;'),
+                ('<', '&lt;'),
+                ("'", '&apos;'),
+                ('"', '&quot;'),
+                ]
+            for yw, xm in XML_REPLACEMENTS:
+                text = text.replace(yw, xm)
+        else:
+            text = ''
+        return text
 
     def _postprocess_xml_file(self, filePath):
         with open(filePath, 'r', encoding='utf-8') as f:
