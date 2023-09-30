@@ -143,7 +143,6 @@ Dadurch werden yw7-Kapitel und -Abschnitte in ein neues OpenDocument Textdokumen
 - Grundlegende Variablen und Projektvariablen werden nicht aufgelöst.
 - Kapitelüberschriften erscheinen als Überschriften der ersten Ebene, wenn das Kapitel in yw7 als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Teil"-Überschriften betrachtet.
 - Kapitelüberschriften erscheinen als Überschriften der zweiten Ebene, wenn das Kapitel nicht als Beginn eines neuen Abschnitts markiert ist. Solche Überschriften werden als "Kapitel"-Überschriften betrachtet.
-- Abschnittstitel erscheinen als navigierbare Kommentare, die an den Anfang des Abschnitts gepinnt sind.
 - Abschnitte werden durch `* * *` getrennt. Die erste Zeile wird nicht eingerückt. Mit dem Menübefehl **Format &gt; Abschnittstrenner durch Leerzeilen ersetzen** können Sie die Abschnittstrenner durch Leerzeilen ersetzen.
 - Ab dem zweiten Absatz beginnen Absätze mit der Einrückung der ersten Zeile.
 - Abschnitte, die in yw7 mit "an vorherigen Abschnitt anhängen" gekennzeichnet sind, erscheinen wie durchgehende Absätze.

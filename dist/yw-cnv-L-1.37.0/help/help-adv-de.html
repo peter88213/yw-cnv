@@ -38,8 +38,10 @@
 <p>Dies lädt yw7-Kapitel und -Abschnitte in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (die im Navigator zu sehen sind). Das Suffix des Dateinamens ist <code>_manuscript</code>.</p>
 <ul>
 <li>Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.</li>
+<li>Die Titel von Teilen erscheinen als Überschriften erster Ordnung.</li>
+<li>Die Titel von Kapiteln erscheinen als Überschriften zweiter Ordnung.</li>
+<li>Die Titel von Abschnitten erscheinen im Navigator als Einträge dritter Ordnung. Die Überschriften selbst sind unsichtbar.</li>
 <li>Abschnitte, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
-<li>Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, wenn sie von <code>~</code> umgeben sind.</li>
 <li>Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. <code>/* dies ist ein Kommentar */</code>), werden in Autorenkommentare umgewandelt.</li>
 <li>Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.</li>
 <li>Gobal- und Projektvariablen werden nicht aufgelöst.</li>

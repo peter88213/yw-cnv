@@ -29,8 +29,10 @@ Diese Funktionen sind nur für erfahrene OpenOffice/LibreOffice-Benutzer gedacht
 Dies lädt yw7-Kapitel und -Abschnitte in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (die im Navigator zu sehen sind). Das Suffix des Dateinamens ist `_manuscript`.
 
 - Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.
+- Die Titel von Teilen erscheinen als Überschriften erster Ordnung.
+- Die Titel von Kapiteln erscheinen als Überschriften zweiter Ordnung.
+- Die Titel von Abschnitten erscheinen im Navigator als Einträge dritter Ordnung. Die Überschriften selbst sind unsichtbar.
 - Abschnitte, die mit `<HTML>` oder `<TEX>` beginnen, werden nicht importiert.
-- Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, wenn sie von `~` umgeben sind.
 - Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. `/* dies ist ein Kommentar */`), werden in Autorenkommentare umgewandelt.
 - Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.
 - Gobal- und Projektvariablen werden nicht aufgelöst.
