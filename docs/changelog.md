@@ -4,7 +4,7 @@
 
 ## Changelog
 
-### v1.37.2
+### v1.37.3
 
 Change the layout of exported documents.
 - Replace the Manuscript's scene comments with invisible scene headings.
@@ -17,7 +17,7 @@ This is mainly to speed up the opening of documents in OpenOffice.
 - Fix a bug where a missing chapter title cannot be replaced with the manuscript heading.
 - Escape characters in custom field variables when writing as PCDATA to .yw7.
 
-Based on PyWriter v12.16.6
+Based on PyWriter v12.16.7
 
 ### v1.36.0
 
