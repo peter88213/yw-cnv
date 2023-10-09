@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.37.1
+Version 1.37.2
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -198,7 +198,13 @@ NON_LETTERS: Pattern = re.compile('\[.+?\]|\/\*.+?\*\/|\n|\r')
 
 
 class Scene(BasicElement):
-    STATUS: set = [None, 'Outline', 'Draft', '1st Edit', '2nd Edit', 'Done']
+    STATUS: list[str] = [None,
+                    'Outline',
+                    'Draft',
+                    '1st Edit',
+                    '2nd Edit',
+                    'Done'
+                    ]
 
     ACTION_MARKER: str = 'A'
     REACTION_MARKER: str = 'R'
@@ -266,7 +272,7 @@ class Scene(BasicElement):
 
         self.scnArcs: str = None
 
-        self.scnStyle: str = None
+        self.scnMode: int = None
 
     @property
     def sceneContent(self) -> str:
@@ -720,7 +726,7 @@ class Yw7File(File):
         ]
     SCN_KWVAR = [
         'Field_SceneArcs',
-        'Field_SceneStyle',
+        'Field_SceneMode',
         ]
 
     def __init__(self, filePath, **kwargs):
@@ -761,7 +767,11 @@ class Yw7File(File):
 
         for scId in self.novel.scenes:
             self.novel.scenes[scId].scnArcs = self.novel.scenes[scId].kwVar.get('Field_SceneArcs', None)
-            self.novel.scenes[scId].scnStyle = self.novel.scenes[scId].kwVar.get('Field_SceneStyle', None)
+            scnMode = self.novel.scenes[scId].kwVar.get('Field_SceneMode', None)
+            try:
+                self.novel.scenes[scId].scnMode = int(scnMode)
+            except:
+                self.novel.scenes[scId].scnMode = None
 
     def write(self):
         if self.is_locked():
@@ -773,9 +783,12 @@ class Yw7File(File):
         for scId in self.novel.scenes:
             if self.novel.scenes[scId].scnArcs is not None:
                 self.novel.scenes[scId].kwVar['Field_SceneArcs'] = self.novel.scenes[scId].scnArcs
-            if self.novel.scenes[scId].scnStyle is not None:
-                self.novel.scenes[scId].kwVar['Field_SceneStyle'] = self.novel.scenes[scId].scnStyle
-
+            if self.novel.scenes[scId].scnMode is not None:
+                if self.novel.scenes[scId].scnMode == 0:
+                    self.novel.scenes[scId].kwVar['Field_SceneMode'] = None
+                else:
+                    self.novel.scenes[scId].kwVar['Field_SceneMode'] = str(self.novel.scenes[scId].scnMode)
+            self.novel.scenes[scId].kwVar['Field_SceneStyle'] = None
         self._build_element_tree()
         self._write_element_tree(self)
         self._postprocess_xml_file(self.filePath)
@@ -2412,15 +2425,6 @@ class Splitter:
             newScene.lastsMinutes = parent.lastsMinutes
             file.novel.scenes[sceneId] = newScene
 
-        chIdMax = 0
-        scIdMax = 0
-        for chId in file.novel.srtChapters:
-            if int(chId) > chIdMax:
-                chIdMax = int(chId)
-        for scId in file.novel.scenes:
-            if int(scId) > scIdMax:
-                scIdMax = int(scId)
-
         scenesSplit = False
         srtChapters = []
         for chId in file.novel.srtChapters:
@@ -2449,8 +2453,7 @@ class Splitter:
                         file.novel.scenes[sceneId].sceneContent = '\n'.join(newLines)
                         newLines = []
                         sceneSplitCount += 1
-                        scIdMax += 1
-                        sceneId = str(scIdMax)
+                        sceneId = create_id(file.novel.scenes)
                         create_scene(sceneId, file.novel.scenes[scId], sceneSplitCount, title, desc)
                         srtScenes.append(sceneId)
                         scenesSplit = True
@@ -2463,8 +2466,7 @@ class Splitter:
                             inScene = False
                         file.novel.chapters[chapterId].srtScenes = srtScenes
                         srtScenes = []
-                        chIdMax += 1
-                        chapterId = str(chIdMax)
+                        chapterId = create_id(file.novel.chapters)
                         if not title:
                             title = _('New Chapter')
                         create_chapter(chapterId, title, desc, 0)
@@ -2478,8 +2480,7 @@ class Splitter:
                             inScene = False
                         file.novel.chapters[chapterId].srtScenes = srtScenes
                         srtScenes = []
-                        chIdMax += 1
-                        chapterId = str(chIdMax)
+                        chapterId = create_id(file.novel.chapters)
                         if not title:
                             title = _('New Part')
                         create_chapter(chapterId, title, desc, 1)
@@ -2487,8 +2488,7 @@ class Splitter:
                     elif not inScene:
                         newLines.append(line)
                         sceneSplitCount += 1
-                        scIdMax += 1
-                        sceneId = str(scIdMax)
+                        sceneId = create_id(file.novel.scenes)
                         create_scene(sceneId, file.novel.scenes[scId], sceneSplitCount, '', '')
                         srtScenes.append(sceneId)
                         scenesSplit = True
@@ -4469,7 +4469,7 @@ $SceneNumber (Ch $Chapter) $Title (ToDo)
 </text:p>
 '''
     _itemTemplate = '''<text:p text:style-name="Text_20_body">
-<text:a xlink:href="../${ProjectName}_items.odt#ItrID:$ID%7Cregion">$Title</text:a>
+<text:a xlink:href="../${ProjectName}_items.odt#ItID:$ID%7Cregion">$Title</text:a>
 </text:p>
 '''
     _scnPerChrTemplate = '''<text:h text:style-name="Heading_20_2" text:outline-level="2">Scenes with Character $Title:</text:h>
@@ -5485,7 +5485,7 @@ class OdtRManuscript(OdtRFormatted):
                 self._lines.append(data)
         elif self._chId is not None:
             if self.novel.chapters[self._chId].title is None:
-                self.chapters[self._chId].title = data.strip()
+                self.novel.chapters[self._chId].title = data.strip()
 
     def handle_endtag(self, tag):
         if self._scId is not None:

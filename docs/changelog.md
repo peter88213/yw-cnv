@@ -4,13 +4,7 @@
 
 ## Changelog
 
-### v1.37.1
-
-- Escape characters in custom field variables when writing as PCDATA to .yw7.
-
-Based on PyWriter v12.16.2
-
-### v1.37.0
+### v1.37.2
 
 Change the layout of exported documents.
 - Replace the Manuscript's scene comments with invisible scene headings.
@@ -19,7 +13,11 @@ Change the layout of exported documents.
 - Remove several links from the exported document's headings.
 This is mainly to speed up the opening of documents in OpenOffice.
 
-Based on PyWriter v12.16.1
+- Fix a bug where the links to the item descriptions in the cross reference are broken.
+- Fix a bug where a missing chapter title cannot be replaced with the manuscript heading.
+- Escape characters in custom field variables when writing as PCDATA to .yw7.
+
+Based on PyWriter v12.16.6
 
 ### v1.36.0
 
