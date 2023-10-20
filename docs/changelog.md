@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.38.0
+
+Write more compact yw7 files without redundant data not needed by yWriter.
+
+Based on PyWriter v12.17.1
+
 ### v1.37.3
 
 Change the layout of exported documents.

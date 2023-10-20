@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.37.3
+Version 1.38.0
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -710,12 +710,40 @@ def indent(elem, level=0):
 class Yw7File(File):
     DESCRIPTION = _('yWriter 7 project')
     EXTENSION = '.yw7'
-    _CDATA_TAGS = ['Title', 'AuthorName', 'Bio', 'Desc',
-                   'FieldTitle1', 'FieldTitle2', 'FieldTitle3',
-                   'FieldTitle4', 'LaTeXHeaderFile', 'Tags',
-                   'AKA', 'ImageFile', 'FullName', 'Goals',
-                   'Notes', 'RTFFile', 'SceneContent',
-                   'Outcome', 'Goal', 'Conflict']
+    _CDATA_TAGS = [
+        'Title',
+        'AuthorName',
+        'Bio',
+        'Desc',
+        'FieldTitle1',
+        'FieldTitle2',
+        'FieldTitle3',
+        'FieldTitle4',
+        'LaTeXHeaderFile',
+        'Tags',
+        'AKA',
+        'ImageFile',
+        'FullName',
+        'Goals',
+        'Notes',
+        'RTFFile',
+        'SceneContent',
+        'Outcome',
+        'Goal',
+        'Conflict'
+        'Field_ChapterHeadingPrefix',
+        'Field_ChapterHeadingSuffix',
+        'Field_PartHeadingPrefix',
+        'Field_PartHeadingSuffix',
+        'Field_CustomGoal',
+        'Field_CustomConflict',
+        'Field_CustomOutcome',
+        'Field_CustomChrBio',
+        'Field_CustomChrGoals',
+        'Field_ArcDefinition',
+        'Field_SceneArcs',
+        'Field_CustomAR',
+        ]
 
     PRJ_KWVAR = [
         'Field_LanguageCode',
@@ -826,12 +854,6 @@ class Yw7File(File):
             i = 1
             i = set_element(xmlScene, 'Title', prjScn.title, i)
 
-            if xmlScene.find('BelongsToChID') is None:
-                for chId in self.novel.chapters:
-                    if scId in self.novel.chapters[chId].srtScenes:
-                        ET.SubElement(xmlScene, 'BelongsToChID').text = chId
-                        break
-
             if prjScn.desc is not None:
                 try:
                     xmlScene.find('Desc').text = prjScn.desc
@@ -880,10 +902,10 @@ class Yw7File(File):
                 xmlSceneFields = ET.SubElement(xmlScene, 'Fields')
                 ET.SubElement(xmlSceneFields, 'Field_SceneType').text = ySceneType
 
-            if self.novel.scenes[scId].doNotExport is not None:
+            if prjScn.doNotExport is not None:
                 xmlExportCondSpecific = xmlScene.find('ExportCondSpecific')
                 xmlExportWhenRtf = xmlScene.find('ExportWhenRTF')
-                if self.novel.scenes[scId].doNotExport:
+                if prjScn.doNotExport:
                     if xmlExportCondSpecific is None:
                         xmlExportCondSpecific = ET.SubElement(xmlScene, 'ExportCondSpecific')
                     if xmlExportWhenRtf is not None:
@@ -894,10 +916,10 @@ class Yw7File(File):
                             ET.SubElement(xmlScene, 'ExportWhenRTF').text = '-1'
 
             for field in self.SCN_KWVAR:
-                if self.novel.scenes[scId].kwVar.get(field, None):
+                if prjScn.kwVar.get(field, None):
                     if xmlSceneFields is None:
                         xmlSceneFields = ET.SubElement(xmlScene, 'Fields')
-                    fieldEntry = self._convert_from_yw(self.novel.scenes[scId].kwVar[field])
+                    fieldEntry = self._convert_from_yw(prjScn.kwVar[field])
                     try:
                         xmlSceneFields.find(field).text = fieldEntry
                     except(AttributeError):
@@ -1074,38 +1096,34 @@ class Yw7File(File):
                     if prjScn.image:
                         ET.SubElement(xmlScene, 'ImageFile').text = prjScn.image
 
-            if prjScn.characters is not None:
-                xmlCharacters = xmlScene.find('Characters')
-                try:
-                    for oldCrId in xmlCharacters.findall('CharID'):
-                        xmlCharacters.remove(oldCrId)
-                except(AttributeError):
-                    xmlCharacters = ET.SubElement(xmlScene, 'Characters')
+            try:
+                xmlScene.remove(xmlScene.find('Characters'))
+            except:
+                pass
+            if prjScn.characters:
+                xmlCharacters = ET.SubElement(xmlScene, 'Characters')
                 for crId in prjScn.characters:
                     ET.SubElement(xmlCharacters, 'CharID').text = crId
 
-            if prjScn.locations is not None:
-                xmlLocations = xmlScene.find('Locations')
-                try:
-                    for oldLcId in xmlLocations.findall('LocID'):
-                        xmlLocations.remove(oldLcId)
-                except(AttributeError):
-                    xmlLocations = ET.SubElement(xmlScene, 'Locations')
+            try:
+                xmlScene.remove(xmlScene.find('Locations'))
+            except:
+                pass
+            if prjScn.locations:
+                xmlLocations = ET.SubElement(xmlScene, 'Locations')
                 for lcId in prjScn.locations:
                     ET.SubElement(xmlLocations, 'LocID').text = lcId
 
-            if prjScn.items is not None:
-                xmlItems = xmlScene.find('Items')
-                try:
-                    for oldItId in xmlItems.findall('ItemID'):
-                        xmlItems.remove(oldItId)
-                except(AttributeError):
-                    xmlItems = ET.SubElement(xmlScene, 'Items')
-                for itId in prjScn.items:
-                    ET.SubElement(xmlItems, 'ItemID').text = itId
+            try:
+                xmlScene.remove(xmlScene.find('Items'))
+            except:
+                pass
+            if prjScn.items:
+                xmlItems = ET.SubElement(xmlScene, 'Items')
+                for ItId in prjScn.items:
+                    ET.SubElement(xmlItems, 'ItmID').text = ItId
 
-
-        def build_chapter_subtree(xmlChapter, prjChp, sortOrder):
+        def build_chapter_subtree(xmlChapter, prjChp):
 
             chTypeEncoding = (
                 (False, '0', '0'),
@@ -1130,8 +1148,10 @@ class Yw7File(File):
                 xmlChapter.remove(xmlChapter.find('Unused'))
             if xmlChapter.find('Unused') is not None:
                 i += 1
-
-            i = set_element(xmlChapter, 'SortOrder', str(sortOrder), i)
+            try:
+                xmlChapter.remove(xmlChapter.find('SortOrder'))
+            except:
+                pass
 
             xmlChapterFields = xmlChapter.find('Fields')
             if prjChp.suppressChapterTitle:
@@ -1203,17 +1223,15 @@ class Yw7File(File):
             i = set_element(xmlChapter, 'ChapterType', yChapterType, i)
 
             xmlScnList = xmlChapter.find('Scenes')
-
             if xmlScnList is not None:
                 xmlChapter.remove(xmlScnList)
 
             if prjChp.srtScenes:
-                xmlScnList = ET.Element('Scenes')
-                xmlChapter.insert(i, xmlScnList)
+                xmlScnList = ET.SubElement(xmlChapter, 'Scenes')
                 for scId in prjChp.srtScenes:
                     ET.SubElement(xmlScnList, 'ScID').text = scId
 
-        def build_location_subtree(xmlLoc, prjLoc, sortOrder):
+        def build_location_subtree(xmlLoc, prjLoc):
             if prjLoc.title is not None:
                 ET.SubElement(xmlLoc, 'Title').text = prjLoc.title
 
@@ -1228,8 +1246,6 @@ class Yw7File(File):
 
             if prjLoc.tags is not None:
                 ET.SubElement(xmlLoc, 'Tags').text = list_to_string(prjLoc.tags)
-
-            ET.SubElement(xmlLoc, 'SortOrder').text = str(sortOrder)
 
             xmlLocationFields = xmlLoc.find('Fields')
             for field in self.LOC_KWVAR:
@@ -1246,15 +1262,17 @@ class Yw7File(File):
                         xmlLocationFields.remove(xmlLocationFields.find(field))
                     except:
                         pass
+            try:
+                xmlLoc.remove(xmlLoc.find('SortOrder'))
+            except:
+                pass
 
-        def build_prjNote_subtree(xmlProjectnote, projectNote, sortOrder):
+        def build_prjNote_subtree(xmlProjectnote, projectNote):
             if projectNote.title is not None:
                 ET.SubElement(xmlProjectnote, 'Title').text = projectNote.title
 
             if projectNote.desc is not None:
                 ET.SubElement(xmlProjectnote, 'Desc').text = projectNote.desc
-
-            ET.SubElement(xmlProjectnote, 'SortOrder').text = str(sortOrder)
 
         def add_projectvariable(title, desc, tags):
             pvId = create_id(prjVars)
@@ -1265,7 +1283,7 @@ class Yw7File(File):
             ET.SubElement(xmlProjectvar, 'Desc').text = desc
             ET.SubElement(xmlProjectvar, 'Tags').text = tags
 
-        def build_item_subtree(xmlItm, prjItm, sortOrder):
+        def build_item_subtree(xmlItm, prjItm):
             if prjItm.title is not None:
                 ET.SubElement(xmlItm, 'Title').text = prjItm.title
 
@@ -1280,8 +1298,6 @@ class Yw7File(File):
 
             if prjItm.tags is not None:
                 ET.SubElement(xmlItm, 'Tags').text = list_to_string(prjItm.tags)
-
-            ET.SubElement(xmlItm, 'SortOrder').text = str(sortOrder)
 
             xmlItemFields = xmlItm.find('Fields')
             for field in self.ITM_KWVAR:
@@ -1298,8 +1314,12 @@ class Yw7File(File):
                         xmlItemFields.remove(xmlItemFields.find(field))
                     except:
                         pass
+            try:
+                xmlItm.remove(xmlItm.find('SortOrder'))
+            except:
+                pass
 
-        def build_character_subtree(xmlCrt, prjCrt, sortOrder):
+        def build_character_subtree(xmlCrt, prjCrt):
             if prjCrt.title is not None:
                 ET.SubElement(xmlCrt, 'Title').text = prjCrt.title
 
@@ -1308,8 +1328,6 @@ class Yw7File(File):
 
             if prjCrt.image is not None:
                 ET.SubElement(xmlCrt, 'ImageFile').text = prjCrt.image
-
-            ET.SubElement(xmlCrt, 'SortOrder').text = str(sortOrder)
 
             if prjCrt.notes is not None:
                 ET.SubElement(xmlCrt, 'Notes').text = prjCrt.notes
@@ -1347,6 +1365,10 @@ class Yw7File(File):
                         xmlCharacterFields.remove(xmlCharacterFields.find(field))
                     except:
                         pass
+            try:
+                xmlCrt.remove(xmlCrt.find('SortOrder'))
+            except:
+                pass
 
         def build_project_subtree(xmlProject):
             VER = '7'
@@ -1435,6 +1457,14 @@ class Yw7File(File):
                         xmlProjectFields.remove(xmlProjectFields.find(field))
                     except:
                         pass
+            try:
+                xmlProject.remove(xmlProject.find('SavedWith'))
+            except:
+                pass
+            try:
+                xmlProject.remove(xmlProject.find('SavedOn'))
+            except:
+                pass
 
         TAG = 'YWRITER7'
         xmlNewScenes = {}
@@ -1465,34 +1495,28 @@ class Yw7File(File):
         for xmlLoc in xmlLocations.findall('LOCATION'):
             xmlLocations.remove(xmlLoc)
 
-        sortOrder = 0
         for lcId in self.novel.srtLocations:
-            sortOrder += 1
             xmlLoc = ET.SubElement(xmlLocations, 'LOCATION')
             ET.SubElement(xmlLoc, 'ID').text = lcId
-            build_location_subtree(xmlLoc, self.novel.locations[lcId], sortOrder)
+            build_location_subtree(xmlLoc, self.novel.locations[lcId])
 
 
         for xmlItm in xmlItems.findall('ITEM'):
             xmlItems.remove(xmlItm)
 
-        sortOrder = 0
         for itId in self.novel.srtItems:
-            sortOrder += 1
             xmlItm = ET.SubElement(xmlItems, 'ITEM')
             ET.SubElement(xmlItm, 'ID').text = itId
-            build_item_subtree(xmlItm, self.novel.items[itId], sortOrder)
+            build_item_subtree(xmlItm, self.novel.items[itId])
 
 
         for xmlCrt in xmlCharacters.findall('CHARACTER'):
             xmlCharacters.remove(xmlCrt)
 
-        sortOrder = 0
         for crId in self.novel.srtCharacters:
-            sortOrder += 1
             xmlCrt = ET.SubElement(xmlCharacters, 'CHARACTER')
             ET.SubElement(xmlCrt, 'ID').text = crId
-            build_character_subtree(xmlCrt, self.novel.characters[crId], sortOrder)
+            build_character_subtree(xmlCrt, self.novel.characters[crId])
 
 
         if xmlProjectnotes is not None:
@@ -1503,12 +1527,10 @@ class Yw7File(File):
         elif self.novel.srtPrjNotes:
             xmlProjectnotes = ET.SubElement(root, 'PROJECTNOTES')
         if self.novel.srtPrjNotes:
-            sortOrder = 0
             for pnId in self.novel.srtPrjNotes:
-                sortOrder += 1
                 xmlProjectnote = ET.SubElement(xmlProjectnotes, 'PROJECTNOTE')
                 ET.SubElement(xmlProjectnote, 'ID').text = pnId
-                build_prjNote_subtree(xmlProjectnote, self.novel.projectNotes[pnId], sortOrder)
+                build_prjNote_subtree(xmlProjectnote, self.novel.projectNotes[pnId])
 
         xmlProjectvars = root.find('PROJECTVARS')
         if self.novel.languages or self.novel.languageCode or self.novel.countryCode:
@@ -1575,23 +1597,31 @@ class Yw7File(File):
             xmlNewChapters[chId] = xmlChapter
             xmlChapters.remove(xmlChapter)
 
-        sortOrder = 0
         for chId in self.novel.srtChapters:
-            sortOrder += 1
             if not chId in xmlNewChapters:
                 xmlNewChapters[chId] = ET.Element('CHAPTER')
                 ET.SubElement(xmlNewChapters[chId], 'ID').text = chId
-            build_chapter_subtree(xmlNewChapters[chId], self.novel.chapters[chId], sortOrder)
+            build_chapter_subtree(xmlNewChapters[chId], self.novel.chapters[chId])
             xmlChapters.append(xmlNewChapters[chId])
 
         for xmlScene in root.find('SCENES'):
             scId = xmlScene.find('ID').text
             if self.novel.scenes[scId].sceneContent is not None:
                 xmlScene.find('SceneContent').text = self.novel.scenes[scId].sceneContent
-                xmlScene.find('WordCount').text = str(self.novel.scenes[scId].wordCount)
-                xmlScene.find('LetterCount').text = str(self.novel.scenes[scId].letterCount)
+            try:
+                xmlScene.remove(xmlScene.find('WordCount'))
+            except:
+                pass
+            try:
+                xmlScene.remove(xmlScene.find('LetterCount'))
+            except:
+                pass
             try:
                 xmlScene.remove(xmlScene.find('RTFFile'))
+            except:
+                pass
+            try:
+                xmlScene.remove(xmlScene.find('BelongsToChID'))
             except:
                 pass
 
@@ -4606,6 +4636,8 @@ class OdtWNotes(OdtWManuscript):
 
     _partTemplate = ''
     _chapterTemplate = ''
+    _chapterEndTemplate = ''
+    _sceneTemplate = ''
 
     _notesPartTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
 <text:h text:style-name="Heading_20_1" text:outline-level="1">$Title</text:h>
@@ -4625,40 +4657,6 @@ class OdtWNotes(OdtWManuscript):
     _notesChapterEndTemplate = '''</text:section>
 '''
 
-    def _get_chapters(self):
-        lines = []
-        if not self._notesChapterEndTemplate:
-            return lines
-
-        chapterNumber = 0
-        sceneNumber = 0
-        wordsTotal = 0
-        lettersTotal = 0
-        for chId in self.novel.srtChapters:
-            dispNumber = 0
-            if not self._chapterFilter.accept(self, chId):
-                continue
-
-            doNotExport = False
-            template = None
-            if self.novel.chapters[chId].chType == 1:
-                if self.novel.chapters[chId].chLevel == 1:
-                    if self._notesPartTemplate:
-                        template = Template(self._notesPartTemplate)
-                elif self._notesChapterTemplate:
-                    template = Template(self._notesChapterTemplate)
-                    chapterNumber += 1
-                    dispNumber = chapterNumber
-                if template is not None:
-                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
-
-                    sceneLines, sceneNumber, wordsTotal, lettersTotal = self._get_scenes(
-                        chId, sceneNumber, wordsTotal, lettersTotal, doNotExport)
-                    lines.extend(sceneLines)
-
-                    template = Template(self._notesChapterEndTemplate)
-                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
-        return lines
 from string import Template
 
 
@@ -4668,6 +4666,8 @@ class OdtWTodo(OdtWManuscript):
 
     _partTemplate = ''
     _chapterTemplate = ''
+    _chapterEndTemplate = ''
+    _sceneTemplate = ''
 
     _todoPartTemplate = '''<text:section text:style-name="Sect1" text:name="ChID:$ID">
 <text:h text:style-name="Heading_20_1" text:outline-level="1">$Title</text:h>
@@ -4687,40 +4687,6 @@ class OdtWTodo(OdtWManuscript):
     _todoChapterEndTemplate = '''</text:section>
 '''
 
-    def _get_chapters(self):
-        lines = []
-        if not self._todoChapterEndTemplate:
-            return lines
-
-        chapterNumber = 0
-        sceneNumber = 0
-        wordsTotal = 0
-        lettersTotal = 0
-        for chId in self.novel.srtChapters:
-            dispNumber = 0
-            if not self._chapterFilter.accept(self, chId):
-                continue
-
-            doNotExport = False
-            template = None
-            if self.novel.chapters[chId].chType == 2:
-                if self.novel.chapters[chId].chLevel == 1:
-                    if self._todoPartTemplate:
-                        template = Template(self._todoPartTemplate)
-                elif self._todoChapterTemplate:
-                    template = Template(self._todoChapterTemplate)
-                    chapterNumber += 1
-                    dispNumber = chapterNumber
-                if template is not None:
-                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
-
-                    sceneLines, sceneNumber, wordsTotal, lettersTotal = self._get_scenes(
-                        chId, sceneNumber, wordsTotal, lettersTotal, doNotExport)
-                    lines.extend(sceneLines)
-
-                    template = Template(self._todoChapterEndTemplate)
-                    lines.append(template.safe_substitute(self._get_chapterMapping(chId, dispNumber)))
-        return lines
 
 
 class OdsWriter(OdfFile):
