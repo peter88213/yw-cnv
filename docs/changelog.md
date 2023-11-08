@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### v1.38.2
+
+- Make sure to keep custom data from other applications when updating .yw7 files.
+
+Based on PyWriter v12.18.0
+
 ### v1.38.1
 
 Fix a bug where normal scenes are written to the "notes" and "todo" export documents, 
