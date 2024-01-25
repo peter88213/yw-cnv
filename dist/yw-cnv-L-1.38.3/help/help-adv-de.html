@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+    <meta charset="utf-8" />
+    <title>yWriter Import/Export Hilfe</title>
+    <style type='text/css'>
+    <!--
+    body {padding: 1em;}
+    h1, h2, h3 {font-family: sans-serif;}
+    h1, h2 {color: green;}
+    h3 {font-style: italic; font-size: 1em;}
+    em, code {color: maroon;}
+    li {margin-top: 0.5em;}
+    -->
+    </style>
+</head>
+<body>
+<p><a href="https://peter88213.github.io/yw-cnv/">Projekt-Homepage</a> &gt; <a href="help-de.html">Haupt-Hilfeseite</a> &gt; Für Fortgeschrittene</p>
+<hr />
+<h1 id="yw7-importexport-für-fortgeschrittene">yw7 Import/Export: für Fortgeschrittene</h1>
+<h2 id="warnung">Warnung!</h2>
+<p>Diese Funktionen sind nur für erfahrene OpenOffice/LibreOffice-Benutzer gedacht. Wenn Sie mit <strong>Calc</strong> und dem Konzept der <strong>Bereiche in Writer</strong> nicht vertraut sind, verwenden Sie die erweiterten Funktionen bitte nicht. Es besteht die Gefahr, dass das Projekt beim Zurückschreiben beschädigt wird, wenn Sie die Bereichsgrenzen in den ODT-Textdokumenten nicht einhalten oder die IDs in den ODS-Tabellen durcheinander bringen. Probieren Sie die Funktionen unbedingt zuerst mit einem Testprojekt aus.</p>
+<h2 id="befehlsreferenz">Befehlsreferenz</h2>
+<ul>
+<li><a href="#manuskript-mit-kapitel--und-szenenbereichen">Manuskript mit Kapitel- und Abschnittsbereichen</a></li>
+<li><a href="#abschnittsbeschreibungen">Abschnittsbeschreibungen</a></li>
+<li><a href="#kapitelbeschreibungen">Kapitelbeschreibungen</a></li>
+<li><a href="#teilebeschreibungen">Teilebeschreibungen</a></li>
+<li><a href="#figurenbeschreibungen">Figurenbeschreibungen</a></li>
+<li><a href="#schauplatzbeschreibungen">Schauplatzbeschreibungen</a></li>
+<li><a href="#gegenstandsbeschreibungen">Gegenstandsbeschreibungen</a></li>
+<li><a href="#abschnittsliste">Abschnittsliste</a></li>
+<li><a href="#notizen-kapitel">Notizen-Kapitel</a></li>
+<li><a href="#planungs-kapitel">Planungs-Kapitel</a></li>
+</ul>
+<hr />
+<h2 id="manuskript-mit-kapitel--und-abschnittsbereichen">Manuskript mit Kapitel- und Abschnittsbereichen</h2>
+<p>Dies lädt yw7-Kapitel und -Abschnitte in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (die im Navigator zu sehen sind). Das Suffix des Dateinamens ist <code>_manuscript</code>.</p>
+<ul>
+<li>Es werden nur "normale" Kapitel und Abschnitte importiert. Kapitel und Abschnitte, die als "unbenutzt", "ToDo" oder "Notizen" gekennzeichnet sind, werden nicht importiert.</li>
+<li>Die Titel von Teilen erscheinen als Überschriften erster Ordnung.</li>
+<li>Die Titel von Kapiteln erscheinen als Überschriften zweiter Ordnung.</li>
+<li>Die Titel von Abschnitten erscheinen im Navigator als Einträge dritter Ordnung. Die Überschriften selbst sind unsichtbar.</li>
+<li>Abschnitte, die mit <code>&lt;HTML&gt;</code> oder <code>&lt;TEX&gt;</code> beginnen, werden nicht importiert.</li>
+<li>Kommentare im Text, die mit Schrägstrichen und Sternchen eingeklammert sind (z.B. <code>/* dies ist ein Kommentar */</code>), werden in Autorenkommentare umgewandelt.</li>
+<li>Eingestreute HTML-, TEX- oder RTF-Befehle werden unverändert übernommen.</li>
+<li>Gobal- und Projektvariablen werden nicht aufgelöst.</li>
+<li>Kapitel und Abschnitte können weder neu geordnet noch gelöscht werden.</li>
+<li>Sie können Abschnitte durch Einfügen von Überschriften oder einem Abschnittstrenner aufteilen:
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><em>Überschrift 2</em> → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><code>###</code> → Abschnittstrenner. Optional können Sie den Abschnittstitel an den Abschnittstrenner anhängen. Sie können auch eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><strong>Hinweis:</strong> Exportieren Sie Dokumente mit aufgeteilten Abschnitten nicht mehrmals zu yw7.</li>
+</ul></li>
+<li>Absätze, die mit <code>&gt;</code> beginnen, werden als Zitate formatiert.</li>
+</ul>
+<p>Mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> können Sie den Abschnittsinhalt und die Kapitel-/Abschnittsüberschriften in die yw7 Projektdatei zurückschreiben.</p>
+<ul>
+<li>Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, wenn sie von <code>~</code> umgeben sind.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="abschnittsbeschreibungen">Abschnittsbeschreibungen</h2>
+<p>Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine <strong>vollständige Zusammenfassung</strong> mit Kapitelüberschriften und Abschnittsbeschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist <code>_scenes</code>.</p>
+<p>Sie können die Abschnittsbeschreibungen und die Kapitel-/Teilüberschriften mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> in die yw7 Projektdatei zurückschreiben. Kommentare direkt am Anfang der Abschnittsbeschreibungen werden als Abschnittstitel zurückgeschrieben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="kapitelbeschreibungen">Kapitelbeschreibungen</h2>
+<p>Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine <strong>Kurzzusammenfassung</strong> mit Kapitelüberschriften und -beschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist <code>_chapters</code>.</p>
+<p><strong>Anmerkung:</strong> Gilt nicht für Kapitel, die in yw7 mit <code>Dieses Kapitel beginnt einen neuen Abschnitt</code> gekennzeichnet sind.</p>
+<p>Sie können die Überschriften und Beschreibungen mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> in die yw7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="teilebeschreibungen">Teilebeschreibungen</h2>
+<p>Dies erzeugt ein neues OpenDocument-Textdokument (odt), das eine <strong>sehr kurze Zusammenfassung</strong> mit Teiltiteln und Teilbeschreibungen enthält, die bearbeitet und in das yw7-Format zurückgeschrieben werden können. Die Endung des Dateinamens ist <code>_parts</code>.</p>
+<p><strong>Hinweis:</strong> Gilt nur für Kapitel, die in yw7 mit <code>Dieses Kapitel beginnt einen neuen Abschnitt</code> gekennzeichnet sind.</p>
+<p>Sie können die Überschriften und Beschreibungen mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> in die yw7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="figurenbeschreibungen">Figurenbeschreibungen</h2>
+<p>Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Figurenbeschreibungen, Lebenslauf, Zielen und Notizen, das in Office Writer bearbeitet und in das yw7-Format zurückgeschrieben werden kann. Das Suffix des Dateinamens ist <code>_characters</code>.</p>
+<p>Sie können die Beschreibungen mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> in die yw7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="schauplatzbeschreibungen">Schauplatzbeschreibungen</h2>
+<p>Dies erzeugt ein neues OpenDocument Textdokument (odt) mit Schauplatzbeschreibungen, die in Office Writer bearbeitet und in das yw7-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist <code>_locations</code>.</p>
+<p>Sie können die Beschreibungen mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> in die yw7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="gegenstandsbeschreibungen">Gegenstandsbeschreibungen</h2>
+<p>Dies erzeugt ein neues OpenDocument-Textdokument (odt) mit Gegenstandsbeschreibungen, die in Office Writer bearbeitet und in das yw7-Format zurückgeschrieben werden können. Das Suffix des Dateinamens ist <code>_items</code>.</p>
+<p>Sie können die Beschreibungen mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> in die yw7 Projektdatei zurückschreiben.</p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="abschnittsliste">Abschnittsliste</h2>
+<p>Dies erzeugt ein neues OpenDocument Tabellenblatt (ods), das Folgendes enthält:</p>
+<ul>
+<li>Hyperlink zum Abschnittsbereich des Manuskripts</li>
+<li>Abschnittstitel</li>
+<li>Abschnittsbeschreibung</li>
+<li>Tags</li>
+<li>Abschnitts-Notizen</li>
+<li>A/R</li>
+<li>Ziel</li>
+<li>Konflikt</li>
+<li>Ausgang</li>
+<li>Aufeinanderfolgende Abschnittsnummern</li>
+<li>Gesamtwortzahl</li>
+<li>Bewertung 1</li>
+<li>Bewertung 2</li>
+<li>Bewertung 3</li>
+<li>Bewertung 4</li>
+<li>Wortzahl</li>
+<li>Zeichenzahl</li>
+<li>Status</li>
+<li>Figuren</li>
+<li>Schauplätze</li>
+<li>Gegenstände</li>
+</ul>
+<p>Nur "normale" Abschnitte, die in <em>yWriter</em> als RTF exportiert werden würden, erhalten eine Zeile in der Abschnittsliste. Abschnitte vom Typ "Unused", "Notes" oder "ToDo" werden ausgelassen.</p>
+<p>Das Suffix des Dateinamens ist <code>_scenelist</code>.</p>
+<p>Sie können den Tabelleninhalt mit dem Befehl <a href="help-de.html#zu-yw7-exportieren">Zu yw7 exportieren</a> in die yw7 Projektdatei zurückschreiben.</p>
+<p>Die folgenden Spalten können in das yw7-Projekt zurückgeschrieben werden:</p>
+<ul>
+<li>Title</li>
+<li>Beschreibung</li>
+<li>Tags (durch Kommas getrennt)</li>
+<li>Abschnitts-Notizen</li>
+<li>A/R (action/reaction scene)</li>
+<li>Ziel</li>
+<li>Konflikt</li>
+<li>Ausgang</li>
+<li>Bewertung 1</li>
+<li>Bewertung 2</li>
+<li>Bewertung 3</li>
+<li>Bewertung 4</li>
+<li>Status ('Gliederung', 'Entwurf', '1. Überarbeitung', '2. Überarbeitung', 'Fertig')</li>
+</ul>
+<p><em>Hinweis: In der Tabelle erscheinen die Spaltentitel in englischer Sprache. Das ist für das Zurückschreiben ins yw7-Format notwendig.</em></p>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="notizen-kapitel">Notizen-Kapitel</h2>
+<p>Dies schreibt yw7 "Notizen"-Kapitel mit untergeordneten Abschnitten in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (zu sehen im Navigator). Das Suffix des Dateinamens ist <code>_notes</code>.</p>
+<ul>
+<li>Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, wenn sie von <code>~</code> umgeben sind.</li>
+<li>Kapitel und Abschnitte können weder umgeordnet noch gelöscht werden.</li>
+<li>Sie können Abschnitte durch Einfügen von Überschriften oder einem Abschnittstrenner aufteilen:
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><em>Überschrift 2</em> → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><code>###</code> → Abschnittstrenner. Optional können Sie den Abschnittstitel an den Abschnittstrenner anhängen. Sie können auch eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><strong>Hinweis:</strong> Exportieren Sie Dokumente mit aufgeteilten Abschnitten nicht mehrmals zu yw7.</li>
+</ul></li>
+<li>Absätze, die mit <code>&gt;</code> beginnen, werden als Zitate formatiert.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+<h2 id="planungs-kapitel">Planungs-Kapitel</h2>
+<p>Dies schreibt yw7 "Todo"-Kapitel mit untergeordneten Abschnitten in ein neues OpenDocument-Textdokument (odt) mit unsichtbaren Kapitel- und Abschnittsbereichen (die im Navigator zu sehen sind). Die Dateinamenserweiterung ist <code>_todo</code>.</p>
+<ul>
+<li>Kommentare innerhalb von Abschnitten werden als Abschnittstitel zurückgeschrieben, wenn sie von <code>~</code> umgeben sind.</li>
+<li>Kapitel und Abschnitte können weder umgeordnet noch gelöscht werden.</li>
+<li>Sie können Abschnitte durch Einfügen von Überschriften oder einem Abschnittstrenner aufteilen:
+<ul>
+<li><em>Überschrift 1</em> → Neue Kapitelüberschrift (Beginn eines neuen Abschnitts). Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><em>Überschrift 2</em> → Neue Kapitelüberschrift. Sie können eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><code>###</code> → Abschnittstrenner. Optional können Sie den Abschnittstitel an den Abschnittstrenner anhängen. Sie können auch eine Beschreibung anfügen, durch <code>|</code> getrennt.</li>
+<li><strong>Hinweis:</strong> Exportieren Sie Dokumente mit aufgeteilten Abschnitten nicht mehrmals zu yw7.</li>
+</ul></li>
+<li>Absätze, die mit <code>&gt;</code> beginnen, werden als Zitate formatiert.</li>
+</ul>
+<p><a href="#top">Zum Seitenbeginn</a></p>
+<hr />
+</body>
+</html>
