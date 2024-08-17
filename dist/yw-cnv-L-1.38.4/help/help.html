@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang xml:lang>
+<head>
+    <meta charset="utf-8" />
+    <title>yWriter import/export help</title>
+    <style type='text/css'>
+    <!--
+    body {padding: 1em;}
+    h1, h2, h3 {font-family: sans-serif;}
+    h1, h2 {color: green;}
+    h3 {font-style: italic; font-size: 1em;}
+    em, code {color: maroon;}
+    li {margin-top: 0.5em;}
+    -->
+    </style>
+</head>
+<body>
+<p><a href="https://peter88213.github.io/yw-cnv/">Project home page</a>
+&gt; Main help page</p>
+<hr />
+<h1 id="yw7-importexport">yw7 import/export</h1>
+<h2 id="command-reference">Command reference</h2>
+<h3 id="files-menu">"Files" menu</h3>
+<ul>
+<li><a href="#export-to-yw7">Export to yw7</a></li>
+<li><a href="#import-from-yw7">Import from yw7</a></li>
+<li><a href="#import-from-yw7-for-proof-reading">Import from yw7 for
+proof reading</a></li>
+<li><a href="#brief-synopsis">Brief synopsis</a></li>
+<li><a href="#character-list">Character list</a></li>
+<li><a href="#location-list">Location list</a></li>
+<li><a href="#item-list">Item list</a></li>
+<li><a href="#cross-reference">Cross reference</a></li>
+<li><a href="help-adv.html">Advanced features</a></li>
+</ul>
+<h3 id="format-menu">"Format" menu</h3>
+<ul>
+<li><a href="#replace-scene-dividers-with-blank-lines">Replace scene
+dividers with blank lines</a></li>
+<li><a href="#indent-paragraphs-that-start-with">Indent paragraphs that
+start with '&gt; '</a></li>
+<li><a href="#replace-list-strokes-with-bullets">Replace list strokes
+with bullets</a></li>
+</ul>
+<hr />
+<h2 id="general">General</h2>
+<h3 id="about-formatting-text">About formatting text</h3>
+<p>It is assumed that very few types of text markup are needed for a
+fictional text:</p>
+<ul>
+<li><em>Emphasized</em> (usually shown as italics).</li>
+<li><em>Strongly emphasized</em> (usually shown as capitalized).</li>
+<li><em>Citation</em> (paragraph visually distinguished from body
+text).</li>
+</ul>
+<p>When importing from yw7 format, the converter replaces these
+formattings as follows:</p>
+<ul>
+<li>Text with <em>italics</em> in yw7 is formatted as
+<em>Emphasized</em>.</li>
+<li><em>Bold</em> text in yw7 is formatted as <em>Strongly
+emphasized</em>.</li>
+<li>Paragraphs starting with <code>"&gt; "</code> in yw7, are formatted
+as <em>Quote</em>.</li>
+</ul>
+<p>When exporting to yw7 format, the reverse is the case.</p>
+<h3 id="about-document-language-handling">About document language
+handling</h3>
+<p>ODF documents are generally assigned a language that determines spell
+checking and country-specific character substitutions. In addition,
+Office Writer lets you assign text passages to languages other than the
+document language to mark foreign language usage or to suspend spell
+checking.</p>
+<h4 id="document-overall">Document overall</h4>
+<ul>
+<li><p>If a document language (Language code acc. to ISO 639-1 and
+country code acc. to ISO 3166-2) is detected in the source document
+during conversion to yw7 format, these codes are set as yw7 project
+variables.</p></li>
+<li><p>If language code and country code exist as project variables
+during conversion from yw7 format, they are inserted into the generated
+ODF document.</p></li>
+<li><p>If no language and country code exist as project variables when
+converting from yw7 format, language and country code from the operating
+system settings are entered into the generated ODF document.</p></li>
+<li><p>The language and country codes are checked superficially. If they
+obviously do not comply with the ISO standards, they are replaced by the
+values for "No language". These are:</p>
+<ul>
+<li>Language = zxx</li>
+<li>Country = none</li>
+</ul></li>
+</ul>
+<h4 id="text-passages-in-scenes">Text passages in scenes</h4>
+<p>If text markups for other languages are detected during conversion to
+the yw7 format, they are converted and transferred to the yw7 scene.</p>
+<p>This then looks like this, for example:</p>
+<p><code>xxx xxxx [lang=en-AU]yyy yyyy yyyy[/lang=en-AU] xxx xxx</code></p>
+<p>To prevent these text markups from interfering with <em>yWriter</em>,
+they are automatically set as project variables in such a way that
+<em>yWriter</em> interprets them as HTML instructions during document
+export.</p>
+<p>For the example shown above, the project variable definition for the
+opening tag looks like this:</p>
+<ul>
+<li><em>Variable Name:</em> <code>lang=en-AU</code></li>
+<li><em>Value/Text:</em>
+<code>&lt;HTM &lt;SPAN LANG="en-AU"&gt; /HTM&gt;</code></li>
+</ul>
+<p>The point of this is that such language assignments are preserved
+even after multiple conversions in both directions, so they are always
+effective for spell checking in the ODT document.</p>
+<p>It is recommended not to modify such markups in <em>yWriter</em> to
+avoid unwanted nesting and broken enclosing.</p>
+<h2 id="howto">HowTo</h2>
+<h2 id="how-to-set-up-a-work-in-progress-for-export">How to set up a
+work in progress for export</h2>
+<p>A work in progress has no third level heading.</p>
+<ul>
+<li><em>Heading 1</em> → New chapter title (beginning a new
+section).</li>
+<li><em>Heading 2</em> → New chapter title.</li>
+<li><code>* * *</code> → Scene divider (not needed for the first scenes
+in a chapter).</li>
+<li>Comments right at the scene beginning are considered scene
+titles.</li>
+<li>All other text is considered scene content.</li>
+</ul>
+<h2 id="how-to-set-up-an-outline-for-export">How to set up an outline
+for export</h2>
+<p>An outline has at least one third level heading.</p>
+<ul>
+<li><em>Heading 1</em> → New chapter title (beginning a new
+section).</li>
+<li><em>Heading 2</em> → New chapter title.</li>
+<li><em>Heading 3</em> → New scene title.</li>
+<li>All other text is considered to be chapter/scene description.</li>
+</ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="export-to-yw7">Export to yw7</h2>
+<p>This writes back the document's content to the yw7 project file.</p>
+<ul>
+<li>Make sure not to change a generated document's file name before
+writing back to yw7 format.</li>
+<li>The yw7 project to rewrite must exist in the same folder as the
+document.</li>
+<li>If the document's file name has no suffix, the document is
+considered a <a href="#how-to-set-up-a-work-in-progress-for-export">Work
+in progress</a> or an <a
+href="#how-to-set-up-an-outline-for-export">Outline</a> to be exported
+into a newly created yw7 project. <strong>Note:</strong> Existing yw7
+projects will not be overwritten.</li>
+</ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="import-from-yw7">Import from yw7</h2>
+<p>This will write yw7 chapters and scenes into a new OpenDocument text
+document (odt).</p>
+<ul>
+<li>The document is placed in the same folder as the yw7 project.</li>
+<li>Document's <strong>filename</strong>:
+<code>&lt;yW project name&gt;.odt</code>.</li>
+<li>Text markup: Bold and italics are supported. Other highlighting such
+as underline and strikethrough are lost.</li>
+<li>Only "normal" chapters and scenes are imported. Chapters and scenes
+marked "unused", "todo" or "notes" are not imported.</li>
+<li>Only scenes that are intended for RTF export in <em>yWriter</em>
+will be imported.</li>
+<li>Scenes beginning with <code>&lt;HTML&gt;</code> or
+<code>&lt;TEX&gt;</code> are not imported.</li>
+<li>Comments in the text bracketed with slashes and asterisks (like
+<code>/* this is a comment */</code>) are converted to author's
+comments.</li>
+<li>yw7 comments with special marks (like
+<code>/*@en this is an endnote. */</code>) are converted into footnotes
+or endnotes. Markup:
+<ul>
+<li><code>@fn*</code> -- simple footnote, marked with an astersik</li>
+<li><code>@fn</code> -- numbered footnote</li>
+<li><code>@en</code> -- numbered endnote<br />
+</li>
+</ul></li>
+<li>Interspersed HTML, TEX, or RTF commands are removed.</li>
+<li>Gobal variables and project variables are not resolved.</li>
+<li>Chapter titles appear as first level heading if the chapter is
+marked as beginning of a new section in yw7. Such headings are
+considered as "part" headings.</li>
+<li>Chapter titles appear as second level heading if the chapter is not
+marked as beginning of a new section. Such headings are considered as
+"chapter" headings.</li>
+<li>Scene titles appear as navigable comments pinned to the beginning of
+the scene.</li>
+<li>Scenes are separated by <code>* * *</code>. The first line is not
+indented. You can replace the scene separators by blank lines with the
+menu command <strong>Format &gt; Replace scene dividers with blank
+lines</strong>.</li>
+<li>Starting from the second paragraph, paragraphs begin with
+indentation of the first line.</li>
+<li>Scenes marked "attach to previous scene" in yw7 appear like
+continuous paragraphs.</li>
+<li>Paragraphs starting with <code>&gt;</code> are formatted as
+quotations.</li>
+</ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="import-from-yw7-for-proof-reading">Import from yw7 for proof
+reading</h2>
+<p>This will write yw7 chapters and scenes into a new OpenDocument text
+document (odt) with visible scene markers. File name suffix is
+<code>_proof</code>.</p>
+<ul>
+<li>Only "normal" chapters and scenes are exported. Chapters and scenes
+marked "unused", "todo" or "notes" are not exported.</li>
+<li>Scenes beginning with <code>&lt;HTML&gt;</code> or
+<code>&lt;TEX&gt;</code> are not exported.</li>
+<li>Interspersed HTML, TEX, or RTF commands are taken over
+unchanged.</li>
+<li>The document contains scene <code>[ScID:x]</code> markers.
+<strong>Do not touch lines containing the markers</strong> if you want
+to be able to write the document back to <em>yw7</em> format.</li>
+<li>Chapters and scenes can neither be rearranged nor deleted.</li>
+<li>With <em>OpenOffice/LibreOffice Writer</em>, you can split scenes by
+inserting headings or a scene divider:
+<ul>
+<li><em>Heading 1</em> → New part title. Optionally, you can add a
+description, separated by <code>|</code>.</li>
+<li><em>Heading 2</em> → New chapter title. Optionally, you can add a
+description, separated by <code>|</code>.</li>
+<li><code>###</code> → Scene divider. Optionally, you can append the
+scene title to the scene divider. You can also add a description,
+separated by <code>|</code>.</li>
+<li><strong>Note:</strong> Export documents with split scenes from
+<em>Writer</em> to yw7 not more than once.<br />
+</li>
+</ul></li>
+<li>Text markup: Bold and italics are supported. Other highlighting such
+as underline and strikethrough are lost.</li>
+</ul>
+<p>You can write back the scene contents to the yw7 project file with
+the <a href="#export-to-yw7">Export to yw7</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="brief-synopsis">Brief synopsis</h2>
+<p>This will write a brief synopsis with chapter and scenes titles into
+a new OpenDocument text document. File name suffix is
+<code>_brf_synopsis</code>.</p>
+<ul>
+<li>Only scenes that are intended for RTF export in <em>yWriter</em>
+will be imported.</li>
+<li>Titles of scenes beginning with <code>&lt;HTML&gt;</code> or
+<code>&lt;TEX&gt;</code> are not imported.</li>
+<li>Chapter titles appear as first level heading if the chapter is
+marked as beginning of a new section in yw7. Such headings are
+considered as "part" headings.</li>
+<li>Chapter titles appear as second level heading if the chapter is not
+marked as beginning of a new section. Such headings are considered as
+"chapter" headings.</li>
+<li>Scene titles appear as plain paragraphs.</li>
+</ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="character-list">Character list</h2>
+<p>This will generate a new OpenDocument spreadsheet (ods) containing a
+character list that can be edited in Office Calc and written back to yw7
+format. File name suffix is <code>_charlist</code>.</p>
+<p>You may change the sort order of the rows. You may also add or remove
+rows. New entities must get a unique ID.</p>
+<p>You can write back the edited table to the yw7 project file with the
+<a href="#export-to-yw7">Export to yw7</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="location-list">Location list</h2>
+<p>This will generate a new OpenDocument spreadsheet (ods) containing a
+location list that can be edited in Office Calc and written back to yw7
+format. File name suffix is <code>_loclist</code>.</p>
+<p>You may change the sort order of the rows. You may also add or remove
+rows. New entities must get a unique ID.</p>
+<p>You can write back the edited table to the yw7 project file with the
+<a href="#export-to-yw7">Export to yw7</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="item-list">Item list</h2>
+<p>This will generate a new OpenDocument spreadsheet (ods) containing an
+item list that can be edited in Office Calc and written back to yw7
+format. File name suffix is <code>_itemlist</code>.</p>
+<p>You may change the sort order of the rows. You may also add or remove
+rows. New entities must get a unique ID.</p>
+<p>You can write back the edited table to the yw7 project file with the
+<a href="#export-to-yw7">Export to yw7</a> command.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="cross-reference">Cross reference</h2>
+<p>This will generate a new OpenDocument text document (odt) containing
+navigable cross references. File name suffix is <code>_xref</code>. The
+cross references are:</p>
+<ul>
+<li>Scenes per character,</li>
+<li>scenes per location,</li>
+<li>scenes per item,</li>
+<li>scenes per tag,</li>
+<li>characters per tag,</li>
+<li>locations per tag,</li>
+<li>items per tag.</li>
+</ul>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="replace-scene-dividers-with-blank-lines">Replace scene dividers
+with blank lines</h2>
+<p>This will replace the three-line "* * *" scene dividers with single
+blank lines. The style of the scene-dividing lines will be changed from
+<em>Heading 4</em> to <em>Heading 5</em>.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="indent-paragraphs-that-start-with">Indent paragraphs that start
+with '&gt; '</h2>
+<p>This will select all paragraphs that start with "&gt; " and change
+their paragraph style to <em>Quotations</em>.</p>
+<p>Note: When exporting to yw7, <em>Quotations</em> style paragraphs
+will automatically marked with "&gt; " at the beginning.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+<h2 id="replace-list-strokes-with-bullets">Replace list strokes with
+bullets</h2>
+<p>This will select all paragraphs that start with "- " and apply a list
+paragraph style.</p>
+<p>Note: When exporting to yw7, Lists will automatically marked with "-
+" list strokes.</p>
+<p><a href="#top">Top of page</a></p>
+<hr />
+</body>
+</html>
