@@ -8,7 +8,7 @@
 
 - Refactor for future Python versions.
 
-Based on PyWriter version ersion 12.19.4
+Based on PyWriter version 12.19.4
 
 ### Version 1.38.3
 
