@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.38.4
+Version 1.38.5
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -694,7 +694,7 @@ def create_id(elements):
 
 def indent(elem, level=0):
     i = f'\n{level * "  "}'
-    if elem:
+    if len(elem):
         if not elem.text or not elem.text.strip():
             elem.text = f'{i}  '
         if not elem.tail or not elem.tail.strip():
