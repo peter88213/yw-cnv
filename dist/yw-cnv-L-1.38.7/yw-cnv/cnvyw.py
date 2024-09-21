@@ -1,6 +1,6 @@
 """Convert yw7 to odt/ods, or html/csv to yw7. 
 
-Version 1.38.6
+Version 1.38.7
 Requires Python 3.6+
 Copyright (c) 2023 Peter Triesberger
 For further information see https://github.com/peter88213/yw-cnv
@@ -2589,6 +2589,7 @@ class OdtRImport(OdtRFormatted):
         super().__init__(filePath)
         self._chCount = 0
         self._scCount = 0
+        self._heading = False
 
     def handle_comment(self, data):
         if self._scId is not None:
@@ -2621,17 +2622,18 @@ class OdtRImport(OdtRFormatted):
                     self.novel.scenes[self._scId].status = 1
                 else:
                     self.novel.scenes[self._scId].status = 2
-        elif tag == 'em':
+        elif tag == 'em' and not self._heading:
             self._lines.append('[/i]')
-        elif tag == 'strong':
+        elif tag == 'strong' and not self._heading:
             self._lines.append('[/b]')
-        elif tag == 'lang':
+        elif tag == 'lang' and not self._heading:
             if self._language:
                 self._lines.append(f'[/lang={self._language}]')
                 self._language = ''
         elif tag in ('h1', 'h2'):
             self.novel.chapters[self._chId].title = ''.join(self._lines)
             self._lines = []
+            self._heading = False
         elif tag == 'title':
             self.novel.title = ''.join(self._lines)
 
@@ -2654,11 +2656,11 @@ class OdtRImport(OdtRFormatted):
                     self._lines.append(f'[lang={self._language}]')
             except:
                 pass
-        elif tag == 'em':
+        elif tag == 'em' and not self._heading:
             self._lines.append('[i]')
-        elif tag == 'strong':
+        elif tag == 'strong' and not self._heading:
             self._lines.append('[b]')
-        elif tag == 'lang':
+        elif tag == 'lang' and not self._heading:
             if attrs[0][0] == 'lang':
                 self._language = attrs[0][1]
                 if not self._language in self.novel.languages:
@@ -2677,6 +2679,7 @@ class OdtRImport(OdtRFormatted):
                 self.novel.chapters[self._chId].chLevel = 1
             else:
                 self.novel.chapters[self._chId].chLevel = 0
+            self._heading = True
         elif tag == 'div':
             self._scId = None
             self._chId = None
