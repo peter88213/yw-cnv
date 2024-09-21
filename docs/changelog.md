@@ -4,6 +4,12 @@
 
 ## Changelog
 
+### Version 1.38.7
+
+- Stripping formatting of headings. 
+
+Based on PyWriter 12.19.7
+
 ### Version 1.38.6
 
 - Strip illegal characters before parsing yw7 input.
